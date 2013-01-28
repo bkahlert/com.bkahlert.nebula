@@ -1,0 +1,163 @@
+@import url("timeline.custom.css");
+
+/*
+ * Meta
+ */
+.timeline-meta {
+	position: absolute;
+	border-top: 1px solid #333;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	padding: 4;
+	z-index: 10000;
+	background-color: #666;
+	height: 20px;
+}
+
+.timeline-meta > div {
+	display: block;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-moz-background-clip: padding;
+	-webkit-background-clip: padding-box;
+	background-clip: padding-box;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-moz-background-clip: padding;
+	-webkit-background-clip: padding-box;
+	background-clip: padding-box;
+	background-color: #dddddd;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#dddddd), to(#aaaaaa));
+	background-image: -webkit-linear-gradient(top, #dddddd, #aaaaaa);
+	background-image:    -moz-linear-gradient(top, #dddddd, #aaaaaa);
+	background-image:     -ms-linear-gradient(top, #dddddd, #aaaaaa);
+	background-image:      -o-linear-gradient(top, #dddddd, #aaaaaa);
+	background-image:         linear-gradient(top, #dddddd, #aaaaaa);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#dddddd', EndColorStr='#aaaaaa');
+	text-shadow: 0px 1px 1px #fff;
+	
+	padding: 2px 5px;
+	z-index: 10000;
+	font-weight: bold;
+}
+
+.timeline-meta .title,
+.timeline-meta .current-date {
+	float: left;
+	margin-bottom: 3em; /* makes the copyright float benath the other meta data if not enough space is available */
+}
+
+.timeline-meta .current-date {
+	margin-left: 5px;
+}
+
+.timeline-meta .copyright {
+	float: right;
+}
+
+.timeline-meta .copyright a {
+	border: none;
+}
+
+
+
+/*
+ * Container
+ */
+.timeline-container {
+	position: absolute !important;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 29px;
+}
+
+.timeline-container > img.timeline-copyright {
+	display: none !important;
+}
+
+
+
+/*
+ * Band Colors
+ */
+
+html .timeline-band:nth-last-child(10) .timeline-ether-bg {
+	background-color: #ddd;
+}
+html .timeline-band:nth-last-child(10) .timeline-date-label {
+	color: #333;
+}
+html .timeline-band:nth-last-child(8) .timeline-ether-bg {
+	background-color: #ccc;
+}
+html .timeline-band:nth-last-child(8) .timeline-date-label {
+	color: #333;
+}
+html .timeline-band:nth-last-child(6) .timeline-ether-bg {
+	background-color: #bbb;
+}
+html .timeline-band:nth-last-child(6) .timeline-date-label {
+	color: #333;
+}
+html .timeline-band:nth-last-child(4) .timeline-ether-bg {
+	background-color: #aaa;
+}
+html .timeline-band:nth-last-child(4) .timeline-date-label {
+	color: #333;
+}
+html .timeline-band:nth-last-child(2) .timeline-ether-bg {
+	background-color: #999;
+}
+html .timeline-band:nth-last-child(2) .timeline-date-label {
+	color: #333;
+}
+
+/*
+ * Highlight
+ */
+html .timeline-highlight-data {
+	background-color: #4B83B3;
+	opacity: 0.2;
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+	filter: alpha(opacity=20);
+}
+
+html .timeline-highlight-custom {
+	background-color: #D8FF26;
+	opacity: 0.4;
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=40)";
+	filter: alpha(opacity=40);
+}
+
+/*
+ * Band Icons and Images
+ */
+div.timeline-event-icon-default {
+	border: none;
+	padding: 0px;
+}
+html div.timeline-event-icon {
+	border: 1px solid #aaa;
+	padding: 1px;
+	background: white;
+	
+	width: 38px;
+	height: 20px;
+	overflow: hidden;
+}
+html div.timeline-event-icon img {
+	width: 38px;
+}
+
+/*
+ * Labels
+ */
+.timeline-band-1 .label_timeline-highlight-data,
+.timeline-band-2 .label_timeline-highlight-data,
+.timeline-band-3 .label_timeline-highlight-data {
+	display: none;
+}

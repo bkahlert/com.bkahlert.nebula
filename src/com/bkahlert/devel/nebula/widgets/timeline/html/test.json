@@ -1,0 +1,256 @@
+{
+	"options": {
+		"title": "ID: 20xjp6c6gjzthtye",
+		"show_bubble": "sua_doclog_click",
+		"decorators": [
+			{
+				"startDate": "2011-09-13T00:29:06-05:00",
+				"endDate": "2011-09-14T09:09:56-05:00",
+				"startLabel": "SeqAn Workshop '11",
+				"endLabel": "SeqAn Workshop '11"
+			}
+		],
+		"show_bubble_field": "image",
+		"hotZones": [
+			{
+				"start": "2011-09-13T10:00:00+02:00",
+				"end": "2011-09-15T18:00:00+02:00"
+			}
+		],
+		"timeZone": -5,
+		"centerStart": "2011-09-13T00:28:56-05:00"
+	},
+	"bands": [
+		{
+			"options": {
+				"title": "Codes",
+				"width": 26
+			},
+			"events": [
+				{
+					"title": "READY - trac.mi....seqan/wiki/Tutorial",
+					"icon": null,
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-29-06-05%3A00%09ready%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%09188.103.109.198%09-%090%090%091349%09578",
+					"start": "2011-09-13T00:29:06-05:00",
+					"end": "2011-09-13T00:31:36-05:00",
+					"durationEvent": true,
+					"classname": "CodeInstance",
+					"color": "red",
+					"textColor": "green"
+				}, {
+					"title": "READY - trac.mi....rial/GettingStarted",
+					"icon": null,
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-29-11-05%3A00%09ready%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%090%091349%09578",
+					"start": "2011-09-13T00:30:36-05:00",
+					"end": "2011-09-13T00:32:36-05:00",
+					"durationEvent": true,
+					"classname": "CodeInstance",
+					"color": "red",
+					"textColor": "green"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": null,
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-29-36-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%094769%091349%09578",
+					"start": "2011-09-13T00:32:48-05:00",
+					"end": "2011-09-13T00:34:37-05:00",
+					"durationEvent": true,
+					"classname": "CodeInstance",
+					"color": "red",
+					"textColor": "green"
+				}
+			]
+		}, {
+			"options": {
+				"title": "Diff",
+				"width": 26
+			},
+			"events": [
+				{
+					"title": "READY - trac.mi....seqan/wiki/Tutorial",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial-1349,578-0,0.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-29-06-05%3A00%09ready%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%09188.103.109.198%09-%090%090%091349%09578",
+					"start": "2011-09-13T00:29:06-05:00",
+					"end": "2011-09-13T00:29:09-05:00",
+					"durationEvent": true,
+					"classname": "DiffRecord"
+				}, {
+					"title": "READY - trac.mi....rial/GettingStarted",
+					"icon": null,
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-29-11-05%3A00%09ready%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%090%091349%09578",
+					"start": "2011-09-13T00:29:11-05:00",
+					"end": "2011-09-13T00:29:35-05:00",
+					"durationEvent": true,
+					"classname": "DiffRecord"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,4769.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-29-36-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%094769%091349%09578",
+					"start": "2011-09-13T00:29:36-05:00",
+					"end": "2011-09-13T00:29:37-05:00",
+					"durationEvent": true,
+					"classname": "DiffRecord"
+				}, {
+					"title": "LINK - trac.mi....rial/GettingStarted<br/>? http://www.cmake.org/",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,4769.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-29-38-05%3A00%09link-http%3A%2F%2Fwww.cmake.org%2F%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%094769%091349%09578",
+					"start": "2011-09-13T00:29:38-05:00",
+					"end": "2011-09-13T00:30:20-05:00",
+					"durationEvent": true,
+					"classname": "DiffRecord"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,8144.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-30-21-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%098144%091349%09578",
+					"start": "2011-09-13T00:30:21-05:00",
+					"end": "2011-09-13T00:33:38-05:00",
+					"durationEvent": true,
+					"classname": "DiffRecord"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,8258.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-33-39-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%098258%091349%09578",
+					"start": "2011-09-13T00:33:39-05:00",
+					"end": "2011-09-13T00:34:15-05:00",
+					"durationEvent": true,
+					"classname": "DiffRecord"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,8144.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-34-16-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%098144%091349%09578",
+					"start": "2011-09-13T00:34:16-05:00",
+					"end": "2011-09-13T00:34:18-05:00",
+					"durationEvent": true,
+					"classname": "DiffRecord"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,8258.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-34-19-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%098258%091349%09578",
+					"start": "2011-09-13T00:34:19-05:00",
+					"end": "2011-09-13T00:34:22-05:00",
+					"durationEvent": true,
+					"classname": "DiffRecord"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,8372.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-34-23-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%098372%091349%09578",
+					"start": "2011-09-13T00:34:23-05:00",
+					"end": "2011-09-13T00:34:30-05:00",
+					"durationEvent": true,
+					"classname": "DiffRecord"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,8144.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-34-31-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%098144%091349%09578",
+					"start": "2011-09-13T00:34:31-05:00",
+					"end": "2011-09-13T00:34:34-05:00",
+					"durationEvent": true,
+					"classname": "DiffRecord"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,8258.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-34-35-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%098258%091349%09578",
+					"start": "2011-09-13T00:34:35-05:00",
+					"end": "2011-09-13T00:34:44-05:00",
+					"durationEvent": true,
+					"classname": "DiffRecord"
+				}
+			]
+		}, {
+			"options": {
+				"title": "Doclog",
+				"width": 50
+			},
+			"events": [
+				{
+					"title": "READY - trac.mi....seqan/wiki/Tutorial",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial-1349,578-0,0.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-29-06-05%3A00%09ready%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%09188.103.109.198%09-%090%090%091349%09578",
+					"start": "2011-09-13T00:29:06-05:00",
+					"end": "2011-09-13T00:29:09-05:00",
+					"durationEvent": true,
+					"classname": "DoclogRecord READY"
+				}, {
+					"title": "READY - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,0.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-29-11-05%3A00%09ready%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%090%091349%09578",
+					"start": "2011-09-13T00:29:11-05:00",
+					"end": "2011-09-13T00:29:35-05:00",
+					"durationEvent": true,
+					"classname": "DoclogRecord READY"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,4769.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-29-36-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%094769%091349%09578",
+					"start": "2011-09-13T00:29:36-05:00",
+					"end": "2011-09-13T00:29:37-05:00",
+					"durationEvent": true,
+					"classname": "DoclogRecord SCROLL"
+				}, {
+					"title": "LINK - trac.mi....rial/GettingStarted<br/>? http://www.cmake.org/",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,4769.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-29-38-05%3A00%09link-http%3A%2F%2Fwww.cmake.org%2F%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%094769%091349%09578",
+					"start": "2011-09-13T00:29:38-05:00",
+					"end": "2011-09-13T00:30:15-05:00",
+					"durationEvent": true,
+					"classname": "DoclogRecord LINK"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,8144.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-30-21-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%098144%091349%09578",
+					"start": "2011-09-13T00:30:25-05:00",
+					"end": "2011-09-13T00:33:38-05:00",
+					"durationEvent": true,
+					"classname": "DoclogRecord SCROLL"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,8258.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-33-39-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%098258%091349%09578",
+					"start": "2011-09-13T00:33:39-05:00",
+					"end": "2011-09-13T00:34:15-05:00",
+					"durationEvent": true,
+					"classname": "DoclogRecord SCROLL"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,8144.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-34-16-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%098144%091349%09578",
+					"start": "2011-09-13T00:34:16-05:00",
+					"end": "2011-09-13T00:34:18-05:00",
+					"durationEvent": true,
+					"classname": "DoclogRecord SCROLL"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,8258.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-34-19-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%098258%091349%09578",
+					"start": "2011-09-13T00:34:19-05:00",
+					"end": "2011-09-13T00:34:22-05:00",
+					"durationEvent": true,
+					"classname": "DoclogRecord SCROLL"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,8372.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-34-23-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%098372%091349%09578",
+					"start": "2011-09-13T00:34:23-05:00",
+					"end": "2011-09-13T00:34:30-05:00",
+					"durationEvent": true,
+					"classname": "DoclogRecord SCROLL"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,8144.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-34-31-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%098144%091349%09578",
+					"start": "2011-09-13T00:34:31-05:00",
+					"end": "2011-09-13T00:34:34-05:00",
+					"durationEvent": true,
+					"classname": "DoclogRecord SCROLL"
+				}, {
+					"title": "SCROLL - trac.mi....rial/GettingStarted",
+					"icon": "file:///Users/bkahlert/Dropbox/Freie Universität Berlin/Promotion/workshop11/workshop2011-data-20110925/tmp/static-files/screenshots/http%253A%252F%252Ftrac.mi.fu-berlin.de%252Fseqan%252Fwiki%252FTutorial%252FGettingStarted-1349,578-0,8258.png",
+					"image": "sua://doclog/20xjp6c6gjzthtye/2011-09-13T00-34-35-05%3A00%09scroll%09http%3A%2F%2Ftrac.mi.fu-berlin.de%2Fseqan%2Fwiki%2FTutorial%2FGettingStarted%09188.103.109.198%09-%090%098258%091349%09578",
+					"start": "2011-09-13T00:34:35-05:00",
+					"end": "2011-09-13T00:34:44-05:00",
+					"durationEvent": true,
+					"classname": "DoclogRecord SCROLL"
+				}
+			]
+		}
+	]
+}
