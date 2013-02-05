@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineInput;
@@ -136,6 +137,7 @@ public class Timeline extends BrowserComposite implements ITimeline {
 		if (Display.getCurrent() == Display.getDefault()) {
 			run.run();
 		} else {
+			// FIXME Dokumentation vervollständigen; evtl. async verwenden
 			Display.getDefault().syncExec(run);
 		}
 	}
@@ -160,7 +162,7 @@ public class Timeline extends BrowserComposite implements ITimeline {
 			this.getBrowser()
 					.execute(
 							"com.bkahlert.devel.nebula.timeline.setCenterVisibleDate('"
-									+ TimelineJsonGenerator.toISO8601(calendar)
+									+ CalendarUtils.toISO8601(calendar)
 									+ "');");
 		}
 	}

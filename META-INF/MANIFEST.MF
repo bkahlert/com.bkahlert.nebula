@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.ui,
  org.apache.commons.collections;bundle-version="3.2.0",
  com.bkahlert.devel.rcp.selectionUtils;bundle-version="1.0.1",
  org.codehaus.jackson.core;bundle-version="1.6.0",
- org.codehaus.jackson.mapper;bundle-version="1.6.0"
+ org.codehaus.jackson.mapper;bundle-version="1.6.0",
+ com.ibm.icu;bundle-version="4.4.2"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.bkahlert.devel.nebula.colors,
@@ -21,6 +22,8 @@ Export-Package: com.bkahlert.devel.nebula.colors,
  com.bkahlert.devel.nebula.rendering,
  com.bkahlert.devel.nebula.utils,
  com.bkahlert.devel.nebula.viewer,
+ com.bkahlert.devel.nebula.viewer.timeline,
+ com.bkahlert.devel.nebula.viewer.timeline.impl,
  com.bkahlert.devel.nebula.widgets,
  com.bkahlert.devel.nebula.widgets.browser,
  com.bkahlert.devel.nebula.widgets.explanation,

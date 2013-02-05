@@ -2,12 +2,11 @@ package com.bkahlert.devel.nebula.widgets.timeline;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonFactory;
@@ -19,6 +18,7 @@ import org.codehaus.jackson.util.DefaultPrettyPrinter;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
+import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.utils.StringUtils;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Decorator;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.SelectionTimeline;
@@ -114,7 +114,8 @@ public class TimelineJsonGenerator {
 	}
 
 	/**
-	 * Writes a {@link Map} denoting the {@link SelectionTimeline}'s options to the JSON.
+	 * Writes a {@link Map} denoting the {@link SelectionTimeline}'s options to
+	 * the JSON.
 	 * <p>
 	 * 
 	 * <pre>
@@ -188,11 +189,8 @@ public class TimelineJsonGenerator {
 
 	public static void writeEvent(JsonGenerator generator, ITimelineEvent event)
 			throws JsonGenerationException, IOException {
-		List<String> classNames = event.getClassNames();
-		if (classNames == null)
-			classNames = new ArrayList<String>();
-		else
-			classNames = new ArrayList<String>(classNames);
+		List<String> classNames = event.getClassNames() != null ? new ArrayList<String>(
+				Arrays.asList(event.getClassNames())) : new ArrayList<String>();
 
 		generator.writeStartObject();
 
@@ -201,12 +199,12 @@ public class TimelineJsonGenerator {
 
 		if (event.getIcon() != null) {
 			generator.writeFieldName("icon");
-			generator.writeString(event.getIcon());
+			generator.writeString(event.getIcon().toString());
 		}
 
 		if (event.getImage() != null) {
 			generator.writeFieldName("image");
-			generator.writeString(event.getImage());
+			generator.writeString(event.getImage().toString());
 		}
 
 		/**
@@ -235,10 +233,10 @@ public class TimelineJsonGenerator {
 		}
 
 		generator.writeFieldName("start");
-		generator.writeString(start != null ? TimelineJsonGenerator
+		generator.writeString(start != null ? CalendarUtils
 				.toISO8601(start) : "null");
 		generator.writeFieldName("end");
-		generator.writeString(end != null ? TimelineJsonGenerator
+		generator.writeString(end != null ? CalendarUtils
 				.toISO8601(end) : "null");
 
 		generator.writeFieldName("durationEvent");
@@ -282,26 +280,5 @@ public class TimelineJsonGenerator {
 	 */
 	public static String escape(String json) {
 		return json.replace("'", "\\'").replace("\"", "\\\"");
-	}
-
-	/**
-	 * Converts a {@link Calendar} object to its ISO 8601 representation.
-	 * {@link Date}s are not supported since they don't provide any
-	 * {@link TimeZone} information.
-	 * <p>
-	 * e.g. Tuesday, 15 May 1984 at 2:30pm in timezone 01:00 summertime would be
-	 * 1984-05-15T14:30:00+02:00.
-	 * 
-	 * @param calendar
-	 * @return
-	 */
-	public static String toISO8601(Calendar calendar) {
-		SimpleDateFormat iso8601 = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ssZ");
-		iso8601.setTimeZone(calendar.getTimeZone());
-		String missingDots = iso8601.format(calendar.getTime()).replace("GMT",
-				"");
-		return missingDots.substring(0, missingDots.length() - 2) + ":"
-				+ missingDots.substring(missingDots.length() - 2);
 	}
 }

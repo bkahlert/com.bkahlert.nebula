@@ -1,7 +1,7 @@
 package com.bkahlert.devel.nebula.widgets.timeline;
 
+import java.net.URI;
 import java.util.Calendar;
-import java.util.List;
 
 import org.eclipse.core.runtime.IAdaptable;
 
@@ -22,19 +22,15 @@ import org.eclipse.core.runtime.IAdaptable;
 public interface ITimelineEvent extends IAdaptable {
 	public String getTitle();
 
-	public String getIcon();
+	public URI getIcon();
 
-	public String getImage();
+	public URI getImage();
 
 	public Calendar getStart();
 
 	public Calendar getEnd();
 
-	public List<String> getClassNames();
-
-	public void addClassName(String className);
-
-	public void removeClassName(String className);
+	public String[] getClassNames();
 
 	/**
 	 * Returns the event's payload. This field is ideal to keep track of an
@@ -43,5 +39,8 @@ public interface ITimelineEvent extends IAdaptable {
 	 * @return
 	 */
 	public Object getPayload();
+
+	// FIXME
+	public void addClassName(String string);
 
 }

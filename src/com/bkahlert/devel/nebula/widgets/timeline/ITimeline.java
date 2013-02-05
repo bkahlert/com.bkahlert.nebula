@@ -2,11 +2,12 @@ package com.bkahlert.devel.nebula.widgets.timeline;
 
 import java.util.Calendar;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWTException;
 
+import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.widgets.browser.IBrowserComposite;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Decorator;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.HotZone;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
 
 /**
@@ -20,7 +21,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
  * <p>
  * e.g. Tuesday, 15 May 1984 at 2:30pm in timezone 01:00 summertime would be
  * 1984-05-15T14:30:00+02:00. To make your life easier the static utility method
- * {@link TimelineJsonGenerator#toISO8601(Calendar)} is provided.
+ * {@link CalendarUtils#toISO8601(Calendar)} is provided.
  * 
  * @author bkahlert
  * 
@@ -53,62 +54,10 @@ public interface ITimeline extends IBrowserComposite {
 	public void injectCssFile(String path);
 
 	/**
-	 * Display the given JSON string on the timeline. The json string must be of
-	 * the following form whereas all fields of the option property and the
-	 * option property are optional.<br>
-	 * See <a href=
-	 * "http://code.google.com/p/simile-widgets/wiki/Timeline_EventSources"
-	 * >code.google.com/p/simile-widgets/wiki/Timeline_EventSources</a> for the
-	 * complete specification.
-	 * 
-	 * <pre>
-	 * <code>
-	 * {
-	 *   "options" : {
-	 *     "zones" : [ {
-	 *       "start" : "2011-09-13T12:05:22+01:00",
-	 *       "end" : "2011-09-13T12-05-25+01:00"
-	 *     } ],
-	 *     "decorators" : ...
-	 *     "centerDate" : "2011-09-13T12:05:22+01:00"
-	 *   },
-	 *   "events" : [ {
-	 *     "title" : "TITLE",
-	 *     "start" : "Sep 13 2011 14:05:22 GMT+0200",
-	 *     "end" : "Sep 13 2011 14:05:31 GMT+0200",
-	 *     "durationEvent" : true,
-	 *     "icon" : "http://domain.tld/image_thumb.png",
-	 *     "image" : "http://domain.tld/image.png"
-	 *   }, ... ]
-	 * }
-	 * 
-	 * </code>
-	 * </pre>
-	 * 
-	 * 
-	 * {@link HotZone}s and {@link Decorator}s provide classes than you can use
-	 * in conjunction with a JSON generator like <a
-	 * href="http://jackson.codehaus.org/">Jackson High-performance JSON
-	 * processor</a>
-	 * 
-	 * <pre>
-	 * <code>
-	 * HashMap<String, Object> options = new HashMap<String, Object>();
-	 * options.put("zones",
-	 * 	new SelectionTimeline.HotZone[] {
-	 * 		new SelectionTimeline.HotZone(
-	 * 			"2011-09-13T18:10:01+02:00",
-	 * 			"2011-09-15T18:10:01+02:00") 
-	 * 	});
-	 * options.put("decorators",
-	 * 	new SelectionTimeline.Decorator[] {
-	 * 		new SelectionTimeline.Decorator(
-	 * 			"2011-09-13T18:20:01+02:00", "title1",
-	 * 			"2011-09-13T18:00:01+02:00", "title2")
-	 * 	});
-	 * 
-	 * </code>
-	 * </pre>
+	 * Display the given JSON string on the {@link ITimeline}. The format is
+	 * quite complex.<br>
+	 * It is therefore preferable to use
+	 * {@link #show(ITimelineInput, IProgressMonitor)}.
 	 * 
 	 * @param jsonTimeline
 	 * @exception SWTException
@@ -120,6 +69,14 @@ public interface ITimeline extends IBrowserComposite {
 	 *                </ul>
 	 */
 	public void show(final String jsonTimeline);
+
+	/**
+	 * Displays the given {@link ITimelineInput} on the {@link ITimeline}.
+	 * 
+	 * @param input
+	 * @param monitor
+	 */
+	public void show(ITimelineInput input, IProgressMonitor monitor);
 
 	/**
 	 * Sets the date where the visible part of the {@link Timeline} should

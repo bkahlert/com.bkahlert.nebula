@@ -1,6 +1,8 @@
 package com.bkahlert.devel.nebula.widgets.timeline.impl;
 
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -39,24 +41,22 @@ public class TimelineEvent implements ITimelineEvent {
 	}
 
 	private String title;
-	private String icon;
-	private String image;
+	private URI icon;
+	private URI image;
 	private Calendar start;
 	private Calendar end;
-	private List<String> classNames;
+	private String[] classNames;
 	private Object payload;
 
-	public TimelineEvent(String title, String icon, String image,
-			Calendar start, Calendar end, List<String> classNames,
-			Object payload) {
+	public TimelineEvent(String title, URI icon, URI image, Calendar start,
+			Calendar end, String[] classNames, Object payload) {
 		super();
 		this.title = title;
 		this.icon = icon;
 		this.image = image;
 		this.start = start;
 		this.end = end;
-		this.classNames = classNames != null ? new ArrayList<String>(classNames)
-				: new ArrayList<String>();
+		this.classNames = classNames != null ? classNames : new String[0];
 		this.payload = payload;
 	}
 
@@ -66,12 +66,12 @@ public class TimelineEvent implements ITimelineEvent {
 	}
 
 	@Override
-	public String getIcon() {
+	public URI getIcon() {
 		return this.icon;
 	}
 
 	@Override
-	public String getImage() {
+	public URI getImage() {
 		return this.image;
 	}
 
@@ -86,18 +86,17 @@ public class TimelineEvent implements ITimelineEvent {
 	}
 
 	@Override
-	public List<String> getClassNames() {
+	public String[] getClassNames() {
 		return this.classNames;
 	}
 
+	// FIXME
 	@Override
-	public void addClassName(String className) {
-		this.classNames.add(className);
-	}
-
-	@Override
-	public void removeClassName(String className) {
-		this.classNames.remove(className);
+	public void addClassName(String string) {
+		List<String> classNames = new ArrayList<String>(
+				Arrays.asList(this.classNames));
+		classNames.add(string);
+		this.classNames = classNames.toArray(new String[0]);
 	}
 
 	@Override

@@ -2,8 +2,8 @@ package com.bkahlert.devel.nebula.widgets.timeline.impl;
 
 import java.util.Calendar;
 
+import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.widgets.timeline.IDecorator;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineJsonGenerator;
 
 public class Decorator implements IDecorator {
 	private String startDate;
@@ -21,9 +21,9 @@ public class Decorator implements IDecorator {
 
 	public Decorator(Calendar startCalendar, String startLabel,
 			Calendar endCalendar, String endLabel) {
-		this(startCalendar != null ? TimelineJsonGenerator
+		this(startCalendar != null ? CalendarUtils
 				.toISO8601(startCalendar) : null, startLabel,
-				endCalendar != null ? TimelineJsonGenerator
+				endCalendar != null ? CalendarUtils
 						.toISO8601(endCalendar) : null, endLabel);
 	}
 
