@@ -30,7 +30,8 @@ import com.bkahlert.devel.nebula.colors.ColorUtils;
 import com.bkahlert.devel.nebula.dialogs.DirectoryListDialog;
 import com.bkahlert.devel.nebula.widgets.ColorPicker;
 import com.bkahlert.devel.nebula.widgets.RoundedLabels;
-import com.bkahlert.devel.nebula.widgets.timeline.Timeline;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimelineInput;
+import com.bkahlert.devel.nebula.widgets.timeline.impl.SelectionTimeline;
 
 public class WidgetsView extends ViewPart {
 
@@ -219,11 +220,11 @@ public class WidgetsView extends ViewPart {
 				"kjkdjklsdjdsdslkjlkjlk", "kjkljlj", "abc", "def",
 				"kjkdjklsdjdsdslkjlkjlk", "kjkljlj" });
 
-		Timeline timeline = new Timeline(parent, SWT.BORDER);
-		timeline.setLayoutData(GridDataFactory.fillDefaults().grab(true, true)
+		SelectionTimeline selectionTimeline = new SelectionTimeline(parent, SWT.BORDER);
+		selectionTimeline.setLayoutData(GridDataFactory.fillDefaults().grab(true, true)
 				.create());
-		String json = "{\"events\":[{\"title\":\"READY - http://www.seqan.de/dddoc/html_devel/INDEX_Function_Motif+_Search.html#absFreqOfLettersInSeq\",\"start\":\"Sep 13 2011 14:05:22 GMT+0200\",\"end\":\"Sep 13 2011 14:05:31 GMT+0200\",\"durationEvent\":true,\"icon\":\"http://www.freebase.com/api/trans/image_thumb//wikipedia/images/en_id/2462532?maxheight=76&amp;mode=fillcrop&amp;maxwidth=76\",\"image\":\"file:///Users/bkahlert/Dropbox/Development/Repositories/SUA/de.fu_berlin.imp.seqan.usability_analyzer.doclog/bin/data/screenshots/http%253A%252F%252Fwww.seqan.de%252Fdddoc%252Fhtml_devel%252FINDEX_Function_Motif%252B_Search.html%2523absFreqOfLettersInSeq-179,365-0,0.png\"},{\"title\":\"SCROLL - http://www.seqan.de/dddoc/html_devel/FUNCTION.abs_Freq_Of_Letters_In_Seq.html\",\"start\":\"Sep 13 2011 14:05:32 GMT+0200\",\"end\":\"Sep 13 2011 14:07:51 GMT+0200\",\"durationEvent\":true,\"icon\":\"http://www.freebase.com/api/trans/image_thumb//wikipedia/images/en_id/2462532?maxheight=76&amp;mode=fillcrop&amp;maxwidth=76\",\"image\":\"file:///Users/bkahlert/Dropbox/Development/Repositories/SUA/de.fu_berlin.imp.seqan.usability_analyzer.doclog/bin/data/screenshots/http%253A%252F%252Fwww.seqan.de%252Fdddoc%252Fhtml_devel%252FFUNCTION.abs_Freq_Of_Letters_In_Seq.html-1137,520-0,77.png\"},{\"title\":\"UNLOAD - http://www.seqan.de/dddoc/html_devel/FUNCTION.abs_Freq_Of_Letters_In_Seq.html\",\"start\":\"Sep 13 2011 14:07:52 GMT+0200\",\"end\":\"Sep 13 2011 14:07:52 GMT+0200\",\"durationEvent\":true,\"icon\":\"http://www.freebase.com/api/trans/image_thumb//wikipedia/images/en_id/2462532?maxheight=76&amp;mode=fillcrop&amp;maxwidth=76\",\"image\":\"file:///Users/bkahlert/Dropbox/Development/Repositories/SUA/de.fu_berlin.imp.seqan.usability_analyzer.doclog/bin/data/screenshots/http%253A%252F%252Fwww.seqan.de%252Fdddoc%252Fhtml_devel%252FFUNCTION.abs_Freq_Of_Letters_In_Seq.html-1137,520-0,77.png\"}]}";
-		timeline.show(json);
+		ITimelineInput input = null;
+		selectionTimeline.show(input, null);
 
 		List<RGB> colors = Arrays.asList(new RGB(0, 0, 0), new RGB(0, 0, 255),
 				new RGB(0, 255, 0), new RGB(0, 255, 255), new RGB(255, 0, 0),

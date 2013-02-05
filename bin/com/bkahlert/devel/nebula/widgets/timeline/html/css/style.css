@@ -9,7 +9,7 @@ html, body {
 body {
 	padding: 0;
 	margin: 0;
-	
+
 	background-color: #AFAFAF;
 	background-image: -webkit-gradient(linear, left top, left bottom, from(#AFAFAF), to(#888888)); 
 	background-image: -webkit-linear-gradient(top, #AFAFAF, #888888); 
