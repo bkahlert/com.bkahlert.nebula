@@ -17,5 +17,10 @@ public interface ITimelineViewer {
 	 */
 	public void setInput(Object input);
 
+	public ITimelineLabelProvider getTimelineLabelProvider();
+
+	public void setTimelineLabelProvider(
+			ITimelineLabelProvider timelineLabelProvider);
+
 	public void refresh(IProgressMonitor monitor);
 }

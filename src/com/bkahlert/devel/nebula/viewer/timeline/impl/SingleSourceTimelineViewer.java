@@ -16,12 +16,11 @@ import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineInput;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineInput;
 
-public class SingleSourceTimelineViewer implements ITimelineViewer,
-		ISingleSourceTimelineViewer {
+public class SingleSourceTimelineViewer extends TimelineViewer implements
+		ITimelineViewer, ISingleSourceTimelineViewer {
 
 	private ITimeline timeline;
 	private Object input;
@@ -107,7 +106,7 @@ public class SingleSourceTimelineViewer implements ITimelineViewer,
 			timelineBands.add(timelineBand);
 		}
 
-		IOptions options = new Options();
+		IOptions options = getTimelineOptions();
 		ITimelineInput timelineInput = new TimelineInput(options, timelineBands);
 		this.timeline.show(timelineInput, subMonitor.newChild(10));
 	}

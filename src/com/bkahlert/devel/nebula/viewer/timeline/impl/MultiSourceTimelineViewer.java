@@ -15,11 +15,11 @@ import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineInput;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineInput;
 
-public class MultiSourceTimelineViewer implements IMultiSourceTimelineViewer {
+public class MultiSourceTimelineViewer extends TimelineViewer implements
+		IMultiSourceTimelineViewer {
 
 	public class ProviderGroup implements IProviderGroup {
 
@@ -129,19 +129,7 @@ public class MultiSourceTimelineViewer implements IMultiSourceTimelineViewer {
 			}
 		}
 
-		IOptions options = new Options();
-
-		List<TimeZoneDateRange> ranges = new ArrayList<TimeZoneDateRange>();
-		// FIXME
-		for (ITimelineBand timelineBand : timelineBands) {
-			TimeZoneDate end = timelineBand.getEnd() != null ? new TimeZoneDate(
-					timelineBand.getEnd()) : null;
-			ranges.add(new TimeZoneDateRange(start, end));
-		}
-		TimeZoneDateRange range = TimeZoneDateRange
-				.calculateOuterDateRange(ranges
-						.toArray(new TimeZoneDateRange[0]));
-
+		IOptions options = getTimelineOptions();
 		ITimelineInput timelineInput = new TimelineInput(options, timelineBands);
 		this.timeline.show(timelineInput, subMonitor.newChild(10));
 	}
