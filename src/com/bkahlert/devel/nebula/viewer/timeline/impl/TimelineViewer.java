@@ -1,12 +1,57 @@
 package com.bkahlert.devel.nebula.viewer.timeline.impl;
 
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.widgets.Control;
+
 import com.bkahlert.devel.nebula.viewer.timeline.ITimelineLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.ITimelineViewer;
-import com.bkahlert.devel.nebula.widgets.timeline.IOptions;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
+import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
 
-public abstract class TimelineViewer implements ITimelineViewer {
+public abstract class TimelineViewer extends Viewer implements ITimelineViewer {
+
+	private ITimeline timeline;
 	private ITimelineLabelProvider timelineLabelProvider;
+
+	private ISelection selection = null;
+	private ITimelineListener timelineListener = new ITimelineListener() {
+		@Override
+		public void clicked(TimelineEvent event) {
+			setSelection(new StructuredSelection(event.getSource()));
+		}
+
+		@Override
+		public void middleClicked(TimelineEvent event) {
+			setSelection(new StructuredSelection(event.getSource()));
+		}
+
+		@Override
+		public void rightClicked(TimelineEvent event) {
+			setSelection(new StructuredSelection(event.getSource()));
+		}
+
+		@Override
+		public void doubleClicked(TimelineEvent event) {
+			setSelection(new StructuredSelection(event.getSource()));
+		}
+
+		@Override
+		public void hoveredIn(TimelineEvent event) {
+		}
+
+		@Override
+		public void hoveredOut(TimelineEvent event) {
+		}
+	};
+
+	public TimelineViewer(ITimeline timeline) {
+		this.timeline = timeline;
+		this.timeline.addTimelineListener(this.timelineListener);
+	}
 
 	@Override
 	public void setTimelineLabelProvider(
@@ -19,27 +64,20 @@ public abstract class TimelineViewer implements ITimelineViewer {
 		return timelineLabelProvider;
 	}
 
-	public IOptions getTimelineOptions() {
-		IOptions options = new Options();
-		if (this.timelineLabelProvider != null) {
-			options.setTitle(this.timelineLabelProvider.getTitle());
-			options.setCenterStart(this.timelineLabelProvider.getCenterStart());
-			options.setTapeImpreciseOpacity(this.timelineLabelProvider
-					.getTapeImpreciseOpacity());
-			options.setIconWidth(this.timelineLabelProvider.getIconWidth());
-
-			String[] bubbleFunction = this.timelineLabelProvider
-					.getBubbleFunction();
-			String functionName = bubbleFunction != null
-					&& bubbleFunction.length > 0 ? bubbleFunction[0] : null;
-			String functionField = bubbleFunction != null
-					&& bubbleFunction.length > 1 ? bubbleFunction[1] : null;
-			options.setBubbleFunction(functionName, functionField);
-
-			options.setHotZones(this.timelineLabelProvider.getHotZones());
-			options.setDecorators(this.timelineLabelProvider.getDecorators());
-			options.setTimeZone(this.timelineLabelProvider.getTimeZone());
-		}
-		return options;
+	@Override
+	public Control getControl() {
+		return (Control) this.timeline;
 	}
+
+	@Override
+	public ISelection getSelection() {
+		return this.selection;
+	}
+
+	@Override
+	public void setSelection(ISelection selection, boolean reveal) {
+		this.selection = selection;
+		fireSelectionChanged(new SelectionChangedEvent(this, selection));
+	}
+
 }

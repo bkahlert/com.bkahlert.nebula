@@ -45,7 +45,7 @@ public class TreeNodeTest extends TestCase {
 	 */
 	@Test
 	public void testIllegalOperations() {
-		// Test cannot add a child node to position greater than available
+		// TimelineViewer cannot add a child node to position greater than available
 		// number of children.
 		boolean caughtException = false;
 
@@ -64,7 +64,7 @@ public class TreeNodeTest extends TestCase {
 			fail("Expected exception 'IllegalArgumentException' but no exceptions caught.");
 		}
 
-		// Test remove a child node from position greater than available number
+		// TimelineViewer remove a child node from position greater than available number
 		// of children.
 		caughtException = false;
 
@@ -181,7 +181,7 @@ public class TreeNodeTest extends TestCase {
 	}
 
 	/**
-	 * Test a tree that has a root and just one child. This is a simple test to
+	 * TimelineViewer a tree that has a root and just one child. This is a simple test to
 	 * verify the child has properties appropriately set before testing more
 	 * complex trees.
 	 */

@@ -1,32 +1,32 @@
 package com.bkahlert.devel.nebula.widgets.timeline.impl;
 
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
+import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
 
 public class TimelineAdapter implements ITimelineListener {
 
 	@Override
-	public void clicked(ITimelineEvent timelineEvent) {
+	public void clicked(TimelineEvent event) {
 	}
 
 	@Override
-	public void middleClicked(ITimelineEvent timelineEvent) {
+	public void middleClicked(TimelineEvent event) {
 	}
 
 	@Override
-	public void rightClicked(ITimelineEvent timelineEvent) {
+	public void rightClicked(TimelineEvent event) {
 	}
 
 	@Override
-	public void doubleClicked(ITimelineEvent timelineEvent) {
+	public void doubleClicked(TimelineEvent event) {
 	}
 
 	@Override
-	public void hoveredIn(ITimelineEvent timelineEvent) {
+	public void hoveredIn(TimelineEvent event) {
 	}
 
 	@Override
-	public void hoveredOut(ITimelineEvent timelineEvent) {
+	public void hoveredOut(TimelineEvent event) {
 	}
 
 }

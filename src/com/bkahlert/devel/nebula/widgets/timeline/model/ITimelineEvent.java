@@ -1,9 +1,11 @@
-package com.bkahlert.devel.nebula.widgets.timeline;
+package com.bkahlert.devel.nebula.widgets.timeline.model;
 
 import java.net.URI;
 import java.util.Calendar;
 
 import org.eclipse.core.runtime.IAdaptable;
+
+import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 
 /**
  * Instances of this class denote events on a {@link ITimeline}.<
@@ -41,6 +43,6 @@ public interface ITimelineEvent extends IAdaptable {
 	public Object getPayload();
 
 	// FIXME
-	public void addClassName(String string);
+	void addClassName(String string);
 
 }

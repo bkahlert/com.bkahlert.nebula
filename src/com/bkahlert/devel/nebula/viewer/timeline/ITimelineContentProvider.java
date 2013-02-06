@@ -2,6 +2,14 @@ package com.bkahlert.devel.nebula.viewer.timeline;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+
+/**
+ * Provides the {@link ITimeline} with contents.
+ * 
+ * @author bkahlert
+ * 
+ */
 public interface ITimelineContentProvider {
 	public void inputChanged(ITimelineViewer timelineViewer, Object oldInput,
 			Object newInput);

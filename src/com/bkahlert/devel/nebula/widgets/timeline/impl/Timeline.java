@@ -1,194 +1,212 @@
 package com.bkahlert.devel.nebula.widgets.timeline.impl;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.ProgressAdapter;
-import org.eclipse.swt.browser.ProgressEvent;
+import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 
-import com.bkahlert.devel.nebula.utils.CalendarUtils;
-import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineInput;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineJsonGenerator;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
+import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 
-public class Timeline extends BrowserComposite implements ITimeline {
+public class Timeline extends BaseTimeline implements ITimeline {
 
-	public static String getFileUrl(Class<?> clazz, String clazzRelativePath)
-			throws IOException {
-		URL timelineUrl = FileLocator.toFileURL(clazz
-				.getResource(clazzRelativePath));
-		String timelineUrlString = timelineUrl.toString().replace("file:",
-				"file://");
-		return timelineUrlString;
+	private static String separator = "_-_";
+
+	/**
+	 * Adds an identifier to each event's class name.
+	 * 
+	 * @param input
+	 */
+	private static void addIdentifiers(ITimelineInput input) {
+		for (int i = 0, m = input.getBandCount(); i < m; i++) {
+			ITimelineBand band = input.getBands().get(i);
+			for (int j = 0, n = band.getEventCount(); j < n; j++) {
+				ITimelineEvent event = band.getEvents().get(j);
+				event.addClassName(separator + "timeline-id" + separator + i
+						+ ',' + j + separator);
+			}
+		}
 	}
 
-	private Logger logger = Logger.getLogger(Timeline.class);
+	public static abstract class TimelineListenerBrowserFunction extends
+			BrowserFunction {
+		/**
+		 * Extracts the band and event number from an arguments array such as
+		 * ["3,13", ...].
+		 * 
+		 * @param id
+		 * @return
+		 */
+		public static int[] fromArguments(Object[] arguments) {
+			if (arguments.length == 1 && arguments[0] instanceof String) {
+				String[] parts = ((String) arguments[0]).split(",");
+				try {
+					int bandNumber = Integer.parseInt(parts[0]);
+					int eventNumber = Integer.parseInt(parts[1]);
+					return new int[] { bandNumber, eventNumber };
+				} catch (Exception e) {
 
-	private boolean completedLoading = false;
-	private List<String> enqueuedJs = new ArrayList<String>();
+				}
+			}
+			;
+			return null;
+		}
+
+		public TimelineListenerBrowserFunction(Browser browser, String name) {
+			super(browser, name);
+		}
+
+		@Override
+		public Object function(Object[] arguments) {
+			int[] id = fromArguments(arguments);
+			if (id != null)
+				call(id[0], id[1]);
+			return null;
+		}
+
+		public abstract void call(int bandNumber, int eventNumber);
+	}
+
+	private ListenerList timelineListeners = new ListenerList();
+
+	private ITimelineInput input;
 
 	public Timeline(Composite parent, int style) {
 		super(parent, style);
 
-		/*
-		 * Deactivate browser's native context/popup menu. Doing so allows the
-		 * definition of menus in an inheriting composite via setMenu.
-		 */
-		this.getBrowser().addListener(SWT.MenuDetect, new Listener() {
-			public void handleEvent(Event event) {
-				event.doit = false;
-			}
-		});
-
-		this.getBrowser().addProgressListener(new ProgressAdapter() {
+		new TimelineListenerBrowserFunction(this.getBrowser(),
+				"timeline_plugin_click_callback") {
 			@Override
-			public void completed(ProgressEvent event) {
-				completedLoading = true;
-				for (Iterator<String> iterator = enqueuedJs.iterator(); iterator
-						.hasNext();) {
-					String js = iterator.next();
-					iterator.remove();
-					if (!Timeline.this.getBrowser().execute(js)) {
-						logger.error("Error occured while running JavaScript in browser: "
-								+ js);
-					}
-				}
-			}
-		});
-
-		try {
-			String timelineUrlString = getFileUrl(Timeline.class,
-					"../html/timeline.html");
-			this.getBrowser().setUrl(timelineUrlString + "?internal=true");
-		} catch (IOException e) {
-			logger.error("Could not open timeline html", e);
-		}
-	}
-
-	@Override
-	public boolean runJs(String js) {
-		boolean success = this.getBrowser().execute(js);
-		if (!success) {
-			logger.error("Error occured while running JavaScript in browser: "
-					+ js);
-		}
-		return success;
-	}
-
-	@Override
-	public void enqueueJs(String js) {
-		if (completedLoading) {
-			runJs(js);
-		} else {
-			enqueuedJs.add(js);
-		}
-	}
-
-	@Override
-	public void injectCssFile(String path) {
-		String js = "if(document.createStyleSheet){document.createStyleSheet(\""
-				+ path
-				+ "\")}else{$(\"head\").append($(\"<link rel=\\\"stylesheet\\\" href=\\\""
-				+ path + "\\\" type=\\\"text/css\\\" />\"))}";
-		enqueueJs(js);
-	}
-
-	@Override
-	public void show(final String jsonTimeline) {
-		final String escapedJson = TimelineJsonGenerator.escape(jsonTimeline);
-		final Runnable showRunnable = new Runnable() {
-			@Override
-			public void run() {
-				if (!Timeline.this.getBrowser().isDisposed()) {
-					Timeline.this.getBrowser().execute(
-							"com.bkahlert.devel.nebula.timeline.loadJSON('"
-									+ escapedJson + "');");
-					Timeline.this.layout();
-				}
+			public void call(int bandNumber, int eventNumber) {
+				Object[] listeners = timelineListeners.getListeners();
+				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
+						Timeline.this, input.getBand(bandNumber).getEvent(
+								eventNumber));
+				for (int i = 0, m = listeners.length; i < m; ++i)
+					((ITimelineListener) listeners[i]).clicked(event);
 			}
 		};
-		final Runnable run = new Runnable() {
-			public void run() {
-				if (completedLoading)
-					showRunnable.run();
-				else
-					Timeline.this.getBrowser().addProgressListener(
-							new ProgressAdapter() {
-								@Override
-								public void completed(ProgressEvent event) {
-									showRunnable.run();
-								}
-							});
-			};
+		new TimelineListenerBrowserFunction(this.getBrowser(),
+				"timeline_plugin_mclick_callback") {
+			@Override
+			public void call(int bandNumber, int eventNumber) {
+				Object[] listeners = timelineListeners.getListeners();
+				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
+						Timeline.this, input.getBand(bandNumber).getEvent(
+								eventNumber));
+				for (int i = 0, m = listeners.length; i < m; ++i)
+					((ITimelineListener) listeners[i]).middleClicked(event);
+			}
 		};
-		if (Display.getCurrent() == Display.getDefault()) {
-			run.run();
-		} else {
-			// FIXME Dokumentation vervollständigen; evtl. async verwenden
-			Display.getDefault().syncExec(run);
-		}
+		new TimelineListenerBrowserFunction(this.getBrowser(),
+				"timeline_plugin_rclick_callback") {
+			@Override
+			public void call(int bandNumber, int eventNumber) {
+				Object[] listeners = timelineListeners.getListeners();
+				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
+						Timeline.this, input.getBand(bandNumber).getEvent(
+								eventNumber));
+				for (int i = 0, m = listeners.length; i < m; ++i)
+					((ITimelineListener) listeners[i]).rightClicked(event);
+			}
+		};
+		new TimelineListenerBrowserFunction(this.getBrowser(),
+				"timeline_plugin_dblclick_callback") {
+			@Override
+			public void call(int bandNumber, int eventNumber) {
+				Object[] listeners = timelineListeners.getListeners();
+				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
+						Timeline.this, input.getBand(bandNumber).getEvent(
+								eventNumber));
+				for (int i = 0, m = listeners.length; i < m; ++i)
+					((ITimelineListener) listeners[i]).doubleClicked(event);
+			}
+		};
+		new TimelineListenerBrowserFunction(this.getBrowser(),
+				"timeline_plugin_mouseIn_callback") {
+			@Override
+			public void call(int bandNumber, int eventNumber) {
+				Object[] listeners = timelineListeners.getListeners();
+				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
+						Timeline.this, input.getBand(bandNumber).getEvent(
+								eventNumber));
+				for (int i = 0, m = listeners.length; i < m; ++i)
+					((ITimelineListener) listeners[i]).hoveredIn(event);
+			}
+		};
+		new TimelineListenerBrowserFunction(this.getBrowser(),
+				"timeline_plugin_mouseOut_callback") {
+			@Override
+			public void call(int bandNumber, int eventNumber) {
+				Object[] listeners = timelineListeners.getListeners();
+				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
+						Timeline.this, input.getBand(bandNumber).getEvent(
+								eventNumber));
+				for (int i = 0, m = listeners.length; i < m; ++i)
+					((ITimelineListener) listeners[i]).hoveredOut(event);
+			}
+		};
+
+		String catchEventsJs = "jQuery(document).ready(function(e){function t(t,n){var r=document.elementFromPoint(t.pageX,t.pageY);if(!r)return false;var i=e(r);if(i.hasClass(\"timeline-event-tape\")){i=i.prev();if(!i){alert(\"No previous element found. This is unexpected since tapes should always be preceded by a label div.\")}}var s=false;e.each(i.attr(\"class\").split(/\\s+/),function(e,t){if(s)return false;if(t.length>\"_-_\".length*3){parts=t.split(\"_-_\");if(parts.length==4){s=true;n(parts[2])}}});if(!s)n(null);return false}e(document).click(function(e){switch(e.which){case 1:return t(e,timeline_plugin_click_callback);break;case 2:return t(e,timeline_plugin_mclick_callback);break;case 3:break;default:}return false});e(document).bind(\"contextmenu\",function(e){return t(e,timeline_plugin_rclick_callback)});e(document).dblclick(function(e){return t(e,timeline_plugin_dblclick_callback)});var n=null;e(document).mousemove(function(e){return t(e,function(e){if(n==e)return;if(n!=null)timeline_plugin_mouseOut_callback(n);if(e!=null)timeline_plugin_mouseIn_callback(e);n=e})})})";
+		this.enqueueJs(catchEventsJs);
 	}
 
 	public void show(ITimelineInput input, IProgressMonitor monitor) {
-		String json = TimelineJsonGenerator.toJson(input, false, monitor);
-		this.show(json);
+		addIdentifiers(input);
+		this.input = input;
+		super.show(input, monitor);
 	}
 
-	@Override
-	public void setMinVisibleDate(Calendar calendar) {
-		if (!isDisposed()) {
-			this.getBrowser().execute(
-					"com.bkahlert.devel.nebula.timeline.setMinVisibleDate('"
-							+ calendar + "');");
+	private int getIndex(Object event) {
+		if (getSortedEvents() != null) {
+			for (int i = 0, m = getSortedEvents().size(); i < m; i++) {
+				ITimelineEvent timelineEvent = getSortedEvents().get(i);
+				if (timelineEvent.getPayload() != null
+						&& timelineEvent.getPayload().equals(event)) {
+					return i;
+				}
+			}
 		}
+		return -1;
 	}
 
 	@Override
-	public void setCenterVisibleDate(Calendar calendar) {
-		if (!isDisposed()) {
-			this.getBrowser()
-					.execute(
-							"com.bkahlert.devel.nebula.timeline.setCenterVisibleDate('"
-									+ CalendarUtils.toISO8601(calendar)
-									+ "');");
+	public Object getSuccessor(Object event) {
+		int index = getIndex(event);
+		if (index > -1) {
+			ITimelineEvent timelineEvent = getSortedEvents().get(index);
+			ITimelineEvent successorEvent = getSuccessor(timelineEvent);
+			return successorEvent != null ? successorEvent.getPayload() : null;
 		}
+		return null;
 	}
 
 	@Override
-	public void setMaxVisibleDate(Calendar calendar) {
-		if (!isDisposed()) {
-			this.getBrowser().execute(
-					"com.bkahlert.devel.nebula.timeline.setMaxVisibleDate('"
-							+ calendar + "');");
+	public Object getPredecessor(Object event) {
+		int index = getIndex(event);
+		if (index > -1) {
+			ITimelineEvent timelineEvent = getSortedEvents().get(index);
+			ITimelineEvent predecessorEvent = getPredecessor(timelineEvent);
+			return predecessorEvent != null ? predecessorEvent.getPayload()
+					: null;
 		}
+		return null;
 	}
 
 	@Override
-	public void applyDecorators(String jsonDecorators) {
-		if (!isDisposed()) {
-			this.getBrowser().execute(
-					"com.bkahlert.devel.nebula.timeline.applyDecorators('"
-							+ TimelineJsonGenerator.escape(jsonDecorators)
-							+ "');");
-		}
+	public void addTimelineListener(ITimelineListener timelineListener) {
+		this.timelineListeners.add(timelineListener);
 	}
 
 	@Override
-	public boolean setFocus() {
-		return true;
+	public void removeTimelineListener(ITimelineListener timelineListener) {
+		this.timelineListeners.remove(timelineListener);
 	}
 
 }

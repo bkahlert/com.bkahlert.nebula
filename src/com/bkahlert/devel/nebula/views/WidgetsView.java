@@ -30,8 +30,9 @@ import com.bkahlert.devel.nebula.colors.ColorUtils;
 import com.bkahlert.devel.nebula.dialogs.DirectoryListDialog;
 import com.bkahlert.devel.nebula.widgets.ColorPicker;
 import com.bkahlert.devel.nebula.widgets.RoundedLabels;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineInput;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.SelectionTimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
 
 public class WidgetsView extends ViewPart {
 
@@ -220,11 +221,11 @@ public class WidgetsView extends ViewPart {
 				"kjkdjklsdjdsdslkjlkjlk", "kjkljlj", "abc", "def",
 				"kjkdjklsdjdsdslkjlkjlk", "kjkljlj" });
 
-		SelectionTimeline selectionTimeline = new SelectionTimeline(parent, SWT.BORDER);
-		selectionTimeline.setLayoutData(GridDataFactory.fillDefaults().grab(true, true)
-				.create());
+		ITimeline timeline = new Timeline(parent, SWT.BORDER);
+		((Control) timeline).setLayoutData(GridDataFactory.fillDefaults()
+				.grab(true, true).create());
 		ITimelineInput input = null;
-		selectionTimeline.show(input, null);
+		timeline.show(input, null);
 
 		List<RGB> colors = Arrays.asList(new RGB(0, 0, 0), new RGB(0, 0, 255),
 				new RGB(0, 255, 0), new RGB(0, 255, 255), new RGB(255, 0, 0),

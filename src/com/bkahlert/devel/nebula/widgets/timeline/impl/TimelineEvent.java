@@ -9,7 +9,7 @@ import java.util.List;
 import org.eclipse.core.internal.runtime.AdapterManager;
 
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineEvent;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 
 public class TimelineEvent implements ITimelineEvent {
 

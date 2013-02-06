@@ -21,8 +21,9 @@ import org.eclipse.core.runtime.SubMonitor;
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.utils.StringUtils;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Decorator;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.SelectionTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineInput;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 
 public class TimelineJsonGenerator {
 
@@ -52,10 +53,8 @@ public class TimelineJsonGenerator {
 
 	public static String toJson(ITimelineInput input, boolean pretty,
 			IProgressMonitor monitor) {
-		SubMonitor subMonitor = SubMonitor.convert(monitor);
-
 		int eventCount = input.getEventCount();
-		subMonitor.beginTask("Genering JSON", 5 + eventCount);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 5 + eventCount + 5);
 
 		JsonFactory factory = new JsonFactory();
 		StringWriter stringWriter = new StringWriter();
@@ -81,7 +80,6 @@ public class TimelineJsonGenerator {
 			stringWriter.close();
 			subMonitor.worked(5);
 			subMonitor.done();
-			// System.err.println(json);
 			return json;
 		} catch (IOException e) {
 			logger.fatal("Error using " + StringWriter.class.getSimpleName(), e);
@@ -233,11 +231,11 @@ public class TimelineJsonGenerator {
 		}
 
 		generator.writeFieldName("start");
-		generator.writeString(start != null ? CalendarUtils
-				.toISO8601(start) : "null");
+		generator.writeString(start != null ? CalendarUtils.toISO8601(start)
+				: "null");
 		generator.writeFieldName("end");
-		generator.writeString(end != null ? CalendarUtils
-				.toISO8601(end) : "null");
+		generator.writeString(end != null ? CalendarUtils.toISO8601(end)
+				: "null");
 
 		generator.writeFieldName("durationEvent");
 		generator.writeBoolean(true);

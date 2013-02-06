@@ -1,7 +1,10 @@
 package com.bkahlert.devel.nebula.viewer.timeline;
 
+import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+
 /**
- * Provides label information for the passed timeline band.
+ * Provides label information for the passed {@link ITimeline} band defined by a
+ * value object.
  * 
  * @author bkahlert
  * 

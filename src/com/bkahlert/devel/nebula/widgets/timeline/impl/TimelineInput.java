@@ -5,9 +5,9 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.bkahlert.devel.nebula.widgets.timeline.IOptions;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineBand;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineInput;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 
 public class TimelineInput implements ITimelineInput {
 

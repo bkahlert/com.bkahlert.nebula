@@ -1,12 +1,13 @@
-package com.bkahlert.devel.nebula.widgets.timeline;
+package com.bkahlert.devel.nebula.widgets.timeline.model;
 
 import java.util.Calendar;
 import java.util.List;
 
-import com.bkahlert.devel.nebula.widgets.timeline.impl.SelectionTimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.IOptions;
 
 /**
- * Denotes a band on a {@link SelectionTimeline}.
+ * Denotes a band on an {@link IBaseTimeline}.
  * 
  * @author bkahlert
  * 

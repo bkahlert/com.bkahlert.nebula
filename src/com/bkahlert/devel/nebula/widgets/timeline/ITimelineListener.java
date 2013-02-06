@@ -1,55 +1,56 @@
 package com.bkahlert.devel.nebula.widgets.timeline;
 
 /**
- * FIXME add Mouse down etc. für drag support
+ * This listener notifies about events that occured on the hosting
+ * {@link ITimeline}.
  * 
  * @author bkahlert
  * 
  */
 public interface ITimelineListener {
 	/**
-	 * Is called if an {@link ITimelineEvent} was clicked with the left button.
+	 * Is called if an {@link TimelineEvent} was clicked with the left button.
 	 * 
-	 * @param timelineEvent
+	 * @param event
 	 */
-	public void clicked(ITimelineEvent timelineEvent);
+	public void clicked(TimelineEvent event);
 
 	/**
-	 * Is called if an {@link ITimelineEvent} was clicked.
+	 * Is called if an {@link TimelineEvent} was clicked.
 	 * 
-	 * @param timelineEvent
+	 * @param event
 	 */
-	public void middleClicked(ITimelineEvent timelineEvent);
+	public void middleClicked(TimelineEvent event);
 
 	/**
-	 * Is called if an {@link ITimelineEvent} was clicked.
+	 * Is called if an {@link TimelineEvent} was clicked.
 	 * 
-	 * @param timelineEvent
+	 * @param event
 	 */
-	public void rightClicked(ITimelineEvent timelineEvent);
+	public void rightClicked(TimelineEvent event);
 
 	/**
-	 * Is called if an {@link ITimelineEvent} was double clicked.
+	 * Is called if an {@link TimelineEvent} was double clicked.
 	 * <p>
 	 * Please note that the the clicks will also trigger the click event.
 	 * 
-	 * @param timelineEvent
+	 * @param event
 	 */
-	public void doubleClicked(ITimelineEvent timelineEvent);
+	public void doubleClicked(TimelineEvent event);
 
 	/**
-	 * Is called if an {@link ITimelineEvent} was hovered in, meaning the mouse
+	 * Is called if an {@link TimelineEvent} was hovered in, meaning the mouse
 	 * moved over it.
 	 * 
-	 * @param timelineEvent
+	 * @param event
 	 */
-	public void hoveredIn(ITimelineEvent timelineEvent);
+	public void hoveredIn(TimelineEvent event);
 
 	/**
-	 * Is called if an {@link ITimelineEvent} was hovered out, meaning the mouse
+	 * Is called if an {@link TimelineEvent} was hovered out, meaning the mouse
 	 * moved away from it.
 	 * 
-	 * @param timelineEvent
+	 * @param event
 	 */
-	public void hoveredOut(ITimelineEvent timelineEvent);
+	public void hoveredOut(TimelineEvent event);
 }

@@ -225,6 +225,9 @@
 			})();
 			this.timeline("calculateBandWidths", 72, bandSettings, 10);
 
+            /*
+             * Use a user defined bubble function or ignore it completely.
+             */
 			if (settings.show_bubble && settings.show_bubble_field) {
 				Timeline.CompactEventPainter.prototype._showBubble = function(x, y, evt) {
 					var fn = window[settings.show_bubble];
@@ -232,6 +235,8 @@
 						fn(evt[0]["_" + settings.show_bubble_field]);
 					}
 				}
+			} else {
+			    Timeline.CompactEventPainter.prototype._showBubble = function() {};
 			}
 
 			return this.each(function() {
@@ -604,4 +609,22 @@ Timeline.OverviewEventPainter.prototype.paintDurationEvent = function(evt, metri
 	var tapeElmtData = this._paintEventTape(evt, tapeTrack, latestStartPixel, earliestEndPixel, color, 100, metrics, theme, klassName);
 
 	this._createHighlightDiv(highlightIndex, tapeElmtData, theme);
+};
+
+/*
+ * We only want the timeline to scroll on double click iff the user did not
+ * click on an event.
+ */
+Timeline._Band.prototype._onDblClick = function(innerFrame, evt, target) {
+    var $target = $(target);
+    if($target.hasClass("timeline-event-label")
+    || $target.hasClass("timeline-event-tape")
+    || $target.hasClass("timeline-event-icon")
+    || $target.parent().hasClass("timeline-event-icon")) {
+        return true;
+    }
+    
+    var coords = SimileAjax.DOM.getEventRelativeCoordinates(evt, innerFrame);
+    var distance = coords.x - (this._viewLength / 2 - this._viewOffset);
+    this._autoScroll(-distance);
 };

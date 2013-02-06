@@ -13,16 +13,15 @@ import com.bkahlert.devel.nebula.viewer.timeline.ITimelineEventLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.ITimelineViewer;
 import com.bkahlert.devel.nebula.widgets.timeline.IOptions;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineBand;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineInput;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineInput;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 
 public class SingleSourceTimelineViewer extends TimelineViewer implements
 		ITimelineViewer, ISingleSourceTimelineViewer {
 
-	private ITimeline timeline;
 	private Object input;
 
 	private ITimelineContentProvider contentProvider;
@@ -30,7 +29,7 @@ public class SingleSourceTimelineViewer extends TimelineViewer implements
 	private ITimelineEventLabelProvider eventLabelProvider;
 
 	public SingleSourceTimelineViewer(ITimeline timeline) {
-		this.timeline = timeline;
+		super(timeline);
 	}
 
 	@Override
@@ -43,6 +42,11 @@ public class SingleSourceTimelineViewer extends TimelineViewer implements
 				this.contentProvider.inputChanged(this, oldInput, newInput);
 			}
 		}
+	}
+
+	@Override
+	public Object getInput() {
+		return this.input;
 	}
 
 	/*
@@ -97,18 +101,31 @@ public class SingleSourceTimelineViewer extends TimelineViewer implements
 		for (Object band : bands) {
 			IOptions bandOptions = TimelineViewerHelper.getBandOptions(band,
 					this.bandLabelProvider);
-			List<ITimelineEvent> events = TimelineViewerHelper
-					.getEvents(
-							this.contentProvider.getEvents(band,
-									subMonitor.newChild(1)),
+			List<ITimelineEvent> timelineEvents = new ArrayList<ITimelineEvent>();
+			
+			if (this.eventLabelProvider != null) {
+				for (Object event : this.contentProvider.getEvents(band,
+													subMonitor.newChild(1))) {
+					ITimelineEvent timelineEvent = TimelineViewerHelper.getEvent(event,
 							this.eventLabelProvider);
+					timelineEvents.add(timelineEvent);
+				}
+			}
+			List<ITimelineEvent> events = timelineEvents;
 			ITimelineBand timelineBand = new TimelineBand(bandOptions, events);
 			timelineBands.add(timelineBand);
 		}
 
-		IOptions options = getTimelineOptions();
+		IOptions options = TimelineViewerHelper.getTimelineOptions(this
+				.getTimelineLabelProvider());
 		ITimelineInput timelineInput = new TimelineInput(options, timelineBands);
-		this.timeline.show(timelineInput, subMonitor.newChild(10));
+		((ITimeline) this.getControl()).show(timelineInput,
+				subMonitor.newChild(10));
+	}
+
+	@Override
+	public void refresh() {
+		this.refresh(null);
 	}
 
 }

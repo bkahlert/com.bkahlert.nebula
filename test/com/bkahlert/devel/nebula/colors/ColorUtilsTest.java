@@ -36,7 +36,7 @@ public class ColorUtilsTest {
 	}
 
 	/**
-	 * Test method for
+	 * TimelineViewer method for
 	 * {@link de.fu_berlin.inf.dpp.util.ColorUtils#addLightness(org.eclipse.swt.graphics.RGB, float)}
 	 * .
 	 */
@@ -53,7 +53,7 @@ public class ColorUtilsTest {
 	}
 
 	/**
-	 * Test method for
+	 * TimelineViewer method for
 	 * {@link de.fu_berlin.inf.dpp.util.ColorUtils#addLightness(org.eclipse.swt.graphics.RGB, float)}
 	 * .
 	 */
@@ -63,7 +63,7 @@ public class ColorUtilsTest {
 	}
 
 	/**
-	 * Test method for
+	 * TimelineViewer method for
 	 * {@link de.fu_berlin.inf.dpp.util.ColorUtils#addLightness(org.eclipse.swt.graphics.Color, float)}
 	 * .
 	 */
@@ -85,7 +85,7 @@ public class ColorUtilsTest {
 	}
 
 	/**
-	 * Test method for
+	 * TimelineViewer method for
 	 * {@link de.fu_berlin.inf.dpp.util.ColorUtils#scaleColorBy(org.eclipse.swt.graphics.RGB, float)}
 	 * .
 	 */
@@ -104,7 +104,7 @@ public class ColorUtilsTest {
 	}
 
 	/**
-	 * Test method for
+	 * TimelineViewer method for
 	 * {@link de.fu_berlin.inf.dpp.util.ColorUtils#scaleColorBy(org.eclipse.swt.graphics.Color, float)}
 	 * .
 	 */

@@ -4,7 +4,14 @@ import java.util.Calendar;
 
 import com.bkahlert.devel.nebula.widgets.timeline.IDecorator;
 import com.bkahlert.devel.nebula.widgets.timeline.IHotZone;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 
+/**
+ * Instances of this class provide label information for {@link ITimeline}s.
+ * 
+ * @author bkahlert
+ * 
+ */
 public interface ITimelineLabelProvider {
 
 	public String getTitle();

@@ -3,8 +3,11 @@ package com.bkahlert.devel.nebula.viewer.timeline;
 import java.net.URI;
 import java.util.Calendar;
 
+import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+
 /**
- * Provides label information for the passed timeline event.
+ * Provides label information for the passed {@link ITimeline} event represented
+ * by a value object.
  * 
  * @author bkahlert
  * 

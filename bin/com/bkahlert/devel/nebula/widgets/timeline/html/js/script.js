@@ -155,6 +155,7 @@ jQuery(document).ready(function($) {
         });
         
         $(document).dblclick(function(e) {
+           e.stopPropagation();
            return handler(e, timeline_plugin_dblclick_callback);
         });
         
