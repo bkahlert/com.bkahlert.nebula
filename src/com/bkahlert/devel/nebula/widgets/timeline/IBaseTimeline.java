@@ -10,6 +10,7 @@ import com.bkahlert.devel.nebula.widgets.browser.IBrowserComposite;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Decorator;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 
 /**
  * Instances of this class denote a {@link IBaseTimeline} displayed by means of
@@ -56,6 +57,8 @@ public interface IBaseTimeline extends IBrowserComposite {
 
 	/**
 	 * Displays the given {@link ITimelineInput} on the {@link IBaseTimeline}.
+	 * <p>
+	 * May be called from whatever thread.
 	 * 
 	 * @param input
 	 * @param monitor
@@ -140,4 +143,5 @@ public interface IBaseTimeline extends IBrowserComposite {
 	 * @return
 	 */
 	public ITimelineEvent getPredecessor(ITimelineEvent event);
+
 }

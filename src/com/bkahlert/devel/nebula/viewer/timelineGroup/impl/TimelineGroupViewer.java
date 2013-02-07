@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.viewer.timeline.impl;
+package com.bkahlert.devel.nebula.viewer.timelineGroup.impl;
 
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -6,15 +6,16 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Control;
 
-import com.bkahlert.devel.nebula.viewer.timeline.ITimelineViewer;
+import com.bkahlert.devel.nebula.viewer.timelineGroup.ITimelineGroupViewer;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
+import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
 
-public abstract class TimelineViewer<TIMELINE extends ITimeline> extends Viewer
-		implements ITimelineViewer {
+public abstract class TimelineGroupViewer<TIMELINE extends ITimeline> extends
+		Viewer implements ITimelineGroupViewer<TIMELINE> {
 
-	private TIMELINE timeline;
+	private ITimelineGroup<TIMELINE> timelineGroup;
 
 	private ISelection selection = null;
 	private ITimelineListener timelineListener = new ITimelineListener() {
@@ -47,14 +48,14 @@ public abstract class TimelineViewer<TIMELINE extends ITimeline> extends Viewer
 		}
 	};
 
-	public TimelineViewer(TIMELINE timeline) {
-		this.timeline = timeline;
-		this.timeline.addTimelineListener(this.timelineListener);
+	public TimelineGroupViewer(ITimelineGroup<TIMELINE> timelineGroup) {
+		this.timelineGroup = timelineGroup;
+		this.timelineGroup.addTimelineListener(this.timelineListener);
 	}
 
 	@Override
 	public Control getControl() {
-		return (Control) this.timeline;
+		return (Control) this.timelineGroup;
 	}
 
 	@Override

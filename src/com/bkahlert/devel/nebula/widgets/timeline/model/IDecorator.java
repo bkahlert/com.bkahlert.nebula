@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.widgets.timeline;
+package com.bkahlert.devel.nebula.widgets.timeline.model;
 
 /**
  * A {@link IDecorator} denotes a time span on a time line that receives a

@@ -1,8 +1,11 @@
 package com.bkahlert.devel.nebula.widgets.timeline;
 
-
 /**
- * 
+ * This interface extends the {@link IBaseTimeline} by two functionalities:
+ * <ol>
+ * <li>Resolve the next and previous event given a event</li>
+ * <li>Listener support</li>
+ * </ol>
  * 
  * @author bkahlert
  * 

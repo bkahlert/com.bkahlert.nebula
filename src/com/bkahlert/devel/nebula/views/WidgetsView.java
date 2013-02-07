@@ -31,8 +31,8 @@ import com.bkahlert.devel.nebula.dialogs.DirectoryListDialog;
 import com.bkahlert.devel.nebula.widgets.ColorPicker;
 import com.bkahlert.devel.nebula.widgets.RoundedLabels;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineInput;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 
 public class WidgetsView extends ViewPart {
 

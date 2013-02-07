@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.viewer.timeline;
+package com.bkahlert.devel.nebula.viewer.timelineGroup;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.IInputSelectionProvider;
@@ -15,11 +15,12 @@ import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
  * @author bkahlert
  * 
  */
-public interface ITimelineViewer extends IInputSelectionProvider {
+public interface ITimelineGroupViewer<TIMELINE extends ITimeline> extends
+		IInputSelectionProvider {
 	/**
 	 * Returns the viewer's underlying {@link ITimeline}.
 	 * <p>
-	 * May be safely casted to {@link ITimeline}.
+	 * May be safely casted to TIMELINE.
 	 * 
 	 * @return
 	 */

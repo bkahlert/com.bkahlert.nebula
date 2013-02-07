@@ -1,7 +1,8 @@
-package com.bkahlert.devel.nebula.viewer.timeline;
+package com.bkahlert.devel.nebula.viewer.timeline.provider.atomic;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import com.bkahlert.devel.nebula.viewer.timeline.ITimelineViewer;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 
 /**

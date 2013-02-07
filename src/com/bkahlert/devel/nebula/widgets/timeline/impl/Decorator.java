@@ -3,7 +3,7 @@ package com.bkahlert.devel.nebula.widgets.timeline.impl;
 import java.util.Calendar;
 
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
-import com.bkahlert.devel.nebula.widgets.timeline.IDecorator;
+import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
 
 public class Decorator implements IDecorator {
 	private String startDate;

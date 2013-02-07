@@ -1,11 +1,9 @@
-package com.bkahlert.devel.nebula.widgets.timeline;
+package com.bkahlert.devel.nebula.widgets.timeline.model;
 
 import java.util.Calendar;
 import java.util.Map;
 import java.util.TimeZone;
 
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 
 /**
  * Instances of this class can be used as options for {@link ITimelineInput}s or

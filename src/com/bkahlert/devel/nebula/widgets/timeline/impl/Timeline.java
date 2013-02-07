@@ -8,11 +8,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineInput;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 
 public class Timeline extends BaseTimeline implements ITimeline {
 

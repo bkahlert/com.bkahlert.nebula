@@ -5,9 +5,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
-import com.bkahlert.devel.nebula.widgets.timeline.IDecorator;
-import com.bkahlert.devel.nebula.widgets.timeline.IHotZone;
-import com.bkahlert.devel.nebula.widgets.timeline.IOptions;
+import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
+import com.bkahlert.devel.nebula.widgets.timeline.model.IHotZone;
+import com.bkahlert.devel.nebula.widgets.timeline.model.IOptions;
 
 public class Options extends HashMap<String, Object> implements IOptions {
 

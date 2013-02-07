@@ -26,10 +26,10 @@ import org.eclipse.swt.widgets.Listener;
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
 import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineInput;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineJsonGenerator;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 
 /**
  * This is a very basic timeline implementation.

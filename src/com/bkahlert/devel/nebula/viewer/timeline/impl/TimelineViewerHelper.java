@@ -3,13 +3,14 @@ package com.bkahlert.devel.nebula.viewer.timeline.impl;
 import java.net.URI;
 import java.util.Calendar;
 
-import com.bkahlert.devel.nebula.viewer.timeline.ITimelineBandLabelProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.ITimelineEventLabelProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.ITimelineLabelProvider;
-import com.bkahlert.devel.nebula.widgets.timeline.IOptions;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
+import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineEvent;
+import com.bkahlert.devel.nebula.widgets.timeline.model.IOptions;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 
 /**
@@ -19,7 +20,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
  * @author bkahlert
  * 
  */
-public class TimelineViewerHelper {
+public class TimelineViewerHelper<TIMELINE extends IBaseTimeline> {
 
 	/**
 	 * Generates the options for a {@link ITimeline} using a given
@@ -28,26 +29,29 @@ public class TimelineViewerHelper {
 	 * @param timelineLabelProvider
 	 * @return
 	 */
-	public static IOptions getTimelineOptions(
-			ITimelineLabelProvider timelineLabelProvider) {
+	public static <TIMELINE extends IBaseTimeline> IOptions getTimelineOptions(
+			TIMELINE timeline,
+			ITimelineLabelProvider<TIMELINE> timelineLabelProvider) {
 		IOptions options = new Options();
 		if (timelineLabelProvider != null) {
-			options.setTitle(timelineLabelProvider.getTitle());
-			options.setCenterStart(timelineLabelProvider.getCenterStart());
+			options.setTitle(timelineLabelProvider.getTitle(timeline));
+			options.setCenterStart(timelineLabelProvider
+					.getCenterStart(timeline));
 			options.setTapeImpreciseOpacity(timelineLabelProvider
-					.getTapeImpreciseOpacity());
-			options.setIconWidth(timelineLabelProvider.getIconWidth());
+					.getTapeImpreciseOpacity(timeline));
+			options.setIconWidth(timelineLabelProvider.getIconWidth(timeline));
 
-			String[] bubbleFunction = timelineLabelProvider.getBubbleFunction();
+			String[] bubbleFunction = timelineLabelProvider
+					.getBubbleFunction(timeline);
 			String functionName = bubbleFunction != null
 					&& bubbleFunction.length > 0 ? bubbleFunction[0] : null;
 			String functionField = bubbleFunction != null
 					&& bubbleFunction.length > 1 ? bubbleFunction[1] : null;
 			options.setBubbleFunction(functionName, functionField);
 
-			options.setHotZones(timelineLabelProvider.getHotZones());
-			options.setDecorators(timelineLabelProvider.getDecorators());
-			options.setTimeZone(timelineLabelProvider.getTimeZone());
+			options.setHotZones(timelineLabelProvider.getHotZones(timeline));
+			options.setDecorators(timelineLabelProvider.getDecorators(timeline));
+			options.setTimeZone(timelineLabelProvider.getTimeZone(timeline));
 		}
 		return options;
 	}

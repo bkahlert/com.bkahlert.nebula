@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.bkahlert.devel.nebula.widgets.timeline.IOptions;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineInput;
+import com.bkahlert.devel.nebula.widgets.timeline.model.IOptions;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 
 public class TimelineInput implements ITimelineInput {
 

@@ -1,6 +1,6 @@
 package com.bkahlert.devel.nebula.widgets.timeline.impl;
 
-import com.bkahlert.devel.nebula.widgets.timeline.IHotZone;
+import com.bkahlert.devel.nebula.widgets.timeline.model.IHotZone;
 
 public class HotZone implements IHotZone {
 	private String start;

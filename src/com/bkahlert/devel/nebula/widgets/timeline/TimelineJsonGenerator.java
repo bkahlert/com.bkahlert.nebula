@@ -22,8 +22,11 @@ import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.utils.StringUtils;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Decorator;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineInput;
+import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
+import com.bkahlert.devel.nebula.widgets.timeline.model.IOptions;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 
 public class TimelineJsonGenerator {
 

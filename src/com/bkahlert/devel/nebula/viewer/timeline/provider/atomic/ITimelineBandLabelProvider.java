@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.viewer.timeline;
+package com.bkahlert.devel.nebula.viewer.timeline.provider.atomic;
 
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 

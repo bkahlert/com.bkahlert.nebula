@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.widgets.timeline;
+package com.bkahlert.devel.nebula.widgets.timeline.model;
 
 import com.bkahlert.devel.nebula.widgets.timeline.impl.HotZone;
 

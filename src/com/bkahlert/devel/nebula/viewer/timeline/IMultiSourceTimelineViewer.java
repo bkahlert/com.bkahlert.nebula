@@ -1,21 +1,18 @@
 package com.bkahlert.devel.nebula.viewer.timeline;
 
+import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProvider;
+import com.bkahlert.devel.nebula.viewer.timelineGroup.ITimelineGroupViewer;
+import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
+
 /**
- * Interface for {@link ITimelineViewer} using multiple sets of label providers.
+ * Interface for {@link ITimelineGroupViewer}.
  * 
  * @author bkahlert
  * 
  */
-public interface IMultiSourceTimelineViewer extends ITimelineViewer {
+public interface IMultiSourceTimelineViewer<TIMELINE extends IBaseTimeline>
+		extends ITimelineViewer {
 
-	public static interface IProviderGroup {
-		public ITimelineContentProvider getContentProvider();
-
-		public ITimelineBandLabelProvider getBandLabelProvider();
-
-		public ITimelineEventLabelProvider getEventLabelProvider();
-	}
-
-	public void setProviders(IProviderGroup[] providers);
+	public void setTimelineProvider(ITimelineProvider<TIMELINE> provider);
 
 }

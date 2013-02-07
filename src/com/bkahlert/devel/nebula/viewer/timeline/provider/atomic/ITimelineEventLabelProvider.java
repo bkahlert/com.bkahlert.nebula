@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.viewer.timeline;
+package com.bkahlert.devel.nebula.viewer.timeline.provider.atomic;
 
 import java.net.URI;
 import java.util.Calendar;
