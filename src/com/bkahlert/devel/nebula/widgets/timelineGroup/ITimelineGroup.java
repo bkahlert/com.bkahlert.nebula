@@ -6,11 +6,12 @@ import java.util.concurrent.Future;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import com.bkahlert.devel.nebula.widgets.IWidget;
 import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 
-public interface ITimelineGroup<TIMELINE extends IBaseTimeline> {
+public interface ITimelineGroup<TIMELINE extends IBaseTimeline> extends IWidget {
 	/**
 	 * Displays the given {@link ITimelineGroupInput}.
 	 * <p>

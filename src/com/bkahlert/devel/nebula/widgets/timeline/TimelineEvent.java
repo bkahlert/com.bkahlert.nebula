@@ -26,4 +26,16 @@ public class TimelineEvent extends TypedEvent {
 		this.widget = (Widget) timeline;
 		this.timelineEvent = timelineEvent;
 	}
+
+	/**
+	 * Returns the object on which this event occurred.<br>
+	 * This is typically the object that is represented by the visual component.
+	 * 
+	 * @return
+	 * @see TypedEvent#getSource()
+	 */
+	@Override
+	public Object getSource() {
+		return super.getSource();
+	}
 }

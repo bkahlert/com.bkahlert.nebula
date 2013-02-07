@@ -89,6 +89,7 @@ public class MultiSourceTimelineViewer<TIMELINE extends ITimeline> extends
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public void refresh(IProgressMonitor monitor) {
 		if (this.timelineProvider == null)
 			return;
@@ -139,18 +140,12 @@ public class MultiSourceTimelineViewer<TIMELINE extends ITimeline> extends
 			}
 		}
 
-		@SuppressWarnings("unchecked")
 		IOptions options = TimelineViewerHelper.getTimelineOptions(
 				(TIMELINE) getControl(),
 				this.timelineProvider.getTimelineLabelProvider());
 		ITimelineInput timelineInput = new TimelineInput(options, timelineBands);
-		((ITimeline) this.getControl()).show(timelineInput,
+		((TIMELINE) this.getControl()).show(timelineInput,
 				subMonitor.newChild(10));
-	}
-
-	@Override
-	public void refresh() {
-		this.refresh(null);
 	}
 
 }

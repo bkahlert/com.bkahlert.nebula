@@ -4,7 +4,10 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.devel.nebula.viewer.timeline.ITimelineViewer;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
@@ -50,6 +53,26 @@ public abstract class TimelineViewer<TIMELINE extends ITimeline> extends Viewer
 	public TimelineViewer(TIMELINE timeline) {
 		this.timeline = timeline;
 		this.timeline.addTimelineListener(this.timelineListener);
+		Runnable addDisposeListener = new Runnable() {
+			@Override
+			public void run() {
+				TimelineViewer.this.timeline
+						.addDisposeListener(new DisposeListener() {
+							@Override
+							public void widgetDisposed(DisposeEvent e) {
+								if (TimelineViewer.this.timeline != null
+										&& !TimelineViewer.this.timeline
+												.isDisposed()) {
+									TimelineViewer.this.timeline.dispose();
+								}
+							}
+						});
+			}
+		};
+		if (Display.getCurrent() == Display.getDefault())
+			addDisposeListener.run();
+		else
+			Display.getDefault().syncExec(addDisposeListener);
 	}
 
 	@Override
@@ -66,6 +89,11 @@ public abstract class TimelineViewer<TIMELINE extends ITimeline> extends Viewer
 	public void setSelection(ISelection selection, boolean reveal) {
 		this.selection = selection;
 		fireSelectionChanged(new SelectionChangedEvent(this, selection));
+	}
+
+	@Override
+	public void refresh() {
+		this.refresh(null);
 	}
 
 }
