@@ -3,6 +3,30 @@
 (function($) {
     var methods = {
 
+        /**
+         * Magnifies the zoom steps array by the specified number.
+         * This means that the first fields are removed and
+         * the last one are duplicated so the resulting array
+         * has the same number of elements.
+         * <p>
+         * e.g. [A, B, C, D] and magnification of 2 results in [C, D, D, D].
+         * same input but with magnification of -2 results in [A, A, A, C];
+         */
+        magnifyZoomSteps : function(zoomSteps, by) {
+            if (!zoomSteps)
+                return false;
+            var magnified = [];
+            for (var i = 0; i < zoomSteps.length; i++) {
+                var pos = i + by;
+                if (pos < 0)
+                    pos = 0;
+                if (pos > zoomSteps.length - 1)
+                    pos = zoomSteps.length - 1;
+                magnified[i] = zoomSteps[pos];
+            }
+            return magnified;
+        },
+
         extendZones : function(zones, options) {
             if (zones == false)
                 return [];
@@ -236,6 +260,16 @@
                         settings.zoomSteps[i].unit = SimileAjax.DateTime[settings.zoomSteps[i].unit];
                     }
                 }
+                if (!settings.zoomIndex) {
+                    settings.zoomIndex = 0;
+                }
+            } else {
+                settings.zoomSteps = [{
+                    pixelsPerInterval : 66,
+                    unit : Timeline.DateTime.HOUR,
+                    getShowLabelEveryUnits : 1
+                }];
+                settings.zoomIndex = 0;
             }
 
             if (settings.centerStart == null)
@@ -244,18 +278,11 @@
             (function() {
                 var temp = [];
                 $.each(bandOptions, function(i, bandOptions) {
-                    var timelineInheritedSettings = {
-                        options : []
-                    };
-                    if (settings.zoomIndex)
-                        timelineInheritedSettings.options.zoomIndex = settings.zoomIndex;
-                    if (settings.zoomSteps)
-                        timelineInheritedSettings.options.zoomSteps = settings.zoomSteps;
-                    temp[i] = $.extend({}, bandSettings, timelineInheritedSettings, bandOptions, true);
+                    temp[i] = $.extend({}, bandSettings, bandOptions, true);
                 });
                 bandSettings = temp;
             })();
-            this.timeline("calculateBandWidths", 74.2, bandSettings, 10);
+            this.timeline("calculateBandWidths", 88.5, bandSettings, 10);
 
             /*
              * Use a user defined bubble function or ignore it completely.
@@ -281,7 +308,7 @@
                 $.each(bandSettings, function(i) {
                     customBandEventSources[i] = new Timeline.DefaultEventSource(0);
                     var theme = $this.timeline("createTheme", $.extend({}, settings, bandSettings[i], true));
-                    var info = {
+                    customBands[i] = Timeline.createBandInfo($.extend({
                         eventSource : customBandEventSources[i],
                         theme : theme,
                         timeZone : settings.timeZone,
@@ -303,75 +330,32 @@
                                 iconHeight : 20
                             }
                         },
-                        intervalPixels : 66,
-                        intervalUnit : Timeline.DateTime.HOUR,
-                        multiple : 1
-                    };
-
-                    /*
-                     * Set correct initial zoom details
-                     */
-                    if (bandSettings[i].options.zoomIndex && bandSettings[i].options.zoomSteps && bandSettings[i].options.zoomSteps.length >= bandSettings[i].options.zoomIndex + 1) {
-                        info.intervalPixels = bandSettings[i].options.zoomSteps[bandSettings[i].options.zoomIndex].pixelsPerInterval;
-                        info.intervalUnit = bandSettings[i].options.zoomSteps[bandSettings[i].options.zoomIndex].unit;
-                        info.multiple = bandSettings[i].options.zoomSteps[bandSettings[i].options.zoomIndex].showLabelEveryUnits;
-                    }
-
-                    $.extend(info, bandSettings[i].options);
-                    customBands[i] = Timeline.createBandInfo(info);
+                        intervalPixels : settings.zoomSteps[settings.zoomIndex].pixelsPerInterval,
+                        intervalUnit : settings.zoomSteps[settings.zoomIndex].unit,
+                        multiple : settings.zoomSteps[settings.zoomIndex].showLabelEveryUnits
+                    }, bandSettings[i].options));
                 });
 
+                function createOverviewBand(zoomIndex, zoomSteps) {
+                    return Timeline.createBandInfo({
+                        width : "7%",
+                        intervalPixels : zoomSteps[zoomIndex].pixelsPerInterval,
+                        intervalUnit : zoomSteps[zoomIndex].unit,
+                        multiple : zoomSteps[zoomIndex].showLabelEveryUnits,
+                        zoomIndex : zoomIndex,
+                        zoomSteps : zoomSteps,
+                        eventSource : timeBandEventSource,
+                        theme : timeBandTheme,
+                        timeZone : settings.timeZone,
+                        layout : 'overview' // original, overview, detailed
+                    })
+                }
+
                 var timeBandTheme = $this.timeline("createTheme", settings);
-                var timeBands = [Timeline.createHotZoneBandInfo({
-                    zones : $this.timeline("extendZones", settings.hotZones, {
-                        magnify : 3,
-                        unit : Timeline.DateTime.MINUTE
-                    }),
-                    width : "7%",
-                    intervalUnit : Timeline.DateTime.MINUTE,
-                    intervalPixels : 30,
-                    multiple : 5,
-                    eventSource : timeBandEventSource,
-                    theme : timeBandTheme,
-                    timeZone : settings.timeZone,
-                    layout : 'overview' // original, overview, detailed
-                }), Timeline.createHotZoneBandInfo({
-                    zones : $this.timeline("extendZones", settings.hotZones, {
-                        magnify : 4,
-                        unit : Timeline.DateTime.HOUR
-                    }),
-                    width : "7%",
-                    intervalUnit : Timeline.DateTime.HOUR,
-                    intervalPixels : 50,
-                    eventSource : timeBandEventSource,
-                    theme : timeBandTheme,
-                    timeZone : settings.timeZone,
-                    layout : 'overview' // original, overview, detailed
-                }), Timeline.createHotZoneBandInfo({
-                    zones : $this.timeline("extendZones", settings.hotZones, {
-                        magnify : 5,
-                        unit : Timeline.DateTime.DAY
-                    }),
-                    width : "7%",
-                    intervalUnit : Timeline.DateTime.DAY,
-                    intervalPixels : 100,
-                    eventSource : timeBandEventSource,
-                    theme : timeBandTheme,
-                    timeZone : settings.timeZone,
-                    layout : 'overview' // original, overview, detailed
-                }), Timeline.createHotZoneBandInfo({
-                    zones : $this.timeline("extendZones", settings.hotZones, {
-                        magnify : 20,
-                        unit : Timeline.DateTime.MONTH
-                    }),
-                    width : "7%",
-                    intervalUnit : Timeline.DateTime.MONTH,
-                    intervalPixels : 50,
-                    eventSource : timeBandEventSource,
-                    theme : timeBandTheme,
-                    timeZone : settings.timeZone,
-                    layout : 'overview' // original, overview, detailed
-                })];
+                var timeBands = [
+                    createOverviewBand(settings.zoomIndex, $this.timeline("magnifyZoomSteps", settings.zoomSteps, 5)),
+                    createOverviewBand(settings.zoomIndex, $this.timeline("magnifyZoomSteps", settings.zoomSteps, 16))
+                    ];
 
                 /*
                  * Synchronize all bands with the first one
@@ -444,19 +428,24 @@
                 /*
                  * Add zoom controls
                  * if zoomSteps and a valid index are set.
-                 * // TODO weniger übersichts zeitleisten
                  * // TODO codeInstance soll memo nicht in instance speichern
-                 * 
+                 *
                  * // TODO alle events in einer band
                  */
-                if (settings.zoomIndex && settings.zoomSteps && settings.zoomSteps.length >= settings.zoomIndex + 1) {
+                if (settings.zoomSteps.length > 0) {
                     $('<div class="timeline-zoom"></div>').prependTo($this).zoomControl({
                         min : 0,
                         max : settings.zoomSteps.length - 1,
                         value : settings.zoomIndex,
                         change : function(event, ui) {
                             var newZoomIndex = ui.value;
-                            if($this.data("zoomIndex") != newZoomIndex) {
+                            if ($this.data("zoomIndex") != newZoomIndex) {
+                                $this.timeline("setZoomIndex", newZoomIndex);
+                            }
+                        },
+                        slide : function(event, ui) {
+                            var newZoomIndex = ui.value;
+                            if ($this.data("zoomIndex") != newZoomIndex) {
                                 $this.timeline("setZoomIndex", newZoomIndex);
                             }
                         }
@@ -558,7 +547,7 @@
                 $(this).data('timeline').getBand(0).setMaxVisibleDate(date);
             });
         },
-        
+
         /**
          * Zooms in to the specified level.
          * Checks if the index bounds are not exceeded.
@@ -567,33 +556,35 @@
          * @param y the y coordinate on the affected band where to zoom in [optional]
          */
         setZoomIndex : function(newZoomIndex, x, y) {
-            if(newZoomIndex < this.data("minZoomIndex")) newZoomIndex = this.data("minZoomIndex");
-            if(newZoomIndex > this.data("maxZoomIndex")) newZoomIndex = this.data("maxZoomIndex");
+            if (newZoomIndex < this.data("minZoomIndex"))
+                newZoomIndex = this.data("minZoomIndex");
+            if (newZoomIndex > this.data("maxZoomIndex"))
+                newZoomIndex = this.data("maxZoomIndex");
             this.data("zoomIndex", newZoomIndex);
             this.children(".timeline-zoom").zoomControl("setValue", newZoomIndex);
-            
+
             return this.each(function() {
                 $timeline = $(this);
                 var timeline = $timeline.data("timeline");
-                if(!x) {
+                if (!x) {
                     var offset = parseInt($(timeline._bands[0]._div).css("left")) * -1;
                     var center = $(document).width() / 2;
                     x = offset + center;
                 }
-                if(!y) {
+                if (!y) {
                     y = 0;
                 }
                 timeline.zoomTo(newZoomIndex, x, y);
             });
         },
-        
+
         /**
          * Returns the current zoom index.
          */
         getZoomIndex : function() {
             return this.data("zoomIndex");
         },
-        
+
         /**
          * Zooms in by increment steps
          * @param increment
@@ -601,9 +592,9 @@
          * @param y the y coordinate on the affected band where to zoom in [optional]
          */
         zoomBy : function(increment, x, y) {
-            $(this).timeline("setZoomIndex", this.data("zoomIndex") + increment, x, y); 
+            $(this).timeline("setZoomIndex", this.data("zoomIndex") + increment, x, y);
         },
-        
+
         loadJSON : function(json) {
             if ( typeof json === 'string')
                 json = $.parseJSON(json);
@@ -885,8 +876,6 @@ Timeline._Band.prototype.zoomTo = function(newZoomIndex, x, y) {
  */
 Timeline._Impl.prototype.zoomTo = function(newZoomIndex, x, y) {
     $.each(this._bands, function(i, band) {
-        if (!$(band._div).hasClass("timeline-custom-band"))
-            return;
         band._disableSyncing = true;
         band.zoomTo(newZoomIndex, x, y);
         band._disableSyncing = false;
@@ -900,11 +889,12 @@ Timeline._Impl.prototype.zoomTo = function(newZoomIndex, x, y) {
 
 /**
  * Stop sync notifications when flag set by Timeline.zoom/zoomTo
- * in order to prevent ping pong requests provoked by sequential (one band after another) zoom operations. 
+ * in order to prevent ping pong requests provoked by sequential (one band after another) zoom operations.
  */
 Timeline._Band.prototype._onChanging_ = Timeline._Band.prototype._onChanging;
 Timeline._Band.prototype._onChanging = function() {
-    if(this._disableSyncing) return;
+    if (this._disableSyncing)
+        return;
     this._onChanging_();
 };
 

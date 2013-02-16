@@ -209,6 +209,18 @@ html .timeline-highlight-custom {
 }
 
 /*
+ * Week end highlights
+ */
+html .timeline-ether-weekends {
+    background-color: rgba(0,0,0,0.2);
+    -webkit-mask-position: 0 0;
+    -webkit-mask-size: 100% 100%;
+    -webkit-mask-image: -webkit-gradient(linear, left center, right center, 
+       color-stop(0.00,  rgba(0,0,0,0)),
+       color-stop(1.00,  rgba(0,0,0,1)));
+}
+
+/*
  * Hover
  * The timeline provided a method that must be called after timeline creation
  * in order to make this rules to work.

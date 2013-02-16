@@ -123,6 +123,8 @@ public class TimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIMELINE>,
 		if (inputIsNew)
 			return;
 
+		// TODO implement mememto that saves all information below
+
 		// center data
 		Calendar centerVisibleDate = null;
 		try {

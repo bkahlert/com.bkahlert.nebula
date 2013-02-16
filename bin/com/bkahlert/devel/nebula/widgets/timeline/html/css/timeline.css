@@ -171,44 +171,24 @@ html .timeline-horizontal .timeline-date-label-em {
     display: none;
 }
 
-html .timeline-band:nth-last-child(8) .timeline-ether-bg {
-    background-color: #ccc;
-}
-html .timeline-band:nth-last-child(8) .timeline-date-label {
-    color: #333;
-}
-html .timeline-band:nth-last-child(8) .label_timeline-highlight-data {
-    color: #999;
-}
-
-html .timeline-band:nth-last-child(6) .timeline-ether-bg {
-    background-color: #bbb;
-}
-html .timeline-band:nth-last-child(6) .timeline-date-label {
-    color: #333;
-}
-html .timeline-band:nth-last-child(6) .label_timeline-highlight-data {
-    color: #888;
-}
-
 html .timeline-band:nth-last-child(4) .timeline-ether-bg {
-    background-color: #aaa;
+    background-color: #ccc;
 }
 html .timeline-band:nth-last-child(4) .timeline-date-label {
     color: #333;
 }
 html .timeline-band:nth-last-child(4) .label_timeline-highlight-data {
-    color: #777;
+    color: #999;
 }
 
 html .timeline-band:nth-last-child(2) .timeline-ether-bg {
-    background-color: #999;
+    background-color: #bbb;
 }
 html .timeline-band:nth-last-child(2) .timeline-date-label {
     color: #333;
 }
 html .timeline-band:nth-last-child(2) .label_timeline-highlight-data {
-    color: #666;
+    color: #888;
 }
 
 /*
@@ -226,6 +206,18 @@ html .timeline-highlight-custom {
     opacity: 0.4;
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=40)";
     filter: alpha(opacity=40);
+}
+
+/*
+ * Week end highlights
+ */
+html .timeline-ether-weekends {
+    background-color: rgba(0,0,0,0.2);
+    -webkit-mask-position: 0 0;
+    -webkit-mask-size: 100% 100%;
+    -webkit-mask-image: -webkit-gradient(linear, left center, right center, 
+       color-stop(0.00,  rgba(0,0,0,0)),
+       color-stop(1.00,  rgba(0,0,0,1)));
 }
 
 /*
