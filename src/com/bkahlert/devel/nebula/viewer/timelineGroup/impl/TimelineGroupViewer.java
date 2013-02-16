@@ -21,7 +21,8 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
 /**
  * This implementation supports to set decorators and keeps them, the focused
- * item and the current scroll position unchanged if a timeline is refreshed.
+ * item, the current scroll position and the zoom index unchanged if a timeline
+ * is refreshed.
  * 
  * @author bkahlert
  * 
@@ -122,6 +123,7 @@ public class TimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIMELINE>,
 		if (inputIsNew)
 			return;
 
+		// center data
 		Calendar centerVisibleDate = null;
 		try {
 			centerVisibleDate = ExecutorUtil.syncExec(new Callable<Calendar>() {
@@ -134,11 +136,23 @@ public class TimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIMELINE>,
 			LOGGER.error("Error retrieving the currently centered time", e);
 		}
 
+		// zoom index
+		Integer zoomIndex = null;
+		try {
+			zoomIndex = ExecutorUtil.syncExec(new Callable<Integer>() {
+				@Override
+				public Integer call() throws Exception {
+					return timeline.getZoomIndex();
+				}
+			});
+		} catch (Exception e) {
+			LOGGER.error("Error retrieving the current zoom index", e);
+		}
+
 		// on first start we don't want to override the original set date
 		if (centerVisibleDate != null) {
-			System.err.println("Neu: "
-					+ CalendarUtils.toISO8601(centerVisibleDate));
 			input.getOptions().setCenterStart(centerVisibleDate);
+			input.getOptions().setZoomIndex(zoomIndex);
 		}
 
 		input.getOptions().setDecorators(timeline.getDecorators());

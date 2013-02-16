@@ -247,6 +247,32 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 	}
 
 	@Override
+	public void setZoomIndex(final int index) {
+		ExecutorUtil.syncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (!isDisposed()) {
+					getBrowser().execute(
+							"com.bkahlert.devel.nebula.timeline.setZoomIndex("
+									+ index + ");");
+				}
+			}
+		});
+	}
+
+	@Override
+	public Integer getZoomIndex() {
+		if (!isDisposed()) {
+			Double zoomIndex = (Double) this
+					.getBrowser()
+					.evaluate(
+							"return com.bkahlert.devel.nebula.timeline.getZoomIndex();");
+			return zoomIndex != null ? (int) Math.round(zoomIndex) : null;
+		}
+		return null;
+	}
+
+	@Override
 	public void setDecorators(IDecorator[] decorators) {
 		this.decorators = decorators;
 

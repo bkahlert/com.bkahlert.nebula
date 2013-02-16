@@ -143,6 +143,20 @@ public interface IBaseTimeline extends IBrowserComposite {
 	public void setMaxVisibleDate(Calendar calendar);
 
 	/**
+	 * Sets and zooms to the specified zoom index.
+	 * 
+	 * @param index
+	 */
+	public void setZoomIndex(int index);
+
+	/**
+	 * Gets the currently used zoom index.
+	 * 
+	 * @return null if timeline does not support zooming.
+	 */
+	public Integer getZoomIndex();
+
+	/**
 	 * Applies the given {@link IDecorator}s to the timeline. Replaces all
 	 * decorations that existed before.
 	 * <p>

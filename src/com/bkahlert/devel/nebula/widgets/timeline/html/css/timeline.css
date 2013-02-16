@@ -171,44 +171,24 @@ html .timeline-horizontal .timeline-date-label-em {
     display: none;
 }
 
-html .timeline-band:nth-last-child(8) .timeline-ether-bg {
-    background-color: #ccc;
-}
-html .timeline-band:nth-last-child(8) .timeline-date-label {
-    color: #333;
-}
-html .timeline-band:nth-last-child(8) .label_timeline-highlight-data {
-    color: #999;
-}
-
-html .timeline-band:nth-last-child(6) .timeline-ether-bg {
-    background-color: #bbb;
-}
-html .timeline-band:nth-last-child(6) .timeline-date-label {
-    color: #333;
-}
-html .timeline-band:nth-last-child(6) .label_timeline-highlight-data {
-    color: #888;
-}
-
 html .timeline-band:nth-last-child(4) .timeline-ether-bg {
-    background-color: #aaa;
+    background-color: #ccc;
 }
 html .timeline-band:nth-last-child(4) .timeline-date-label {
     color: #333;
 }
 html .timeline-band:nth-last-child(4) .label_timeline-highlight-data {
-    color: #777;
+    color: #999;
 }
 
 html .timeline-band:nth-last-child(2) .timeline-ether-bg {
-    background-color: #999;
+    background-color: #bbb;
 }
 html .timeline-band:nth-last-child(2) .timeline-date-label {
     color: #333;
 }
 html .timeline-band:nth-last-child(2) .label_timeline-highlight-data {
-    color: #666;
+    color: #888;
 }
 
 /*

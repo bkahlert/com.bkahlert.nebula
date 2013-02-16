@@ -444,8 +444,6 @@
                 /*
                  * Add zoom controls
                  * if zoomSteps and a valid index are set.
-                 * // TODO double click und zoom in/out passen zoom control an (zoom muss von der facade und nicht von überschriebenen methoden kommen)
-                 * // TODO zoomLevel sichern bei review
                  * // TODO weniger übersichts zeitleisten
                  * // TODO codeInstance soll memo nicht in instance speichern
                  * 
