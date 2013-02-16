@@ -1,3 +1,5 @@
+// TODO forward exceptions to Eclipse
+
 (function($) {
 	var methods = {
 
@@ -11,8 +13,15 @@
 			return newZones;
 		},
 
+        /**
+         * Creates SIMILE timeline decorators on the base of JSON decorators.
+         * <p>
+         * The supplied options are applied to each JSON decorator before a SIMILE timeline decorator is created.
+         * 
+         * @return an array of SIMILE timeline decorators
+         */
 		createDecorators : function(decorators, options) {
-			if (decorators == false)
+			if (!decorators)
 				return [];
 			var newDecorators = new Array(decorators.length);
 			for (var i = 0, m = decorators.length; i < m; i++) {
@@ -28,7 +37,7 @@
 			$.each(bandSettings, function(i) {
 				if (bandSettings[i].options.width) {
 					var relativeWidth = (totalWidth * bandSettings[i].options.width) / 100;
-					bandSettings[i].options.width = relativeWidth;
+					bandSettings[i].options.width = relativeWidth + "%";
 					restingWidth -= relativeWidth;
 				} else {
 					numBandsWithoutWidth++;
@@ -40,15 +49,12 @@
 				width = minWidth;
 			$.each(bandSettings, function(i) {
 				if (!bandSettings[i].options.width) {
-					bandSettings[i].options.width = width;
+					bandSettings[i].options.width = width + "%";
 				}
 			});
 		},
 		
 		addClassOn : function(eventType, className, keepClassUntilQualified) {
-		    var eventLabel = null;
-            var eventTape = null;
-            var eventIcon = null;
             $(document).bind(eventType, function(e) {
                 var element = document.elementFromPoint(e.pageX, e.pageY);
                 if (!element)
@@ -75,23 +81,11 @@
                 
                 if(keepClassUntilQualified && (newEventLabel == null || newEventTape == null)) return;
                 
-                if(eventLabel != newEventLabel) {
-                    if(eventLabel != null) eventLabel.removeClass(className);
-                    if(newEventLabel != null) newEventLabel.addClass(className);
-                    eventLabel = newEventLabel;
-                }
-                
-                if(eventTape != newEventTape) {
-                    if(eventTape != null) eventTape.removeClass(className);
-                    if(newEventTape != null) newEventTape.addClass(className);
-                    eventTape = newEventTape;
-                }
-                
-                 if(eventIcon != newEventIcon) {
-                    if(eventIcon != null) eventIcon.removeClass(className);
-                    if(newEventIcon != null) newEventIcon.addClass(className);
-                    eventIcon = newEventIcon;
-                }
+                $("." + className).removeClass(className);
+            
+                if(newEventLabel != null) newEventLabel.addClass(className);
+                if(newEventTape != null) newEventTape.addClass(className);
+                if(newEventIcon != null) newEventIcon.addClass(className);
             });
 		},
 		
@@ -132,25 +126,29 @@
 		},
 
 		// array of arrays
-		setDefaultDecorators : function(defaultDecorators) {
+		setPermanentDecorators : function(permanentDecorators) {
 			return this.each(function() {
-				$(this).data("defaultDecorators", defaultDecorators);
+				$(this).data("permanentDecorators", permanentDecorators);
 			});
 		},
 
 		// array of arrays
-		getDefaultDecorators : function() {
-			return $($(this)[0]).data("defaultDecorators");
+		getPermanentDecorators : function() {
+			return $($(this)[0]).data("permanentDecorators");
 		},
 
-		// decorators: array that is applied to each band
-		applyDecorators : function(decorators) {
-			if ( typeof decorators === 'string')
+		/**
+		 * Applies the decorators to each band
+		 * 
+		 * @param decorators to apply to each band 
+		 */
+		setDecorators : function(decorators) {
+			if (typeof decorators === 'string')
 				decorators = $.parseJSON(decorators);
 			decorators = decorators || [];
 			return this.each(function() {
 				$this = $(this);
-				var defaultDecorators = $this.timeline("getDefaultDecorators") || [];
+				var permanentDecorators = $this.timeline("getPermanentDecorators") || [];
 				var timeline = $this.data("timeline");
 				for (var i = 0, m = timeline.getBandCount(); i < m; i++) {
 					var band = timeline.getBand(i);
@@ -162,13 +160,19 @@
 						}
 					}
 
-					var defaultDecoratorsForBandI = defaultDecorators[i] || [];
+					var permanentDecoratorsForBandI = permanentDecorators[i] || [];
 
 					// init new decorators
 					// dirty to access private fields but couldn't find any alternative
-					band._decorators = $.merge($.merge([], defaultDecoratorsForBandI), $this.timeline("createDecorators", decorators, {
-						cssClass : 'timeline-highlight-custom'
-					}));
+					var decorators_ = [];
+					$.each(decorators, function(i, decorator) {
+					    var classNames = "timeline-highlight-custom";
+					    if(decorator.classname) classNames += " " + decorator.classname;
+					    var decorator_ = $.extend({}, decorator);
+					    decorator_.cssClass = classNames;
+					    decorators_.push(decorator_);
+					});
+					band._decorators = $.merge($.merge([], permanentDecoratorsForBandI), $this.timeline("createDecorators", decorators_, {}));
 					for (var j = 0, n = band._decorators.length; j < n; j++)
 						band._decorators[j].initialize(band, timeline);
 				}
@@ -198,7 +202,8 @@
 				show_bubble_field : false,
 				
 				hotZones : false,
-				decorators : false,
+				permanentDecorators : [],
+				decorators : [],
 				timeZone : 2,
 
 				// see http://simile-widgets.org/wiki/Timeline_ThemeClass#event
@@ -208,6 +213,7 @@
 				overviewTrack_gap : 1,
 				overviewTrack_autoWidthMargin : 5
 			};
+			
 			var bandSettings = {
 				showInTimeBand : true
 			};
@@ -215,15 +221,30 @@
 
 			if (options)
 				$.extend(settings, options, true);
+				
+			// If zoom steps have been have been defined and their unit property is text
+			// look for the corresponding variable (e.g. "Timeline.DateTime.SECOND" -> Timeline.DateTime.SECOND)
+			if(settings.zoomSteps) {
+			    for(var i=0; i<settings.zoomSteps.length; i++) {
+			        if(typeof settings.zoomSteps[i].unit === "string") {
+			             settings.zoomSteps[i].unit = SimileAjax.DateTime[settings.zoomSteps[i].unit];
+			        }
+			    }
+			}
+				
+			if(settings.centerStart == null) settings.centerStart = false;
 
 			(function() {
 				var temp = [];
-				$.each(bandOptions, function(i, bandOption) {
-					temp[i] = $.extend({}, bandSettings, bandOption, true);
+				$.each(bandOptions, function(i, bandOptions) {
+				    var timelineInheritedSettings = { options: [] };
+				    if(settings.zoomIndex) timelineInheritedSettings.options.zoomIndex = settings.zoomIndex;
+				    if(settings.zoomSteps) timelineInheritedSettings.options.zoomSteps = settings.zoomSteps;
+					temp[i] = $.extend({}, bandSettings, timelineInheritedSettings, bandOptions, true);
 				});
 				bandSettings = temp;
 			})();
-			this.timeline("calculateBandWidths", 72, bandSettings, 10);
+			this.timeline("calculateBandWidths", 74.2, bandSettings, 10);
 
             /*
              * Use a user defined bubble function or ignore it completely.
@@ -248,33 +269,44 @@
 				$.each(bandSettings, function(i) {
 					customBandEventSources[i] = new Timeline.DefaultEventSource(0);
 					var theme = $this.timeline("createTheme", $.extend({}, settings, bandSettings[i], true));
-					customBands[i] = Timeline.createBandInfo({
-						width : bandSettings[i].options.width + "%",
-						intervalUnit : Timeline.DateTime.SECOND,
-						multiple : 10,
-						intervalPixels : 3,
-						eventSource : customBandEventSources[i],
-						theme : theme,
-						timeZone : settings.timeZone,
-						eventPainter : Timeline.CompactEventPainter,
-						eventPainterParams : { // surprisingly the CompactEventPainter does not take all options from the theme but also from the painerParams
-							iconLabelGap : 5,
-							labelRightMargin : 10,
-							trackHeight : settings.track_height,
-							trackOffset : settings.track_offset,
+					var info = {
+                        eventSource : customBandEventSources[i],
+                        theme : theme,
+                        timeZone : settings.timeZone,
+                        eventPainter : Timeline.CompactEventPainter,
+                        eventPainterParams : { // surprisingly the CompactEventPainter does not take all options from the theme but also from the painerParams
+                            iconLabelGap : 5,
+                            labelRightMargin : 10,
+                            trackHeight : settings.track_height,
+                            trackOffset : settings.track_offset,
 
-							iconWidth : theme.event.instant.iconWidth, // These are for per-event custom icons
-							iconHeight : theme.event.instant.iconHeight,
+                            iconWidth : theme.event.instant.iconWidth, // These are for per-event custom icons
+                            iconHeight : theme.event.instant.iconHeight,
 
-							stackConcurrentPreciseInstantEvents : {
-								limit : 5,
-								moreMessageTemplate : "%0 More Events",
-								icon : "no-image-80.png", // default icon in stacks
-								iconWidth : 40,
-								iconHeight : 20
-							}
-						}
-					});
+                            stackConcurrentPreciseInstantEvents : {
+                                limit : 5,
+                                moreMessageTemplate : "%0 More Events",
+                                icon : "no-image-80.png", // default icon in stacks
+                                iconWidth : 40,
+                                iconHeight : 20
+                            }
+                        },
+                        intervalPixels : 66,
+                        intervalUnit : Timeline.DateTime.HOUR,
+                        multiple : 1
+                    };
+                    
+                    /*
+                     * Set correct initial zoom details
+                     */
+                    if(bandSettings[i].options.zoomIndex && bandSettings[i].options.zoomSteps && bandSettings[i].options.zoomSteps.length >= bandSettings[i].options.zoomIndex+1) {
+                        info.intervalPixels = bandSettings[i].options.zoomSteps[bandSettings[i].options.zoomIndex].pixelsPerInterval;
+                        info.intervalUnit = bandSettings[i].options.zoomSteps[bandSettings[i].options.zoomIndex].unit;
+                        info.multiple = bandSettings[i].options.zoomSteps[bandSettings[i].options.zoomIndex].showLabelEveryUnits;
+                    }
+                    
+                    $.extend(info, bandSettings[i].options);
+					customBands[i] = Timeline.createBandInfo(info);
 				});
 
 				var timeBandTheme = $this.timeline("createTheme", settings);
@@ -331,27 +363,43 @@
 
 				/*
 				 * Synchronize all bands with the first one
+				 * 
+				 * Add filter that ignores very small rendered events
+				 * to improve performance
 				 */
 				var bandInfos = $.merge(customBands, timeBands);
-				for (var i = 1, m = bandInfos.length; i < m; i++) {
-					bandInfos[i].syncWith = 0;
-					bandInfos[i].highlight = true;
+				for (var i = 0, m = bandInfos.length; i < m; i++) {
+				    if(i!=0) {
+					   bandInfos[i].syncWith = 0;
+					   bandInfos[i].highlight = true;
+					}
+					
+					bandInfos[i].eventPainter.setFilterMatcher(
+                        function(evt) {
+                            var num = i;
+                            if(evt._start && evt._end) {
+                                var width = Math.round(band.dateToPixelOffset(evt._end)-band.dateToPixelOffset(evt._start));
+                                if(width <= 1) return false;
+                            }
+                            return true;
+                        }
+                    );
 				}
 
-				var defaultDecorators = [];
+				var permanentDecorators = [];
 				for (var i = 0; i < bandInfos.length; i++) {
-					var defaultDecoratorsForBandI = $this.timeline("createDecorators", settings.decorators, {
+					var permanentDecoratorsForBandI = $this.timeline("createDecorators", settings.permanentDecorators, {
 						cssClass : 'timeline-highlight-data'
 					});
-					defaultDecorators.push(defaultDecoratorsForBandI);
+					permanentDecorators.push(permanentDecoratorsForBandI);
 				}
-				$this.timeline("setDefaultDecorators", defaultDecorators);
+				$this.timeline("setPermanentDecorators", permanentDecorators);
 
 				// Instantiation
 				$this.data('timeline', Timeline.create(this, bandInfos, Timeline.HORIZONTAL));
 				$this.data('customBandEventSources', customBandEventSources);
 				$this.data('timeBandEventSource', timeBandEventSource);
-				$this.timeline("applyDecorators");
+				$this.timeline("setDecorators", settings.decorators);
 
 				/*
 				 * Add custom CSS classes
@@ -376,7 +424,7 @@
                     });
                     bandLabel.data('bandContainer', bandContainer);
 				}
-
+				
 				// Init Position
 				if (settings.minStart != false)
 					$this.timeline("setMinVisibleDate", settings.minStart);
@@ -397,10 +445,15 @@
 					$('<div class="title"></div>').appendTo(meta).html(settings.title);
 				}
 
-				/* Date Label */
-				var currentDate = $('<div class="current-date"></div>').appendTo(meta).html(formatDate(convertTimeZone($this.data('timeline').getBand(0).getCenterVisibleDate(), settings.timeZone), settings.timeZone) + "");
+				/* Date Label + Save in Data field */
+				function getFormattedCenterVisibleDate(band, timeZone) {
+				    var iso8601 = formatDate(convertTimeZone(band.getCenterVisibleDate(), timeZone), timeZone);
+				    $this.data('centerVisibleDate', iso8601);
+				    return iso8601;
+				}
+				var currentDate = $('<div class="current-date"></div>').appendTo(meta).html(getFormattedCenterVisibleDate($this.data('timeline').getBand(0), settings.timeZone) + "");
 				$this.data('timeline').getBand(0).addOnScrollListener(function(band) {
-					currentDate.html(formatDate(convertTimeZone(band.getCenterVisibleDate(), settings.timeZone), settings.timeZone) + "");
+					currentDate.html(getFormattedCenterVisibleDate(band, settings.timeZone));
 				});
 				
 				/* Add a hover class to the label AND its corresponding tape */
@@ -449,6 +502,13 @@
 				$(this).data('timeline').getBand(0).setCenterVisibleDate(date);
 			});
 		},
+		getCenterVisibleDate : function() {
+		    var centerVisibleDates = [];
+            this.each(function() {
+                centerVisibleDates.push($(this).data('centerVisibleDate'));
+            });
+            return centerVisibleDates;
+        },
 		setMaxVisibleDate : function(date) {
 			if ( typeof date !== 'object')
 				date = Timeline.DateTime.parseGregorianDateTime(date);
@@ -466,7 +526,7 @@
 				bandOptions[i] = bandInformation || {};
 			});
 
-			return rt = this.each(function() {
+			return this.each(function() {
 				if (json.options) {
 					// re-create timeline if options were passed
 					$(this).timeline(json.options, bandOptions);
@@ -491,17 +551,45 @@
 						}
 					}
 				});
-				customBandEventSources[0].clear();
-				customBandEventSources[0].loadJSON(bandInformation[0], "");
+				
 				var timeBandEventSource = $(this).data('timeBandEventSource');
 				timeBandEventSource.clear();
 				timeBandEventSource.loadJSON(timeBandInformation, "");
+				
+				$this.data('customBandInformations', bandInformation);
 			});
 
 		},
-		update : function(content) {
-
+		/**
+		 * Replaces a element at pos by the json object
+		 * and reloads the affected elements.
+		 */
+		replace : function(pos, json) {
+		    if ( typeof json === 'string')
+                json = $.parseJSON(json);
+                
+            return this.each(function() {
+                var customBandInformations = $this.data('customBandInformations');
+                if(pos && pos.length && pos.length >= 1 && customBandInformations.length >= pos[0]+1) {
+                    var bandNumber = pos[0];
+                    var customBandInformation = customBandInformations[bandNumber];
+                    if (pos.length >= 2 && customBandInformation.events.length >= pos[1]+1) {
+                        var eventNumber = pos[1];
+                        var newCustomBandInformation = { options: customBandInformation.options, events: [] }
+                        for(var i=0; i<customBandInformation.events.length; i++) {
+                            if(i != eventNumber) newCustomBandInformation.events.push(customBandInformation.events[i]);
+                            else newCustomBandInformation.events.push(json);
+                        }
+                        
+                        $this.data('customBandInformations')[bandNumber] = newCustomBandInformation;
+                        
+                        $this.data('customBandEventSources')[bandNumber].clear();
+                        $this.data('customBandEventSources')[bandNumber].loadJSON(newCustomBandInformation, "");
+                    }
+                }
+            });
 		},
+		
 		splitBandInformation : function(json) {
 			if (!json.bands)
 				window.alert("Band information missing");
@@ -628,3 +716,96 @@ Timeline._Band.prototype._onDblClick = function(innerFrame, evt, target) {
     var distance = coords.x - (this._viewLength / 2 - this._viewOffset);
     this._autoScroll(-distance);
 };
+
+
+Timeline.GregorianEtherPainter.prototype.paint_ = Timeline.GregorianEtherPainter.prototype.paint;
+Timeline.GregorianEtherPainter.prototype.paint = function() {
+    if(this._unit == 0) {
+        alert("Unit can't be null");
+        return;
+    }
+    this.paint_();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Timeline.GregorianDateLabeller.prototype.defaultLabelInterval = function(date, intervalUnit) {
+    var text;
+    var emphasized = false;
+    
+    date = SimileAjax.DateTime.removeTimeZoneOffset(date, this._timeZone);
+    
+    switch(intervalUnit) {
+    case SimileAjax.DateTime.MILLISECOND:
+        var ms = date.getUTCMilliseconds();
+        if(ms == 0) {
+            text = date.getUTCHours() + ":" + date.getUTCMinutes() + ":" + date.getUTCSeconds() + ".0";
+            emphasized = true;
+        } else {
+            text = ms;
+        }
+        break;
+    case SimileAjax.DateTime.SECOND:
+        var s = date.getUTCSeconds();
+        if(s == 0) {
+            text = date.getUTCHours() + ":" + date.getUTCMinutes() + ":00";
+            emphasized = true;
+        } else {
+            text = s;
+        }
+        break;
+    case SimileAjax.DateTime.MINUTE:
+        var m = date.getUTCMinutes();
+        if (m == 0) {
+            text = date.getUTCHours() + ":00";
+            emphasized = true;
+        } else {
+            text = m;
+        }
+        break;
+    case SimileAjax.DateTime.HOUR:
+        text = date.getUTCHours() + "hr";
+        break;
+    case SimileAjax.DateTime.DAY:
+        text = Timeline.GregorianDateLabeller.getMonthName(date.getUTCMonth(), this._locale) + " " + date.getUTCDate();
+        break;
+    case SimileAjax.DateTime.WEEK:
+        text = Timeline.GregorianDateLabeller.getMonthName(date.getUTCMonth(), this._locale) + " " + date.getUTCDate();
+        break;
+    case SimileAjax.DateTime.MONTH:
+        var m = date.getUTCMonth();
+        if (m != 0) {
+            text = Timeline.GregorianDateLabeller.getMonthName(m, this._locale);
+            break;
+        } // else, fall through
+    case SimileAjax.DateTime.YEAR:
+    case SimileAjax.DateTime.DECADE:
+    case SimileAjax.DateTime.CENTURY:
+    case SimileAjax.DateTime.MILLENNIUM:
+        var y = date.getUTCFullYear();
+        if (y > 0) {
+            text = date.getUTCFullYear();
+        } else {
+            text = (1 - y) + "BC";
+        }
+        emphasized = 
+            (intervalUnit == SimileAjax.DateTime.MONTH) ||
+            (intervalUnit == SimileAjax.DateTime.DECADE && y % 100 == 0) || 
+            (intervalUnit == SimileAjax.DateTime.CENTURY && y % 1000 == 0);
+        break;
+    default:
+        text = date.toUTCString();
+    }
+    return { text: text, emphasized: emphasized };
+}

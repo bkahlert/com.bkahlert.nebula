@@ -7,7 +7,7 @@
     bottom: 0px;
     left: 0px;
     right: 0px;
-    padding: 4;
+    padding: 4px;
     z-index: 10000;
     background-color: #666;
     height: 20px;
@@ -37,7 +37,7 @@
 
 .timeline-meta .title, .timeline-meta .current-date {
     float: left;
-    margin-bottom: 3em; /* makes the copyright float benath the other meta data if not enough space is available */
+    margin-bottom: 3em; /* makes the copyright float beneath the other meta data if not enough space is available */
 }
 
 .timeline-meta .current-date {
@@ -82,6 +82,21 @@ html.ready .timeline-meridian {
 }
 
 /*
+ * Zoom control
+ */
+html.ready .timeline-zoom {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 100;
+    border: 2px solid #f00;
+}
+
+html.ready .timeline-zoom a {
+    padding: 0;
+}
+
+/*
  * Band Labels
  */
 .band-labels {
@@ -94,11 +109,11 @@ html.ready .timeline-meridian {
 
 .band-labels .band-label {
     display: block;
-    -webkit-border-top-right-radius: 5px;
+    -webkit-border-top-right-radius: 0px;
     -webkit-border-bottom-right-radius: 5px;
-    -moz-border-radius-topright: 5px;
+    -moz-border-radius-topright: 0px;
     -moz-border-radius-bottomright: 5px;
-    border-top-right-radius: 5px;
+    border-top-right-radius: 0px;
     border-bottom-right-radius: 5px;
     -moz-background-clip: padding;
     -webkit-background-clip: padding-box;
@@ -121,14 +136,14 @@ html.ready .timeline-meridian {
 }
 
 /*
- * Band Tapes
+ * Band event tapes
  */
 html .timeline-event-tape, html .timeline-small-event-tape, html .timeline-small-event-icon {
     overflow: visible;
 }
 
 /*
- * Band Colors
+ * Band event colors
  */
 
 html .timeline-band .timeline-ether-bg {
@@ -139,6 +154,13 @@ html .timeline-band .timeline-date-label {
 }
 html .timeline-band .label_timeline-highlight-data {
     color: #aaa;
+}
+
+/*
+ * Band event labels
+ */
+html .timeline-horizontal .timeline-date-label-em {
+    height: 3em;
 }
 
 /* the first band does not have a .timeline-ether-highlight layer
@@ -231,6 +253,7 @@ html .timeline-highlight-custom {
     margin-bottom: -2px;
 }
 
+.timeline-event-label.focus + div, /* dirty, aber gerade das leichteste; eigentlich müsste focus auf dem tape auch beim viewer.refresh gemacht werden */
 .timeline-event-tape.focus {
     background-color: #4B83B3 !important;
 }
@@ -249,10 +272,121 @@ html div.timeline-event-icon img {
  * Labels
  * Hide labels on all but the first custom band
  */
-.timeline-custom-band .label_timeline-highlight-data {
+.timeline-custom-band .label_timeline-highlight-data,
+.timeline-custom-band .label_timeline-highlight-custom {
     display: none;
 }
 
-#timeline-band-0 .label_timeline-highlight-data {
+#timeline-band-0 .label_timeline-highlight-data,
+#timeline-band-0 .label_timeline-highlight-custom {
     display: block;
+}
+
+/*
+ * Separators between custom bands
+ */
+.timeline > .timeline-custom-band.timeline-band-0 {
+    -webkit-box-shadow: none;
+       -moz-box-shadow: none;
+            box-shadow: none;
+}
+
+.timeline > .timeline-custom-band {
+    -webkit-box-shadow: 0px -2px 4px #888;
+       -moz-box-shadow: 0px -2px 4px #888;
+            box-shadow: 0px -2px 4px #888;
+}
+
+/*
+ * Undefined start / end
+ */
+
+/* decorators */
+.timeline-custom-band .timeline-highlight-decorator.undefined-start,
+.timeline-custom-band .timeline-highlight-decorator.undefined-end {
+    overflow: visible;
+}
+.timeline-custom-band .timeline-highlight-decorator.undefined-start:before,
+.timeline-custom-band .timeline-highlight-decorator.undefined-end:after {
+    display: block;
+    font-size: 1px;
+    color: rgba(0,0,0,0);
+    content: ".";
+    position: relative;
+    width: 100px;
+    height: 100%;
+    
+    background-color: #D8FF26;
+    
+    /*
+     * masks the whole layer in the way that it becomes transparent
+     */
+    -webkit-mask-position: 0 0;
+    -webkit-mask-size: 100% 100%;
+}
+
+.timeline-custom-band .timeline-highlight-decorator.undefined-start:before {
+    margin-left: -100px;
+    -webkit-mask-image: -webkit-gradient(linear, left center, right center, 
+       color-stop(0.00,  rgba(0,0,0,0)),
+       color-stop(1.00,  rgba(0,0,0,1)));
+}
+.timeline-custom-band .timeline-highlight-decorator.undefined-end:after {
+    margin-left: 0px;
+    -webkit-mask-image: -webkit-gradient(linear, left center, right center, 
+       color-stop(0.00,  rgba(0,0,0,1)),
+       color-stop(1.00,  rgba(0,0,0,0)));
+}
+
+/* events */
+.timeline-custom-band .timeline-event-label.CodeInstance + .timeline-event-tape,
+.timeline-custom-band .timeline-event-label.CodeInstance + .timeline-event-tape + .timeline-event-tape {
+    background-image: -webkit-gradient(linear, 0 0, 100% 0, color-stop(.5, rgba(255, 255, 255, .2)), color-stop(.5, transparent), to(transparent));
+    background-image: -webkit-linear-gradient(0deg, rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);
+    background-image: -moz-linear-gradient(0deg, rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);
+    background-image: -ms-linear-gradient(0deg, rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);
+    background-image: -o-linear-gradient(0deg, rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);
+    background-image: linear-gradient(0deg, rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);
+}
+
+.timeline-custom-band .timeline-event-label.undefined-start + .timeline-event-tape:before,
+.timeline-custom-band .timeline-event-label.undefined-end + .timeline-event-tape:after {
+    display: block;
+    font-size: 1px;
+    color: rgba(0,0,0,0);
+    content: ".";
+    position: relative;
+    width: 100px;
+    height: 100%;
+    margin-top: 11px;
+    left: -3px;
+    
+    /*
+     * draws black dots
+     */
+    background-image: -webkit-gradient(linear, 0 0, 100% 0, color-stop(.5, rgba(0, 0, 0, 1)), color-stop(.5, transparent), to(transparent));
+    background-image: -webkit-linear-gradient(0deg, rgba(0, 0, 0, 1) 50%, transparent 50%, transparent);
+    background-image: -moz-linear-gradient(0deg, rgba(0, 0, 0, 1) 50%, transparent 50%, transparent));
+    background-image: -ms-linear-gradient(0deg, rgba(0, 0, 0, 1) 50%, transparent 50%, transparent));
+    background-image: -o-linear-gradient(0deg, rgba(0, 0, 0, 1) 50%, transparent 50%, transparent));
+    background-image: linear-gradient(0deg, rgba(0, 0, 0, 1) 50%, transparent 50%, transparent));
+    
+    /*
+     * masks the whole layer in the way that it becomes transparent
+     */
+    -webkit-mask-position: 0 0;
+    -webkit-mask-size: 100% 100%;
+}
+
+.timeline-custom-band .timeline-event-label.undefined-start + .timeline-event-tape:before {
+    margin-left: -100px;
+    -webkit-mask-image: -webkit-gradient(linear, left center, right center, 
+       color-stop(0.00,  rgba(0,0,0,0)),
+       color-stop(1.00,  rgba(0,0,0,1)));
+}
+.timeline-custom-band .timeline-event-label.undefined-end + .timeline-event-tape:after {
+    margin-left: 00px;
+    -webkit-mask-image: -webkit-gradient(linear, left center, right center, 
+       color-stop(0.00,  rgba(0,0,0,1)),
+       color-stop(1.00,  rgba(0,0,0,0)));
 }

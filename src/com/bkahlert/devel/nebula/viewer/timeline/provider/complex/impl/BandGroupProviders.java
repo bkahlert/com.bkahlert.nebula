@@ -3,9 +3,9 @@ package com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProviders;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
 
-public class BandGroupProviders implements IBandGroupProviders {
+public class BandGroupProviders implements IBandGroupProvider {
 
 	private ITimelineContentProvider contentProvider;
 	private ITimelineBandLabelProvider bandLabelProvider;

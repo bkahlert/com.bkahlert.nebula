@@ -225,7 +225,7 @@ public class WidgetsView extends ViewPart {
 		((Control) timeline).setLayoutData(GridDataFactory.fillDefaults()
 				.grab(true, true).create());
 		ITimelineInput input = null;
-		timeline.show(input, null);
+		timeline.show(input, 500, 500, null);
 
 		List<RGB> colors = Arrays.asList(new RGB(0, 0, 0), new RGB(0, 0, 255),
 				new RGB(0, 255, 0), new RGB(0, 255, 255), new RGB(255, 0, 0),

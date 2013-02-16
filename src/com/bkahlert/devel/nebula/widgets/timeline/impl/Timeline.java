@@ -163,6 +163,14 @@ public class Timeline extends BaseTimeline implements ITimeline {
 		super.show(input, monitor);
 	}
 
+	@Override
+	public void show(ITimelineInput input, int startAnimationDuration,
+			int endAnimationDuration, IProgressMonitor monitor) {
+		addIdentifiers(input);
+		this.input = input;
+		super.show(input, startAnimationDuration, endAnimationDuration, monitor);
+	}
+
 	private int getIndex(Object event) {
 		if (getSortedEvents() != null) {
 			for (int i = 0, m = getSortedEvents().size(); i < m; i++) {

@@ -11,7 +11,7 @@ import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventL
  * @author bkahlert
  * 
  */
-public interface IBandGroupProviders {
+public interface IBandGroupProvider {
 	public ITimelineContentProvider getContentProvider();
 
 	public ITimelineBandLabelProvider getBandLabelProvider();

@@ -15,18 +15,18 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.SWTException;
 import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
 import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineJsonGenerator;
+import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
@@ -83,6 +83,7 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 	private boolean completedLoading = false;
 	private List<String> enqueuedJs = new ArrayList<String>();
 
+	private IDecorator[] decorators = null;
 	private List<ITimelineEvent> sortedEvents = null;
 
 	public BaseTimeline(Composite parent, int style) {
@@ -153,45 +154,47 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 
 	/**
 	 * Display the given JSON string on the {@link IBaseTimeline}. The format is
-	 * quite complex.<br>
-	 * It is therefore preferable to use
-	 * {@link #show(ITimelineInput, IProgressMonitor)}.
+	 * quite complex. It is therefore preferable to use
+	 * {@link #show(ITimelineInput, IProgressMonitor)} or
+	 * {@link #show(ITimelineInput, int, int, IProgressMonitor)}.
 	 * <p>
 	 * May be called from whatever thread.
 	 * 
 	 * @param jsonTimeline
-	 * @exception SWTException
-	 *                <ul>
-	 *                <li>ERROR_THREAD_INVALID_ACCESS when called from the wrong
-	 *                thread</li> <li>ERROR_WIDGET_DISPOSED when the widget has
-	 *                been disposed</li>
-	 *                </ul>
 	 */
-	private void show(final String jsonTimeline) {
+	private void show(final String jsonTimeline,
+			final int startAnimationDuration, final int endAnimationDuration) {
 		System.err.println(jsonTimeline);
 		final String escapedJson = TimelineJsonGenerator.escape(jsonTimeline);
-		final Runnable showRunnable = new Runnable() {
+
+		final String js;
+		if (startAnimationDuration <= 0 || endAnimationDuration <= 0) {
+			js = "com.bkahlert.devel.nebula.timeline.loadJSON('" + escapedJson
+					+ "');";
+		} else {
+			js = "com.bkahlert.devel.nebula.timeline.loadJSONAnimated('"
+					+ escapedJson + "', null, " + startAnimationDuration + ", "
+					+ endAnimationDuration + ");";
+		}
+
+		ExecutorUtil.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				BaseTimeline.this
-						.enqueueJs("com.bkahlert.devel.nebula.timeline.loadJSON('"
-								+ escapedJson + "');");
+				BaseTimeline.this.enqueueJs(js);
+				// TODO layout als callback; evtl. Browser noch nicht geladen
 				BaseTimeline.this.layout();
 			}
-		};
-		if (Display.getCurrent() == Display.getDefault()) {
-			showRunnable.run();
-		} else {
-			Display.getDefault().asyncExec(showRunnable);
-		}
+		});
 	}
 
-	/**
-	 * Displays the given input
-	 * <p>
-	 * May be called from whatever Thread.
-	 */
+	@Override
 	public void show(ITimelineInput input, IProgressMonitor monitor) {
+		this.show(input, -1, -1, monitor);
+	}
+
+	@Override
+	public void show(ITimelineInput input, int startAnimationDuration,
+			int endAnimationDuration, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 1 + 10);
 
 		this.sortedEvents = getSortedEvents(input);
@@ -200,7 +203,7 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 		String json = TimelineJsonGenerator.toJson(input, false,
 				subMonitor.newChild(10));
 
-		this.show(json);
+		this.show(json, startAnimationDuration, endAnimationDuration);
 	}
 
 	@Override
@@ -222,6 +225,19 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 	}
 
 	@Override
+	public Calendar getCenterVisibleDate() {
+		if (!isDisposed()) {
+			String centerVisibleDate = (String) this
+					.getBrowser()
+					.evaluate(
+							"return com.bkahlert.devel.nebula.timeline.getCenterVisibleDate();");
+			if (centerVisibleDate != null)
+				return CalendarUtils.fromISO8601(centerVisibleDate);
+		}
+		return null;
+	}
+
+	@Override
 	public void setMaxVisibleDate(Calendar calendar) {
 		if (!isDisposed()) {
 			this.getBrowser().execute(
@@ -231,13 +247,28 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 	}
 
 	@Override
-	public void applyDecorators(String jsonDecorators) {
-		if (!isDisposed()) {
-			this.getBrowser().execute(
-					"com.bkahlert.devel.nebula.timeline.applyDecorators('"
-							+ TimelineJsonGenerator.escape(jsonDecorators)
-							+ "');");
-		}
+	public void setDecorators(IDecorator[] decorators) {
+		this.decorators = decorators;
+
+		final String decoratorJSON = TimelineJsonGenerator.toJson(decorators,
+				false);
+
+		ExecutorUtil.syncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (!isDisposed()) {
+					getBrowser().execute(
+							"com.bkahlert.devel.nebula.timeline.setDecorators('"
+									+ TimelineJsonGenerator
+											.escape(decoratorJSON) + "');");
+				}
+			}
+		});
+	}
+
+	@Override
+	public IDecorator[] getDecorators() {
+		return this.decorators;
 	}
 
 	@Override

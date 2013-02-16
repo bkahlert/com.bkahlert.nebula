@@ -54,7 +54,7 @@ public class CalendarUtils {
 	 */
 	public static String toISO8601(Calendar calendar) {
 		SimpleDateFormat iso8601 = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ssZ");
+				"yyyy-MM-dd'T'HH:mm:ss.SZ");
 		iso8601.setTimeZone(calendar.getTimeZone());
 		String missingDots = iso8601.format(calendar.getTime()).replace("GMT",
 				"");

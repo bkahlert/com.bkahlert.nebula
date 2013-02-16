@@ -35,6 +35,15 @@ public interface ITimelineEvent extends IAdaptable {
 	public String[] getClassNames();
 
 	/**
+	 * Returns the color as a string readable by CSS.
+	 * <p>
+	 * e.g. rgba(200, 200, 150, 0.37) or #33D572
+	 * 
+	 * @return null if no specific color should be set
+	 */
+	public String getColor();
+
+	/**
 	 * Returns the event's payload. This field is ideal to keep track of an
 	 * object this {@link ITimelineEvent} actually presents.
 	 * 

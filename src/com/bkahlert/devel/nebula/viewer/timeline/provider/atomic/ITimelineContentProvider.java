@@ -1,8 +1,8 @@
 package com.bkahlert.devel.nebula.viewer.timeline.provider.atomic;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.viewers.Viewer;
 
-import com.bkahlert.devel.nebula.viewer.timeline.ITimelineViewer;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 
 /**
@@ -12,8 +12,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
  * 
  */
 public interface ITimelineContentProvider {
-	public void inputChanged(ITimelineViewer timelineViewer, Object oldInput,
-			Object newInput);
+	public void inputChanged(Viewer viewer, Object oldInput, Object newInput);
 
 	/**
 	 * Returns true if this {@link ITimelineBandProvider} considers the key

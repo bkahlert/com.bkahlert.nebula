@@ -1,9 +1,15 @@
 package com.bkahlert.devel.nebula.widgets;
 
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Widget;
 
 public interface IWidget {
+	/**
+	 * @see Composite#layout()
+	 */
+	public void layout();
+
 	/**
 	 * @see Widget#getData()
 	 */

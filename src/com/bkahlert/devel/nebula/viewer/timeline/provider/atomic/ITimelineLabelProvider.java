@@ -6,6 +6,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IHotZone;
+import com.bkahlert.devel.nebula.widgets.timeline.model.IZoomStep;
 
 /**
  * Instances of this class provide label information for {@link ITimeline}s.
@@ -28,6 +29,10 @@ public interface ITimelineLabelProvider<TIMELINE extends IBaseTimeline> {
 	public IHotZone[] getHotZones(TIMELINE timeline);
 
 	public IDecorator[] getDecorators(TIMELINE timeline);
+
+	public IZoomStep[] getZoomSteps(TIMELINE timeline);
+
+	public Integer getZoomIndex();
 
 	public Float getTimeZone(TIMELINE timeline);
 

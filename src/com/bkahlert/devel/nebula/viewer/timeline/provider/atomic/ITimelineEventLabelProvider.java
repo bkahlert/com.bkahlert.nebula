@@ -23,5 +23,7 @@ public interface ITimelineEventLabelProvider {
 
 	public Calendar getEnd(Object event);
 
+	public String getColor(Object event);
+
 	public String[] getClassNames(Object event);
 }

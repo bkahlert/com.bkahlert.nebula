@@ -45,17 +45,22 @@ public class TimelineEvent implements ITimelineEvent {
 	private URI image;
 	private Calendar start;
 	private Calendar end;
+	private String color;
 	private String[] classNames;
 	private Object payload;
 
 	public TimelineEvent(String title, URI icon, URI image, Calendar start,
-			Calendar end, String[] classNames, Object payload) {
+			Calendar end, String color, String[] classNames, Object payload) {
 		super();
+		if (start == null && end == null)
+			throw new IllegalArgumentException(
+					"Event must have at least a start or an end date");
 		this.title = title;
 		this.icon = icon;
 		this.image = image;
 		this.start = start;
 		this.end = end;
+		this.color = color;
 		this.classNames = classNames != null ? classNames : new String[0];
 		this.payload = payload;
 	}
@@ -83,6 +88,11 @@ public class TimelineEvent implements ITimelineEvent {
 	@Override
 	public Calendar getEnd() {
 		return this.end;
+	}
+
+	@Override
+	public String getColor() {
+		return this.color;
 	}
 
 	@Override

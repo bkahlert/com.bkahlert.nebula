@@ -50,7 +50,10 @@ public class TimelineViewerHelper<TIMELINE extends IBaseTimeline> {
 			options.setBubbleFunction(functionName, functionField);
 
 			options.setHotZones(timelineLabelProvider.getHotZones(timeline));
-			options.setDecorators(timelineLabelProvider.getDecorators(timeline));
+			options.setPermanentDecorators(timelineLabelProvider
+					.getDecorators(timeline));
+			options.setZoomSteps(timelineLabelProvider.getZoomSteps(timeline));
+			options.setZoomIndex(timelineLabelProvider.getZoomIndex());
 			options.setTimeZone(timelineLabelProvider.getTimeZone(timeline));
 		}
 		return options;
@@ -102,15 +105,20 @@ public class TimelineViewerHelper<TIMELINE extends IBaseTimeline> {
 		if (eventLabelProvider == null)
 			return null;
 
+		if (event.toString().equals(
+				"sua://episode/20xjp6c6gjzthtye/2013-01-22T13:52:11+01:00")) {
+			System.out.println("jj");
+		}
 		String title = eventLabelProvider.getTitle(event);
 		URI icon = eventLabelProvider.getIcon(event);
 		URI image = eventLabelProvider.getIcon(event);
 		Calendar start = eventLabelProvider.getStart(event);
 		Calendar end = eventLabelProvider.getEnd(event);
+		String color = eventLabelProvider.getColor(event);
 		String[] classNames = eventLabelProvider.getClassNames(event);
 
 		ITimelineEvent timelineEvent = new TimelineEvent(title, icon, image,
-				start, end, classNames, event);
+				start, end, color, classNames, event);
 		return timelineEvent;
 	}
 }

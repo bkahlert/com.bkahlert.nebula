@@ -20,19 +20,19 @@ import org.eclipse.core.runtime.SubMonitor;
 
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.utils.StringUtils;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Decorator;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineInput;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IOptions;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
+import com.bkahlert.devel.nebula.widgets.timeline.model.IZoomStep;
 
 public class TimelineJsonGenerator {
 
 	public static Logger logger = Logger.getLogger(TimelineJsonGenerator.class);
 
-	public static String toJson(List<IDecorator> decorators, boolean pretty) {
+	public static String toJson(IDecorator[] decorators, boolean pretty) {
 		JsonFactory factory = new JsonFactory();
 		StringWriter writer = new StringWriter();
 		JsonGenerator generator;
@@ -42,7 +42,7 @@ public class TimelineJsonGenerator {
 			if (pretty)
 				generator.setPrettyPrinter(new DefaultPrettyPrinter());
 
-			generator.writeObject(decorators);
+			writeDecorators(decorators, generator);
 
 			generator.close();
 			String generated = writer.toString();
@@ -52,6 +52,76 @@ public class TimelineJsonGenerator {
 			logger.fatal("Error using " + StringWriter.class.getSimpleName(), e);
 		}
 		return null;
+	}
+
+	public static void writeDecorators(IDecorator[] decorators,
+			JsonGenerator generator) throws IOException,
+			JsonGenerationException {
+		generator.writeStartArray();
+		for (int i = 0, m = decorators.length; i < m; i++) {
+			IDecorator decorator = decorators[i];
+			writeDecorator(generator, decorator);
+		}
+		generator.writeEndArray();
+	}
+
+	public static void writeDecorator(JsonGenerator generator,
+			IDecorator decorator) throws IOException, JsonGenerationException {
+		if (decorator.getStartDate() == null && decorator.getEndDate() == null)
+			return;
+
+		generator.writeStartObject();
+
+		generator.writeFieldName("startLabel");
+		generator.writeString(decorator.getStartLabel());
+
+		generator.writeFieldName("endLabel");
+		generator.writeString(decorator.getEndLabel());
+
+		generator.writeFieldName("startDate");
+		generator.writeString(decorator.getStartDate() != null ? decorator
+				.getStartDate() : decorator.getEndDate());
+
+		generator.writeFieldName("endDate");
+		generator.writeString(decorator.getEndDate() != null ? decorator
+				.getEndDate() : decorator.getStartDate());
+
+		if (decorator.getStartDate() == null) {
+			generator.writeFieldName("classname");
+			generator.writeString("undefined-start");
+		} else if (decorator.getEndDate() == null) {
+			generator.writeFieldName("classname");
+			generator.writeString("undefined-end");
+		}
+
+		generator.writeEndObject();
+	}
+
+	public static void writeZoomSteps(IZoomStep[] zoomSteps,
+			JsonGenerator generator) throws IOException,
+			JsonGenerationException {
+		generator.writeStartArray();
+		for (int i = 0, m = zoomSteps.length; i < m; i++) {
+			IZoomStep zoomStep = zoomSteps[i];
+			writeZoomStep(generator, zoomStep);
+		}
+		generator.writeEndArray();
+	}
+
+	public static void writeZoomStep(JsonGenerator generator, IZoomStep zoomStep)
+			throws IOException, JsonGenerationException {
+		generator.writeStartObject();
+
+		generator.writeFieldName("pixelsPerInterval");
+		generator.writeNumber(zoomStep.getPixelsPerInterval());
+
+		generator.writeFieldName("unit");
+		generator.writeString(zoomStep.getUnit().toString().toUpperCase());
+
+		generator.writeFieldName("showLabelEveryUnits");
+		generator.writeNumber(zoomStep.getShowLabelEveryUnits());
+
+		generator.writeEndObject();
 	}
 
 	public static String toJson(ITimelineInput input, boolean pretty,
@@ -165,7 +235,13 @@ public class TimelineJsonGenerator {
 			for (String option : options.keySet()) {
 				generator.writeFieldName(option);
 				Object optionValue = options.get(option);
-				generator.writeObject(optionValue);
+				if (IDecorator[].class.isInstance(optionValue)) {
+					writeDecorators((IDecorator[]) optionValue, generator);
+				} else if (IZoomStep[].class.isInstance(optionValue)) {
+					writeZoomSteps((IZoomStep[]) optionValue, generator);
+				} else {
+					generator.writeObject(optionValue);
+				}
 				subMonitor.worked(1);
 			}
 		}
@@ -243,33 +319,13 @@ public class TimelineJsonGenerator {
 		generator.writeFieldName("durationEvent");
 		generator.writeBoolean(true);
 
+		generator.writeFieldName("color");
+		generator.writeString(event.getColor());
+
 		generator.writeFieldName("classname");
 		generator.writeString(StringUtils.join(classNames, " "));
 
 		generator.writeEndObject();
-	}
-
-	public static String jsonDecoratorList(List<Decorator> decorators,
-			boolean pretty) {
-		JsonFactory factory = new JsonFactory();
-		StringWriter writer = new StringWriter();
-		JsonGenerator generator;
-		try {
-			generator = factory.createJsonGenerator(writer);
-			generator.setCodec(new ObjectMapper());
-			if (pretty)
-				generator.setPrettyPrinter(new DefaultPrettyPrinter());
-
-			generator.writeObject(decorators);
-
-			generator.close();
-			String generated = writer.toString();
-			writer.close();
-			return generated;
-		} catch (IOException e) {
-			logger.fatal("Error using " + StringWriter.class.getSimpleName(), e);
-		}
-		return null;
 	}
 
 	/**

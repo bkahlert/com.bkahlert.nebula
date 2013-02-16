@@ -21,14 +21,13 @@ public class Decorator implements IDecorator {
 
 	public Decorator(Calendar startCalendar, String startLabel,
 			Calendar endCalendar, String endLabel) {
-		this(startCalendar != null ? CalendarUtils
-				.toISO8601(startCalendar) : null, startLabel,
-				endCalendar != null ? CalendarUtils
-						.toISO8601(endCalendar) : null, endLabel);
+		this(startCalendar != null ? CalendarUtils.toISO8601(startCalendar)
+				: null, startLabel, endCalendar != null ? CalendarUtils
+				.toISO8601(endCalendar) : null, endLabel);
 	}
 
-	public Decorator(String startDateDateISO8601, String endDateDateISO8601) {
-		this(startDateDateISO8601, null, endDateDateISO8601, null);
+	public Decorator(Calendar startCalendar, Calendar endCalendar) {
+		this(startCalendar, null, endCalendar, null);
 	}
 
 	/*
@@ -74,5 +73,29 @@ public class Decorator implements IDecorator {
 	@Override
 	public String getEndLabel() {
 		return this.endLabel;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		if (this.startDate != null)
+			sb.append(this.startDate);
+		else
+			sb.append("-inf");
+
+		if (this.startLabel != null)
+			sb.append(" (" + this.startLabel + ")");
+
+		sb.append(" - ");
+
+		if (this.endDate != null)
+			sb.append(this.endDate);
+		else
+			sb.append("+inf");
+
+		if (this.endLabel != null)
+			sb.append(" (" + this.endLabel + ")");
+
+		return sb.toString();
 	}
 }

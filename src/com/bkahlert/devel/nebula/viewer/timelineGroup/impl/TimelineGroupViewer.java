@@ -1,106 +1,147 @@
 package com.bkahlert.devel.nebula.viewer.timelineGroup.impl;
 
-import org.eclipse.core.runtime.Assert;
+import java.util.Calendar;
+import java.util.Map;
+import java.util.concurrent.Callable;
+
+import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.viewer.timelineGroup.ITimelineGroupViewer;
+import com.bkahlert.devel.nebula.utils.CalendarUtils;
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProviderFactory;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
+import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
+import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
+import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 
-public abstract class TimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<? extends ITimeline>>
-		extends Viewer implements ITimelineGroupViewer {
+/**
+ * This implementation supports to set decorators and keeps them, the focused
+ * item and the current scroll position unchanged if a timeline is refreshed.
+ * 
+ * @author bkahlert
+ * 
+ * @param <TIMELINEGROUP>
+ * @param <TIMELINE>
+ */
+public class TimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIMELINE>, TIMELINE extends ITimeline>
+		extends MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE> {
 
-	private TIMELINEGROUP timelineGroup;
+	private static final Logger LOGGER = Logger
+			.getLogger(TimelineGroupViewer.class);
 
-	private ISelection selection = null;
-	private ITimelineListener timelineListener = new ITimelineListener() {
-		@Override
-		public void clicked(TimelineEvent event) {
-			setSelection(new StructuredSelection(event.getSource()));
-		}
+	public TimelineGroupViewer(TIMELINEGROUP timelineGroup,
+			ITimelineProviderFactory<TIMELINE> timelineProviderFactory) {
+		super(timelineGroup, timelineProviderFactory);
+	}
 
-		@Override
-		public void middleClicked(TimelineEvent event) {
-			setSelection(new StructuredSelection(event.getSource()));
-		}
+	/**
+	 * Highlights the given date ranges in the timelines and centers them
+	 * correctly.
+	 * 
+	 * @param groupedDecorators
+	 * @param progressMonitor
+	 */
+	public void setDecorators(
+			final Map<Object, IDecorator[]> groupedDecorators,
+			IProgressMonitor monitor) {
 
-		@Override
-		public void rightClicked(TimelineEvent event) {
-			setSelection(new StructuredSelection(event.getSource()));
-		}
+		SubMonitor subMonitor = SubMonitor.convert(monitor, groupedDecorators
+				.keySet().size());
 
-		@Override
-		public void doubleClicked(TimelineEvent event) {
-			setSelection(new StructuredSelection(event.getSource()));
-		}
+		for (final Object key : groupedDecorators.keySet()) {
+			if (subMonitor.isCanceled())
+				throw new OperationCanceledException();
 
-		@Override
-		public void hoveredIn(TimelineEvent event) {
-		}
-
-		@Override
-		public void hoveredOut(TimelineEvent event) {
-		}
-	};
-
-	public TimelineGroupViewer(TIMELINEGROUP timelineGroup) {
-		Assert.isNotNull(timelineGroup);
-		this.timelineGroup = timelineGroup;
-		this.timelineGroup.addTimelineListener(this.timelineListener);
-		Runnable addDisposeListener = new Runnable() {
-			@Override
-			public void run() {
-				TimelineGroupViewer.this.timelineGroup
-						.addDisposeListener(new DisposeListener() {
-							@Override
-							public void widgetDisposed(DisposeEvent e) {
-								if (TimelineGroupViewer.this.timelineGroup != null
-										&& !TimelineGroupViewer.this.timelineGroup
-												.isDisposed()) {
-									TimelineGroupViewer.this.timelineGroup
-											.dispose();
-								}
-							}
-						});
+			final TIMELINE timeline;
+			try {
+				timeline = ExecutorUtil.asyncExec(new Callable<TIMELINE>() {
+					@Override
+					public TIMELINE call() throws Exception {
+						return getTimeline(key);
+					}
+				}).get();
+			} catch (Exception e) {
+				LOGGER.error("Error retrieving timeline for " + key);
+				continue;
 			}
-		};
-		if (Display.getCurrent() == Display.getDefault())
-			addDisposeListener.run();
-		else
-			Display.getDefault().syncExec(addDisposeListener);
+			if (timeline == null) {
+				LOGGER.warn("Timeline does not exist anymore for " + key);
+				continue;
+			}
+
+			if (subMonitor.isCanceled())
+				throw new OperationCanceledException();
+
+			ExecutorUtil.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					IDecorator[] decorators = groupedDecorators.get(key);
+					if (decorators == null || decorators.length == 0) {
+						timeline.setDecorators(new IDecorator[0]);
+					} else {
+						String center = decorators[0].getStartDate() != null ? decorators[0]
+								.getStartDate() : decorators[0].getEndDate();
+						if (center != null)
+							timeline.setCenterVisibleDate(CalendarUtils
+									.fromISO8601(center));
+						timeline.setDecorators(decorators);
+					}
+				}
+			});
+
+			if (subMonitor.isCanceled())
+				throw new OperationCanceledException();
+		}
+
+		subMonitor.done();
 	}
 
 	@Override
-	public Control getControl() {
-		return (Control) this.timelineGroup;
+	protected void postProcess(Object businessObject, ITimelineEvent event,
+			boolean inputIsNew) {
+		if (inputIsNew)
+			return;
+
+		/*
+		 * Preserves focused item
+		 */
+		if (SelectionUtils.getAdaptableObjects(getSelection(), Object.class)
+				.contains(businessObject)) {
+			event.addClassName("focus");
+		}
 	}
 
 	@Override
-	public ISelection getSelection() {
-		return this.selection;
-	}
+	protected void postProcess(final TIMELINE timeline, ITimelineInput input,
+			boolean inputIsNew) {
+		if (inputIsNew)
+			return;
 
-	@Override
-	public void setSelection(ISelection selection, boolean reveal) {
-		this.selection = selection;
-		fireSelectionChanged(new SelectionChangedEvent(this, selection));
-	}
+		Calendar centerVisibleDate = null;
+		try {
+			centerVisibleDate = ExecutorUtil.syncExec(new Callable<Calendar>() {
+				@Override
+				public Calendar call() throws Exception {
+					return timeline.getCenterVisibleDate();
+				}
+			});
+		} catch (Exception e) {
+			LOGGER.error("Error retrieving the currently centered time", e);
+		}
 
-	public abstract void refresh(IProgressMonitor monitor);
+		// on first start we don't want to override the original set date
+		if (centerVisibleDate != null) {
+			System.err.println("Neu: "
+					+ CalendarUtils.toISO8601(centerVisibleDate));
+			input.getOptions().setCenterStart(centerVisibleDate);
+		}
 
-	@Override
-	public void refresh() {
-		this.refresh(null);
+		input.getOptions().setDecorators(timeline.getDecorators());
 	}
 
 }

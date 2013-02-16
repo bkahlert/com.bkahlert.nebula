@@ -63,7 +63,7 @@ function convertTimeZone(date, timeZoneOffset) {
 // formats a date ignoring it's time zone and using the provided one for display
 // differing time zones have no influence of the printed date
 function formatDate(date, timeZoneOffset) {
-	var s = date.format("yyyy-mm-dd'T'HH:MM:ss");
+	var s = date.format("yyyy-mm-dd'T'HH:MM:ss.l");
 	var iso8601date = s + formatTimeZone(timeZoneOffset);
 	return iso8601date;
 }

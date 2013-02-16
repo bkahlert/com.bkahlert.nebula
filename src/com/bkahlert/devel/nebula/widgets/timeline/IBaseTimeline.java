@@ -7,8 +7,7 @@ import org.eclipse.swt.SWTException;
 
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.widgets.browser.IBrowserComposite;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Decorator;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
+import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 
@@ -66,7 +65,25 @@ public interface IBaseTimeline extends IBrowserComposite {
 	public void show(ITimelineInput input, IProgressMonitor monitor);
 
 	/**
-	 * Sets the date where the visible part of the {@link Timeline} should
+	 * Displays the given {@link ITimelineInput} on the {@link IBaseTimeline} by
+	 * using an animation before and after the load process.
+	 * <p>
+	 * May be called from whatever thread.
+	 * 
+	 * @param input
+	 * @param startAnimationDuration
+	 *            duration the start animation takes; if <= 0 no animation will
+	 *            occur
+	 * @param endAnimationDuration
+	 *            duration the end animation takes; if <= 0 no animation will
+	 *            occur
+	 * @param monitor
+	 */
+	public void show(ITimelineInput input, int startAnimationDuration,
+			int endAnimationDuration, IProgressMonitor monitor);
+
+	/**
+	 * Sets the date where the visible part of the {@link IBaseTimeline} should
 	 * start.
 	 * 
 	 * @param iso8601Date
@@ -81,7 +98,7 @@ public interface IBaseTimeline extends IBrowserComposite {
 	public void setMinVisibleDate(Calendar calendar);
 
 	/**
-	 * Sets the date where the visible part of the {@link Timeline} should
+	 * Sets the date where the visible part of the {@link IBaseTimeline} should
 	 * centered.
 	 * 
 	 * @param iso8601Date
@@ -96,7 +113,23 @@ public interface IBaseTimeline extends IBrowserComposite {
 	public void setCenterVisibleDate(Calendar calendar);
 
 	/**
-	 * Sets the date where the visible part of the {@link Timeline} should end.
+	 * Gets the date where the visible part of the {@link IBaseTimeline} is
+	 * currently centered.
+	 * 
+	 * @param iso8601Date
+	 * @exception SWTException
+	 *                <ul>
+	 *                <li>ERROR_THREAD_INVALID_ACCESS when called from the wrong
+	 *                thread</li>
+	 *                <li>ERROR_WIDGET_DISPOSED when the widget has been
+	 *                disposed</li>
+	 *                </ul>
+	 */
+	public Calendar getCenterVisibleDate();
+
+	/**
+	 * Sets the date where the visible part of the {@link IBaseTimeline} should
+	 * end.
 	 * 
 	 * @param iso8601Date
 	 * @exception SWTException
@@ -110,21 +143,23 @@ public interface IBaseTimeline extends IBrowserComposite {
 	public void setMaxVisibleDate(Calendar calendar);
 
 	/**
-	 * Renders the default {@link Decorator}s plus the given {@link Decorator}
-	 * on this {@link Timeline}.
+	 * Applies the given {@link IDecorator}s to the timeline. Replaces all
+	 * decorations that existed before.
+	 * <p>
+	 * Hint: This method may be called from a non-UI thread. The relatively
+	 * time-consuming JSON conversion is done asynchronously making this method
+	 * return immediately.
 	 * 
-	 * @param jsonDecorators
-	 *            a list of {@link Decorator} as a json string; example: <code>
-	 * [{ "startDate": "2011-09-13T13:08:05+02:00", "endDate": "2011-09-13T13:18:28+02:00" }]</code>
-	 * @exception SWTException
-	 *                <ul>
-	 *                <li>ERROR_THREAD_INVALID_ACCESS when called from the wrong
-	 *                thread</li>
-	 *                <li>ERROR_WIDGET_DISPOSED when the widget has been
-	 *                disposed</li>
-	 *                </ul>
+	 * @param decorators
 	 */
-	public void applyDecorators(String jsonDecorators);
+	public void setDecorators(IDecorator[] decorators);
+
+	/**
+	 * Returns the currently applied decorations.
+	 * 
+	 * @return
+	 */
+	public IDecorator[] getDecorators();
 
 	/**
 	 * Returns the event that is the closest one to the given event (starting

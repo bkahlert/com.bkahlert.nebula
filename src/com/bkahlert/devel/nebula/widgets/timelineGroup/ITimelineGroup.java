@@ -28,4 +28,14 @@ public interface ITimelineGroup<TIMELINE extends IBaseTimeline> extends IWidget 
 	public void addTimelineListener(ITimelineListener timelineListener);
 
 	public void removeTimelineListener(ITimelineListener timelineListener);
+
+	/**
+	 * Creates a {@Code TIMELINE} and prepares it for use.
+	 * <p>
+	 * Please do not forget to set the {@Code TIMELINE}'s input using
+	 * {@link IBaseTimeline#setData(Object)}.
+	 * 
+	 * @return
+	 */
+	public TIMELINE createTimeline();
 }
