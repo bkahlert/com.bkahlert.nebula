@@ -10,10 +10,7 @@
                     range : $this.data("range") || "min",
                     min : $this.data("min") || 0,
                     max : $this.data("max") || 100,
-                    value : $this.data("value") || 50,
-                    change : function(event, ui) {
-                        console.log(ui.value);
-                    }
+                    value : $this.data("value") || 50
                 };
                 $.extend(settings, options || {});
 
@@ -37,6 +34,20 @@
                     $slider.slider("value", $slider.slider("value") - 1);
                 });
 
+                /*
+                 * Reverse the value for all callbacks
+                 */
+                if (settings.max && settings.value)
+                    settings.value = settings.max - settings.value;
+                $.each(["create", "start", "slide", "change", "stop"], function() {
+                    if (settings[this]) {
+                        var oldCallback = settings[this];
+                        settings[this] = function(event, ui) {
+                            ui.value = $slider.slider("option", "max") - ui.value;
+                            oldCallback(event, ui);
+                        }
+                    }
+                });
                 $slider.appendTo(this).slider(settings);
 
                 $this.zoomControl("registerKeyboardBindings");
@@ -48,6 +59,9 @@
                 var $this = $(this);
                 $(document).keydown(function(event) {
                     switch(event.which) {
+                        /* normal keyboard, arrow up */
+                        case 38:
+                        // TODO buggy
                         /* normal keyboard, + */
                         case 171:
                         /* normal keyboard, numpad + */
@@ -55,7 +69,12 @@
                         /* laptop keyboard, + */
                         case 187:
                             $this.zoomControl("zoomIn");
+                            event.preventDefault();
+                            event.stopPropagation();
                             break;
+                        /* normal keyboard, arrow down */
+                        case 40:
+                        // TODO buggy
                         /* normal keyboard, - */
                         case 173:
                         /* normal keyboard, numpad - */
@@ -63,6 +82,8 @@
                         /* laptop keyboard, - */
                         case 189:
                             $this.zoomControl("zoomOut");
+                            event.preventDefault();
+                            event.stopPropagation();
                             break;
                     }
                 });
@@ -88,10 +109,22 @@
          * @param {Object} value
          */
         setValue : function(value) {
-            return this.each(function(i, wrapper) {
-                var $this = $(this);
-                $this.children(".innerSlider").slider("value", value);
+            return this.each(function() {
+                $(this).children(".innerSlider").each(function(i, slider) {
+                    var $slider = $(slider);
+                    var max = $slider.slider("option", "max");
+                    $slider.slider("value", max - value);
+                });
             });
+        },
+
+        /**
+         * Returns the value of the *first* matches control.
+         */
+        getValue : function() {
+            var sliders = $(this).children(".innerSlider");
+            var max = sliders.slider("option", "max");
+            return max - sliders.slider("value");
         }
     };
 

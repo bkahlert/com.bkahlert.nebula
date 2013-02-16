@@ -10,7 +10,7 @@
             }, {
                 "pixelsPerInterval": 0.45,
                 "unit": "MILLISECOND",
-                "showLabelEveryUnits": 1
+                "showLabelEveryUnits": 100
             }, {
                 "pixelsPerInterval": 300.0,
                 "unit": "SECOND",
