@@ -87,19 +87,12 @@ com.bkahlert.devel.nebula.timeline = com.bkahlert.devel.nebula.timeline || {};
 })(jQuery);
 
 function testFunction() {
-    alert(com.bkahlert.devel.nebula.timeline.getZoomIndex());
-    var x = com.bkahlert.devel.nebula.timeline.getCenterVisibleDate();
-    com.bkahlert.devel.nebula.timeline.setCenterVisibleDate(x);
-    // TODO update methode in TimelineGroupViewer implementieren
-    com.bkahlert.devel.nebula.timeline.replace([3, 75], {
-        "title" : "XXXXXXXXX",
-        "icon" : "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper6874591262470491341.png",
-        "image" : "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper6874591262470491341.png",
-        "start" : "2011-09-13T02:58:39-05:00",
-        "end" : "2011-09-13T03:00:55-05:00",
-        "durationEvent" : true,
-        "classname" : "DoclogRecord SCROLL _-_timeline-id_-_2,0,75_-_ _-_timeline-id_-_3,75_-_"
-    });
+    com.bkahlert.devel.nebula.timeline.setDecorators([{
+                "startLabel": null,
+                "endLabel": null,
+                "startDate": "2011-09-13T06:23:16.32-05:00",
+                "endDate": "2011-09-13T06:25:36.663-05:00"
+            }]);
 }
 
 

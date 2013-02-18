@@ -84,11 +84,12 @@
                 var element = document.elementFromPoint(e.pageX, e.pageY);
                 if (!element)
                     return;
-                    
+
                 /*
                  * do nothing if user is resizing an event
                  */
-                if(timeline._resizing) return;
+                if (timeline._resizing)
+                    return;
 
                 var $element = $(element);
 
@@ -212,7 +213,13 @@
                     for (var j = 0, n = band._decorators.length; j < n; j++)
                         band._decorators[j].initialize(band, timeline);
                 }
-                timeline.paint();
+
+                /*
+                 * Only paint decorators anew
+                 */
+                for (var i = 0; i < timeline._bands.length; i++) {
+                    timeline._bands[i]._paintDecorators();
+                }
             });
         },
 
@@ -304,7 +311,7 @@
                 Timeline.CompactEventPainter.prototype._showBubble = function() {
                 };
             }
-            
+
             this.data("timeZone", settings.timeZone);
 
             return this.each(function() {
@@ -508,8 +515,9 @@
                 var resizeTimerID = null;
                 jQuery(window).resize(function(event) {
                     // resize events bubble; we only want window resize
-                    if(event.target != window) return;
-                    
+                    if (event.target != window)
+                        return;
+
                     var timeline = $this.data('timeline');
                     var date = timeline.getBand(0).getCenterVisibleDate();
                     if (resizeTimerID == null) {
@@ -556,45 +564,50 @@
                 $(this).data('timeline').getBand(0).setMaxVisibleDate(date);
             });
         },
-        
+
         /**
          * Returns the date a given tape element starts or ends.
-         * 
+         *
          * @param tapeElement the element of interest
          * @param getStart true if you want to get the start date; false if you want to get the end date
          * @return the start/end date
          */
         getTapeDate : function(tapeElement, getStart) {
             var bandDiv = $(tapeElement).parents(".timeline-band");
-            if(bandDiv.length != 1) return null;
-            else bandDiv = bandDiv[0];
+            if (bandDiv.length != 1)
+                return null;
+            else
+                bandDiv = bandDiv[0];
 
             var band = null;
             var bands = $(this).data('timeline')._bands;
             $.each(bands, function(i) {
-                if(bands[i]._div == bandDiv) band = bands[i];
+                if (bands[i]._div == bandDiv)
+                    band = bands[i];
             });
-            
-            if(band == null) return null;
-            
+
+            if (band == null)
+                return null;
+
             var pixels = parseInt(tapeElement.css("left"));
-            if(!getStart) pixels += parseInt(tapeElement.css("width"));
-            return band._ether.pixelOffsetToDate(band._viewOffset+pixels);
+            if (!getStart)
+                pixels += parseInt(tapeElement.css("width"));
+            return band._ether.pixelOffsetToDate(band._viewOffset + pixels);
         },
-        
+
         /**
          * Returns the start date of a given tape element.
-         * 
+         *
          * @param tapeElement the element of interest
          * @return the start date
          */
         getTapeStartDate : function(tapeElement) {
             return $(this).timeline("getTapeDate", tapeElement, true);
         },
-        
+
         /**
          * Returns the end date of a given tape element.
-         * 
+         *
          * @param tapeElement the element of interest
          * @return the end date
          */
@@ -795,17 +808,17 @@ Timeline.CompactEventPainter.prototype.paintPreciseDurationEvent = function(evt,
     } : function(elmt, domEvt, target) {
         return self._onClickInstantEvent(result.labelElmtData.elmt, domEvt, evt);
     };
-    
+
     /*
      * NEW
      */
-    if(typeof evt.getClassName() === "string" && $.inArray("resizable", evt.getClassName().split(" ")) != -1) {
+    if ( typeof evt.getClassName() === "string" && $.inArray("resizable", evt.getClassName().split(" ")) != -1) {
         $(result.tapeElmtData.elmt).resizable({
-            handles: "e, w",
-            start: function() {
+            handles : "e, w",
+            start : function() {
                 self._timeline._resizing = true;
             },
-            stop: function() {
+            stop : function() {
                 self._timeline._resizing = false;
             }
         });
@@ -824,7 +837,7 @@ Timeline.CompactEventPainter.prototype.paintPreciseDurationEvent = function(evt,
 
 Timeline._Band.prototype._onMouseDown = function(innerFrame, evt, target) {
     this.closeBubble();
-    
+
     this._dragging = true;
     this._dragX = evt.clientX;
     this._dragY = evt.clientY;
@@ -1073,22 +1086,6 @@ Timeline._Band.prototype._onMouseScroll = function(innerFrame, evt, target) {
             console.log(bandHeight);
 
             eventsDiv.css("top", newTop + "px");
-            event.stopPropagation();
-            event.preventDefault();
-            return;
-
-            if (now - this._timeline._lastScrollTime < 1000) {
-                event.stopPropagation();
-                event.preventDefault();
-                return;
-            }
-            var loc = SimileAjax.DOM.getEventRelativeCoordinates(evt, innerFrame);
-            if (delta != 0) {
-                var zoomBy = delta > 0 ? -1 : +1;
-                $(this._timeline._containerDiv).timeline("zoomBy", zoomBy, loc.x, loc.y);
-            }
-            event.stopPropagation();
-            event.preventDefault();
         }
 
         this._timeline._lastScrollTime = now;
@@ -1105,6 +1102,43 @@ Timeline._Band.prototype._onMouseScroll = function(innerFrame, evt, target) {
         evt.preventDefault();
     }
     evt.returnValue = false;
+};
+
+Timeline._Band.prototype._onKeyDown = function(keyboardInput, evt, target) {
+    if (!this._dragging) {
+        switch (evt.keyCode) {
+            case 27:
+                // ESC
+                break;
+            case 37:
+                // left arrow
+                this._scrollSpeed = Math.min(50, Math.abs(this._scrollSpeed * 1.05));
+                if(evt.metaKey) this._scrollSpeed *= 2.5;
+                this._moveEther(this._scrollSpeed);
+                break;
+            case 39:
+                // right arrow
+                this._scrollSpeed = -Math.min(50, Math.abs(this._scrollSpeed * 1.05));
+                if(evt.metaKey) this._scrollSpeed *= 2.5;
+                this._moveEther(this._scrollSpeed);
+                break;
+            case 38:
+                // up arrow
+                $(this._timeline._containerDiv).timeline("zoomBy", -1);
+                break;
+            case 40:
+                // down arrow
+                $(this._timeline._containerDiv).timeline("zoomBy", +1);
+                break;
+            default:
+                return true;
+        }
+        this.closeBubble();
+
+        SimileAjax.DOM.cancelEvent(evt);
+        return false;
+    }
+    return true;
 };
 
 /**

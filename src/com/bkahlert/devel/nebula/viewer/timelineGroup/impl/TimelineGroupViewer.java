@@ -8,8 +8,8 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
+import org.junit.Assert;
 
-import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProviderFactory;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
@@ -41,8 +41,61 @@ public class TimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIMELINE>,
 	}
 
 	/**
-	 * Highlights the given date ranges in the timelines and centers them
-	 * correctly.
+	 * Highlights the given date.
+	 * 
+	 * @param groupedDecorators
+	 * @param progressMonitor
+	 */
+	public void setCenterVisibleDate(final Map<Object, Calendar> calendars,
+			IProgressMonitor monitor) {
+		Assert.assertNotNull(calendars);
+
+		SubMonitor subMonitor = SubMonitor.convert(monitor, calendars.keySet()
+				.size());
+
+		for (final Object key : calendars.keySet()) {
+			if (subMonitor.isCanceled())
+				throw new OperationCanceledException();
+
+			final TIMELINE timeline;
+			try {
+				timeline = ExecutorUtil.asyncExec(new Callable<TIMELINE>() {
+					@Override
+					public TIMELINE call() throws Exception {
+						return getTimeline(key);
+					}
+				}).get();
+			} catch (Exception e) {
+				LOGGER.error("Error retrieving timeline for " + key);
+				continue;
+			}
+			if (timeline == null) {
+				LOGGER.warn("Timeline does not exist anymore for " + key);
+				continue;
+			}
+
+			if (subMonitor.isCanceled())
+				throw new OperationCanceledException();
+
+			ExecutorUtil.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					Calendar calendar = calendars.get(key);
+					if (calendar != null) {
+						timeline.setCenterVisibleDate(calendar);
+					}
+				}
+			});
+
+			if (subMonitor.isCanceled())
+				throw new OperationCanceledException();
+		}
+
+		subMonitor.done();
+	}
+
+	/**
+	 * Highlights the given date ranges in the timelines.
 	 * 
 	 * @param groupedDecorators
 	 * @param progressMonitor
@@ -85,11 +138,6 @@ public class TimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIMELINE>,
 					if (decorators == null || decorators.length == 0) {
 						timeline.setDecorators(new IDecorator[0]);
 					} else {
-						String center = decorators[0].getStartDate() != null ? decorators[0]
-								.getStartDate() : decorators[0].getEndDate();
-						if (center != null)
-							timeline.setCenterVisibleDate(CalendarUtils
-									.fromISO8601(center));
 						timeline.setDecorators(decorators);
 					}
 				}
