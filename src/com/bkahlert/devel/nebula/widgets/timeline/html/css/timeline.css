@@ -231,7 +231,7 @@ html .timeline-ether-weekends {
 }
 
 .timeline-event-tape.hover {
-    background-color: #D8FF26 !important;
+    outline: 2px solid #D8FF26 !important;
 }
 
 /*
@@ -244,9 +244,24 @@ html .timeline-ether-weekends {
     margin-bottom: -2px;
 }
 
-.timeline-event-label.focus + div, /* dirty, aber gerade das leichteste; eigentlich müsste focus auf dem tape auch beim viewer.refresh gemacht werden */
+.timeline-event-label.focus + div, /* dirty, aber gerade das leichteste; eigentlich müsste focus auf dem tape auch beim viewer.refresh hinzugefügt werden */
 .timeline-event-tape.focus {
-    background-color: #4B83B3 !important;
+    outline: 2px solid #4B83B3 !important;
+}
+
+/*
+ * Resizeable event tapes
+ */
+.ui-resizable-handle {
+    background-color: rgba(0,0,0,0.2);
+}
+
+.ui-resizable-e {
+    right: 0px;
+}
+
+.ui-resizable-w {
+    left: 0px;
 }
 
 /*

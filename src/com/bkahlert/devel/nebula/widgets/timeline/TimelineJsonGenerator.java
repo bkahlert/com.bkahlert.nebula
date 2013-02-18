@@ -322,6 +322,9 @@ public class TimelineJsonGenerator {
 		generator.writeFieldName("color");
 		generator.writeString(event.getColor());
 
+		if (event.isResizable())
+			classNames.add("resizable");
+
 		generator.writeFieldName("classname");
 		generator.writeString(StringUtils.join(classNames, " "));
 

@@ -25,5 +25,7 @@ public interface ITimelineEventLabelProvider {
 
 	public String getColor(Object event);
 
+	public boolean isResizable(Object event);
+
 	public String[] getClassNames(Object event);
 }

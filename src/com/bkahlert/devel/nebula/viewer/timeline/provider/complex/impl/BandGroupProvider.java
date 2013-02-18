@@ -5,13 +5,13 @@ import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineConten
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
 
-public class BandGroupProviders implements IBandGroupProvider {
+public class BandGroupProvider implements IBandGroupProvider {
 
 	private ITimelineContentProvider contentProvider;
 	private ITimelineBandLabelProvider bandLabelProvider;
 	private ITimelineEventLabelProvider eventLabelProvider;
 
-	public BandGroupProviders(ITimelineContentProvider contentProvider,
+	public BandGroupProvider(ITimelineContentProvider contentProvider,
 			ITimelineBandLabelProvider bandLabelProvider,
 			ITimelineEventLabelProvider eventLabelProvider) {
 		super();

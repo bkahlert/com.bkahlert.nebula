@@ -115,10 +115,11 @@ public class TimelineViewerHelper<TIMELINE extends IBaseTimeline> {
 		Calendar start = eventLabelProvider.getStart(event);
 		Calendar end = eventLabelProvider.getEnd(event);
 		String color = eventLabelProvider.getColor(event);
+		boolean resizable = eventLabelProvider.isResizable(event);
 		String[] classNames = eventLabelProvider.getClassNames(event);
 
 		ITimelineEvent timelineEvent = new TimelineEvent(title, icon, image,
-				start, end, color, classNames, event);
+				start, end, color, resizable, classNames, event);
 		return timelineEvent;
 	}
 }

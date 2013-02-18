@@ -39,6 +39,28 @@ public interface ITimelineListener {
 	public void doubleClicked(TimelineEvent event);
 
 	/**
+	 * Is called if an {@link TimelineEvent} resize process is started.
+	 * 
+	 * @param event
+	 */
+	public void resizeStarted(TimelineEvent event);
+
+	/**
+	 * Is called if an {@link TimelineEvent} is currently resized.
+	 * 
+	 * @param event
+	 */
+	public void resizing(TimelineEvent event);
+
+	/**
+	 * Is called if an {@link TimelineEvent} is resized. (meaning the process
+	 * has finished)
+	 * 
+	 * @param event
+	 */
+	public void resized(TimelineEvent event);
+
+	/**
 	 * Is called if an {@link TimelineEvent} was hovered in, meaning the mouse
 	 * moved over it.
 	 * 

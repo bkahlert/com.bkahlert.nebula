@@ -1,5 +1,7 @@
 package com.bkahlert.devel.nebula.widgets.timeline.impl;
 
+import java.util.Calendar;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.swt.browser.Browser;
@@ -7,6 +9,7 @@ import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
+import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
@@ -44,7 +47,7 @@ public class Timeline extends BaseTimeline implements ITimeline {
 		 * @return
 		 */
 		public static int[] fromArguments(Object[] arguments) {
-			if (arguments.length == 1 && arguments[0] instanceof String) {
+			if (arguments.length >= 1 && arguments[0] instanceof String) {
 				String[] parts = ((String) arguments[0]).split(",");
 				try {
 					int bandNumber = Integer.parseInt(parts[0]);
@@ -65,12 +68,18 @@ public class Timeline extends BaseTimeline implements ITimeline {
 		@Override
 		public Object function(Object[] arguments) {
 			int[] id = fromArguments(arguments);
+			Object[] custom;
+			if (arguments.length > 1 && arguments[1] instanceof Object[])
+				custom = (Object[]) arguments[1];
+			else
+				custom = new Object[0];
 			if (id != null)
-				call(id[0], id[1]);
+				call(id[0], id[1], custom);
 			return null;
 		}
 
-		public abstract void call(int bandNumber, int eventNumber);
+		public abstract void call(int bandNumber, int eventNumber,
+				Object[] custom);
 	}
 
 	private ListenerList timelineListeners = new ListenerList();
@@ -83,11 +92,11 @@ public class Timeline extends BaseTimeline implements ITimeline {
 		new TimelineListenerBrowserFunction(this.getBrowser(),
 				"timeline_plugin_click_callback") {
 			@Override
-			public void call(int bandNumber, int eventNumber) {
+			public void call(int bandNumber, int eventNumber, Object[] custom) {
 				Object[] listeners = timelineListeners.getListeners();
 				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
 						Timeline.this, input.getBand(bandNumber).getEvent(
-								eventNumber));
+								eventNumber), null, null);
 				for (int i = 0, m = listeners.length; i < m; ++i)
 					((ITimelineListener) listeners[i]).clicked(event);
 			}
@@ -95,11 +104,11 @@ public class Timeline extends BaseTimeline implements ITimeline {
 		new TimelineListenerBrowserFunction(this.getBrowser(),
 				"timeline_plugin_mclick_callback") {
 			@Override
-			public void call(int bandNumber, int eventNumber) {
+			public void call(int bandNumber, int eventNumber, Object[] custom) {
 				Object[] listeners = timelineListeners.getListeners();
 				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
 						Timeline.this, input.getBand(bandNumber).getEvent(
-								eventNumber));
+								eventNumber), null, null);
 				for (int i = 0, m = listeners.length; i < m; ++i)
 					((ITimelineListener) listeners[i]).middleClicked(event);
 			}
@@ -107,11 +116,11 @@ public class Timeline extends BaseTimeline implements ITimeline {
 		new TimelineListenerBrowserFunction(this.getBrowser(),
 				"timeline_plugin_rclick_callback") {
 			@Override
-			public void call(int bandNumber, int eventNumber) {
+			public void call(int bandNumber, int eventNumber, Object[] custom) {
 				Object[] listeners = timelineListeners.getListeners();
 				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
 						Timeline.this, input.getBand(bandNumber).getEvent(
-								eventNumber));
+								eventNumber), null, null);
 				for (int i = 0, m = listeners.length; i < m; ++i)
 					((ITimelineListener) listeners[i]).rightClicked(event);
 			}
@@ -119,23 +128,74 @@ public class Timeline extends BaseTimeline implements ITimeline {
 		new TimelineListenerBrowserFunction(this.getBrowser(),
 				"timeline_plugin_dblclick_callback") {
 			@Override
-			public void call(int bandNumber, int eventNumber) {
+			public void call(int bandNumber, int eventNumber, Object[] custom) {
 				Object[] listeners = timelineListeners.getListeners();
 				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
 						Timeline.this, input.getBand(bandNumber).getEvent(
-								eventNumber));
+								eventNumber), null, null);
 				for (int i = 0, m = listeners.length; i < m; ++i)
 					((ITimelineListener) listeners[i]).doubleClicked(event);
 			}
 		};
 		new TimelineListenerBrowserFunction(this.getBrowser(),
+				"timeline_plugin_resizestart_callback") {
+			@Override
+			public void call(int bandNumber, int eventNumber, Object[] custom) {
+				Calendar startDate = custom[0] instanceof String ? CalendarUtils
+						.fromISO8601((String) custom[0]) : null;
+				Calendar endDate = custom[1] instanceof String ? CalendarUtils
+						.fromISO8601((String) custom[1]) : null;
+				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
+						Timeline.this, input.getBand(bandNumber).getEvent(
+								eventNumber), startDate, endDate);
+
+				Object[] listeners = timelineListeners.getListeners();
+				for (int i = 0, m = listeners.length; i < m; ++i)
+					((ITimelineListener) listeners[i]).resizeStarted(event);
+			}
+		};
+		new TimelineListenerBrowserFunction(this.getBrowser(),
+				"timeline_plugin_resizing_callback") {
+			@Override
+			public void call(int bandNumber, int eventNumber, Object[] custom) {
+				Calendar startDate = custom[0] instanceof String ? CalendarUtils
+						.fromISO8601((String) custom[0]) : null;
+				Calendar endDate = custom[1] instanceof String ? CalendarUtils
+						.fromISO8601((String) custom[1]) : null;
+				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
+						Timeline.this, input.getBand(bandNumber).getEvent(
+								eventNumber), startDate, endDate);
+
+				Object[] listeners = timelineListeners.getListeners();
+				for (int i = 0, m = listeners.length; i < m; ++i)
+					((ITimelineListener) listeners[i]).resizing(event);
+			}
+		};
+		new TimelineListenerBrowserFunction(this.getBrowser(),
+				"timeline_plugin_resizestop_callback") {
+			@Override
+			public void call(int bandNumber, int eventNumber, Object[] custom) {
+				Calendar startDate = custom[0] instanceof String ? CalendarUtils
+						.fromISO8601((String) custom[0]) : null;
+				Calendar endDate = custom[1] instanceof String ? CalendarUtils
+						.fromISO8601((String) custom[1]) : null;
+				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
+						Timeline.this, input.getBand(bandNumber).getEvent(
+								eventNumber), startDate, endDate);
+
+				Object[] listeners = timelineListeners.getListeners();
+				for (int i = 0, m = listeners.length; i < m; ++i)
+					((ITimelineListener) listeners[i]).resized(event);
+			}
+		};
+		new TimelineListenerBrowserFunction(this.getBrowser(),
 				"timeline_plugin_mouseIn_callback") {
 			@Override
-			public void call(int bandNumber, int eventNumber) {
+			public void call(int bandNumber, int eventNumber, Object[] custom) {
 				Object[] listeners = timelineListeners.getListeners();
 				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
 						Timeline.this, input.getBand(bandNumber).getEvent(
-								eventNumber));
+								eventNumber), null, null);
 				for (int i = 0, m = listeners.length; i < m; ++i)
 					((ITimelineListener) listeners[i]).hoveredIn(event);
 			}
@@ -143,18 +203,15 @@ public class Timeline extends BaseTimeline implements ITimeline {
 		new TimelineListenerBrowserFunction(this.getBrowser(),
 				"timeline_plugin_mouseOut_callback") {
 			@Override
-			public void call(int bandNumber, int eventNumber) {
+			public void call(int bandNumber, int eventNumber, Object[] custom) {
 				Object[] listeners = timelineListeners.getListeners();
 				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
 						Timeline.this, input.getBand(bandNumber).getEvent(
-								eventNumber));
+								eventNumber), null, null);
 				for (int i = 0, m = listeners.length; i < m; ++i)
 					((ITimelineListener) listeners[i]).hoveredOut(event);
 			}
 		};
-
-		String catchEventsJs = "jQuery(document).ready(function(e){function t(t,n){var r=document.elementFromPoint(t.pageX,t.pageY);if(!r)return false;var i=e(r);if(i.hasClass(\"timeline-event-tape\")){i=i.prev();if(!i){alert(\"No previous element found. This is unexpected since tapes should always be preceded by a label div.\")}}var s=false;e.each(i.attr(\"class\").split(/\\s+/),function(e,t){if(s)return false;if(t.length>\"_-_\".length*3){parts=t.split(\"_-_\");if(parts.length==4){s=true;n(parts[2])}}});if(!s)n(null);return false}e(document).click(function(e){switch(e.which){case 1:return t(e,timeline_plugin_click_callback);break;case 2:return t(e,timeline_plugin_mclick_callback);break;case 3:break;default:}return false});e(document).bind(\"contextmenu\",function(e){return t(e,timeline_plugin_rclick_callback)});e(document).dblclick(function(e){return t(e,timeline_plugin_dblclick_callback)});var n=null;e(document).mousemove(function(e){return t(e,function(e){if(n==e)return;if(n!=null)timeline_plugin_mouseOut_callback(n);if(e!=null)timeline_plugin_mouseIn_callback(e);n=e})})})";
-		this.enqueueJs(catchEventsJs);
 	}
 
 	public void show(ITimelineInput input, IProgressMonitor monitor) {

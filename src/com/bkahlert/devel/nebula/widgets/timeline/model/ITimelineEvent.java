@@ -43,6 +43,8 @@ public interface ITimelineEvent extends IAdaptable {
 	 */
 	public String getColor();
 
+	public boolean isResizable();
+
 	/**
 	 * Returns the event's payload. This field is ideal to keep track of an
 	 * object this {@link ITimelineEvent} actually presents.

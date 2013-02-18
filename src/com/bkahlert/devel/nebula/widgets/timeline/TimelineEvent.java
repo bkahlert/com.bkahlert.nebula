@@ -1,5 +1,6 @@
 package com.bkahlert.devel.nebula.widgets.timeline;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import org.eclipse.swt.events.TypedEvent;
@@ -18,13 +19,25 @@ public class TimelineEvent extends TypedEvent {
 	 */
 	public ITimelineEvent timelineEvent;
 
+	/**
+	 * If resized this field holds the new start date.
+	 */
+	public Calendar startDate;
+
+	/**
+	 * If resized this field holds the new end date.
+	 */
+	public Calendar endDate;
+
 	public TimelineEvent(Display display, ITimeline timeline,
-			ITimelineEvent timelineEvent) {
+			ITimelineEvent timelineEvent, Calendar startDate, Calendar endDate) {
 		super(timelineEvent.getPayload());
 		this.display = display;
 		this.time = (int) (new Date().getTime() & 0xFFFFFFFFL);
 		this.widget = (Widget) timeline;
 		this.timelineEvent = timelineEvent;
+		this.startDate = startDate;
+		this.endDate = endDate;
 	}
 
 	/**

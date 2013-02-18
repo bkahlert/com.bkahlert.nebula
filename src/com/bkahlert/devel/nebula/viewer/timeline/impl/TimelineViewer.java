@@ -42,6 +42,18 @@ public abstract class TimelineViewer<TIMELINE extends ITimeline> extends Viewer
 		}
 
 		@Override
+		public void resizeStarted(TimelineEvent event) {
+		}
+
+		@Override
+		public void resizing(TimelineEvent event) {
+		}
+
+		@Override
+		public void resized(TimelineEvent event) {
+		}
+
+		@Override
 		public void hoveredIn(TimelineEvent event) {
 		}
 

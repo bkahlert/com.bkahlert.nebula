@@ -286,7 +286,7 @@
                     "end": "2011-09-13T04:43:39.0-05:00",
                     "durationEvent": true,
                     "color": "#39C652",
-                    "classname": "CODE_INSTANCE _-_timeline-id_-_0,0_-_ _-_timeline-id_-_0,0_-_"
+                    "classname": "CODE_INSTANCE resizable _-_timeline-id_-_0,0_-_ _-_timeline-id_-_0,0_-_"
                 }, {
                     "title": "playing around",
                     "icon": "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper3666856175909162156.png",
@@ -295,7 +295,7 @@
                     "end": "2011-09-13T05:30:52.0-05:00",
                     "durationEvent": true,
                     "color": "#39C6BC",
-                    "classname": "CODE_INSTANCE _-_timeline-id_-_0,1_-_ _-_timeline-id_-_0,1_-_"
+                    "classname": "CODE_INSTANCE resizable _-_timeline-id_-_0,1_-_ _-_timeline-id_-_0,1_-_"
                 }, {
                     "title": "automatically generated code using (skel.py)",
                     "icon": "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper4302242957204874486.png",
@@ -304,7 +304,7 @@
                     "end": "2011-09-13T05:04:46.670-05:00",
                     "durationEvent": true,
                     "color": null,
-                    "classname": "CODE_INSTANCE _-_timeline-id_-_0,2_-_ _-_timeline-id_-_0,2_-_ undefined-start"
+                    "classname": "CODE_INSTANCE resizable _-_timeline-id_-_0,2_-_ _-_timeline-id_-_0,2_-_ undefined-start"
                 }, {
                     "title": "automatically generated code using (skel.py)",
                     "icon": "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper4302242957204874486.png",
@@ -313,7 +313,7 @@
                     "end": "2011-09-13T05:02:17.762-05:00",
                     "durationEvent": true,
                     "color": null,
-                    "classname": "CODE_INSTANCE _-_timeline-id_-_0,3_-_ _-_timeline-id_-_0,3_-_ undefined-start"
+                    "classname": "CODE_INSTANCE resizable _-_timeline-id_-_0,3_-_ _-_timeline-id_-_0,3_-_ undefined-start"
                 }, {
                     "title": "test creation",
                     "icon": "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper3666856175909162156.png",
@@ -322,7 +322,7 @@
                     "end": "2011-09-13T05:05:02.0-05:00",
                     "durationEvent": true,
                     "color": "#3966C6",
-                    "classname": "CODE_INSTANCE _-_timeline-id_-_0,4_-_ _-_timeline-id_-_0,4_-_"
+                    "classname": "CODE_INSTANCE resizable _-_timeline-id_-_0,4_-_ _-_timeline-id_-_0,4_-_"
                 }, {
                     "title": "automatically generated code using (skel.py)",
                     "icon": "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper4302242957204874486.png",
@@ -331,7 +331,7 @@
                     "end": "2011-09-13T05:04:46.617-05:00",
                     "durationEvent": true,
                     "color": null,
-                    "classname": "CODE_INSTANCE _-_timeline-id_-_0,5_-_ _-_timeline-id_-_0,5_-_ undefined-start"
+                    "classname": "CODE_INSTANCE resizable _-_timeline-id_-_0,5_-_ _-_timeline-id_-_0,5_-_ undefined-start"
                 }, {
                     "title": "wrong usage of pre compiler code",
                     "icon": "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper2844310567923199770.png",
@@ -340,7 +340,7 @@
                     "end": "2011-09-13T05:09:19.857-05:00",
                     "durationEvent": true,
                     "color": null,
-                    "classname": "CODE_INSTANCE _-_timeline-id_-_0,6_-_ _-_timeline-id_-_0,6_-_"
+                    "classname": "CODE_INSTANCE resizable _-_timeline-id_-_0,6_-_ _-_timeline-id_-_0,6_-_"
                 }, {
                     "title": "off computer",
                     "icon": "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper2298058536601170101.png",
@@ -349,7 +349,7 @@
                     "end": "2011-09-13T05:34:09.0-05:00",
                     "durationEvent": true,
                     "color": null,
-                    "classname": "CODE_INSTANCE _-_timeline-id_-_0,7_-_ _-_timeline-id_-_0,7_-_"
+                    "classname": "CODE_INSTANCE resizable _-_timeline-id_-_0,7_-_ _-_timeline-id_-_0,7_-_"
                 }, {
                     "title": "automatically generated code using (skel.py)",
                     "icon": "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper4302242957204874486.png",
@@ -358,7 +358,7 @@
                     "end": "2011-09-13T05:02:17.773-05:00",
                     "durationEvent": true,
                     "color": null,
-                    "classname": "CODE_INSTANCE _-_timeline-id_-_0,8_-_ _-_timeline-id_-_0,8_-_ undefined-start"
+                    "classname": "CODE_INSTANCE resizable _-_timeline-id_-_0,8_-_ _-_timeline-id_-_0,8_-_ undefined-start"
                 }, {
                     "title": "app creation",
                     "icon": "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper3666856175909162156.png",
@@ -367,7 +367,7 @@
                     "end": "2011-09-13T05:02:39.0-05:00",
                     "durationEvent": true,
                     "color": "#C69939",
-                    "classname": "CODE_INSTANCE _-_timeline-id_-_0,9_-_ _-_timeline-id_-_0,9_-_"
+                    "classname": "CODE_INSTANCE resizable _-_timeline-id_-_0,9_-_ _-_timeline-id_-_0,9_-_"
                 }, {
                     "title": "copy code into wrong file",
                     "icon": "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper2844310567923199770.png",
@@ -376,7 +376,7 @@
                     "end": "2011-09-13T05:20:02.657-05:00",
                     "durationEvent": true,
                     "color": null,
-                    "classname": "CODE_INSTANCE _-_timeline-id_-_0,10_-_ _-_timeline-id_-_0,10_-_"
+                    "classname": "CODE_INSTANCE resizable _-_timeline-id_-_0,10_-_ _-_timeline-id_-_0,10_-_"
                 }, {
                     "title": "ambitioned beginner",
                     "icon": "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper1682844768232195238.png",
@@ -385,7 +385,7 @@
                     "end": "2011-09-14T09:38:25.0+02:00",
                     "durationEvent": true,
                     "color": null,
-                    "classname": "CODE_INSTANCE _-_timeline-id_-_0,11_-_ _-_timeline-id_-_0,11_-_"
+                    "classname": "CODE_INSTANCE resizable _-_timeline-id_-_0,11_-_ _-_timeline-id_-_0,11_-_"
                 }, {
                     "title": "playing around",
                     "icon": "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper2844310567923199770.png",
@@ -394,7 +394,7 @@
                     "end": "2011-09-13T05:25:36.663-05:00",
                     "durationEvent": true,
                     "color": null,
-                    "classname": "CODE_INSTANCE _-_timeline-id_-_0,12_-_ _-_timeline-id_-_0,12_-_"
+                    "classname": "CODE_INSTANCE resizable _-_timeline-id_-_0,12_-_ _-_timeline-id_-_0,12_-_"
                 }, {
                     "title": "sandbox creation",
                     "icon": "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper3666856175909162156.png",
@@ -403,7 +403,7 @@
                     "end": "2011-09-13T05:02:39.0-05:00",
                     "durationEvent": true,
                     "color": "#C639AD",
-                    "classname": "CODE_INSTANCE _-_timeline-id_-_0,13_-_ _-_timeline-id_-_0,13_-_"
+                    "classname": "CODE_INSTANCE resizable _-_timeline-id_-_0,13_-_ _-_timeline-id_-_0,13_-_"
                 }, {
                     "title": "automatically generated code using (skel.py)",
                     "icon": "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper4302242957204874486.png",
@@ -412,7 +412,7 @@
                     "end": "2011-09-13T05:02:17.731-05:00",
                     "durationEvent": true,
                     "color": null,
-                    "classname": "CODE_INSTANCE _-_timeline-id_-_0,14_-_ _-_timeline-id_-_0,14_-_ undefined-start"
+                    "classname": "CODE_INSTANCE resizable _-_timeline-id_-_0,14_-_ _-_timeline-id_-_0,14_-_ undefined-start"
                 }, {
                     "title": "playing around",
                     "icon": "file:///var/folders/3m/4p47cq955p142xmsnh0c_9lm0000gn/T/TimelineHelper2844310567923199770.png",
@@ -421,7 +421,7 @@
                     "end": "2011-09-13T05:23:16.32-05:00",
                     "durationEvent": true,
                     "color": null,
-                    "classname": "CODE_INSTANCE _-_timeline-id_-_0,15_-_ _-_timeline-id_-_0,15_-_"
+                    "classname": "CODE_INSTANCE resizable _-_timeline-id_-_0,15_-_ _-_timeline-id_-_0,15_-_"
                 }
             ]
         }, {

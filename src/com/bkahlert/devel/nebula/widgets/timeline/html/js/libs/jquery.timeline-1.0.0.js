@@ -79,10 +79,16 @@
         },
 
         addClassOn : function(eventType, className, keepClassUntilQualified) {
+            var timeline = $(this).data("timeline");
             $(document).bind(eventType, function(e) {
                 var element = document.elementFromPoint(e.pageX, e.pageY);
                 if (!element)
                     return;
+                    
+                /*
+                 * do nothing if user is resizing an event
+                 */
+                if(timeline._resizing) return;
 
                 var $element = $(element);
 
@@ -298,6 +304,8 @@
                 Timeline.CompactEventPainter.prototype._showBubble = function() {
                 };
             }
+            
+            this.data("timeZone", settings.timeZone);
 
             return this.each(function() {
                 var $this = $(this);
@@ -352,10 +360,7 @@
                 }
 
                 var timeBandTheme = $this.timeline("createTheme", settings);
-                var timeBands = [
-                    createOverviewBand(settings.zoomIndex, $this.timeline("magnifyZoomSteps", settings.zoomSteps, 5)),
-                    createOverviewBand(settings.zoomIndex, $this.timeline("magnifyZoomSteps", settings.zoomSteps, 16))
-                    ];
+                var timeBands = [createOverviewBand(settings.zoomIndex, $this.timeline("magnifyZoomSteps", settings.zoomSteps, 5)), createOverviewBand(settings.zoomIndex, $this.timeline("magnifyZoomSteps", settings.zoomSteps, 16))];
 
                 /*
                  * Synchronize all bands with the first one
@@ -430,7 +435,7 @@
                  * if zoomSteps and a valid index are set.
                  * // TODO codeInstance soll memo nicht in instance speichern
                  *
-                 * // TODO alle events in einer band
+                 * // TODO icons
                  */
                 if (settings.zoomSteps.length > 0) {
                     $('<div class="timeline-zoom"></div>').prependTo($this).zoomControl({
@@ -476,15 +481,16 @@
                 }
 
                 /* Date Label + Save in Data field */
-                function getFormattedCenterVisibleDate(band, timeZone) {
+                function getFormattedCenterVisibleDate(band) {
+                    var timeZone = $this.data("timeZone");
                     var iso8601 = formatDate(convertTimeZone(band.getCenterVisibleDate(), timeZone), timeZone);
                     $this.data('centerVisibleDate', iso8601);
                     return iso8601;
                 }
 
-                var currentDate = $('<div class="current-date"></div>').appendTo(meta).html(getFormattedCenterVisibleDate($this.data('timeline').getBand(0), settings.timeZone) + "");
+                var currentDate = $('<div class="current-date"></div>').appendTo(meta).html(getFormattedCenterVisibleDate($this.data('timeline').getBand(0)) + "");
                 $this.data('timeline').getBand(0).addOnScrollListener(function(band) {
-                    currentDate.html(getFormattedCenterVisibleDate(band, settings.timeZone));
+                    currentDate.html(getFormattedCenterVisibleDate(band));
                 });
 
                 /* Add a hover class to the label AND its corresponding tape */
@@ -500,7 +506,10 @@
                  * Resize
                  */
                 var resizeTimerID = null;
-                jQuery(window).resize(function($) {
+                jQuery(window).resize(function(event) {
+                    // resize events bubble; we only want window resize
+                    if(event.target != window) return;
+                    
                     var timeline = $this.data('timeline');
                     var date = timeline.getBand(0).getCenterVisibleDate();
                     if (resizeTimerID == null) {
@@ -546,6 +555,51 @@
             return this.each(function() {
                 $(this).data('timeline').getBand(0).setMaxVisibleDate(date);
             });
+        },
+        
+        /**
+         * Returns the date a given tape element starts or ends.
+         * 
+         * @param tapeElement the element of interest
+         * @param getStart true if you want to get the start date; false if you want to get the end date
+         * @return the start/end date
+         */
+        getTapeDate : function(tapeElement, getStart) {
+            var bandDiv = $(tapeElement).parents(".timeline-band");
+            if(bandDiv.length != 1) return null;
+            else bandDiv = bandDiv[0];
+
+            var band = null;
+            var bands = $(this).data('timeline')._bands;
+            $.each(bands, function(i) {
+                if(bands[i]._div == bandDiv) band = bands[i];
+            });
+            
+            if(band == null) return null;
+            
+            var pixels = parseInt(tapeElement.css("left"));
+            if(!getStart) pixels += parseInt(tapeElement.css("width"));
+            return band._ether.pixelOffsetToDate(band._viewOffset+pixels);
+        },
+        
+        /**
+         * Returns the start date of a given tape element.
+         * 
+         * @param tapeElement the element of interest
+         * @return the start date
+         */
+        getTapeStartDate : function(tapeElement) {
+            return $(this).timeline("getTapeDate", tapeElement, true);
+        },
+        
+        /**
+         * Returns the end date of a given tape element.
+         * 
+         * @param tapeElement the element of interest
+         * @return the end date
+         */
+        getTapeEndDate : function(tapeElement) {
+            return $(this).timeline("getTapeDate", tapeElement, false);
         },
 
         /**
@@ -741,6 +795,21 @@ Timeline.CompactEventPainter.prototype.paintPreciseDurationEvent = function(evt,
     } : function(elmt, domEvt, target) {
         return self._onClickInstantEvent(result.labelElmtData.elmt, domEvt, evt);
     };
+    
+    /*
+     * NEW
+     */
+    if(typeof evt.getClassName() === "string" && $.inArray("resizable", evt.getClassName().split(" ")) != -1) {
+        $(result.tapeElmtData.elmt).resizable({
+            handles: "e, w",
+            start: function() {
+                self._timeline._resizing = true;
+            },
+            stop: function() {
+                self._timeline._resizing = false;
+            }
+        });
+    }
 
     SimileAjax.DOM.registerEvent(result.labelElmtData.elmt, "mousedown", clickHandler);
     SimileAjax.DOM.registerEvent(result.tapeElmtData.elmt, "mousedown", clickHandler);
@@ -751,6 +820,14 @@ Timeline.CompactEventPainter.prototype.paintPreciseDurationEvent = function(evt,
     } else {
         this._eventIdToElmt[evt.getID()] = result.labelElmtData.elmt;
     }
+};
+
+Timeline._Band.prototype._onMouseDown = function(innerFrame, evt, target) {
+    this.closeBubble();
+    
+    this._dragging = true;
+    this._dragX = evt.clientX;
+    this._dragY = evt.clientY;
 };
 
 /*
@@ -971,6 +1048,35 @@ Timeline._Band.prototype._onMouseScroll = function(innerFrame, evt, target) {
             var move_amt = 30 * (delta < 0 ? -1 : 1);
             this._moveEther(move_amt);
         } else {
+            // no zoom on scrolling vertically but real scrolling
+            var move_amt = 10 * (delta < 0 ? -1 : 1);
+            var eventsDiv = $(this._div).find(".timeline-band-events .timeline-band-layer-inner");
+            $(eventsDiv.parent()).css("overflow-y", "hidden");
+
+            var top = parseInt(eventsDiv.css("top"));
+            var height = parseInt(eventsDiv.css("height"));
+            if (isNaN(top))
+                top = 0;
+            var newTop = top + move_amt;
+
+            var bandHeight = 0;
+            $(eventsDiv.find(".timeline-event-label")).each(function() {
+                var $label = $(this);
+                var h = parseInt($label.css("top")) + parseInt($label.css("height"));
+                if (h > bandHeight)
+                    bandHeight = h;
+            });
+            if (newTop > 0)
+                newTop = 0;
+            if (newTop < -bandHeight + height)
+                newTop = -bandHeight + height;
+            console.log(bandHeight);
+
+            eventsDiv.css("top", newTop + "px");
+            event.stopPropagation();
+            event.preventDefault();
+            return;
+
             if (now - this._timeline._lastScrollTime < 1000) {
                 event.stopPropagation();
                 event.preventDefault();

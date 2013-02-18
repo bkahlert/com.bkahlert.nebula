@@ -46,11 +46,13 @@ public class TimelineEvent implements ITimelineEvent {
 	private Calendar start;
 	private Calendar end;
 	private String color;
+	private boolean resizable;
 	private String[] classNames;
 	private Object payload;
 
 	public TimelineEvent(String title, URI icon, URI image, Calendar start,
-			Calendar end, String color, String[] classNames, Object payload) {
+			Calendar end, String color, boolean resizable, String[] classNames,
+			Object payload) {
 		super();
 		if (start == null && end == null)
 			throw new IllegalArgumentException(
@@ -61,6 +63,7 @@ public class TimelineEvent implements ITimelineEvent {
 		this.start = start;
 		this.end = end;
 		this.color = color;
+		this.resizable = resizable;
 		this.classNames = classNames != null ? classNames : new String[0];
 		this.payload = payload;
 	}
@@ -93,6 +96,11 @@ public class TimelineEvent implements ITimelineEvent {
 	@Override
 	public String getColor() {
 		return this.color;
+	}
+
+	@Override
+	public boolean isResizable() {
+		return this.resizable;
 	}
 
 	@Override

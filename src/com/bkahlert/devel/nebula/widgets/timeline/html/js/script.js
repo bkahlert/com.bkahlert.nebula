@@ -68,7 +68,7 @@ com.bkahlert.devel.nebula.timeline = com.bkahlert.devel.nebula.timeline || {};
         setZoomIndex : function(newZoomIndex) {
             $(".timeline").timeline("setZoomIndex", "newZoomIndex");
         },
-        
+
         getZoomIndex : function() {
             return $(".timeline").timeline("getZoomIndex");
         },
@@ -129,118 +129,161 @@ jQuery(document).ready(function($) {
         $("head").append($("<link rel='stylesheet' type='text/css' href='file:///Users/bkahlert/Dropbox/Development/Repositories/SUA/de.fu_berlin.imp.seqan.usability_analyzer.timeline/bin/de/fu_berlin/imp/seqan/usability_analyzer/timeline/ui/widgets/style.css' />"));
     }
 
+    startObservation();
     if (!internal) {
-        /**
-         * Code to test Eclipse interaction.
-         * Forwards the clicked / hovered events via callbacks.
-         *
-         */
-        //
-        function handler(e, callback) {
-            var element = document.elementFromPoint(e.pageX, e.pageY);
-            if (!element)
-                return false;
-
-            var $element = $(element);
-
-            if ($element.parent().hasClass('timeline-event-icon')) {
-                $element = $element.parent().prev();
-                if (!$element) {
-                    alert('No previous element found. This is unexpected since icons should always be preceeded by a tape div.');
-                }
-            }
-            if ($element.hasClass('timeline-event-tape')) {
-                $element = $element.prev();
-                if (!$element) {
-                    alert('No previous element found. This is unexpected since tapes should always be preceeded by a label div.');
-                }
-            }
-
-            var callbackCalled = false;
-            if ($element.attr('class')) {
-                $.each($element.attr('class').split(/\s+/), function(i, className) {
-                    if (callbackCalled)
-                        return false;
-                    if (className.length > '_-_'.length * 3) {
-                        parts = className.split('_-_');
-                        if (parts.length == 4) {
-                            callbackCalled = true;
-                            callback(parts[2]);
-                        }
-                    }
-                });
-                if (!callbackCalled)
-                    callback(null);
-            }
-            return true;
-        }
-
-
-        $(document).click(function(e) {
-            switch (e.which) {
-                case 1:
-                    return handler(e, timeline_plugin_click_callback);
-                    break;
-                case 2:
-                    return handler(e, timeline_plugin_mclick_callback);
-                    break;
-                case 3:
-                    // handled by contextmenu handler
-                    break;
-                default:
-                // unknown mouse button
-            }
-            return false;
-        });
-
-        $(document).bind("contextmenu", function(e) {
-            return handler(e, timeline_plugin_rclick_callback);
-        });
-
-        $(document).dblclick(function(e) {
-            e.stopPropagation();
-            return handler(e, timeline_plugin_dblclick_callback);
-        });
-
-        var hoveredId = null;
-        $(document).mousemove(function(e) {
-            return handler(e, function(id) {
-                if (hoveredId == id)
-                    return;
-                if (hoveredId != null)
-                    timeline_plugin_mouseOut_callback(hoveredId);
-                if (id != null)
-                    timeline_plugin_mouseIn_callback(id);
-                hoveredId = id;
-            });
-        });
-
-        function timeline_plugin_click_callback(id) {
+        window.timeline_plugin_click_callback = function(id) {
             console.log("click " + id);
         }
 
-        function timeline_plugin_mclick_callback(id) {
+        window.timeline_plugin_mclick_callback = function(id) {
             console.log("middle click " + id);
         }
 
-        function timeline_plugin_rclick_callback(id) {
+        window.timeline_plugin_rclick_callback = function(id) {
             console.log("right click " + id);
         }
 
-        function timeline_plugin_dblclick_callback(id) {
+        window.timeline_plugin_dblclick_callback = function(id) {
             console.log("dblclick " + id);
         }
 
-        function timeline_plugin_mouseIn_callback(id) {
+        window.timeline_plugin_resizestart_callback = function(id, custom) {
+            console.log("resizestart " + id + "; " + custom[0] + " - " + custom[1]);
+        }
+
+        window.timeline_plugin_resizing_callback = function(id, custom) {
+            console.log("resizing " + id + "; " + custom[0] + " - " + custom[1]);
+        }
+
+        window.timeline_plugin_resizestop_callback = function(id, custom) {
+            console.log("resizestop " + id + "; " + custom[0] + " - " + custom[1]);
+        }
+
+        window.timeline_plugin_mouseIn_callback = function(id) {
             console.log("mouse in " + id);
         }
 
-        function timeline_plugin_mouseOut_callback(id) {
+        window.timeline_plugin_mouseOut_callback = function(id) {
             console.log("mouse out " + id);
         }
-
     }
 });
+
+/**
+ * Catches various events (clicking on an label, resizing a tape) and
+ * calls the appropriate listener.
+ * Overriding those listeners can be used to forward the events to Eclipse.
+ */
+function startObservation() {
+    function handler(e, data, callback) {
+        var $element;
+
+        var custom = [];
+        if (e.type == "resizestart" || e.type == "resize" || e.type == "resizestop") {
+            // tape
+            $element = $(e.target);
+            var $timeline = $element.parents(".timeline");
+            var timeZone = $timeline.data("timeZone");
+            var newStart = null;
+            var newEnd = null;
+            if (data.position.left != data.originalPosition.left) {
+                newStart = formatDate(convertTimeZone($timeline.timeline("getTapeStartDate", $element), timeZone), timeZone);
+            }
+            if (data.position.left + data.size.width != data.originalPosition.left + data.originalSize.width) {
+                newEnd = formatDate(convertTimeZone($timeline.timeline("getTapeEndDate", $element), timeZone), timeZone);
+            }
+            custom = [newStart, newEnd];
+        } else {
+            var element = document.elementFromPoint(e.pageX, e.pageY);
+            if (!element)
+                return false;
+            $element = $(element);
+        }
+
+        if ($element.parent().hasClass('timeline-event-icon')) {
+            $element = $element.parent().prev();
+            if (!$element) {
+                alert('No previous element found. This is unexpected since icons should always be preceeded by a tape div.');
+            }
+        }
+        if ($element.hasClass('timeline-event-tape')) {
+            $element = $element.prev();
+            if (!$element) {
+                alert('No previous element found. This is unexpected since tapes should always be preceeded by a label div.');
+            }
+        }
+
+        var callbackCalled = false;
+        if ($element.attr('class')) {
+            $.each($element.attr('class').split(/\s+/), function(i, className) {
+                if (callbackCalled)
+                    return false;
+                if (className.length > '_-_'.length * 3) {
+                    parts = className.split('_-_');
+                    if (parts.length == 4) {
+                        callbackCalled = true;
+                        callback(parts[2], custom);
+                    }
+                }
+            });
+            if (!callbackCalled)
+                callback(null);
+        }
+        return true;
+    }
+
+
+    $(document).click(function(e, data) {
+        switch (e.which) {
+            case 1:
+                return handler(e, data, timeline_plugin_click_callback);
+                break;
+            case 2:
+                return handler(e, data, timeline_plugin_mclick_callback);
+                break;
+            case 3:
+                // handled by contextmenu handler
+                break;
+            default:
+            // unknown mouse button
+        }
+        return false;
+    });
+
+    $(document).bind("contextmenu", function(e, data) {
+        return handler(e, data, timeline_plugin_rclick_callback);
+    });
+
+    $(document).dblclick(function(e, data) {
+        e.stopPropagation();
+        return handler(e, data, timeline_plugin_dblclick_callback);
+    });
+
+    $(document).bind("resizestart", function(e, data) {
+        return handler(e, data, timeline_plugin_resizestart_callback);
+    });
+
+    $(document).bind("resize", function(e, data) {
+        return handler(e, data, timeline_plugin_resizing_callback);
+    });
+
+    $(document).bind("resizestop", function(e, data) {
+        return handler(e, data, timeline_plugin_resizestop_callback);
+    });
+
+    var hoveredId = null;
+    $(document).mousemove(function(e, data) {
+        return handler(e, data, function(id) {
+            if (hoveredId == id)
+                return;
+            if (hoveredId != null)
+                timeline_plugin_mouseOut_callback(hoveredId);
+            if (id != null)
+                timeline_plugin_mouseIn_callback(id);
+            hoveredId = id;
+        });
+    });
+}
 
 /**
  * Stops browsers (notices in Safari) to select the underlaying word when right-clicked.
@@ -272,4 +315,4 @@ jQuery(document).ready(function($) {
         }
     }
 
-}); 
+});

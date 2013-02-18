@@ -82,6 +82,30 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 		}
 
 		@Override
+		public void resizeStarted(TimelineEvent event) {
+			Object[] listeners = timelineListeners.getListeners();
+			for (Object listener : listeners) {
+				((ITimelineListener) listener).resizeStarted(event);
+			}
+		}
+
+		@Override
+		public void resizing(TimelineEvent event) {
+			Object[] listeners = timelineListeners.getListeners();
+			for (Object listener : listeners) {
+				((ITimelineListener) listener).resizing(event);
+			}
+		}
+
+		@Override
+		public void resized(TimelineEvent event) {
+			Object[] listeners = timelineListeners.getListeners();
+			for (Object listener : listeners) {
+				((ITimelineListener) listener).resized(event);
+			}
+		}
+
+		@Override
 		public void hoveredIn(TimelineEvent event) {
 			Object[] listeners = timelineListeners.getListeners();
 			for (Object listener : listeners) {
