@@ -3,6 +3,7 @@ package com.bkahlert.devel.nebula.viewer.timeline.provider.atomic;
 import java.net.URI;
 import java.util.Calendar;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 
 /**
@@ -23,7 +24,7 @@ public interface ITimelineEventLabelProvider {
 
 	public Calendar getEnd(Object event);
 
-	public String getColor(Object event);
+	public RGB[] getColors(Object event);
 
 	public boolean isResizable(Object event);
 

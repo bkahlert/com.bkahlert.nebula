@@ -3,6 +3,7 @@ package com.bkahlert.devel.nebula.viewer.timeline.impl;
 import java.net.URI;
 import java.util.Calendar;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
@@ -114,12 +115,12 @@ public class TimelineViewerHelper<TIMELINE extends IBaseTimeline> {
 		URI image = eventLabelProvider.getIcon(event);
 		Calendar start = eventLabelProvider.getStart(event);
 		Calendar end = eventLabelProvider.getEnd(event);
-		String color = eventLabelProvider.getColor(event);
+		RGB[] colors = eventLabelProvider.getColors(event);
 		boolean resizable = eventLabelProvider.isResizable(event);
 		String[] classNames = eventLabelProvider.getClassNames(event);
 
 		ITimelineEvent timelineEvent = new TimelineEvent(title, icon, image,
-				start, end, color, resizable, classNames, event);
+				start, end, colors, resizable, classNames, event);
 		return timelineEvent;
 	}
 }

@@ -18,6 +18,7 @@ import org.codehaus.jackson.util.DefaultPrettyPrinter;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.utils.StringUtils;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineInput;
@@ -320,7 +321,9 @@ public class TimelineJsonGenerator {
 		generator.writeBoolean(true);
 
 		generator.writeFieldName("color");
-		generator.writeString(event.getColor());
+		RGB[] colors = event.getColors();
+		generator.writeString(colors.length > 0 ? colors[0].toHexString()
+				: null);
 
 		if (event.isResizable())
 			classNames.add("resizable");

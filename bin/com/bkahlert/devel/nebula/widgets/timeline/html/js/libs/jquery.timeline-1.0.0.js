@@ -1081,8 +1081,8 @@ Timeline._Band.prototype._onMouseScroll = function(innerFrame, evt, target) {
             });
             if (newTop > 0)
                 newTop = 0;
-            if (newTop < -bandHeight + height)
-                newTop = -bandHeight + height;
+            if (newTop < -bandHeight + height - 20)
+                newTop = -bandHeight + height - 20;
             console.log(bandHeight);
 
             eventsDiv.css("top", newTop + "px");

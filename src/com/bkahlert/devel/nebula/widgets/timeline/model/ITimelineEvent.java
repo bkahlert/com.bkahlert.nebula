@@ -5,6 +5,7 @@ import java.util.Calendar;
 
 import org.eclipse.core.runtime.IAdaptable;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 
 /**
@@ -34,14 +35,7 @@ public interface ITimelineEvent extends IAdaptable {
 
 	public String[] getClassNames();
 
-	/**
-	 * Returns the color as a string readable by CSS.
-	 * <p>
-	 * e.g. rgba(200, 200, 150, 0.37) or #33D572
-	 * 
-	 * @return null if no specific color should be set
-	 */
-	public String getColor();
+	public RGB[] getColors();
 
 	public boolean isResizable();
 

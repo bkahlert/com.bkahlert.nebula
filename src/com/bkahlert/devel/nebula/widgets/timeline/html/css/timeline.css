@@ -258,10 +258,12 @@ html .timeline-ether-weekends {
 
 .ui-resizable-e {
     right: 0px;
+    border-right: 1px solid #000;
 }
 
 .ui-resizable-w {
     left: 0px;
+    border-left: 1px solid #000;
 }
 
 /*
