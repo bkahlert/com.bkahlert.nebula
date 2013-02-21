@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -144,7 +145,8 @@ public class TimelineJsonGenerator {
 
 			generator.writeStartObject();
 			writeOptions(generator, input.getOptions(), subMonitor.newChild(5));
-			writeBands(generator, input.getBands(),
+			Float timeZoneOffset = input.getOptions().getTimeZone();
+			writeBands(generator, input.getBands(), timeZoneOffset,
 					subMonitor.newChild(eventCount));
 			generator.writeEndObject();
 
@@ -162,9 +164,9 @@ public class TimelineJsonGenerator {
 	}
 
 	public static void writeBands(JsonGenerator generator,
-			List<ITimelineBand> bands, IProgressMonitor monitor)
-			throws IOException, JsonGenerationException,
-			JsonProcessingException {
+			List<ITimelineBand> bands, Float timeZoneOffset,
+			IProgressMonitor monitor) throws IOException,
+			JsonGenerationException, JsonProcessingException {
 		int numBands = bands.size();
 		int numEvents = new TimelineInput(null, bands).getEventCount();
 		SubMonitor subMonitor = SubMonitor.convert(monitor, numBands * 5
@@ -177,7 +179,7 @@ public class TimelineJsonGenerator {
 			ITimelineBand band = bands.get(i);
 			generator.writeStartObject();
 			writeOptions(generator, band.getOptions(), subMonitor.newChild(5));
-			writeEvents(generator, band.getEvents(),
+			writeEvents(generator, band.getEvents(), timeZoneOffset,
 					subMonitor.newChild(band.getEventCount()));
 			generator.writeEndObject();
 		}
@@ -251,21 +253,23 @@ public class TimelineJsonGenerator {
 	}
 
 	public static void writeEvents(JsonGenerator generator,
-			List<ITimelineEvent> events, IProgressMonitor monitor)
-			throws IOException, JsonGenerationException {
+			List<ITimelineEvent> events, Float timeZoneOffset,
+			IProgressMonitor monitor) throws IOException,
+			JsonGenerationException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, events.size());
 		generator.writeFieldName("events");
 		generator.writeStartArray();
 		for (int i = 0, m = events.size(); i < m; i++) {
 			ITimelineEvent event = events.get(i);
-			writeEvent(generator, event);
+			writeEvent(generator, event, timeZoneOffset);
 			subMonitor.worked(1);
 		}
 		generator.writeEndArray();
 		subMonitor.done();
 	}
 
-	public static void writeEvent(JsonGenerator generator, ITimelineEvent event)
+	public static void writeEvent(JsonGenerator generator,
+			ITimelineEvent event, Float timeZoneOffset)
 			throws JsonGenerationException, IOException {
 		List<String> classNames = event.getClassNames() != null ? new ArrayList<String>(
 				Arrays.asList(event.getClassNames())) : new ArrayList<String>();
@@ -308,6 +312,18 @@ public class TimelineJsonGenerator {
 		} else if (start == null && end == null) {
 			classNames.add("undefined-start");
 			classNames.add("undefined-end");
+		}
+
+		/**
+		 * Timezone check
+		 */
+		Calendar c = start != null ? start : end;
+		if (c != null) {
+			int offset = c.getTimeZone().getOffset(new Date().getTime());
+			int globalOffset = (int) Math
+					.round(timeZoneOffset * 60f * 60f * 1000f);
+			if (offset != globalOffset)
+				classNames.add("deviant_timezone_offset");
 		}
 
 		generator.writeFieldName("start");

@@ -372,8 +372,8 @@
                 /*
                  * Synchronize all bands with the first one
                  *
-                 * Add filter that ignores very small rendered events
-                 * to improve performance
+                 * Add filter that ignores/skips very small rendered events
+                 * to improve performance. Do not ignore events with undefined start or end (= modelled as having same start and end date).
                  */
                 var bandInfos = $.merge(customBands, timeBands);
                 for (var i = 0, m = bandInfos.length; i < m; i++) {
@@ -386,8 +386,8 @@
                         var num = i;
                         if (evt._start && evt._end) {
                             var width = Math.round(band.dateToPixelOffset(evt._end) - band.dateToPixelOffset(evt._start));
-                            if (width <= 1)
-                                return false;
+                            if (width <= 1 && evt._start != evt._end)
+                                return true; // TODO false
                         }
                         return true;
                     });
@@ -1083,7 +1083,6 @@ Timeline._Band.prototype._onMouseScroll = function(innerFrame, evt, target) {
                 newTop = 0;
             if (newTop < -bandHeight + height - 20)
                 newTop = -bandHeight + height - 20;
-            console.log(bandHeight);
 
             eventsDiv.css("top", newTop + "px");
         }

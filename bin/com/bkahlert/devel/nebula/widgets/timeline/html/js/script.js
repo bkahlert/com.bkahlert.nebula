@@ -279,7 +279,7 @@ function startObservation() {
 }
 
 /**
- * Stops browsers (notices in Safari) to select the underlaying word when right-clicked.
+ * Stops browsers (especially Safari) to select the underlaying word when right-clicked.
  */
 jQuery(document).ready(function($) {
     $(document).bind("contextmenu", function(e) {
