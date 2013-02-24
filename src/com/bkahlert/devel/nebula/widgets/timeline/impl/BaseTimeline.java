@@ -1,22 +1,16 @@
 package com.bkahlert.devel.nebula.widgets.timeline.impl;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.ProgressAdapter;
-import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -39,16 +33,9 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
  */
 public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 
-	protected static String getFileUrl(Class<?> clazz, String clazzRelativePath)
-			throws IOException {
-		URL timelineUrl = FileLocator.toFileURL(clazz
-				.getResource(clazzRelativePath));
-		String timelineUrlString = timelineUrl.toString().replace("file:",
-				"file://");
-		return timelineUrlString;
-	}
-
 	protected static List<ITimelineEvent> getSortedEvents(ITimelineInput input) {
+		if (input == null)
+			return null;
 		List<ITimelineEvent> events = new LinkedList<ITimelineEvent>();
 		for (ITimelineBand band : input.getBands())
 			for (ITimelineEvent event : band.getEvents())
@@ -78,10 +65,7 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 		return events;
 	}
 
-	private Logger logger = Logger.getLogger(BaseTimeline.class);
-
-	private boolean completedLoading = false;
-	private List<String> enqueuedJs = new ArrayList<String>();
+	private static Logger LOGGER = Logger.getLogger(BaseTimeline.class);
 
 	private IDecorator[] decorators = null;
 	private List<ITimelineEvent> sortedEvents = null;
@@ -98,58 +82,18 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 				event.doit = false;
 			}
 		});
+	}
 
-		this.getBrowser().addProgressListener(new ProgressAdapter() {
-			@Override
-			public void completed(ProgressEvent event) {
-				completedLoading = true;
-				for (Iterator<String> iterator = enqueuedJs.iterator(); iterator
-						.hasNext();) {
-					String js = iterator.next();
-					iterator.remove();
-					if (!BaseTimeline.this.getBrowser().execute(js)) {
-						logger.error("Error occured while running JavaScript in browser: "
-								+ js);
-					}
-				}
-			}
-		});
-
+	@Override
+	public String getStartUrl() {
 		try {
 			String timelineUrlString = getFileUrl(BaseTimeline.class,
 					"../html/timeline.html");
-			this.getBrowser().setUrl(timelineUrlString + "?internal=true");
+			return timelineUrlString + "?internal=true";
 		} catch (IOException e) {
-			logger.error("Could not open timeline html", e);
+			LOGGER.error("Could not open timeline html", e);
 		}
-	}
-
-	@Override
-	public boolean runJs(String js) {
-		boolean success = this.getBrowser().execute(js);
-		if (!success) {
-			logger.error("Error occured while running JavaScript in browser: "
-					+ js);
-		}
-		return success;
-	}
-
-	@Override
-	public void enqueueJs(String js) {
-		if (completedLoading) {
-			runJs(js);
-		} else {
-			enqueuedJs.add(js);
-		}
-	}
-
-	@Override
-	public void injectCssFile(String path) {
-		String js = "if(document.createStyleSheet){document.createStyleSheet(\""
-				+ path
-				+ "\")}else{$(\"head\").append($(\"<link rel=\\\"stylesheet\\\" href=\\\""
-				+ path + "\\\" type=\\\"text/css\\\" />\"))}";
-		enqueueJs(js);
+		return null;
 	}
 
 	/**
@@ -165,15 +109,15 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 	private void show(final String jsonTimeline,
 			final int startAnimationDuration, final int endAnimationDuration) {
 		System.err.println(jsonTimeline);
-		final String escapedJson = TimelineJsonGenerator.escape(jsonTimeline);
+		final String escapedJson = TimelineJsonGenerator.enquote(jsonTimeline);
 
 		final String js;
 		if (startAnimationDuration <= 0 || endAnimationDuration <= 0) {
-			js = "com.bkahlert.devel.nebula.timeline.loadJSON('" + escapedJson
-					+ "');";
+			js = "com.bkahlert.devel.nebula.timeline.loadJSON(" + escapedJson
+					+ ");";
 		} else {
-			js = "com.bkahlert.devel.nebula.timeline.loadJSONAnimated('"
-					+ escapedJson + "', null, " + startAnimationDuration + ", "
+			js = "com.bkahlert.devel.nebula.timeline.loadJSONAnimated("
+					+ escapedJson + ", null, " + startAnimationDuration + ", "
 					+ endAnimationDuration + ");";
 		}
 
@@ -284,9 +228,9 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 			public void run() {
 				if (!isDisposed()) {
 					getBrowser().execute(
-							"com.bkahlert.devel.nebula.timeline.setDecorators('"
+							"com.bkahlert.devel.nebula.timeline.setDecorators("
 									+ TimelineJsonGenerator
-											.escape(decoratorJSON) + "');");
+											.enquote(decoratorJSON) + ");");
 				}
 			}
 		});

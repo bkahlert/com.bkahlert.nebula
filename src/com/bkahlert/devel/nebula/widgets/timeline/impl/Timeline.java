@@ -27,6 +27,8 @@ public class Timeline extends BaseTimeline implements ITimeline {
 	 * @param input
 	 */
 	private static void addIdentifiers(ITimelineInput input) {
+		if (input == null)
+			return;
 		for (int i = 0, m = input.getBandCount(); i < m; i++) {
 			ITimelineBand band = input.getBands().get(i);
 			for (int j = 0, n = band.getEventCount(); j < n; j++) {

@@ -13,6 +13,7 @@ import com.bkahlert.devel.nebula.widgets.IWidget;
  * 
  */
 public interface IBrowserComposite extends IWidget {
+
 	/**
 	 * Return the {@link Browser} used by this timeline.
 	 * 
@@ -21,4 +22,10 @@ public interface IBrowserComposite extends IWidget {
 	 * @return must not return null (but may return an already disposed widget)
 	 */
 	public Browser getBrowser();
+
+	boolean runJs(String js);
+
+	void enqueueJs(String js);
+
+	void injectCssFile(String path);
 }
