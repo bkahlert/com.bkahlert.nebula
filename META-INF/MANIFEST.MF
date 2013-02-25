@@ -50,4 +50,7 @@ Bundle-ClassPath: lib/cglib-nodep-2.2.jar,
  lib/jmock-legacy-2.6.0-RC2.jar,
  lib/junit-dep-4.10.jar,
  lib/objenesis-1.0.jar,
- .
+ .,
+ lib/jsoup-1.7.2-javadoc.jar,
+ lib/jsoup-1.7.2-sources.jar,
+ lib/jsoup-1.7.2.jar

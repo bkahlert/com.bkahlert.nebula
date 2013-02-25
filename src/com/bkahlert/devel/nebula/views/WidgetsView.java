@@ -12,7 +12,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
@@ -157,7 +157,7 @@ public class WidgetsView extends ViewPart {
 		}); // .start();
 
 		Composite editorControls = new RoundedComposite(parent, SWT.BORDER);
-		editorControls.setLayout(new GridLayout(4, false));
+		editorControls.setLayout(new RowLayout());
 		Button editorGetSource = new Button(editorControls, SWT.PUSH);
 		editorGetSource.setText("Get Source");
 		Button editorSetSource = new Button(editorControls, SWT.PUSH);
@@ -172,6 +172,10 @@ public class WidgetsView extends ViewPart {
 		editorEnable.setText("Enable");
 		Button editorDisable = new Button(editorControls, SWT.PUSH);
 		editorDisable.setText("Disable");
+		Button editorLockSelection = new Button(editorControls, SWT.PUSH);
+		editorLockSelection.setText("Save Selection");
+		Button editorUnlockSelection = new Button(editorControls, SWT.PUSH);
+		editorUnlockSelection.setText("Restore Selection");
 
 		final Editor editor = new Editor(parent, SWT.BORDER, 2000);
 		editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -223,6 +227,18 @@ public class WidgetsView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				editor.setEnabled(false);
+			}
+		});
+		editorLockSelection.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				editor.saveSelection();
+			}
+		});
+		editorUnlockSelection.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				editor.restoreSelection();
 			}
 		});
 

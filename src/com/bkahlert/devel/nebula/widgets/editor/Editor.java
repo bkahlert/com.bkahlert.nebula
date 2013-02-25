@@ -6,12 +6,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
+import org.eclipse.swt.browser.LocationAdapter;
+import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyAdapter;
@@ -23,6 +27,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Widget;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
@@ -42,6 +49,8 @@ import com.bkahlert.devel.nebula.widgets.timeline.TimelineJsonGenerator;
 public class Editor extends BrowserComposite {
 
 	private static final Logger LOGGER = Logger.getLogger(Editor.class);
+	private static final Pattern URL_PATTERN = Pattern
+			.compile("(.*?)(\\w+://[!#$&-;=?-\\[\\]_a-zA-Z~%]+)(.*?)");
 
 	private static abstract class ModifyListenerBrowserFunction extends
 			BrowserFunction {
@@ -97,7 +106,6 @@ public class Editor extends BrowserComposite {
 		this.getBrowser().addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				System.err.println(e.keyCode);
 				if ((e.stateMask & SWT.CTRL) != 0
 						|| (e.stateMask & SWT.COMMAND) != 0) {
 					if (e.keyCode == 97) {
@@ -136,6 +144,14 @@ public class Editor extends BrowserComposite {
 			}
 		});
 
+		this.getBrowser().addLocationListener(new LocationAdapter() {
+			public void changing(LocationEvent event) {
+				String location = event.location;
+				System.err.println(location);
+				event.doit = false;
+			}
+		});
+
 		this.getBrowser().addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
@@ -151,11 +167,24 @@ public class Editor extends BrowserComposite {
 		};
 	}
 
-	protected void modified(String html, long delayChangeEventUpTo) {
+	protected void modified(String html, long delayChangeEventTo) {
 		final String newHtml = (html == null || html.trim().isEmpty()) ? ""
-				: html;
+				: html.trim();
 		if (oldHtml.equals(newHtml))
 			return;
+
+		// When space entered but widget is not disposing, create links
+		String prevCaretCharacter = getPrevCaretCharacter();
+		if (delayChangeEventTo > 0 && prevCaretCharacter != null
+				&& getPrevCaretCharacter().matches("[\\s| ]")) { // space is non
+																	// breaking
+																	// space
+			String autoLinkedHtml = createLinks(newHtml);
+			if (!autoLinkedHtml.equals(newHtml)) {
+				this.setSource(autoLinkedHtml, true);
+				return;
+			}
+		}
 
 		final Runnable fireRunnable = new Runnable() {
 			@Override
@@ -173,22 +202,53 @@ public class Editor extends BrowserComposite {
 			}
 		};
 
-		oldHtml = html;
+		oldHtml = newHtml;
 
 		if (delayChangeTimer != null)
 			delayChangeTimer.cancel();
-		if (delayChangeEventUpTo > 0) {
+		if (delayChangeEventTo > 0) {
 			delayChangeTimer = new Timer();
 			delayChangeTimer.schedule(new TimerTask() {
 				@Override
 				public void run() {
 					fireRunnable.run();
 				}
-			}, delayChangeEventUpTo);
+			}, delayChangeEventTo);
 		} else {
 			delayChangeTimer = null;
 			fireRunnable.run();
 		}
+	}
+
+	private String createLinks(String html) {
+		boolean htmlChanged = false;
+		Document doc = Jsoup.parseBodyFragment(html);
+		for (Element e : doc.getAllElements()) {
+			// TODO also check for a ancestors
+			if (e.tagName().equals("a")) {
+				if (!e.attr("href").equals(e.text())) {
+					e.attr("href", e.text());
+					htmlChanged = true;
+				}
+			} else {
+				String ownText = e.ownText();
+				Matcher matcher = URL_PATTERN.matcher(ownText);
+				if (matcher.matches()) {
+					String url = matcher.group(2);
+					String newContent = e.html().replace(
+							url,
+							"<a href=\"" + url + "\" class=\"special\">" + url
+									+ "</a>");
+					e.html(newContent);
+					htmlChanged = true;
+					// TODO cursor position wiederherstellen; z.b: mit
+					// editor.getSelection().unlock();
+					// http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.dom.selection.html#unlock
+				}
+			}
+		}
+		String newHtml = htmlChanged ? doc.body().children().toString() : html;
+		return newHtml;
 	}
 
 	@Override
@@ -217,8 +277,13 @@ public class Editor extends BrowserComposite {
 	}
 
 	public void setSource(String html) {
+		setSource(html, false);
+	}
+
+	public void setSource(String html, boolean restoreSelection) {
 		String js = "com.bkahlert.devel.nebula.editor.setSource("
-				+ TimelineJsonGenerator.enquote(html) + ");";
+				+ TimelineJsonGenerator.enquote(html) + ", "
+				+ (restoreSelection ? "true" : "false") + ");";
 		this.enqueueJs(js);
 	}
 
@@ -239,6 +304,24 @@ public class Editor extends BrowserComposite {
 
 	public void hideSource() {
 		this.enqueueJs("com.bkahlert.devel.nebula.editor.hideSource();");
+	}
+
+	public String getPrevCaretCharacter() {
+		if (!this.isLoadingCompleted())
+			return null;
+		String html = (String) this
+				.getBrowser()
+				.evaluate(
+						"return com.bkahlert.devel.nebula.editor.getPrevCaretCharacter();");
+		return html;
+	}
+
+	public void saveSelection() {
+		this.enqueueJs("com.bkahlert.devel.nebula.editor.saveSelection();");
+	}
+
+	public void restoreSelection() {
+		this.enqueueJs("com.bkahlert.devel.nebula.editor.restoreSelection();");
 	}
 
 	@Override

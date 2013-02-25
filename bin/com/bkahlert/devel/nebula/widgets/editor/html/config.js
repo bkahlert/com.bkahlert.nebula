@@ -66,6 +66,8 @@ CKEDITOR.editorConfig = function(config) {
     config.keystrokes.push([CKEDITOR.CTRL + 56/*8*/, 'pre']);
     config.keystrokes.push([CKEDITOR.CTRL + 57/*9*/, 'pre']);
     config.keystrokes.push([CKEDITOR.CTRL + 48/*0*/, 'p']);
+    config.keystrokes.push([CKEDITOR.CTRL + 80/*p*/, 'p']);
+    
     // Define changes to default configuration here. For example:
     // config.language = 'fr';
     // config.uiColor = '#AADC6E';
