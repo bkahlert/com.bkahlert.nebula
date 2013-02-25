@@ -7,6 +7,8 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -16,7 +18,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.devel.nebula.widgets.RoundedComposite;
-import com.bkahlert.devel.nebula.widgets.browser.CopyPasteBrowser;
 import com.bkahlert.devel.nebula.widgets.editor.Editor;
 
 public class WidgetsView extends ViewPart {
@@ -155,8 +156,6 @@ public class WidgetsView extends ViewPart {
 			}
 		}); // .start();
 
-		CopyPasteBrowser cpb = new CopyPasteBrowser(parent, SWT.BORDER);
-
 		Composite editorControls = new RoundedComposite(parent, SWT.BORDER);
 		editorControls.setLayout(new GridLayout(4, false));
 		Button editorGetSource = new Button(editorControls, SWT.PUSH);
@@ -167,10 +166,22 @@ public class WidgetsView extends ViewPart {
 		editorShowSource.setText("Show Source");
 		Button editorHideSource = new Button(editorControls, SWT.PUSH);
 		editorHideSource.setText("Hide Source");
+		Button editorSelectAll = new Button(editorControls, SWT.PUSH);
+		editorSelectAll.setText("Select All");
+		Button editorEnable = new Button(editorControls, SWT.PUSH);
+		editorEnable.setText("Enable");
+		Button editorDisable = new Button(editorControls, SWT.PUSH);
+		editorDisable.setText("Disable");
 
-		final Editor editor = new Editor(parent, SWT.NONE);
+		final Editor editor = new Editor(parent, SWT.BORDER, 2000);
 		editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		editor.setSource("Hello");
+		editor.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				System.err.println("changed: " + e.data);
+			}
+		});
 
 		editorGetSource.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -194,6 +205,24 @@ public class WidgetsView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				editor.hideSource();
+			}
+		});
+		editorSelectAll.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				editor.selectAll();
+			}
+		});
+		editorEnable.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				editor.setEnabled(true);
+			}
+		});
+		editorDisable.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				editor.setEnabled(false);
 			}
 		});
 

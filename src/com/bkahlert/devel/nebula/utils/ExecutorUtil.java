@@ -176,6 +176,9 @@ public class ExecutorUtil {
 
 	/**
 	 * Executes the given {@link Runnable}.
+	 * <p>
+	 * Checks if the caller is already in the ui thread and if so runs the
+	 * runnable directly in order to avoid deadlocks.
 	 * 
 	 * @param runnable
 	 */
@@ -226,10 +229,7 @@ public class ExecutorUtil {
 	 * @param runnable
 	 */
 	public static void asyncExec(Runnable runnable) {
-		if (isUIThread())
-			runnable.run();
-		else
-			Display.getDefault().asyncExec(runnable);
+		Display.getDefault().asyncExec(runnable);
 	}
 
 	/**
@@ -327,9 +327,8 @@ public class ExecutorUtil {
 	 * @param
 	 * @return the thread that is delayedly executed
 	 */
-	public static Thread asyncRun(final Runnable runnable, final long delay) {
-		final Thread innerThread = new Thread(runnable);
-		ExecutorUtil.asyncRun(new Runnable() {
+	public static void asyncRun(final Runnable runnable, final long delay) {
+		ExecutorUtil.nonUIAsyncExec(new Runnable() {
 			public void run() {
 				try {
 					Thread.sleep(delay);
@@ -338,10 +337,9 @@ public class ExecutorUtil {
 							+ runnable);
 				}
 
-				innerThread.start();
+				ExecutorUtil.asyncExec(runnable);
 			}
 		});
-		return innerThread;
 	}
 
 	private ExecutorUtil() {
