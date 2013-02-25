@@ -73,6 +73,8 @@ public class Editor extends BrowserComposite {
 		public abstract void call(String newHtml);
 	}
 
+	private List<IAnkerLabelProvider> ankerLabelProviders = new ArrayList<IAnkerLabelProvider>();
+	private List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
 	private List<ModifyListener> modifyListeners = new ArrayList<ModifyListener>();
 	private String oldHtml = "";
 	private Timer delayChangeTimer = null;
@@ -146,8 +148,10 @@ public class Editor extends BrowserComposite {
 
 		this.getBrowser().addLocationListener(new LocationAdapter() {
 			public void changing(LocationEvent event) {
-				String location = event.location;
-				System.err.println(location);
+				IAnker anker = new Anker(event.location, null, null);
+				for (IAnkerListener ankerListener : ankerListeners) {
+					ankerListener.ankerClicked(anker);
+				}
 				event.doit = false;
 			}
 		});
@@ -224,31 +228,52 @@ public class Editor extends BrowserComposite {
 		boolean htmlChanged = false;
 		Document doc = Jsoup.parseBodyFragment(html);
 		for (Element e : doc.getAllElements()) {
-			// TODO also check for a ancestors
 			if (e.tagName().equals("a")) {
-				if (!e.attr("href").equals(e.text())) {
-					e.attr("href", e.text());
+				IAnker anker = new Anker(e);
+				IAnker newAnker = createAnkerFromLabelProviders(anker);
+				if (newAnker == null
+						&& !anker.getHref().equals(anker.getContent())) {
+					newAnker = new Anker(anker.getContent(),
+							anker.getClasses(), anker.getContent());
+				}
+
+				if (newAnker != null) {
+					e.html(newAnker.toHtml());
 					htmlChanged = true;
 				}
 			} else {
 				String ownText = e.ownText();
 				Matcher matcher = URL_PATTERN.matcher(ownText);
 				if (matcher.matches()) {
-					String url = matcher.group(2);
-					String newContent = e.html().replace(
-							url,
-							"<a href=\"" + url + "\" class=\"special\">" + url
-									+ "</a>");
-					e.html(newContent);
+					String uri = matcher.group(2);
+
+					IAnker anker = new Anker(uri, new String[0], uri);
+					IAnker newAnker = createAnkerFromLabelProviders(anker);
+					if (newAnker == null) {
+						newAnker = anker;
+					}
+
+					String newHtml = e.html().replace(uri, newAnker.toHtml());
+					e.html(newHtml);
 					htmlChanged = true;
-					// TODO cursor position wiederherstellen; z.b: mit
-					// editor.getSelection().unlock();
-					// http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.dom.selection.html#unlock
 				}
 			}
 		}
 		String newHtml = htmlChanged ? doc.body().children().toString() : html;
 		return newHtml;
+	}
+
+	public IAnker createAnkerFromLabelProviders(IAnker oldAnker) {
+		IAnker newAnker = null;
+		for (IAnkerLabelProvider ankerLabelProvider : ankerLabelProviders) {
+			if (ankerLabelProvider.isResponsible(oldAnker)) {
+				newAnker = new Anker(ankerLabelProvider.getHref(oldAnker),
+						ankerLabelProvider.getClasses(oldAnker),
+						ankerLabelProvider.getContent(oldAnker));
+				break;
+			}
+		}
+		return newAnker;
 	}
 
 	@Override
@@ -330,6 +355,22 @@ public class Editor extends BrowserComposite {
 		String js = "com.bkahlert.devel.nebula.editor.setEnabled("
 				+ (isEnabled ? "true" : "false") + ");";
 		this.enqueueJs(js);
+	}
+
+	public void addAnkerLabelProvider(IAnkerLabelProvider ankerLabelProvider) {
+		this.ankerLabelProviders.add(ankerLabelProvider);
+	}
+
+	public void removeAnkerLabelProvider(IAnkerLabelProvider ankerLabelProvider) {
+		this.ankerLabelProviders.remove(ankerLabelProvider);
+	}
+
+	public void addAnkerListener(IAnkerListener ankerListener) {
+		this.ankerListeners.add(ankerListener);
+	}
+
+	public void removeAnkerListener(IAnkerListener ankerListener) {
+		this.ankerListeners.remove(ankerListener);
 	}
 
 	public void addModifyListener(ModifyListener modifyListener) {

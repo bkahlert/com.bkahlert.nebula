@@ -23,15 +23,6 @@ pre, code, kbd, samp, tt {
     font-size: 1em;
 }
 
-code {
-    background: #ff0000;
-    border: 1px solid #ddd;
-    padding: 1px 4px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
-}
-
 .cke_contents a.special {
     background: #FF7E00;
     border: 1px solid #DA8028;

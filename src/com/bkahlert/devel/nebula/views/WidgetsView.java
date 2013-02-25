@@ -19,6 +19,9 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.devel.nebula.widgets.RoundedComposite;
 import com.bkahlert.devel.nebula.widgets.editor.Editor;
+import com.bkahlert.devel.nebula.widgets.editor.IAnker;
+import com.bkahlert.devel.nebula.widgets.editor.IAnkerLabelProvider;
+import com.bkahlert.devel.nebula.widgets.editor.IAnkerListener;
 
 public class WidgetsView extends ViewPart {
 
@@ -180,6 +183,33 @@ public class WidgetsView extends ViewPart {
 		final Editor editor = new Editor(parent, SWT.BORDER, 2000);
 		editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		editor.setSource("Hello");
+		editor.addAnkerLabelProvider(new IAnkerLabelProvider() {
+			@Override
+			public boolean isResponsible(IAnker anker) {
+				return anker.getContent().contains("test");
+			}
+
+			@Override
+			public String getHref(IAnker anker) {
+				return "http://bkahlert.com";
+			}
+
+			@Override
+			public String[] getClasses(IAnker anker) {
+				return new String[] { "special" };
+			}
+
+			@Override
+			public String getContent(IAnker anker) {
+				return "Link to bkahlert.com";
+			}
+		});
+		editor.addAnkerListener(new IAnkerListener() {
+			@Override
+			public void ankerClicked(IAnker anker) {
+				System.err.println("clicked on " + anker.getHref());
+			}
+		});
 		editor.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
