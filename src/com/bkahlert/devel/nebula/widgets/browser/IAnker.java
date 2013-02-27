@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.widgets.editor;
+package com.bkahlert.devel.nebula.widgets.browser;
 
 /**
  * Abstractions of an anker tag like &lt;a

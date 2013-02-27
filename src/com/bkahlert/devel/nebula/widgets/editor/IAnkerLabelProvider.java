@@ -1,5 +1,7 @@
 package com.bkahlert.devel.nebula.widgets.editor;
 
+import com.bkahlert.devel.nebula.widgets.browser.IAnker;
+
 /**
  * Instances of this class provide labels for existing anker tags (e.g. &lt;a
  * href=&quot;http://bkahlert.com&quot;&gt;bkahlert.com&lt;/a&gt;).

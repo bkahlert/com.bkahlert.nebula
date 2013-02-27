@@ -31,8 +31,9 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
         },
 
         onchange : function() {
-            if (com.bkahlert.devel.nebula.editor.isDirty() && window["modified"] && typeof window["modified"])
+            if (window["modified"] && typeof window["modified"]) {
                 window["modified"](com.bkahlert.devel.nebula.editor.getSource());
+            }
         },
 
         isDirty : function() {
@@ -97,11 +98,11 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
             var editor = CKEDITOR.instances.editor1;
             editor.setReadOnly(!isEnabled);
         },
-        
+
         getPrevCaretCharacter : function() {
             var container = $(".cke_editable");
             var selection = container.saveSelection();
-            return selection[0] > 0 ? container.text().substring(selection[0]-1, selection[0]) : null;
+            return selection[0] > 0 ? container.text().substring(selection[0] - 1, selection[0]) : null;
         },
 
         savedSelection : null,

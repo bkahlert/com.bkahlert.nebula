@@ -10,10 +10,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
@@ -72,16 +69,7 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 
 	public BaseTimeline(Composite parent, int style) {
 		super(parent, style);
-
-		/*
-		 * Deactivate browser's native context/popup menu. Doing so allows the
-		 * definition of menus in an inheriting composite via setMenu.
-		 */
-		this.getBrowser().addListener(SWT.MenuDetect, new Listener() {
-			public void handleEvent(Event event) {
-				event.doit = false;
-			}
-		});
+		this.deactivateNativeMenu();
 	}
 
 	@Override

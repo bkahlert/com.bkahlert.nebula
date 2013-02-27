@@ -10,10 +10,15 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.BrowserFunction;
+import org.eclipse.swt.browser.LocationAdapter;
+import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 
 public abstract class BrowserComposite extends Composite implements
 		IBrowserComposite {
@@ -32,11 +37,15 @@ public abstract class BrowserComposite extends Composite implements
 	private Browser browser;
 	private boolean loadingCompleted = false;
 	private List<String> enqueuedJs = new ArrayList<String>();
+	private List<IJavaScriptExceptionListener> javaScriptExceptionListeners = new ArrayList<IJavaScriptExceptionListener>();
+	private List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
 
 	public BrowserComposite(Composite parent, int style) {
 		super(parent, style);
 		this.setLayout(new FillLayout());
 		this.browser = new Browser(this, SWT.NONE);
+
+		activateExceptionHandling();
 
 		this.getBrowser().setUrl(getStartUrl());
 
@@ -53,6 +62,60 @@ public abstract class BrowserComposite extends Composite implements
 								+ js);
 					}
 				}
+			}
+		});
+
+		this.browser.addLocationListener(new LocationAdapter() {
+			public void changing(LocationEvent event) {
+				IAnker anker = new Anker(event.location, null, null);
+				for (IAnkerListener ankerListener : ankerListeners) {
+					ankerListener.ankerClicked(anker);
+				}
+				event.doit = false;
+			}
+		});
+	}
+
+	/**
+	 * Notifies all registered {@link IJavaScriptExceptionListener}s in case a
+	 * JavaScript error occurred.
+	 */
+	private void activateExceptionHandling() {
+		new BrowserFunction(this.getBrowser(), "error_callback") {
+			@Override
+			public Object function(Object[] arguments) {
+				String filename = (String) arguments[0];
+				Long lineNumber = Math.round((Double) arguments[1]);
+				String detail = (String) arguments[2];
+
+				JavaScriptException javaScriptException = new JavaScriptException(
+						filename, lineNumber, detail);
+				return fire(javaScriptException);
+			}
+
+			private boolean fire(JavaScriptException e) {
+				boolean preventDefault = false;
+				for (IJavaScriptExceptionListener javaScriptExceptionListener : javaScriptExceptionListeners) {
+					if (javaScriptExceptionListener.thrown(e))
+						preventDefault = true;
+				}
+				return preventDefault;
+			}
+		};
+
+		this.getBrowser()
+				.execute(
+						"window.onerror = function(detail, filename, lineNumber) { if ( typeof window['error_callback'] !== 'function') return; return window['error_callback'](filename, lineNumber, detail); }");
+	}
+
+	/**
+	 * Deactivate browser's native context/popup menu. Doing so allows the
+	 * definition of menus in an inheriting composite via setMenu.
+	 */
+	public void deactivateNativeMenu() {
+		this.getBrowser().addListener(SWT.MenuDetect, new Listener() {
+			public void handleEvent(Event event) {
+				event.doit = false;
 			}
 		});
 	}
@@ -96,6 +159,24 @@ public abstract class BrowserComposite extends Composite implements
 				+ "\")}else{$(\"head\").append($(\"<link rel=\\\"stylesheet\\\" href=\\\""
 				+ path + "\\\" type=\\\"text/css\\\" />\"))}";
 		enqueueJs(js);
+	}
+
+	public void addJavaScriptExceptionListener(
+			IJavaScriptExceptionListener javaScriptExceptionListener) {
+		this.javaScriptExceptionListeners.add(javaScriptExceptionListener);
+	}
+
+	public void removeJavaScriptExceptionListener(
+			IJavaScriptExceptionListener javaScriptExceptionListener) {
+		this.javaScriptExceptionListeners.remove(javaScriptExceptionListener);
+	}
+
+	public void addAnkerListener(IAnkerListener ankerListener) {
+		this.ankerListeners.add(ankerListener);
+	}
+
+	public void removeAnkerListener(IAnkerListener ankerListener) {
+		this.ankerListeners.remove(ankerListener);
 	}
 
 }

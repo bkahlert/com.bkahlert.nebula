@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.widgets.editor;
+package com.bkahlert.devel.nebula.widgets.browser;
 
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.nodes.Element;

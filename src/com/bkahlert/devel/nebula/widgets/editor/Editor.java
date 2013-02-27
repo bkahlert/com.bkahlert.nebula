@@ -12,10 +12,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
-import org.eclipse.swt.browser.LocationAdapter;
-import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyAdapter;
@@ -25,14 +22,17 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Widget;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.widgets.browser.Anker;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
+import com.bkahlert.devel.nebula.widgets.browser.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
+import com.bkahlert.devel.nebula.widgets.browser.JavaScriptException;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineJsonGenerator;
 
 /**
@@ -52,29 +52,7 @@ public class Editor extends BrowserComposite {
 	private static final Pattern URL_PATTERN = Pattern
 			.compile("(.*?)(\\w+://[!#$&-;=?-\\[\\]_a-zA-Z~%]+)(.*?)");
 
-	private static abstract class ModifyListenerBrowserFunction extends
-			BrowserFunction {
-
-		public ModifyListenerBrowserFunction(Browser browser) {
-			super(browser, "modified");
-		}
-
-		@Override
-		public Object function(Object[] arguments) {
-			if (arguments.length >= 1) {
-				if (arguments[0] instanceof String) {
-					String newHtml = (String) arguments[0];
-					call(newHtml);
-				}
-			}
-			return super.function(arguments);
-		}
-
-		public abstract void call(String newHtml);
-	}
-
 	private List<IAnkerLabelProvider> ankerLabelProviders = new ArrayList<IAnkerLabelProvider>();
-	private List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
 	private List<ModifyListener> modifyListeners = new ArrayList<ModifyListener>();
 	private String oldHtml = "";
 	private Timer delayChangeTimer = null;
@@ -94,17 +72,22 @@ public class Editor extends BrowserComposite {
 	 */
 	public Editor(Composite parent, int style, final long delayChangeEventUpTo) {
 		super(parent, style);
+		this.deactivateNativeMenu();
 
-		/*
-		 * Deactivate browser's native context/popup menu. Doing so allows the
-		 * definition of menus in an inheriting composite via setMenu.
-		 */
-		this.getBrowser().addListener(SWT.MenuDetect, new Listener() {
-			public void handleEvent(Event event) {
-				event.doit = false;
+		addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {
+			@Override
+			public boolean thrown(JavaScriptException e) {
+				LOGGER.error("Internal " + Editor.class.getSimpleName()
+						+ " error", e);
+				return true;
 			}
 		});
 
+		fixShortcuts(delayChangeEventUpTo);
+		listenForModifications(delayChangeEventUpTo);
+	}
+
+	public void fixShortcuts(final long delayChangeEventUpTo) {
 		this.getBrowser().addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -124,7 +107,8 @@ public class Editor extends BrowserComposite {
 						// wait for the ui thread to apply the operation
 						ExecutorUtil.asyncExec(new Runnable() {
 							public void run() {
-								modified(getSource(), delayChangeEventUpTo);
+								modifiedCallback(getSource(),
+										delayChangeEventUpTo);
 							}
 						});
 					}
@@ -137,7 +121,8 @@ public class Editor extends BrowserComposite {
 						// wait for the ui thread to apply the operation
 						ExecutorUtil.asyncExec(new Runnable() {
 							public void run() {
-								modified(getSource(), delayChangeEventUpTo);
+								modifiedCallback(getSource(),
+										delayChangeEventUpTo);
 							}
 						});
 					}
@@ -145,51 +130,53 @@ public class Editor extends BrowserComposite {
 
 			}
 		});
+	}
 
-		this.getBrowser().addLocationListener(new LocationAdapter() {
-			public void changing(LocationEvent event) {
-				IAnker anker = new Anker(event.location, null, null);
-				for (IAnkerListener ankerListener : ankerListeners) {
-					ankerListener.ankerClicked(anker);
+	public void listenForModifications(final long delayChangeEventUpTo) {
+		new BrowserFunction(getBrowser(), "modified") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length >= 1) {
+					if (arguments[0] instanceof String) {
+						String newHtml = (String) arguments[0];
+						modifiedCallback(newHtml, delayChangeEventUpTo);
+					}
 				}
-				event.doit = false;
+				return null;
 			}
-		});
+		};
 
 		this.getBrowser().addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				modified(getSource(), 0);
+				modifiedCallback(getSource(), 0);
 			}
 		});
-
-		new ModifyListenerBrowserFunction(this.getBrowser()) {
-			@Override
-			public void call(String newHtml) {
-				modified(newHtml, delayChangeEventUpTo);
-			}
-		};
 	}
 
-	protected void modified(String html, long delayChangeEventTo) {
-		final String newHtml = (html == null || html.trim().isEmpty()) ? ""
-				: html.trim();
+	protected void modifiedCallback(String html, long delayChangeEventTo) {
+		String newHtml = (html == null || html.replace("&nbsp;", " ").trim()
+				.isEmpty()) ? "" : html.trim();
 		if (oldHtml.equals(newHtml))
 			return;
 
 		// When space entered but widget is not disposing, create links
-		String prevCaretCharacter = getPrevCaretCharacter();
-		if (delayChangeEventTo > 0 && prevCaretCharacter != null
-				&& getPrevCaretCharacter().matches("[\\s| ]")) { // space is non
-																	// breaking
-																	// space
-			String autoLinkedHtml = createLinks(newHtml);
-			if (!autoLinkedHtml.equals(newHtml)) {
-				this.setSource(autoLinkedHtml, true);
-				return;
+		if (delayChangeEventTo > 0) {
+			String prevCaretCharacter = getPrevCaretCharacter();
+			if (prevCaretCharacter != null
+					&& getPrevCaretCharacter().matches("[\\s| ]")) { // space is
+																		// non
+																		// breaking
+																		// space
+				String autoLinkedHtml = createLinks(newHtml);
+				if (!autoLinkedHtml.equals(newHtml)) {
+					this.setSource(autoLinkedHtml, true);
+					newHtml = autoLinkedHtml;
+				}
 			}
 		}
 
+		final String tmp = newHtml;
 		final Runnable fireRunnable = new Runnable() {
 			@Override
 			public void run() {
@@ -197,8 +184,8 @@ public class Editor extends BrowserComposite {
 				event.display = Display.getCurrent();
 				event.time = (int) (new Date().getTime() & 0xFFFFFFFFL);
 				event.widget = (Widget) Editor.this;
-				event.text = newHtml;
-				event.data = newHtml;
+				event.text = tmp;
+				event.data = tmp;
 				ModifyEvent modifyEvent = new ModifyEvent(event);
 				for (ModifyListener modifyListener : modifyListeners) {
 					modifyListener.modifyText(modifyEvent);
@@ -206,7 +193,7 @@ public class Editor extends BrowserComposite {
 			}
 		};
 
-		oldHtml = newHtml;
+		oldHtml = tmp;
 
 		if (delayChangeTimer != null)
 			delayChangeTimer.cancel();
@@ -287,6 +274,12 @@ public class Editor extends BrowserComposite {
 		return null;
 	}
 
+	/**
+	 * Checks whether the current editor contents present changes when compared
+	 * to the contents loaded into the editor at startup.
+	 * 
+	 * @return
+	 */
 	public Boolean isDirty() {
 		Boolean isDirty = (Boolean) this.getBrowser().evaluate(
 				"return com.bkahlert.devel.nebula.editor.isDirty();");
@@ -363,14 +356,6 @@ public class Editor extends BrowserComposite {
 
 	public void removeAnkerLabelProvider(IAnkerLabelProvider ankerLabelProvider) {
 		this.ankerLabelProviders.remove(ankerLabelProvider);
-	}
-
-	public void addAnkerListener(IAnkerListener ankerListener) {
-		this.ankerListeners.add(ankerListener);
-	}
-
-	public void removeAnkerListener(IAnkerListener ankerListener) {
-		this.ankerListeners.remove(ankerListener);
 	}
 
 	public void addModifyListener(ModifyListener modifyListener) {

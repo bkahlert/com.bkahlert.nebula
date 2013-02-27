@@ -18,10 +18,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.devel.nebula.widgets.RoundedComposite;
+import com.bkahlert.devel.nebula.widgets.browser.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.IAnkerListener;
+import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
+import com.bkahlert.devel.nebula.widgets.browser.JavaScriptException;
 import com.bkahlert.devel.nebula.widgets.editor.Editor;
-import com.bkahlert.devel.nebula.widgets.editor.IAnker;
 import com.bkahlert.devel.nebula.widgets.editor.IAnkerLabelProvider;
-import com.bkahlert.devel.nebula.widgets.editor.IAnkerListener;
 
 public class WidgetsView extends ViewPart {
 
@@ -183,6 +185,13 @@ public class WidgetsView extends ViewPart {
 		final Editor editor = new Editor(parent, SWT.BORDER, 2000);
 		editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		editor.setSource("Hello");
+		editor.addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {
+			@Override
+			public boolean thrown(JavaScriptException exception) {
+				System.err.println(exception);
+				return true;
+			}
+		});
 		editor.addAnkerLabelProvider(new IAnkerLabelProvider() {
 			@Override
 			public boolean isResponsible(IAnker anker) {
