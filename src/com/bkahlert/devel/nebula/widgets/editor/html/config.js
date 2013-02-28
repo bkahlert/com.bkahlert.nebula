@@ -16,7 +16,7 @@ CKEDITOR.editorConfig = function(config) {
     config.skin = 'moono';
     // %REMOVE_END%
 
-    config.extraPlugins = 'onchange,codemirror,standardtags';
+    config.extraPlugins = 'onchange,codemirror,syntaxhighlight,standardtags';
     config.minimumChangeMilliseconds = 50;
 
     config.format_tags = 'h1;h2;h3;h4;h5;h6;p;pre';
@@ -24,14 +24,11 @@ CKEDITOR.editorConfig = function(config) {
     config.startupFocus = true;
 
     config.toolbar = [{
-        name : 'basicstyles',
-        items : ['Subscript', 'Superscript', '-', 'RemoveFormat', 'ShowBlocks']
-    }, {
         name : 'justify',
         items : ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']
     }, {
         name : 'styles',
-        items : ['Styles', 'Format']
+        items : ['Styles', 'Format', 'RemoveFormat', 'ShowBlocks', '-', 'Syntaxhighlight']
     }, (!/[?&]internal=true/.test(location.href) ? {
         name : 'document',
         items : ['Source']
