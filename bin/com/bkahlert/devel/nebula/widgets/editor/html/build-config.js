@@ -88,7 +88,9 @@ var CKBUILDER_CONFIG = {
 		'listblock' : 1,
 		'menubutton' : 1,
 		'divarea' : 1,
-		'onchange' : 1
+		'onchange' : 1,
+		'syntaxhighlight' : 1,
+		'codemirror' : 1
 	},
 	languages : {
 		'en' : 1,
