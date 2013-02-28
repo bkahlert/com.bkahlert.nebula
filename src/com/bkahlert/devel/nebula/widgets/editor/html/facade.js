@@ -43,9 +43,16 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
             // http://docs.ckeditor.com/#!/api/CKEDITOR.editor-method-checkDirty
             return editor.checkDirty();
         },
-        
+
+        /**
+         * Sets the editor's mode to the specified one.
+         * 
+         * @param {Object} mode if of type boolean, true activates the wysiwyg mode whereas false activates the source mode.
+         */
         setMode : function(mode) {
             var editor = CKEDITOR.instances.editor1;
+            if ( typeof mode == "boolean")
+                mode = mode ? "wysiwyg" : source;
             editor.setMode(mode);
         },
 

@@ -289,12 +289,6 @@ public class Editor extends BrowserComposite {
 			return null;
 	}
 
-	public void setSourceMode(boolean sourceMode) {
-		String js = "com.bkahlert.devel.nebula.editor.setMode(\""
-				+ (sourceMode ? "source" : "wysiwyg") + "\");";
-		this.enqueueJs(js);
-	}
-
 	public void selectAll() {
 		String js = "com.bkahlert.devel.nebula.editor.selectAll();";
 		this.enqueueJs(js);
@@ -322,12 +316,18 @@ public class Editor extends BrowserComposite {
 			return null;
 	}
 
+	public void setMode(String mode) {
+		String js = "com.bkahlert.devel.nebula.editor.setMode(\"" + mode
+				+ "\");";
+		this.enqueueJs(js);
+	}
+
 	public void showSource() {
-		this.enqueueJs("com.bkahlert.devel.nebula.editor.showSource();");
+		this.setMode("source");
 	}
 
 	public void hideSource() {
-		this.enqueueJs("com.bkahlert.devel.nebula.editor.hideSource();");
+		this.setMode("wysiwyg");
 	}
 
 	public String getPrevCaretCharacter() {
