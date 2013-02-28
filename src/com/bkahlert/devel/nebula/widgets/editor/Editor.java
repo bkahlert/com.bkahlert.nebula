@@ -289,6 +289,12 @@ public class Editor extends BrowserComposite {
 			return null;
 	}
 
+	public void setSourceMode(boolean sourceMode) {
+		String js = "com.bkahlert.devel.nebula.editor.setMode(\""
+				+ (sourceMode ? "source" : "wysiwyg") + "\");";
+		this.enqueueJs(js);
+	}
+
 	public void selectAll() {
 		String js = "com.bkahlert.devel.nebula.editor.selectAll();";
 		this.enqueueJs(js);

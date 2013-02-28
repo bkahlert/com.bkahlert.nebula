@@ -43,6 +43,11 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
             // http://docs.ckeditor.com/#!/api/CKEDITOR.editor-method-checkDirty
             return editor.checkDirty();
         },
+        
+        setMode : function(mode) {
+            var editor = CKEDITOR.instances.editor1;
+            editor.setMode(mode);
+        },
 
         selectAll : function() {
             var editor = CKEDITOR.instances.editor1;

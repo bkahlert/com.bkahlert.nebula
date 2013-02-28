@@ -181,6 +181,10 @@ public class WidgetsView extends ViewPart {
 		editorLockSelection.setText("Save Selection");
 		Button editorUnlockSelection = new Button(editorControls, SWT.PUSH);
 		editorUnlockSelection.setText("Restore Selection");
+		Button editorSourceModeOn = new Button(editorControls, SWT.PUSH);
+		editorSourceModeOn.setText("Source Mode On");
+		Button editorSourceModeOff = new Button(editorControls, SWT.PUSH);
+		editorSourceModeOff.setText("Source Mode Off");
 
 		final Editor editor = new Editor(parent, SWT.BORDER, 2000);
 		editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -278,6 +282,18 @@ public class WidgetsView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				editor.restoreSelection();
+			}
+		});
+		editorSourceModeOn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				editor.setSourceMode(true);
+			}
+		});
+		editorSourceModeOff.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				editor.setSourceMode(false);
 			}
 		});
 

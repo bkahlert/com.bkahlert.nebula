@@ -25,19 +25,19 @@ CKEDITOR.editorConfig = function(config) {
 
     config.toolbar = [{
         name : 'basicstyles',
-        items : ['Subscript', 'Superscript', '-', 'RemoveFormat']
+        items : ['Subscript', 'Superscript', '-', 'RemoveFormat', 'ShowBlocks']
     }, {
         name : 'justify',
         items : ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']
     }, {
         name : 'styles',
         items : ['Styles', 'Format']
-    }, {
+    }, (!/[?&]internal=true/.test(location.href) ? {
         name : 'document',
-        items : ['Source', '-', 'ShowBlocks']
-    }, '/', {
+        items : ['Source']
+    } : '/'), '/', {
         name : 'editing',
-        items : ['Find', 'Replace']
+        items : ['Find']
     }, {
         name : 'paragraph',
         items : ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote']
@@ -46,7 +46,7 @@ CKEDITOR.editorConfig = function(config) {
         items : ['Undo', 'Redo']
     }, {
         name : 'links',
-        items : ['Link', 'Unlink', 'Anchor']
+        items : ['Link', 'Anchor']
     }, {
         name : 'insert',
         items : ['Table', 'HorizontalRule']
@@ -66,7 +66,6 @@ CKEDITOR.editorConfig = function(config) {
     config.keystrokes.push([CKEDITOR.CTRL + 56/*8*/, 'pre']);
     config.keystrokes.push([CKEDITOR.CTRL + 57/*9*/, 'pre']);
     config.keystrokes.push([CKEDITOR.CTRL + 48/*0*/, 'p']);
-    config.keystrokes.push([CKEDITOR.CTRL + 80/*p*/, 'p']);
 
     config.codemirror = {
 
