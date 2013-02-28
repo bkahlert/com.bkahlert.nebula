@@ -10,4 +10,12 @@ public interface IAnkerListener {
 	 * @param anker
 	 */
 	public void ankerClicked(IAnker anker);
+
+	/**
+	 * This method is called if an {@link IAnker} was clicked in a special way
+	 * (typically while holding ⌃ (Ctrl) or ⌘ (Command)).
+	 * 
+	 * @param anker
+	 */
+	public void ankerClickedSpecial(IAnker anker);
 }

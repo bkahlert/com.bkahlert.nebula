@@ -17,6 +17,7 @@ import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
@@ -36,6 +37,7 @@ public abstract class BrowserComposite extends Composite implements
 
 	private Browser browser;
 	private boolean loadingCompleted = false;
+	private boolean metaKeyPressed = false;
 	private List<String> enqueuedJs = new ArrayList<String>();
 	private List<IJavaScriptExceptionListener> javaScriptExceptionListeners = new ArrayList<IJavaScriptExceptionListener>();
 	private List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
@@ -65,11 +67,33 @@ public abstract class BrowserComposite extends Composite implements
 			}
 		});
 
+		Listener metaKeyListener = new Listener() {
+			@Override
+			public void handleEvent(Event e) {
+				if (e.type == SWT.FocusOut && e.widget != browser)
+					return;
+
+				metaKeyPressed = e.type == SWT.KeyDown
+						&& ((e.stateMask & SWT.CTRL) != 0
+								|| (e.stateMask & SWT.COMMAND) != 0
+								|| (e.keyCode & SWT.CTRL) != 0 || (e.keyCode & SWT.COMMAND) != 0);
+			}
+		};
+		Display.getCurrent().addFilter(SWT.KeyDown, metaKeyListener);
+		Display.getCurrent().addFilter(SWT.KeyUp, metaKeyListener);
+		Display.getCurrent().addFilter(SWT.FocusOut, metaKeyListener);
+
 		this.browser.addLocationListener(new LocationAdapter() {
 			public void changing(LocationEvent event) {
 				IAnker anker = new Anker(event.location, null, null);
-				for (IAnkerListener ankerListener : ankerListeners) {
-					ankerListener.ankerClicked(anker);
+				if (metaKeyPressed) {
+					for (IAnkerListener ankerListener : ankerListeners) {
+						ankerListener.ankerClickedSpecial(anker);
+					}
+				} else {
+					for (IAnkerListener ankerListener : ankerListeners) {
+						ankerListener.ankerClicked(anker);
+					}
 				}
 				event.doit = false;
 			}

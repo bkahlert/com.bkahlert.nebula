@@ -218,6 +218,11 @@ public class WidgetsView extends ViewPart {
 			public void ankerClicked(IAnker anker) {
 				System.err.println("clicked on " + anker.getHref());
 			}
+
+			@Override
+			public void ankerClickedSpecial(IAnker anker) {
+				System.err.println("special clicked on " + anker.getHref());
+			}
 		});
 		editor.addModifyListener(new ModifyListener() {
 			@Override
