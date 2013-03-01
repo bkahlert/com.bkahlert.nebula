@@ -9,7 +9,6 @@ import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.BrowserFunction;
@@ -310,10 +309,7 @@ public class Editor extends BrowserComposite {
 			return null;
 		String html = (String) this.getBrowser().evaluate(
 				"return com.bkahlert.devel.nebula.editor.getSource();");
-		if (html != null)
-			return StringEscapeUtils.unescapeHtml(html);
-		else
-			return null;
+		return html;
 	}
 
 	public void setMode(String mode) {
