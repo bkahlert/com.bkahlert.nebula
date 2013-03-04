@@ -19,6 +19,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.bkahlert.devel.nebula.colors,
  com.bkahlert.devel.nebula.data,
  com.bkahlert.devel.nebula.dialogs,
+ com.bkahlert.devel.nebula.images,
  com.bkahlert.devel.nebula.rendering,
  com.bkahlert.devel.nebula.utils,
  com.bkahlert.devel.nebula.viewer,

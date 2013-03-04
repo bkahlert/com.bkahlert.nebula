@@ -96,7 +96,7 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 	 */
 	private void show(final String jsonTimeline,
 			final int startAnimationDuration, final int endAnimationDuration) {
-		System.err.println(jsonTimeline);
+		// System.err.println(jsonTimeline);
 		final String escapedJson = TimelineJsonGenerator.enquote(jsonTimeline);
 
 		final String js;

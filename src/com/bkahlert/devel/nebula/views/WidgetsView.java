@@ -11,12 +11,16 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.part.ViewPart;
 
+import com.bkahlert.devel.nebula.colors.RGB;
+import com.bkahlert.devel.nebula.images.Images;
 import com.bkahlert.devel.nebula.widgets.RoundedComposite;
 import com.bkahlert.devel.nebula.widgets.browser.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.IAnkerListener;
@@ -161,8 +165,23 @@ public class WidgetsView extends ViewPart {
 			}
 		}); // .start();
 
+		parent.setLayout(new FillLayout());
+
+		Label dot = new Label(parent, SWT.NONE);
+		dot.setBackgroundImage(Images.getOverlayDot(new RGB(0.5f, 0.4f, 0.2f))
+				.createImage());
+
+		Label dot2 = new Label(parent, SWT.NONE);
+		dot2.setBackgroundImage(Images.getOverlayDot(new RGB(0.5f, 0.4f, 0.2f))
+				.createImage());
+
+		Label dot3 = new Label(parent, SWT.NONE);
+		dot3.setBackgroundImage(Images.getOverlayDot(new RGB(0.5f, 0.4f, 0.2f))
+				.createImage());
+
 		Composite editorControls = new RoundedComposite(parent, SWT.BORDER);
 		editorControls.setLayout(new RowLayout());
+
 		Button editorGetSource = new Button(editorControls, SWT.PUSH);
 		editorGetSource.setText("Get Source");
 		Button editorSetSource = new Button(editorControls, SWT.PUSH);
