@@ -2,6 +2,8 @@ package com.bkahlert.devel.nebula.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,5 +30,15 @@ public class FileUtils {
 			throw new UnsupportedOperationException(
 					"Opening files in your OS is not supported.");
 		}
+	}
+
+	public static File getTempDirectory() {
+		File systemTempDirectory = new File(
+				System.getProperty("java.io.tmpdir"));
+		File tempDirectory = new File(systemTempDirectory, new BigInteger(130,
+				new SecureRandom()).toString(32));
+		tempDirectory.deleteOnExit();
+		tempDirectory.mkdir();
+		return tempDirectory;
 	}
 }

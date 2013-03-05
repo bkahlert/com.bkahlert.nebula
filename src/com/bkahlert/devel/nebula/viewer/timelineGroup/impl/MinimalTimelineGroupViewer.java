@@ -263,6 +263,10 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIM
 		});
 	}
 
+	// FIXME: make this function abort itself on consecutive calls
+	// different content providers can make this method be called multiple times
+	// because of one core event
+	// FIXME: TimelineRefresher no more needed then
 	public void refresh(Map<Object, Asset<TIMELINE>> keys,
 			final boolean keysAreNew, final IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 3);

@@ -16,6 +16,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.part.ViewPart;
 
@@ -166,17 +167,18 @@ public class WidgetsView extends ViewPart {
 		}); // .start();
 
 		parent.setLayout(new FillLayout());
-
+		parent.setBackground(Display.getCurrent().getSystemColor(
+				SWT.COLOR_BLACK));
 		Label dot = new Label(parent, SWT.NONE);
-		dot.setBackgroundImage(Images.getOverlayDot(new RGB(0.5f, 0.4f, 0.2f))
+		dot.setImage(Images.getOverlayDot(new RGB(0.5f, 0.4f, 0.2f))
 				.createImage());
 
 		Label dot2 = new Label(parent, SWT.NONE);
-		dot2.setBackgroundImage(Images.getOverlayDot(new RGB(0.5f, 0.4f, 0.2f))
+		dot2.setImage(Images.getOverlayDot(new RGB(0.5f, 0.4f, 0.2f))
 				.createImage());
 
 		Label dot3 = new Label(parent, SWT.NONE);
-		dot3.setBackgroundImage(Images.getOverlayDot(new RGB(0.5f, 0.4f, 0.2f))
+		dot3.setImage(Images.getOverlayDot(new RGB(0.5f, 0.4f, 0.2f))
 				.createImage());
 
 		Composite editorControls = new RoundedComposite(parent, SWT.BORDER);
