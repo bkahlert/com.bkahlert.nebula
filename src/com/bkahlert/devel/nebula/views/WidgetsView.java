@@ -15,8 +15,8 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.images.Images;
-import com.bkahlert.devel.nebula.widgets.editor.AutosaveEditor;
-import com.bkahlert.devel.nebula.widgets.editor.Editor;
+import com.bkahlert.devel.nebula.widgets.demo.ComposerDemo;
+import com.bkahlert.devel.nebula.widgets.demo.EditorDemo;
 
 public class WidgetsView extends ViewPart {
 
@@ -162,27 +162,8 @@ public class WidgetsView extends ViewPart {
 		dot.setImage(Images.getOverlayDot(new RGB(0.5f, 0.4f, 0.2f))
 				.createImage());
 
-		Editor<String> editor = new AutosaveEditor<String>(parent, SWT.NONE,
-				500) {
-			@Override
-			public String getHtml(String objectToLoad, IProgressMonitor monitor) {
-				return objectToLoad;
-			}
-
-			@Override
-			public void setHtml(String objectToLoad, String html,
-					IProgressMonitor monitor) {
-				System.out.println("saved: " + html);
-			}
-		};
-		try {
-			editor.load("This is an auto-saving editor");
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		// new ComposerDemo(parent, SWT.BORDER);
+		new EditorDemo(parent, SWT.BORDER);
+		new ComposerDemo(parent, SWT.BORDER);
 
 		/*
 		 * Button openFileListDialog = new Button(parent, SWT.PUSH);

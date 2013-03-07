@@ -23,7 +23,7 @@ public class SampleEditorView extends EditorView<String> {
 					e.printStackTrace();
 				}
 			}
-		}, 2000);
+		}, 4000);
 		ExecutorUtil.asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -34,7 +34,7 @@ public class SampleEditorView extends EditorView<String> {
 					e.printStackTrace();
 				}
 			}
-		}, 5000);
+		}, 8000);
 	}
 
 	@Override

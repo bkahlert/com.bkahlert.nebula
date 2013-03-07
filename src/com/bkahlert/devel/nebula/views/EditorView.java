@@ -2,6 +2,9 @@ package com.bkahlert.devel.nebula.views;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -161,8 +164,15 @@ public abstract class EditorView<T> extends ViewPart {
 	}
 
 	public final void load(T objectToLoad) {
-		if (!this.editor.isDisposed())
-			this.editor.load(objectToLoad);
+		if (!this.editor.isDisposed()) {
+			Job loadJob = this.editor.load(objectToLoad);
+			loadJob.addJobChangeListener(new JobChangeAdapter() {
+				@Override
+				public void done(IJobChangeEvent event) {
+					refreshHeader();
+				}
+			});
+		}
 	}
 
 	public final void save() throws Exception {

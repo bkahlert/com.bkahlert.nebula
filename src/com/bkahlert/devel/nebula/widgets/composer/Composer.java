@@ -2,7 +2,6 @@ package com.bkahlert.devel.nebula.widgets.composer;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -54,7 +53,8 @@ public class Composer extends BrowserComposite {
 	private List<IAnkerLabelProvider> ankerLabelProviders = new ArrayList<IAnkerLabelProvider>();
 	private List<ModifyListener> modifyListeners = new ArrayList<ModifyListener>();
 	private String oldHtml = "";
-	private Timer delayChangeTimer = null;
+	private Timer delayChangeTimer = new Timer();
+	private TimerTask delayChangeTimerTask = null;
 
 	public Composer(Composite parent, int style) {
 		this(parent, style, 0);
@@ -181,7 +181,6 @@ public class Composer extends BrowserComposite {
 			public void run() {
 				Event event = new Event();
 				event.display = Display.getCurrent();
-				event.time = (int) (new Date().getTime() & 0xFFFFFFFFL);
 				event.widget = (Widget) Composer.this;
 				event.text = tmp;
 				event.data = tmp;
@@ -194,18 +193,18 @@ public class Composer extends BrowserComposite {
 
 		oldHtml = tmp;
 
-		if (delayChangeTimer != null)
-			delayChangeTimer.cancel();
+		if (delayChangeTimerTask != null)
+			delayChangeTimerTask.cancel();
 		if (delayChangeEventTo > 0) {
-			delayChangeTimer = new Timer();
-			delayChangeTimer.schedule(new TimerTask() {
+			delayChangeTimerTask = new TimerTask() {
 				@Override
 				public void run() {
 					fireRunnable.run();
 				}
-			}, delayChangeEventTo);
+			};
+			delayChangeTimer.schedule(delayChangeTimerTask, delayChangeEventTo);
 		} else {
-			delayChangeTimer = null;
+			delayChangeTimerTask = null;
 			fireRunnable.run();
 		}
 	}
@@ -299,6 +298,14 @@ public class Composer extends BrowserComposite {
 	}
 
 	public void setSource(String html, boolean restoreSelection) {
+		/*
+		 * do not wait for the delay to pass but invoke the task immediately
+		 */
+		if (delayChangeTimerTask != null) {
+			delayChangeTimerTask.cancel();
+			delayChangeTimerTask.run();
+			delayChangeTimerTask = null;
+		}
 		String js = "com.bkahlert.devel.nebula.editor.setSource("
 				+ TimelineJsonGenerator.enquote(html) + ", "
 				+ (restoreSelection ? "true" : "false") + ");";
@@ -360,10 +367,24 @@ public class Composer extends BrowserComposite {
 		this.ankerLabelProviders.remove(ankerLabelProvider);
 	}
 
+	/**
+	 * Adds a {@link ModifyListener} to this {@link Composer}.
+	 * <p>
+	 * Please note that {@link ModifyListener#modifyText(ModifyEvent)} is also
+	 * fired when the {@link Composer} is being disposed. This is the last
+	 * opportunity to read the {@link Composer}'s current content.
+	 * 
+	 * @param modifyListener
+	 */
 	public void addModifyListener(ModifyListener modifyListener) {
 		this.modifyListeners.add(modifyListener);
 	}
 
+	/**
+	 * Removes a {@link ModifyListener} from this {@link Composer}.
+	 * 
+	 * @param modifyListener
+	 */
 	public void removeModifyListener(ModifyListener modifyListener) {
 		this.modifyListeners.remove(modifyListener);
 	}

@@ -33,7 +33,7 @@ public abstract class Editor<T> extends Composite {
 	private Job loadJob = null;
 	private Map<T, Job> saveJobs = new HashMap<T, Job>();
 
-	Composer composer;
+	protected Composer composer;
 
 	/**
 	 * 
@@ -45,10 +45,11 @@ public abstract class Editor<T> extends Composite {
 	 *            minimal delay however defined by the wrapped {@link Composer}.
 	 */
 	public Editor(Composite parent, int style, final long delayChangeEventUpTo) {
-		super(parent, style);
+		super(parent, style & ~SWT.BORDER);
 
 		this.setLayout(new FillLayout());
-		this.composer = new Composer(this, SWT.NONE, delayChangeEventUpTo);
+		this.composer = new Composer(this, style & SWT.BORDER,
+				delayChangeEventUpTo);
 		this.composer.setEnabled(false);
 	}
 
@@ -68,10 +69,16 @@ public abstract class Editor<T> extends Composite {
 	 * loading the current load job is cancelled.
 	 * 
 	 * @ArbitraryThread may be called from whatever thread you like.
+	 * 
 	 * @param objectToLoad
+	 * @return the {@link Job} used to load the object; null if no object to be
+	 *         loaded.
 	 * @throws Exception
 	 */
-	public final void load(final T objectToLoad) {
+	public Job load(final T objectToLoad) {
+		if (loadedObject == objectToLoad)
+			return null;
+
 		if (loadJob != null)
 			loadJob.cancel();
 
@@ -85,6 +92,7 @@ public abstract class Editor<T> extends Composite {
 					composer.setEnabled(false);
 				}
 			});
+			return null;
 		} else {
 			loadJob = new Job("Loading " + objectToLoad) {
 				@Override
@@ -112,22 +120,26 @@ public abstract class Editor<T> extends Composite {
 				}
 			};
 			loadJob.schedule();
+			return loadJob;
 		}
 	}
 
 	/**
 	 * Saves the current content of the {@link Editor} to the loaded object.
 	 * 
+	 * @ArbitraryThread may be called from whatever thread you like.
+	 * 
+	 * @return the {@link Job} used to save the object.
 	 * @throws Exception
 	 */
-	public void save() throws Exception {
+	public Job save() throws Exception {
 		String html = ExecutorUtil.syncExec(new Callable<String>() {
 			@Override
 			public String call() {
 				return composer.getSource();
 			}
 		});
-		this.save(html);
+		return this.save(html);
 	}
 
 	/**
@@ -137,9 +149,12 @@ public abstract class Editor<T> extends Composite {
 	 * {@link Editor}'s content and thus also works if this widget is being
 	 * disposed.
 	 * 
+	 * @ArbitraryThread may be called from whatever thread you like.
+	 * 
 	 * @param html
+	 * @return the {@link Job} used to save the object.
 	 */
-	synchronized final void save(final String html) {
+	synchronized Job save(final String html) {
 		final T savedLoadedObject = loadedObject;
 
 		if (saveJobs.get(savedLoadedObject) != null)
@@ -162,6 +177,7 @@ public abstract class Editor<T> extends Composite {
 		};
 		saveJob.schedule();
 		saveJobs.put(savedLoadedObject, saveJob);
+		return saveJob;
 	}
 
 	/**

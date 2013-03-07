@@ -6,7 +6,8 @@ import org.eclipse.swt.widgets.Composite;
 
 /**
  * In contrast to the classic {@link Editor} instances of this class
- * automatically save changes.
+ * automatically save changes whenever changes are made or a new object is
+ * loaded.
  * 
  * @author bkahlert
  * 
