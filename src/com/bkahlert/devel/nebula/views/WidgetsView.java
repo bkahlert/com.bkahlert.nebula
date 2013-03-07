@@ -27,8 +27,8 @@ import com.bkahlert.devel.nebula.widgets.browser.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
 import com.bkahlert.devel.nebula.widgets.browser.JavaScriptException;
-import com.bkahlert.devel.nebula.widgets.editor.Editor;
-import com.bkahlert.devel.nebula.widgets.editor.IAnkerLabelProvider;
+import com.bkahlert.devel.nebula.widgets.composer.Composer;
+import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 
 public class WidgetsView extends ViewPart {
 
@@ -203,17 +203,17 @@ public class WidgetsView extends ViewPart {
 		Button editorUnlockSelection = new Button(editorControls, SWT.PUSH);
 		editorUnlockSelection.setText("Restore Selection");
 
-		final Editor editor = new Editor(parent, SWT.BORDER, 2000);
-		editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		editor.setSource("Hello");
-		editor.addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {
+		final Composer composer = new Composer(parent, SWT.BORDER, 2000);
+		composer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		composer.setSource("Hello");
+		composer.addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {
 			@Override
 			public boolean thrown(JavaScriptException exception) {
 				System.err.println(exception);
 				return true;
 			}
 		});
-		editor.addAnkerLabelProvider(new IAnkerLabelProvider() {
+		composer.addAnkerLabelProvider(new IAnkerLabelProvider() {
 			@Override
 			public boolean isResponsible(IAnker anker) {
 				return anker.getContent().contains("test");
@@ -234,7 +234,7 @@ public class WidgetsView extends ViewPart {
 				return "Link to bkahlert.com";
 			}
 		});
-		editor.addAnkerListener(new IAnkerListener() {
+		composer.addAnkerListener(new IAnkerListener() {
 			@Override
 			public void ankerClicked(IAnker anker) {
 				System.err.println("clicked on " + anker.getHref());
@@ -245,7 +245,7 @@ public class WidgetsView extends ViewPart {
 				System.err.println("special clicked on " + anker.getHref());
 			}
 		});
-		editor.addModifyListener(new ModifyListener() {
+		composer.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				System.err.println("changed: " + e.data);
@@ -255,55 +255,55 @@ public class WidgetsView extends ViewPart {
 		editorGetSource.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				System.out.println(editor.getSource());
+				System.out.println(composer.getSource());
 			}
 		});
 		editorSetSource.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				editor.setSource("<p title='test'><b>Hallo</b><i>Welt!</i></p>");
+				composer.setSource("<p title='test'><b>Hallo</b><i>Welt!</i></p>");
 			}
 		});
 		editorShowSource.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				editor.showSource();
+				composer.showSource();
 			}
 		});
 		editorHideSource.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				editor.hideSource();
+				composer.hideSource();
 			}
 		});
 		editorSelectAll.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				editor.selectAll();
+				composer.selectAll();
 			}
 		});
 		editorEnable.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				editor.setEnabled(true);
+				composer.setEnabled(true);
 			}
 		});
 		editorDisable.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				editor.setEnabled(false);
+				composer.setEnabled(false);
 			}
 		});
 		editorLockSelection.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				editor.saveSelection();
+				composer.saveSelection();
 			}
 		});
 		editorUnlockSelection.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				editor.restoreSelection();
+				composer.restoreSelection();
 			}
 		});
 
