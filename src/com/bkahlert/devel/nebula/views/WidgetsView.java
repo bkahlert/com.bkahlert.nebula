@@ -29,6 +29,8 @@ import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
 import com.bkahlert.devel.nebula.widgets.browser.JavaScriptException;
 import com.bkahlert.devel.nebula.widgets.composer.Composer;
 import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
+import com.bkahlert.devel.nebula.widgets.editor.AutosaveEditor;
+import com.bkahlert.devel.nebula.widgets.editor.Editor;
 
 public class WidgetsView extends ViewPart {
 
@@ -169,39 +171,47 @@ public class WidgetsView extends ViewPart {
 		parent.setLayout(new FillLayout());
 		parent.setBackground(Display.getCurrent().getSystemColor(
 				SWT.COLOR_BLACK));
+
 		Label dot = new Label(parent, SWT.NONE);
 		dot.setImage(Images.getOverlayDot(new RGB(0.5f, 0.4f, 0.2f))
 				.createImage());
 
-		Label dot2 = new Label(parent, SWT.NONE);
-		dot2.setImage(Images.getOverlayDot(new RGB(0.5f, 0.4f, 0.2f))
-				.createImage());
+		Editor<String> editor = new AutosaveEditor<String>(parent, SWT.NONE,
+				500) {
+			@Override
+			public String getHtml(String objectToLoad, IProgressMonitor monitor) {
+				return objectToLoad;
+			}
 
-		Label dot3 = new Label(parent, SWT.NONE);
-		dot3.setImage(Images.getOverlayDot(new RGB(0.5f, 0.4f, 0.2f))
-				.createImage());
+			@Override
+			public void setHtml(String objectToLoad, String html,
+					IProgressMonitor monitor) {
+				System.out.println("saved: " + html);
+			}
+		};
+		editor.load("This is an auto-saving editor");
 
-		Composite editorControls = new RoundedComposite(parent, SWT.BORDER);
-		editorControls.setLayout(new RowLayout());
+		Composite composerControls = new RoundedComposite(parent, SWT.BORDER);
+		composerControls.setLayout(new RowLayout());
 
-		Button editorGetSource = new Button(editorControls, SWT.PUSH);
-		editorGetSource.setText("Get Source");
-		Button editorSetSource = new Button(editorControls, SWT.PUSH);
-		editorSetSource.setText("Set Source");
-		Button editorShowSource = new Button(editorControls, SWT.PUSH);
-		editorShowSource.setText("Show Source");
-		Button editorHideSource = new Button(editorControls, SWT.PUSH);
-		editorHideSource.setText("Hide Source");
-		Button editorSelectAll = new Button(editorControls, SWT.PUSH);
-		editorSelectAll.setText("Select All");
-		Button editorEnable = new Button(editorControls, SWT.PUSH);
-		editorEnable.setText("Enable");
-		Button editorDisable = new Button(editorControls, SWT.PUSH);
-		editorDisable.setText("Disable");
-		Button editorLockSelection = new Button(editorControls, SWT.PUSH);
-		editorLockSelection.setText("Save Selection");
-		Button editorUnlockSelection = new Button(editorControls, SWT.PUSH);
-		editorUnlockSelection.setText("Restore Selection");
+		Button composerGetSource = new Button(composerControls, SWT.PUSH);
+		composerGetSource.setText("Get Source");
+		Button composerSetSource = new Button(composerControls, SWT.PUSH);
+		composerSetSource.setText("Set Source");
+		Button composerShowSource = new Button(composerControls, SWT.PUSH);
+		composerShowSource.setText("Show Source");
+		Button composerHideSource = new Button(composerControls, SWT.PUSH);
+		composerHideSource.setText("Hide Source");
+		Button composerSelectAll = new Button(composerControls, SWT.PUSH);
+		composerSelectAll.setText("Select All");
+		Button composerEnable = new Button(composerControls, SWT.PUSH);
+		composerEnable.setText("Enable");
+		Button composerDisable = new Button(composerControls, SWT.PUSH);
+		composerDisable.setText("Disable");
+		Button composerLockSelection = new Button(composerControls, SWT.PUSH);
+		composerLockSelection.setText("Save Selection");
+		Button composerUnlockSelection = new Button(composerControls, SWT.PUSH);
+		composerUnlockSelection.setText("Restore Selection");
 
 		final Composer composer = new Composer(parent, SWT.BORDER, 2000);
 		composer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -252,55 +262,55 @@ public class WidgetsView extends ViewPart {
 			}
 		});
 
-		editorGetSource.addSelectionListener(new SelectionAdapter() {
+		composerGetSource.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				System.out.println(composer.getSource());
 			}
 		});
-		editorSetSource.addSelectionListener(new SelectionAdapter() {
+		composerSetSource.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				composer.setSource("<p title='test'><b>Hallo</b><i>Welt!</i></p>");
 			}
 		});
-		editorShowSource.addSelectionListener(new SelectionAdapter() {
+		composerShowSource.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				composer.showSource();
 			}
 		});
-		editorHideSource.addSelectionListener(new SelectionAdapter() {
+		composerHideSource.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				composer.hideSource();
 			}
 		});
-		editorSelectAll.addSelectionListener(new SelectionAdapter() {
+		composerSelectAll.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				composer.selectAll();
 			}
 		});
-		editorEnable.addSelectionListener(new SelectionAdapter() {
+		composerEnable.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				composer.setEnabled(true);
 			}
 		});
-		editorDisable.addSelectionListener(new SelectionAdapter() {
+		composerDisable.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				composer.setEnabled(false);
 			}
 		});
-		editorLockSelection.addSelectionListener(new SelectionAdapter() {
+		composerLockSelection.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				composer.saveSelection();
 			}
 		});
-		editorUnlockSelection.addSelectionListener(new SelectionAdapter() {
+		composerUnlockSelection.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				composer.restoreSelection();
