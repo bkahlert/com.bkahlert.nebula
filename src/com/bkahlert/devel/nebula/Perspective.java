@@ -1,15 +1,19 @@
 package com.bkahlert.devel.nebula;
 
+import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
-
-import com.bkahlert.devel.nebula.views.WidgetsView;
-
 
 public class Perspective implements IPerspectiveFactory {
 
 	public void createInitialLayout(IPageLayout layout) {
-		layout.addView(WidgetsView.ID, IPageLayout.TOP, IPageLayout.RATIO_MAX,
-				IPageLayout.ID_EDITOR_AREA);
+		{
+			IFolderLayout folderLayout = layout.createFolder("folder",
+					IPageLayout.TOP, 0.95f, IPageLayout.ID_EDITOR_AREA);
+			folderLayout
+					.addView("de.fu_berlin.imp.seqan.usability_analyzer.nebula.ui.views.WidgetsView");
+			folderLayout
+					.addView("de.fu_berlin.imp.seqan.usability_analyzer.nebula.ui.views.SampleEditorView");
+		}
 	}
 }

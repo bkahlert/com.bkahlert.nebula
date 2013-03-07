@@ -1,5 +1,7 @@
 package com.bkahlert.devel.nebula.widgets.editor;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
@@ -29,7 +31,7 @@ public abstract class Editor<T> extends Composite {
 
 	private T loadedObject = null;
 	private Job loadJob = null;
-	private Job saveJob = null;
+	private Map<T, Job> saveJobs = new HashMap<T, Job>();
 
 	Composer composer;
 
@@ -67,6 +69,7 @@ public abstract class Editor<T> extends Composite {
 	 * 
 	 * @ArbitraryThread may be called from whatever thread you like.
 	 * @param objectToLoad
+	 * @throws Exception
 	 */
 	public final void load(final T objectToLoad) {
 		if (loadJob != null)
@@ -136,30 +139,48 @@ public abstract class Editor<T> extends Composite {
 	 * 
 	 * @param html
 	 */
-	final void save(final String html) {
-		if (saveJob != null)
-			saveJob.cancel();
+	synchronized final void save(final String html) {
+		final T savedLoadedObject = loadedObject;
 
-		if (loadedObject != null) {
-			saveJob = new Job("Saving " + loadedObject) {
-				@Override
-				protected IStatus run(IProgressMonitor progressMonitor) {
-					if (progressMonitor.isCanceled())
-						return Status.CANCEL_STATUS;
-					SubMonitor monitor = SubMonitor.convert(progressMonitor, 2);
-					monitor.worked(1);
-					setHtml(loadedObject, html, monitor.newChild(1));
-					monitor.done();
-					return Status.OK_STATUS;
-				}
-			};
-			saveJob.schedule();
-		}
+		if (saveJobs.get(savedLoadedObject) != null)
+			saveJobs.get(savedLoadedObject).cancel();
+
+		// make the loaded object still accessible even if another one has been
+		// loaded already so the save job can finish
+
+		Job saveJob = new Job("Saving " + savedLoadedObject) {
+			@Override
+			protected IStatus run(IProgressMonitor progressMonitor) {
+				if (progressMonitor.isCanceled())
+					return Status.CANCEL_STATUS;
+				SubMonitor monitor = SubMonitor.convert(progressMonitor, 2);
+				monitor.worked(1);
+				setHtml(savedLoadedObject, html, monitor.newChild(1));
+				monitor.done();
+				return Status.OK_STATUS;
+			}
+		};
+		saveJob.schedule();
+		saveJobs.put(savedLoadedObject, saveJob);
 	}
 
+	/**
+	 * Returns the html for the given object.
+	 * 
+	 * @param objectToLoad
+	 * @param monitor
+	 * @return
+	 */
 	public abstract String getHtml(T objectToLoad, IProgressMonitor monitor);
 
-	public abstract void setHtml(T objectToLoad, String html,
+	/**
+	 * Sets the given html to the loaded object.
+	 * 
+	 * @param loadedObject
+	 * @param html
+	 * @param monitor
+	 */
+	public abstract void setHtml(T loadedObject, String html,
 			IProgressMonitor monitor);
 
 }

@@ -265,7 +265,8 @@ public class Composer extends BrowserComposite {
 	@Override
 	public String getStartUrl() {
 		try {
-			String editorUrlString = getFileUrl(Composer.class, "html/index.html");
+			String editorUrlString = getFileUrl(Composer.class,
+					"html/index.html");
 			return editorUrlString + "?internal=true";
 		} catch (IOException e) {
 			LOGGER.error("Could not open editor html", e);
@@ -346,7 +347,6 @@ public class Composer extends BrowserComposite {
 
 	@Override
 	public void setEnabled(boolean isEnabled) {
-		super.setEnabled(isEnabled);
 		String js = "com.bkahlert.devel.nebula.editor.setEnabled("
 				+ (isEnabled ? "true" : "false") + ");";
 		this.enqueueJs(js);

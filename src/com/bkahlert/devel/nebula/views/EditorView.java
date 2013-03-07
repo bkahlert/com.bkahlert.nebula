@@ -1,0 +1,198 @@
+package com.bkahlert.devel.nebula.views;
+
+import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.part.ViewPart;
+
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.widgets.composer.Composer;
+import com.bkahlert.devel.nebula.widgets.editor.AutosaveEditor;
+import com.bkahlert.devel.nebula.widgets.editor.Editor;
+
+/**
+ * Instances of this class create {@link ViewPart}s that wrap a {@link Editor}.
+ * 
+ * @author bkahlert
+ * 
+ */
+public abstract class EditorView<T> extends ViewPart {
+
+	@SuppressWarnings("unused")
+	private static final Logger LOGGER = Logger.getLogger(EditorView.class);
+
+	public static class PartInfo {
+		private String title;
+		private Image image;
+
+		public PartInfo(String title, Image image) {
+			super();
+			this.title = title;
+			this.image = image;
+		}
+
+		/**
+		 * @return the part's title
+		 */
+		public String getTitle() {
+			return title;
+		}
+
+		/**
+		 * @return the part's image
+		 */
+		public Image getImage() {
+			return image;
+		}
+	}
+
+	private long delayChangeEventUpTo;
+	private boolean autosave;
+	private Editor<T> editor;
+
+	/**
+	 * Creates a new instance using a classic {@link Editor} or a
+	 * {@link AutosaveEditor}.
+	 * 
+	 * @param delayChangeEventUpTo
+	 *            is the delay that must have been passed in order save the
+	 *            currently loaded object. If 0 no delay will be applied. The
+	 *            minimal delay however defined by the wrapped {@link Composer}.
+	 * @param autosave
+	 */
+	public EditorView(long delayChangeEventUpTo, boolean autosave) {
+		this.delayChangeEventUpTo = delayChangeEventUpTo;
+		this.autosave = autosave;
+	}
+
+	protected void refreshHeader() {
+		final PartInfo partInfo;
+		if (editor.getLoadedObject() != null) {
+			partInfo = getPartInfo(editor.getLoadedObject());
+		} else {
+			partInfo = getDefaultPartInfo();
+		}
+
+		ExecutorUtil.syncExec(new Runnable() {
+			@Override
+			public void run() {
+				setPartName(partInfo != null && partInfo.getTitle() != null ? partInfo
+						.getTitle() : "Editor");
+				setTitleImage(partInfo != null && partInfo.getImage() != null ? partInfo
+						.getImage() : null);
+			}
+		});
+	}
+
+	/**
+	 * Returns the {@link PartInfo} to be used when no object is loaded.
+	 * 
+	 * @return
+	 */
+	public abstract PartInfo getDefaultPartInfo();
+
+	/**
+	 * Returns the {@link PartInfo} is the given object is loaded.
+	 * 
+	 * @param loadedObject
+	 * @return
+	 */
+	public abstract PartInfo getPartInfo(T loadedObject);
+
+	@Override
+	public final void createPartControl(Composite parent) {
+		parent.setLayout(new FillLayout());
+
+		if (this.autosave) {
+			this.editor = new AutosaveEditor<T>(parent, SWT.NONE,
+					this.delayChangeEventUpTo) {
+				@Override
+				public String getHtml(T loadedObject, IProgressMonitor monitor) {
+					return EditorView.this.getHtml(loadedObject, monitor);
+				}
+
+				@Override
+				public void setHtml(T loadedObject, String html,
+						IProgressMonitor monitor) {
+					EditorView.this.setHtml(loadedObject, html, monitor);
+				}
+			};
+		} else {
+			this.editor = new Editor<T>(parent, SWT.NONE,
+					this.delayChangeEventUpTo) {
+				@Override
+				public String getHtml(T loadedObject, IProgressMonitor monitor) {
+					return EditorView.this.getHtml(loadedObject, monitor);
+				}
+
+				@Override
+				public void setHtml(T loadedObject, String html,
+						IProgressMonitor monitor) {
+					EditorView.this.setHtml(loadedObject, html, monitor);
+				}
+			};
+		}
+
+		MenuManager menuManager = new MenuManager("#PopupMenu");
+		menuManager.setRemoveAllWhenShown(true);
+		menuManager.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(IMenuManager manager) {
+				manager.add(new Separator(
+						IWorkbenchActionConstants.MB_ADDITIONS));
+			}
+		});
+
+		postInit();
+	}
+
+	/**
+	 * This method is called after this {@link EditorView} has been initialized.
+	 */
+	public void postInit() {
+		return;
+	}
+
+	public final void load(T objectToLoad) {
+		if (!this.editor.isDisposed())
+			this.editor.load(objectToLoad);
+	}
+
+	public final void save() throws Exception {
+		if (!this.editor.isDisposed())
+			this.editor.save();
+	}
+
+	/**
+	 * Returns the html for the given object.
+	 * 
+	 * @param objectToLoad
+	 * @param monitor
+	 * @return
+	 */
+	public abstract String getHtml(T objectToLoad, IProgressMonitor monitor);
+
+	/**
+	 * Sets the given html to the loaded object.
+	 * 
+	 * @param loadedObject
+	 * @param html
+	 * @param monitor
+	 */
+	public abstract void setHtml(T loadedObject, String html,
+			IProgressMonitor monitor);
+
+	@Override
+	public void setFocus() {
+		if (this.editor != null && !this.editor.isDisposed())
+			this.editor.setFocus();
+	}
+
+}

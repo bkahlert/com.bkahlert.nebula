@@ -9,7 +9,10 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
      */
     $.extend(com.bkahlert.devel.nebula.editor, {
 
+        initEnabled : true,
+
         onready : function(e) {
+            com.bkahlert.devel.nebula.editor.setEnabled(com.bkahlert.devel.nebula.editor.initEnabled);
             e.editor.execCommand('maximize');
             e.editor.on('change', function(e) {
                 com.bkahlert.devel.nebula.editor.onchange();
@@ -46,7 +49,7 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
 
         /**
          * Sets the editor's mode to the specified one.
-         * 
+         *
          * @param {Object} mode if of type boolean, true activates the wysiwyg mode whereas false activates the source mode.
          */
         setMode : function(mode) {
@@ -108,7 +111,10 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
 
         setEnabled : function(isEnabled) {
             var editor = CKEDITOR.instances.editor1;
-            editor.setReadOnly(!isEnabled);
+            com.bkahlert.devel.nebula.editor.initEnabled = isEnabled;
+            if (editor) {
+                editor.setReadOnly(!isEnabled);
+            }
         },
 
         getPrevCaretCharacter : function() {
@@ -148,6 +154,7 @@ $(document).ready(function() {
             }
         }
     });
+
 });
 
 function testFunction() {
