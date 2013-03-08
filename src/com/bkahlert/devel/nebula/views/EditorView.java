@@ -176,12 +176,16 @@ public abstract class EditorView<T> extends ViewPart {
 	public final void load(T objectToLoad) {
 		if (!this.editor.isDisposed()) {
 			Job loadJob = this.editor.load(objectToLoad);
-			loadJob.addJobChangeListener(new JobChangeAdapter() {
-				@Override
-				public void done(IJobChangeEvent event) {
-					EditorView.this.refreshHeader();
-				}
-			});
+			if (loadJob != null) {
+				loadJob.addJobChangeListener(new JobChangeAdapter() {
+					@Override
+					public void done(IJobChangeEvent event) {
+						EditorView.this.refreshHeader();
+					}
+				});
+			} else {
+				EditorView.this.refreshHeader();
+			}
 		}
 	}
 
