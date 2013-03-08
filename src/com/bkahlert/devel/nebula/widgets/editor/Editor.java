@@ -15,7 +15,9 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.composer.Composer;
+import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 
 /**
  * Instances of this class wrap a {@link Composer} and at load and save
@@ -53,13 +55,45 @@ public abstract class Editor<T> extends Composite {
 		this.composer.setEnabled(false);
 	}
 
+	/**
+	 * @param ankerListener
+	 * @see com.bkahlert.devel.nebula.widgets.browser.BrowserComposite#addAnkerListener(com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener)
+	 */
+	public void addAnkerListener(IAnkerListener ankerListener) {
+		this.composer.addAnkerListener(ankerListener);
+	}
+
+	/**
+	 * @param ankerLabelProvider
+	 * @see com.bkahlert.devel.nebula.widgets.composer.Composer#addAnkerLabelProvider(com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider)
+	 */
+	public void addAnkerLabelProvider(IAnkerLabelProvider ankerLabelProvider) {
+		this.composer.addAnkerLabelProvider(ankerLabelProvider);
+	}
+
+	/**
+	 * 
+	 * @see com.bkahlert.devel.nebula.widgets.composer.Composer#showSource()
+	 */
+	public void showSource() {
+		this.composer.showSource();
+	}
+
+	/**
+	 * 
+	 * @see com.bkahlert.devel.nebula.widgets.composer.Composer#hideSource()
+	 */
+	public void hideSource() {
+		this.composer.hideSource();
+	}
+
 	@Override
 	public boolean setFocus() {
 		return this.composer.setFocus();
 	}
 
 	public T getLoadedObject() {
-		return loadedObject;
+		return this.loadedObject;
 	}
 
 	/**
@@ -75,52 +109,54 @@ public abstract class Editor<T> extends Composite {
 	 *         loaded.
 	 * @throws Exception
 	 */
-	public Job load(final T objectToLoad) {
-		if (loadedObject == objectToLoad)
+	public final Job load(final T objectToLoad) {
+		if (this.loadedObject == objectToLoad) {
 			return null;
+		}
 
-		if (loadJob != null)
-			loadJob.cancel();
+		if (this.loadJob != null) {
+			this.loadJob.cancel();
+		}
 
 		if (objectToLoad == null) {
 			// refreshHeader();
-			loadedObject = null;
+			this.loadedObject = null;
 			ExecutorUtil.syncExec(new Runnable() {
 				@Override
 				public void run() {
-					composer.setSource("");
-					composer.setEnabled(false);
+					Editor.this.composer.setSource("");
+					Editor.this.composer.setEnabled(false);
 				}
 			});
 			return null;
 		} else {
-			loadJob = new Job("Loading " + objectToLoad) {
+			this.loadJob = new Job("Loading " + objectToLoad) {
 				@Override
 				protected IStatus run(IProgressMonitor progressMonitor) {
 					if (progressMonitor.isCanceled()) {
-						loadedObject = null;
+						Editor.this.loadedObject = null;
 						return Status.CANCEL_STATUS;
 					}
 					SubMonitor monitor = SubMonitor.convert(progressMonitor, 3);
-					final String html = getHtml(objectToLoad,
+					final String html = Editor.this.getHtml(objectToLoad,
 							monitor.newChild(1));
 					// refreshHeader();
 					monitor.worked(1);
 					ExecutorUtil.syncExec(new Runnable() {
 						@Override
 						public void run() {
-							composer.setSource(html);
-							composer.setEnabled(true);
+							Editor.this.composer.setSource(html);
+							Editor.this.composer.setEnabled(true);
 						}
 					});
 					monitor.worked(1);
 					monitor.done();
-					loadedObject = objectToLoad;
+					Editor.this.loadedObject = objectToLoad;
 					return Status.OK_STATUS;
 				}
 			};
-			loadJob.schedule();
-			return loadJob;
+			this.loadJob.schedule();
+			return this.loadJob;
 		}
 	}
 
@@ -132,11 +168,11 @@ public abstract class Editor<T> extends Composite {
 	 * @return the {@link Job} used to save the object.
 	 * @throws Exception
 	 */
-	public Job save() throws Exception {
+	public final Job save() throws Exception {
 		String html = ExecutorUtil.syncExec(new Callable<String>() {
 			@Override
 			public String call() {
-				return composer.getSource();
+				return Editor.this.composer.getSource();
 			}
 		});
 		return this.save(html);
@@ -155,10 +191,11 @@ public abstract class Editor<T> extends Composite {
 	 * @return the {@link Job} used to save the object.
 	 */
 	synchronized Job save(final String html) {
-		final T savedLoadedObject = loadedObject;
+		final T savedLoadedObject = this.loadedObject;
 
-		if (saveJobs.get(savedLoadedObject) != null)
-			saveJobs.get(savedLoadedObject).cancel();
+		if (this.saveJobs.get(savedLoadedObject) != null) {
+			this.saveJobs.get(savedLoadedObject).cancel();
+		}
 
 		// make the loaded object still accessible even if another one has been
 		// loaded already so the save job can finish
@@ -166,17 +203,19 @@ public abstract class Editor<T> extends Composite {
 		Job saveJob = new Job("Saving " + savedLoadedObject) {
 			@Override
 			protected IStatus run(IProgressMonitor progressMonitor) {
-				if (progressMonitor.isCanceled())
+				if (progressMonitor.isCanceled()) {
 					return Status.CANCEL_STATUS;
+				}
 				SubMonitor monitor = SubMonitor.convert(progressMonitor, 2);
 				monitor.worked(1);
-				setHtml(savedLoadedObject, html, monitor.newChild(1));
+				Editor.this.setHtml(savedLoadedObject, html,
+						monitor.newChild(1));
 				monitor.done();
 				return Status.OK_STATUS;
 			}
 		};
 		saveJob.schedule();
-		saveJobs.put(savedLoadedObject, saveJob);
+		this.saveJobs.put(savedLoadedObject, saveJob);
 		return saveJob;
 	}
 

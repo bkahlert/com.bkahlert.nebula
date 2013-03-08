@@ -17,7 +17,9 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.composer.Composer;
+import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 import com.bkahlert.devel.nebula.widgets.editor.AutosaveEditor;
 import com.bkahlert.devel.nebula.widgets.editor.Editor;
 
@@ -46,14 +48,14 @@ public abstract class EditorView<T> extends ViewPart {
 		 * @return the part's title
 		 */
 		public String getTitle() {
-			return title;
+			return this.title;
 		}
 
 		/**
 		 * @return the part's image
 		 */
 		public Image getImage() {
-			return image;
+			return this.image;
 		}
 	}
 
@@ -78,19 +80,21 @@ public abstract class EditorView<T> extends ViewPart {
 
 	protected void refreshHeader() {
 		final PartInfo partInfo;
-		if (editor.getLoadedObject() != null) {
-			partInfo = getPartInfo(editor.getLoadedObject());
+		if (this.editor.getLoadedObject() != null) {
+			partInfo = this.getPartInfo(this.editor.getLoadedObject());
 		} else {
-			partInfo = getDefaultPartInfo();
+			partInfo = this.getDefaultPartInfo();
 		}
 
 		ExecutorUtil.syncExec(new Runnable() {
 			@Override
 			public void run() {
-				setPartName(partInfo != null && partInfo.getTitle() != null ? partInfo
-						.getTitle() : "Editor");
-				setTitleImage(partInfo != null && partInfo.getImage() != null ? partInfo
-						.getImage() : null);
+				EditorView.this.setPartName(partInfo != null
+						&& partInfo.getTitle() != null ? partInfo.getTitle()
+						: "Editor");
+				EditorView.this.setTitleImage(partInfo != null
+						&& partInfo.getImage() != null ? partInfo.getImage()
+						: null);
 			}
 		});
 	}
@@ -147,13 +151,14 @@ public abstract class EditorView<T> extends ViewPart {
 		MenuManager menuManager = new MenuManager("#PopupMenu");
 		menuManager.setRemoveAllWhenShown(true);
 		menuManager.addMenuListener(new IMenuListener() {
+			@Override
 			public void menuAboutToShow(IMenuManager manager) {
 				manager.add(new Separator(
 						IWorkbenchActionConstants.MB_ADDITIONS));
 			}
 		});
 
-		postInit();
+		this.postInit();
 	}
 
 	/**
@@ -163,21 +168,39 @@ public abstract class EditorView<T> extends ViewPart {
 		return;
 	}
 
+	/**
+	 * 
+	 * @param objectToLoad
+	 * @see Editor#load(Object)
+	 */
 	public final void load(T objectToLoad) {
 		if (!this.editor.isDisposed()) {
 			Job loadJob = this.editor.load(objectToLoad);
 			loadJob.addJobChangeListener(new JobChangeAdapter() {
 				@Override
 				public void done(IJobChangeEvent event) {
-					refreshHeader();
+					EditorView.this.refreshHeader();
 				}
 			});
 		}
 	}
 
+	/**
+	 * @throws Exception
+	 * @see {@link Editor#save()}
+	 */
 	public final void save() throws Exception {
-		if (!this.editor.isDisposed())
+		if (!this.editor.isDisposed()) {
 			this.editor.save();
+		}
+	}
+
+	/**
+	 * @return
+	 * @see {@link Editor#getLoadedObject()}
+	 */
+	public T getLoadedObject() {
+		return this.editor.getLoadedObject();
 	}
 
 	/**
@@ -199,10 +222,43 @@ public abstract class EditorView<T> extends ViewPart {
 	public abstract void setHtml(T loadedObject, String html,
 			IProgressMonitor monitor);
 
+	/**
+	 * @param ankerListener
+	 * @see com.bkahlert.devel.nebula.widgets.editor.Editor#addAnkerListener(com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener)
+	 */
+	public void addAnkerListener(IAnkerListener ankerListener) {
+		this.editor.addAnkerListener(ankerListener);
+	}
+
+	/**
+	 * @param ankerLabelProvider
+	 * @see com.bkahlert.devel.nebula.widgets.editor.Editor#addAnkerLabelProvider(com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider)
+	 */
+	public void addAnkerLabelProvider(IAnkerLabelProvider ankerLabelProvider) {
+		this.editor.addAnkerLabelProvider(ankerLabelProvider);
+	}
+
+	/**
+	 * 
+	 * @see com.bkahlert.devel.nebula.widgets.editor.Editor#showSource()
+	 */
+	public void showSource() {
+		this.editor.showSource();
+	}
+
+	/**
+	 * 
+	 * @see com.bkahlert.devel.nebula.widgets.editor.Editor#hideSource()
+	 */
+	public void hideSource() {
+		this.editor.hideSource();
+	}
+
 	@Override
 	public void setFocus() {
-		if (this.editor != null && !this.editor.isDisposed())
+		if (this.editor != null && !this.editor.isDisposed()) {
 			this.editor.setFocus();
+		}
 	}
 
 }

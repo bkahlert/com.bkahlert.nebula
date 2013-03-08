@@ -13,9 +13,9 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.devel.nebula.widgets.RoundedComposite;
 import com.bkahlert.devel.nebula.widgets.browser.IAnker;
-import com.bkahlert.devel.nebula.widgets.browser.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
 import com.bkahlert.devel.nebula.widgets.browser.JavaScriptException;
+import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.composer.Composer;
 import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 
@@ -83,13 +83,9 @@ public class ComposerDemo extends Composite {
 		});
 		composer.addAnkerListener(new IAnkerListener() {
 			@Override
-			public void ankerClicked(IAnker anker) {
-				System.err.println("clicked on " + anker.getHref());
-			}
-
-			@Override
-			public void ankerClickedSpecial(IAnker anker) {
-				System.err.println("special clicked on " + anker.getHref());
+			public void ankerClicked(IAnker anker, boolean special) {
+				System.err.println((special ? "special " : "") + "clicked on "
+						+ anker.getHref());
 			}
 		});
 		composer.addModifyListener(new ModifyListener() {

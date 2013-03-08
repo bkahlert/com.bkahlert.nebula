@@ -21,6 +21,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
+
 public abstract class BrowserComposite extends Composite implements
 		IBrowserComposite {
 
@@ -47,16 +49,16 @@ public abstract class BrowserComposite extends Composite implements
 		this.setLayout(new FillLayout());
 		this.browser = new Browser(this, SWT.NONE);
 
-		activateExceptionHandling();
+		this.activateExceptionHandling();
 
-		this.getBrowser().setUrl(getStartUrl());
+		this.getBrowser().setUrl(this.getStartUrl());
 
 		this.browser.addProgressListener(new ProgressAdapter() {
 			@Override
 			public void completed(ProgressEvent event) {
-				loadingCompleted = true;
-				for (Iterator<String> iterator = enqueuedJs.iterator(); iterator
-						.hasNext();) {
+				BrowserComposite.this.loadingCompleted = true;
+				for (Iterator<String> iterator = BrowserComposite.this.enqueuedJs
+						.iterator(); iterator.hasNext();) {
 					String js = iterator.next();
 					iterator.remove();
 					if (!BrowserComposite.this.browser.execute(js)) {
@@ -70,10 +72,12 @@ public abstract class BrowserComposite extends Composite implements
 		Listener metaKeyListener = new Listener() {
 			@Override
 			public void handleEvent(Event e) {
-				if (e.type == SWT.FocusOut && e.widget != browser)
+				if (e.type == SWT.FocusOut
+						&& e.widget != BrowserComposite.this.browser) {
 					return;
+				}
 
-				metaKeyPressed = e.type == SWT.KeyDown
+				BrowserComposite.this.metaKeyPressed = e.type == SWT.KeyDown
 						&& ((e.stateMask & SWT.CTRL) != 0
 								|| (e.stateMask & SWT.COMMAND) != 0
 								|| (e.keyCode & SWT.CTRL) != 0 || (e.keyCode & SWT.COMMAND) != 0);
@@ -84,16 +88,12 @@ public abstract class BrowserComposite extends Composite implements
 		Display.getCurrent().addFilter(SWT.FocusOut, metaKeyListener);
 
 		this.browser.addLocationListener(new LocationAdapter() {
+			@Override
 			public void changing(LocationEvent event) {
 				IAnker anker = new Anker(event.location, null, null);
-				if (metaKeyPressed) {
-					for (IAnkerListener ankerListener : ankerListeners) {
-						ankerListener.ankerClickedSpecial(anker);
-					}
-				} else {
-					for (IAnkerListener ankerListener : ankerListeners) {
-						ankerListener.ankerClicked(anker);
-					}
+				for (IAnkerListener ankerListener : BrowserComposite.this.ankerListeners) {
+					ankerListener.ankerClicked(anker,
+							BrowserComposite.this.metaKeyPressed);
 				}
 				event.doit = false;
 			}
@@ -114,14 +114,15 @@ public abstract class BrowserComposite extends Composite implements
 
 				JavaScriptException javaScriptException = new JavaScriptException(
 						filename, lineNumber, detail);
-				return fire(javaScriptException);
+				return this.fire(javaScriptException);
 			}
 
 			private boolean fire(JavaScriptException e) {
 				boolean preventDefault = false;
-				for (IJavaScriptExceptionListener javaScriptExceptionListener : javaScriptExceptionListeners) {
-					if (javaScriptExceptionListener.thrown(e))
+				for (IJavaScriptExceptionListener javaScriptExceptionListener : BrowserComposite.this.javaScriptExceptionListeners) {
+					if (javaScriptExceptionListener.thrown(e)) {
 						preventDefault = true;
+					}
 				}
 				return preventDefault;
 			}
@@ -138,6 +139,7 @@ public abstract class BrowserComposite extends Composite implements
 	 */
 	public void deactivateNativeMenu() {
 		this.getBrowser().addListener(SWT.MenuDetect, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				event.doit = false;
 			}
@@ -152,13 +154,14 @@ public abstract class BrowserComposite extends Composite implements
 	}
 
 	public boolean isLoadingCompleted() {
-		return loadingCompleted;
+		return this.loadingCompleted;
 	}
 
 	@Override
 	public boolean runJs(String js) {
-		if (this.isDisposed())
+		if (this.isDisposed()) {
 			return false;
+		}
 		boolean success = this.getBrowser().execute(js);
 		if (!success) {
 			LOGGER.error("Error occured while running JavaScript in browser: "
@@ -169,10 +172,10 @@ public abstract class BrowserComposite extends Composite implements
 
 	@Override
 	public void enqueueJs(String js) {
-		if (loadingCompleted) {
-			runJs(js);
+		if (this.loadingCompleted) {
+			this.runJs(js);
 		} else {
-			enqueuedJs.add(js);
+			this.enqueuedJs.add(js);
 		}
 	}
 
@@ -182,7 +185,7 @@ public abstract class BrowserComposite extends Composite implements
 				+ path
 				+ "\")}else{$(\"head\").append($(\"<link rel=\\\"stylesheet\\\" href=\\\""
 				+ path + "\\\" type=\\\"text/css\\\" />\"))}";
-		enqueueJs(js);
+		this.enqueueJs(js);
 	}
 
 	public void addJavaScriptExceptionListener(
