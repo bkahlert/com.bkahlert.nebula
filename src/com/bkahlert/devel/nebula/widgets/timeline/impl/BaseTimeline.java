@@ -1,6 +1,5 @@
 package com.bkahlert.devel.nebula.widgets.timeline.impl;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,57 +30,56 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 
 	protected static List<ITimelineEvent> getSortedEvents(ITimelineInput input) {
-		if (input == null)
+		if (input == null) {
 			return null;
+		}
 		List<ITimelineEvent> events = new LinkedList<ITimelineEvent>();
-		for (ITimelineBand band : input.getBands())
-			for (ITimelineEvent event : band.getEvents())
+		for (ITimelineBand band : input.getBands()) {
+			for (ITimelineEvent event : band.getEvents()) {
 				events.add(event);
+			}
+		}
 		Collections.sort(events, new Comparator<ITimelineEvent>() {
 			@Override
 			public int compare(ITimelineEvent o1, ITimelineEvent o2) {
-				if (o1 == null)
+				if (o1 == null) {
 					return -1;
+				}
 				Calendar t1 = o1.getStart();
-				if (t1 == null)
+				if (t1 == null) {
 					t1 = o1.getEnd();
+				}
 
 				Calendar t2 = o2.getStart();
-				if (t2 == null)
+				if (t2 == null) {
 					t2 = o2.getEnd();
+				}
 
-				if (t1 == null && t2 == null)
+				if (t1 == null && t2 == null) {
 					return 0;
-				if (t1 != null && t2 == null)
+				}
+				if (t1 != null && t2 == null) {
 					return +1;
-				if (t1 == null && t2 != null)
+				}
+				if (t1 == null && t2 != null) {
 					return -1;
+				}
 				return t1.compareTo(t2);
 			}
 		});
 		return events;
 	}
 
+	@SuppressWarnings("unused")
 	private static Logger LOGGER = Logger.getLogger(BaseTimeline.class);
 
 	private IDecorator[] decorators = null;
 	private List<ITimelineEvent> sortedEvents = null;
 
 	public BaseTimeline(Composite parent, int style) {
-		super(parent, style);
+		super(parent, style, getFileUrl(BaseTimeline.class,
+				"../html/timeline.html") + "?internal=true");
 		this.deactivateNativeMenu();
-	}
-
-	@Override
-	public String getStartUrl() {
-		try {
-			String timelineUrlString = getFileUrl(BaseTimeline.class,
-					"../html/timeline.html");
-			return timelineUrlString + "?internal=true";
-		} catch (IOException e) {
-			LOGGER.error("Could not open timeline html", e);
-		}
-		return null;
 	}
 
 	/**
@@ -140,7 +138,7 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 
 	@Override
 	public void setMinVisibleDate(Calendar calendar) {
-		if (!isDisposed()) {
+		if (!this.isDisposed()) {
 			this.getBrowser().execute(
 					"com.bkahlert.devel.nebula.timeline.setMinVisibleDate('"
 							+ calendar + "');");
@@ -149,7 +147,7 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 
 	@Override
 	public void setCenterVisibleDate(Calendar calendar) {
-		if (!isDisposed()) {
+		if (!this.isDisposed()) {
 			this.getBrowser().execute(
 					"com.bkahlert.devel.nebula.timeline.setCenterVisibleDate('"
 							+ CalendarUtils.toISO8601(calendar) + "');");
@@ -158,20 +156,21 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 
 	@Override
 	public Calendar getCenterVisibleDate() {
-		if (!isDisposed()) {
+		if (!this.isDisposed()) {
 			String centerVisibleDate = (String) this
 					.getBrowser()
 					.evaluate(
 							"return com.bkahlert.devel.nebula.timeline.getCenterVisibleDate();");
-			if (centerVisibleDate != null)
+			if (centerVisibleDate != null) {
 				return CalendarUtils.fromISO8601(centerVisibleDate);
+			}
 		}
 		return null;
 	}
 
 	@Override
 	public void setMaxVisibleDate(Calendar calendar) {
-		if (!isDisposed()) {
+		if (!this.isDisposed()) {
 			this.getBrowser().execute(
 					"com.bkahlert.devel.nebula.timeline.setMaxVisibleDate('"
 							+ calendar + "');");
@@ -183,8 +182,8 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 		ExecutorUtil.syncExec(new Runnable() {
 			@Override
 			public void run() {
-				if (!isDisposed()) {
-					getBrowser().execute(
+				if (!BaseTimeline.this.isDisposed()) {
+					BaseTimeline.this.getBrowser().execute(
 							"com.bkahlert.devel.nebula.timeline.setZoomIndex("
 									+ index + ");");
 				}
@@ -194,7 +193,7 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 
 	@Override
 	public Integer getZoomIndex() {
-		if (!isDisposed()) {
+		if (!this.isDisposed()) {
 			Double zoomIndex = (Double) this
 					.getBrowser()
 					.evaluate(
@@ -214,8 +213,8 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 		ExecutorUtil.syncExec(new Runnable() {
 			@Override
 			public void run() {
-				if (!isDisposed()) {
-					getBrowser().execute(
+				if (!BaseTimeline.this.isDisposed()) {
+					BaseTimeline.this.getBrowser().execute(
 							"com.bkahlert.devel.nebula.timeline.setDecorators("
 									+ TimelineJsonGenerator
 											.enquote(decoratorJSON) + ");");
@@ -239,25 +238,27 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 	}
 
 	private int getIndex(ITimelineEvent event) {
-		if (getSortedEvents() != null) {
-			int index = getSortedEvents().indexOf(event);
+		if (this.getSortedEvents() != null) {
+			int index = this.getSortedEvents().indexOf(event);
 			return index;
 		}
 		return -1;
 	}
 
+	@Override
 	public ITimelineEvent getSuccessor(ITimelineEvent event) {
-		int index = getIndex(event);
-		if (index >= 0 && index < getSortedEvents().size() - 1) {
-			return getSortedEvents().get(index + 1);
+		int index = this.getIndex(event);
+		if (index >= 0 && index < this.getSortedEvents().size() - 1) {
+			return this.getSortedEvents().get(index + 1);
 		}
 		return null;
 	}
 
+	@Override
 	public ITimelineEvent getPredecessor(ITimelineEvent event) {
-		int index = getIndex(event);
+		int index = this.getIndex(event);
 		if (index > 0) {
-			return getSortedEvents().get(index - 1);
+			return this.getSortedEvents().get(index - 1);
 		}
 		return null;
 	}

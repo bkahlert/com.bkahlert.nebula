@@ -19,6 +19,7 @@ import org.eclipse.ui.part.ViewPart;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.composer.Composer;
+import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 import com.bkahlert.devel.nebula.widgets.editor.AutosaveEditor;
 import com.bkahlert.devel.nebula.widgets.editor.Editor;
@@ -60,6 +61,7 @@ public abstract class EditorView<T> extends ViewPart {
 	}
 
 	private long delayChangeEventUpTo;
+	private ToolbarSet toolbarSet;
 	private boolean autosave;
 	private Editor<T> editor;
 
@@ -73,8 +75,10 @@ public abstract class EditorView<T> extends ViewPart {
 	 *            minimal delay however defined by the wrapped {@link Composer}.
 	 * @param autosave
 	 */
-	public EditorView(long delayChangeEventUpTo, boolean autosave) {
+	public EditorView(long delayChangeEventUpTo, ToolbarSet toolbarSet,
+			boolean autosave) {
 		this.delayChangeEventUpTo = delayChangeEventUpTo;
+		this.toolbarSet = toolbarSet;
 		this.autosave = autosave;
 	}
 
@@ -120,7 +124,7 @@ public abstract class EditorView<T> extends ViewPart {
 
 		if (this.autosave) {
 			this.editor = new AutosaveEditor<T>(parent, SWT.NONE,
-					this.delayChangeEventUpTo) {
+					this.delayChangeEventUpTo, this.toolbarSet) {
 				@Override
 				public String getHtml(T loadedObject, IProgressMonitor monitor) {
 					return EditorView.this.getHtml(loadedObject, monitor);
@@ -134,7 +138,7 @@ public abstract class EditorView<T> extends ViewPart {
 			};
 		} else {
 			this.editor = new Editor<T>(parent, SWT.NONE,
-					this.delayChangeEventUpTo) {
+					this.delayChangeEventUpTo, this.toolbarSet) {
 				@Override
 				public String getHtml(T loadedObject, IProgressMonitor monitor) {
 					return EditorView.this.getHtml(loadedObject, monitor);

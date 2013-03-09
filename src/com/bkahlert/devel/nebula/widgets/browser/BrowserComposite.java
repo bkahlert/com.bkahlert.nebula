@@ -1,6 +1,5 @@
 package com.bkahlert.devel.nebula.widgets.browser;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,13 +27,16 @@ public abstract class BrowserComposite extends Composite implements
 
 	private static Logger LOGGER = Logger.getLogger(BrowserComposite.class);
 
-	public static String getFileUrl(Class<?> clazz, String clazzRelativePath)
-			throws IOException {
-		URL timelineUrl = FileLocator.toFileURL(clazz
-				.getResource(clazzRelativePath));
-		String timelineUrlString = timelineUrl.toString().replace("file:",
-				"file://");
-		return timelineUrlString;
+	public static String getFileUrl(Class<?> clazz, String clazzRelativePath) {
+		try {
+			URL timelineUrl = FileLocator.toFileURL(clazz
+					.getResource(clazzRelativePath));
+			String timelineUrlString = timelineUrl.toString().replace("file:",
+					"file://");
+			return timelineUrlString;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private Browser browser;
@@ -44,14 +46,14 @@ public abstract class BrowserComposite extends Composite implements
 	private List<IJavaScriptExceptionListener> javaScriptExceptionListeners = new ArrayList<IJavaScriptExceptionListener>();
 	private List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
 
-	public BrowserComposite(Composite parent, int style) {
+	public BrowserComposite(Composite parent, int style, String url) {
 		super(parent, style);
 		this.setLayout(new FillLayout());
 		this.browser = new Browser(this, SWT.NONE);
 
 		this.activateExceptionHandling();
 
-		this.getBrowser().setUrl(this.getStartUrl());
+		this.getBrowser().setUrl(url);
 
 		this.browser.addProgressListener(new ProgressAdapter() {
 			@Override
@@ -145,8 +147,6 @@ public abstract class BrowserComposite extends Composite implements
 			}
 		});
 	}
-
-	public abstract String getStartUrl();
 
 	@Override
 	public Browser getBrowser() {

@@ -50,7 +50,7 @@ public class ComposerDemo extends Composite {
 		Button composerUnlockSelection = new Button(composerControls, SWT.PUSH);
 		composerUnlockSelection.setText("Restore Selection");
 
-		final Composer composer = new Composer(this, SWT.BORDER, 2000);
+		final Composer composer = new Composer(this, SWT.BORDER);
 		composer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		composer.setSource("Hello");
 		composer.addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {

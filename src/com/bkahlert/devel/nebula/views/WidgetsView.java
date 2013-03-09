@@ -21,6 +21,7 @@ import com.bkahlert.devel.nebula.widgets.demo.EditorDemo;
 public class WidgetsView extends ViewPart {
 
 	public static final String ID = "de.fu_berlin.imp.seqan.usability_analyzer.nebula.ui.views.WidgetsView";
+	@SuppressWarnings("unused")
 	private int redrawInterval = 0;
 
 	public WidgetsView() {

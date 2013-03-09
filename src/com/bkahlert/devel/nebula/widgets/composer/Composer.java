@@ -50,6 +50,10 @@ public class Composer extends BrowserComposite {
 	private static final Pattern URL_PATTERN = Pattern
 			.compile("(.*?)(\\w+://[!#$&-;=?-\\[\\]_a-zA-Z~%]+)(.*?)");
 
+	public static enum ToolbarSet {
+		DEFAULT, TERMINAL;
+	}
+
 	private List<IAnkerLabelProvider> ankerLabelProviders = new ArrayList<IAnkerLabelProvider>();
 	private List<ModifyListener> modifyListeners = new ArrayList<ModifyListener>();
 	private String oldHtml = "";
@@ -57,7 +61,7 @@ public class Composer extends BrowserComposite {
 	private TimerTask delayChangeTimerTask = null;
 
 	public Composer(Composite parent, int style) {
-		this(parent, style, 0);
+		this(parent, style, 0, ToolbarSet.DEFAULT);
 	}
 
 	/**
@@ -68,12 +72,16 @@ public class Composer extends BrowserComposite {
 	 *            is the delay that must have been passed in order to fire a
 	 *            change event. If 0 no delay will be applied. The minimal delay
 	 *            is defined by the CKEditor's config.js.
+	 * @throws IOException
 	 */
-	public Composer(Composite parent, int style, final long delayChangeEventUpTo) {
-		super(parent, style);
+	public Composer(Composite parent, int style,
+			final long delayChangeEventUpTo, ToolbarSet toolbarSet) {
+		super(parent, style, getFileUrl(Composer.class, "html/index.html")
+				+ "?internal=true&toolbarSet="
+				+ toolbarSet.toString().toLowerCase());
 		this.deactivateNativeMenu();
 
-		addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {
+		this.addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {
 			@Override
 			public boolean thrown(JavaScriptException e) {
 				LOGGER.error("Internal " + Composer.class.getSimpleName()
@@ -82,8 +90,8 @@ public class Composer extends BrowserComposite {
 			}
 		});
 
-		fixShortcuts(delayChangeEventUpTo);
-		listenForModifications(delayChangeEventUpTo);
+		this.fixShortcuts(delayChangeEventUpTo);
+		this.listenForModifications(delayChangeEventUpTo);
 	}
 
 	public void fixShortcuts(final long delayChangeEventUpTo) {
@@ -94,7 +102,7 @@ public class Composer extends BrowserComposite {
 						|| (e.stateMask & SWT.COMMAND) != 0) {
 					if (e.keyCode == 97) {
 						// a - select all
-						selectAll();
+						Composer.this.selectAll();
 					}
 
 					/*
@@ -105,8 +113,10 @@ public class Composer extends BrowserComposite {
 						// x - cut
 						// wait for the ui thread to apply the operation
 						ExecutorUtil.asyncExec(new Runnable() {
+							@Override
 							public void run() {
-								modifiedCallback(getSource(),
+								Composer.this.modifiedCallback(
+										Composer.this.getSource(),
 										delayChangeEventUpTo);
 							}
 						});
@@ -119,8 +129,10 @@ public class Composer extends BrowserComposite {
 						// v - paste
 						// wait for the ui thread to apply the operation
 						ExecutorUtil.asyncExec(new Runnable() {
+							@Override
 							public void run() {
-								modifiedCallback(getSource(),
+								Composer.this.modifiedCallback(
+										Composer.this.getSource(),
 										delayChangeEventUpTo);
 							}
 						});
@@ -132,13 +144,14 @@ public class Composer extends BrowserComposite {
 	}
 
 	public void listenForModifications(final long delayChangeEventUpTo) {
-		new BrowserFunction(getBrowser(), "modified") {
+		new BrowserFunction(this.getBrowser(), "modified") {
 			@Override
 			public Object function(Object[] arguments) {
 				if (arguments.length >= 1) {
 					if (arguments[0] instanceof String) {
 						String newHtml = (String) arguments[0];
-						modifiedCallback(newHtml, delayChangeEventUpTo);
+						Composer.this.modifiedCallback(newHtml,
+								delayChangeEventUpTo);
 					}
 				}
 				return null;
@@ -148,7 +161,7 @@ public class Composer extends BrowserComposite {
 		this.getBrowser().addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				modifiedCallback(getSource(), 0);
+				Composer.this.modifiedCallback(Composer.this.getSource(), 0);
 			}
 		});
 	}
@@ -156,18 +169,20 @@ public class Composer extends BrowserComposite {
 	protected void modifiedCallback(String html, long delayChangeEventTo) {
 		String newHtml = (html == null || html.replace("&nbsp;", " ").trim()
 				.isEmpty()) ? "" : html.trim();
-		if (oldHtml.equals(newHtml))
+		if (this.oldHtml.equals(newHtml)) {
 			return;
+		}
 
 		// When space entered but widget is not disposing, create links
 		if (delayChangeEventTo > 0) {
-			String prevCaretCharacter = getPrevCaretCharacter();
+			String prevCaretCharacter = this.getPrevCaretCharacter();
 			if (prevCaretCharacter != null
-					&& getPrevCaretCharacter().matches("[\\s| ]")) { // space is
-																		// non
-																		// breaking
-																		// space
-				String autoLinkedHtml = createLinks(newHtml);
+					&& this.getPrevCaretCharacter().matches("[\\s| ]")) { // space
+																			// is
+																			// non
+																			// breaking
+																			// space
+				String autoLinkedHtml = this.createLinks(newHtml);
 				if (!autoLinkedHtml.equals(newHtml)) {
 					this.setSource(autoLinkedHtml, true);
 					newHtml = autoLinkedHtml;
@@ -185,26 +200,28 @@ public class Composer extends BrowserComposite {
 				event.text = tmp;
 				event.data = tmp;
 				ModifyEvent modifyEvent = new ModifyEvent(event);
-				for (ModifyListener modifyListener : modifyListeners) {
+				for (ModifyListener modifyListener : Composer.this.modifyListeners) {
 					modifyListener.modifyText(modifyEvent);
 				}
 			}
 		};
 
-		oldHtml = tmp;
+		this.oldHtml = tmp;
 
-		if (delayChangeTimerTask != null)
-			delayChangeTimerTask.cancel();
+		if (this.delayChangeTimerTask != null) {
+			this.delayChangeTimerTask.cancel();
+		}
 		if (delayChangeEventTo > 0) {
-			delayChangeTimerTask = new TimerTask() {
+			this.delayChangeTimerTask = new TimerTask() {
 				@Override
 				public void run() {
 					fireRunnable.run();
 				}
 			};
-			delayChangeTimer.schedule(delayChangeTimerTask, delayChangeEventTo);
+			this.delayChangeTimer.schedule(this.delayChangeTimerTask,
+					delayChangeEventTo);
 		} else {
-			delayChangeTimerTask = null;
+			this.delayChangeTimerTask = null;
 			fireRunnable.run();
 		}
 	}
@@ -215,7 +232,7 @@ public class Composer extends BrowserComposite {
 		for (Element e : doc.getAllElements()) {
 			if (e.tagName().equals("a")) {
 				IAnker anker = new Anker(e);
-				IAnker newAnker = createAnkerFromLabelProviders(anker);
+				IAnker newAnker = this.createAnkerFromLabelProviders(anker);
 				if (newAnker == null
 						&& !anker.getHref().equals(anker.getContent())) {
 					newAnker = new Anker(anker.getContent(),
@@ -233,7 +250,7 @@ public class Composer extends BrowserComposite {
 					String uri = matcher.group(2);
 
 					IAnker anker = new Anker(uri, new String[0], uri);
-					IAnker newAnker = createAnkerFromLabelProviders(anker);
+					IAnker newAnker = this.createAnkerFromLabelProviders(anker);
 					if (newAnker == null) {
 						newAnker = anker;
 					}
@@ -250,7 +267,7 @@ public class Composer extends BrowserComposite {
 
 	public IAnker createAnkerFromLabelProviders(IAnker oldAnker) {
 		IAnker newAnker = null;
-		for (IAnkerLabelProvider ankerLabelProvider : ankerLabelProviders) {
+		for (IAnkerLabelProvider ankerLabelProvider : this.ankerLabelProviders) {
 			if (ankerLabelProvider.isResponsible(oldAnker)) {
 				newAnker = new Anker(ankerLabelProvider.getHref(oldAnker),
 						ankerLabelProvider.getClasses(oldAnker),
@@ -259,18 +276,6 @@ public class Composer extends BrowserComposite {
 			}
 		}
 		return newAnker;
-	}
-
-	@Override
-	public String getStartUrl() {
-		try {
-			String editorUrlString = getFileUrl(Composer.class,
-					"html/index.html");
-			return editorUrlString + "?internal=true";
-		} catch (IOException e) {
-			LOGGER.error("Could not open editor html", e);
-		}
-		return null;
 	}
 
 	/**
@@ -282,10 +287,11 @@ public class Composer extends BrowserComposite {
 	public Boolean isDirty() {
 		Boolean isDirty = (Boolean) this.getBrowser().evaluate(
 				"return com.bkahlert.devel.nebula.editor.isDirty();");
-		if (isDirty != null)
+		if (isDirty != null) {
 			return isDirty;
-		else
+		} else {
 			return null;
+		}
 	}
 
 	public void selectAll() {
@@ -294,17 +300,17 @@ public class Composer extends BrowserComposite {
 	}
 
 	public void setSource(String html) {
-		setSource(html, false);
+		this.setSource(html, false);
 	}
 
 	public void setSource(String html, boolean restoreSelection) {
 		/*
 		 * do not wait for the delay to pass but invoke the task immediately
 		 */
-		if (delayChangeTimerTask != null) {
-			delayChangeTimerTask.cancel();
-			delayChangeTimerTask.run();
-			delayChangeTimerTask = null;
+		if (this.delayChangeTimerTask != null) {
+			this.delayChangeTimerTask.cancel();
+			this.delayChangeTimerTask.run();
+			this.delayChangeTimerTask = null;
 		}
 		String js = "com.bkahlert.devel.nebula.editor.setSource("
 				+ TimelineJsonGenerator.enquote(html) + ", "
@@ -313,8 +319,9 @@ public class Composer extends BrowserComposite {
 	}
 
 	public String getSource() {
-		if (!this.isLoadingCompleted())
+		if (!this.isLoadingCompleted()) {
 			return null;
+		}
 		String html = (String) this.getBrowser().evaluate(
 				"return com.bkahlert.devel.nebula.editor.getSource();");
 		return html;
@@ -335,8 +342,9 @@ public class Composer extends BrowserComposite {
 	}
 
 	public String getPrevCaretCharacter() {
-		if (!this.isLoadingCompleted())
+		if (!this.isLoadingCompleted()) {
 			return null;
+		}
 		String html = (String) this
 				.getBrowser()
 				.evaluate(

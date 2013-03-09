@@ -1,7 +1,14 @@
-﻿/**
- * @license Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.html or http://ckeditor.com/license
- */
+﻿function getQueryVariable(variable) {
+    var query = window.location.search.substring(1);
+    var vars = query.split("&");
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split("=");
+        if (pair[0] == variable) {
+            return pair[1];
+        }
+    }
+    return (false);
+}
 
 CKEDITOR.editorConfig = function(config) {
 
@@ -23,34 +30,45 @@ CKEDITOR.editorConfig = function(config) {
 
     config.startupFocus = true;
 
-    config.toolbar = [{
-        name : 'justify',
-        items : ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']
-    }, {
-        name : 'styles',
-        items : ['Styles', 'Format', 'RemoveFormat', 'ShowBlocks', '-', 'Syntaxhighlight']
-    }, (!/[?&]internal=true/.test(location.href) ? {
-        name : 'document',
-        items : ['Source']
-    } : '/'), '/', {
-        name : 'editing',
-        items : ['Find']
-    }, {
-        name : 'paragraph',
-        items : ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote']
-    }, {
-        name : 'history',
-        items : ['Undo', 'Redo']
-    }, {
-        name : 'links',
-        items : ['Link', 'Anchor']
-    }, {
-        name : 'insert',
-        items : ['Table', 'HorizontalRule']
-    }, {
-        name : 'colors',
-        items : ['TextColor', 'BGColor']
-    }];
+    var toolbarSet = getQueryVariable("toolbarSet");
+    if (!toolbarSet)
+        toolbarSet = "default";
+
+    if (toolbarSet == "terminal") {
+        config.toolbar = [{
+            name : 'terminal',
+            items : ['HorizontalRule', 'Styles', 'RemoveFormat', 'ShowBlocks', '-', 'Syntaxhighlight']
+        }];
+    } else {
+        config.toolbar = [{
+            name : 'justify',
+            items : ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']
+        }, {
+            name : 'styles',
+            items : ['Styles', 'Format', 'RemoveFormat', 'ShowBlocks', '-', 'Syntaxhighlight']
+        }, (!/[?&]internal=true/.test(location.href) ? {
+            name : 'document',
+            items : ['Source']
+        } : '/'), '/', {
+            name : 'editing',
+            items : ['Find']
+        }, {
+            name : 'paragraph',
+            items : ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote']
+        }, {
+            name : 'history',
+            items : ['Undo', 'Redo']
+        }, {
+            name : 'links',
+            items : ['Link', 'Anchor']
+        }, {
+            name : 'insert',
+            items : ['Table', 'HorizontalRule']
+        }, {
+            name : 'colors',
+            items : ['TextColor', 'BGColor']
+        }];
+    }
 
     config.keystrokes = [[CKEDITOR.ALT + 121/*F10*/, 'toolbarFocus'], [CKEDITOR.ALT + 122/*F11*/, 'elementsPathFocus'], [CKEDITOR.SHIFT + 121/*F10*/, 'contextMenu'], [CKEDITOR.CTRL + 90/*Z*/, 'undo'], [CKEDITOR.CTRL + 89/*Y*/, 'redo'], [CKEDITOR.CTRL + CKEDITOR.SHIFT + 90/*Z*/, 'redo'], [CKEDITOR.CTRL + 76/*L*/, 'link'], [CKEDITOR.CTRL + 66/*B*/, 'bold'], [CKEDITOR.CTRL + 73/*I*/, 'italic'], [CKEDITOR.CTRL + 85/*U*/, 'underline'], [CKEDITOR.ALT + 109/*-*/, 'toolbarCollapse']];
     config.keystrokes.push([CKEDITOR.CTRL + 49/*1*/, 'h1']);

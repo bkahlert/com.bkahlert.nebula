@@ -3,11 +3,12 @@ package com.bkahlert.devel.nebula.views;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 
 public class SampleEditorView extends EditorView<String> {
 
 	public SampleEditorView() {
-		super(500, true);
+		super(500, ToolbarSet.DEFAULT, true);
 	}
 
 	@Override
@@ -17,7 +18,7 @@ public class SampleEditorView extends EditorView<String> {
 			@Override
 			public void run() {
 				try {
-					load(null);
+					SampleEditorView.this.load(null);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -28,7 +29,7 @@ public class SampleEditorView extends EditorView<String> {
 			@Override
 			public void run() {
 				try {
-					load("Second World!");
+					SampleEditorView.this.load("Second World!");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

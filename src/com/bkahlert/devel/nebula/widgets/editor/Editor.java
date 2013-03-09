@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.composer.Composer;
+import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 
 /**
@@ -45,13 +46,15 @@ public abstract class Editor<T> extends Composite {
 	 *            is the delay that must have been passed in order save the
 	 *            currently loaded object. If 0 no delay will be applied. The
 	 *            minimal delay however defined by the wrapped {@link Composer}.
+	 * @param toolbarSet
 	 */
-	public Editor(Composite parent, int style, final long delayChangeEventUpTo) {
+	public Editor(Composite parent, int style, final long delayChangeEventUpTo,
+			ToolbarSet toolbarSet) {
 		super(parent, style & ~SWT.BORDER);
 
 		this.setLayout(new FillLayout());
 		this.composer = new Composer(this, style & SWT.BORDER,
-				delayChangeEventUpTo);
+				delayChangeEventUpTo, toolbarSet);
 		this.composer.setEnabled(false);
 	}
 

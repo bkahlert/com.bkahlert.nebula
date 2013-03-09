@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.devel.nebula.widgets.RoundedComposite;
+import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.nebula.widgets.editor.AutosaveEditor;
 import com.bkahlert.devel.nebula.widgets.editor.Editor;
 
@@ -32,7 +33,7 @@ public class EditorDemo extends Composite {
 		composerSetSource2.setText("Set Source 2");
 
 		final Editor<String> editor = new AutosaveEditor<String>(this,
-				SWT.NONE, 500) {
+				SWT.NONE, 500, ToolbarSet.DEFAULT) {
 			@Override
 			public String getHtml(String objectToLoad, IProgressMonitor monitor) {
 				return objectToLoad;
