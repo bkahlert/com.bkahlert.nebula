@@ -139,6 +139,7 @@ html.ready .timeline-zoom a {
  */
 html .timeline-event-tape, html .timeline-small-event-tape, html .timeline-small-event-icon {
     overflow: visible;
+    background: #555555;
 }
 
 /*
@@ -365,16 +366,6 @@ html div.timeline-event-icon img {
 }
 
 /* events */
-.timeline-custom-band .timeline-event-label.CodeInstance + .timeline-event-tape,
-.timeline-custom-band .timeline-event-label.CodeInstance + .timeline-event-tape + .timeline-event-tape {
-    background-image: -webkit-gradient(linear, 0 0, 100% 0, color-stop(.5, rgba(255, 255, 255, .2)), color-stop(.5, transparent), to(transparent));
-    background-image: -webkit-linear-gradient(0deg, rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);
-    background-image: -moz-linear-gradient(0deg, rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);
-    background-image: -ms-linear-gradient(0deg, rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);
-    background-image: -o-linear-gradient(0deg, rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);
-    background-image: linear-gradient(0deg, rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);
-}
-
 .timeline-custom-band .timeline-event-label.undefined-start + .timeline-event-tape:before,
 .timeline-custom-band .timeline-event-label.undefined-end + .timeline-event-tape:after {
     display: block;
