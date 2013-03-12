@@ -92,6 +92,13 @@ public class HistoryTest {
 		assertEquals(2, history.size());
 		assertTrue(history.hasPrev());
 		assertFalse(history.hasNext());
+
+		history.clear();
+		assertEquals(0, history.size());
+		assertEquals(-1, history.pos());
+		assertNull(history.get());
+		assertFalse(history.hasPrev());
+		assertFalse(history.hasNext());
 	}
 
 	@Test(expected = NoPreviousElementException.class)

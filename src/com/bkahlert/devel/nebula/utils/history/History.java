@@ -124,4 +124,10 @@ public class History<T> implements IHistory<T> {
 		return this.get();
 	}
 
+	@Override
+	public void clear() {
+		this.elements.clear();
+		this.pos = -1;
+	}
+
 }

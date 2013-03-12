@@ -75,4 +75,9 @@ public interface IHistory<T> {
 	 */
 	public T forward() throws NoNextElementException;
 
+	/**
+	 * Empties this {@link IHistory}.
+	 */
+	public void clear();
+
 }
