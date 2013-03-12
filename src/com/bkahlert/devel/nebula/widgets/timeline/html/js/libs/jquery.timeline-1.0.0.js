@@ -387,7 +387,7 @@
                         if (evt._start && evt._end) {
                             var width = Math.round(band.dateToPixelOffset(evt._end) - band.dateToPixelOffset(evt._start));
                             if (width <= 1 && evt._start != evt._end)
-                                return true; // TODO false
+                                return false; // TODO false
                         }
                         return true;
                     });
