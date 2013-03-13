@@ -12,6 +12,7 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
         initEnabled : true,
 
         onready : function(e) {
+            $("html").addClass("ready");
             com.bkahlert.devel.nebula.editor.setEnabled(com.bkahlert.devel.nebula.editor.initEnabled);
             e.editor.execCommand('maximize');
             e.editor.on('change', function(e) {
@@ -22,8 +23,6 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
             });
 
             var internal = /[?&]internal=true/.test(location.href);
-
-            $("html").addClass("ready");
 
             if (!internal) {
                 window["modified"] = function(content) {
@@ -70,7 +69,8 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
         setSource : function(html, restoreSelection, callback) {
             $('textarea').val(html);
             var editor = CKEDITOR.instances.editor1;
-
+            if(!editor) return;
+            
             // Set editor contents (replace current contents).
             // http://docs.ckeditor.com/#!/api/CKEDITOR.editor-method-setData
             if (restoreSelection) {
@@ -88,7 +88,6 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
                 if ( typeof callback == "function")
                     callback();
             }
-
         },
 
         getSource : function() {
@@ -110,10 +109,11 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
         },
 
         setEnabled : function(isEnabled) {
-            var editor = CKEDITOR.instances.editor1;
-            com.bkahlert.devel.nebula.editor.initEnabled = isEnabled;
-            if (editor) {
+            if($("html").hasClass("ready")) {
+                var editor = CKEDITOR.instances.editor1;
                 editor.setReadOnly(!isEnabled);
+            } else {
+                com.bkahlert.devel.nebula.editor.initEnabled = isEnabled;
             }
         },
 

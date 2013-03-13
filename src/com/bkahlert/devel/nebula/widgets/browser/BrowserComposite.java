@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 
 public abstract class BrowserComposite extends Composite implements
@@ -58,14 +59,28 @@ public abstract class BrowserComposite extends Composite implements
 		this.browser.addProgressListener(new ProgressAdapter() {
 			@Override
 			public void completed(ProgressEvent event) {
-				BrowserComposite.this.loadingCompleted = true;
-				for (Iterator<String> iterator = BrowserComposite.this.enqueuedJs
-						.iterator(); iterator.hasNext();) {
-					String js = iterator.next();
-					iterator.remove();
-					if (!BrowserComposite.this.browser.execute(js)) {
-						LOGGER.error("Error occured while running JavaScript in browser: "
-								+ js);
+				// WORKAROUND: If multiple browsers are instantiated I can occur
+				// that some have no loaded, yet! Therefore we poll the page
+				// until it is really loaded.
+				String readyState = (String) BrowserComposite.this.browser
+						.evaluate("return document.readyState;");
+				if (!readyState.equals("complete")) {
+					ExecutorUtil.asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							completed(null);
+						}
+					}, 50);
+				} else {
+					BrowserComposite.this.loadingCompleted = true;
+					for (Iterator<String> iterator = BrowserComposite.this.enqueuedJs
+							.iterator(); iterator.hasNext();) {
+						String js = iterator.next();
+						iterator.remove();
+						if (!BrowserComposite.this.browser.execute(js)) {
+							LOGGER.error("Error occured while running JavaScript in browser: "
+									+ js);
+						}
 					}
 				}
 			}
