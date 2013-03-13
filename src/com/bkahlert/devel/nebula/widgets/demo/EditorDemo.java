@@ -52,7 +52,7 @@ public class EditorDemo extends Composite {
 			e1.printStackTrace();
 		}
 		editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		editor.load("Hello");
+		editor.load("Hello CKEditor - Editor!");
 
 		composerSetSource.addSelectionListener(new SelectionAdapter() {
 			@Override
