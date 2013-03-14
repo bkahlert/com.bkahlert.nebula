@@ -15,4 +15,15 @@ public interface IAnkerListener {
 	 *            (Command) key was pressed
 	 */
 	public void ankerClicked(IAnker anker, boolean special);
+
+	/**
+	 * This method is called if the user's mouse entered or left a
+	 * {@link IAnker}.
+	 * 
+	 * @param anker
+	 * @param entered
+	 *            is true if the mouse entered the {@link IAnker} and false if
+	 *            the mouse left it.
+	 */
+	public void ankerHovered(IAnker anker, boolean entered);
 }

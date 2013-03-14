@@ -139,7 +139,15 @@ html.ready .timeline-zoom a {
  */
 html .timeline-event-tape, html .timeline-small-event-tape, html .timeline-small-event-icon {
     overflow: visible;
-    background: #555555;
+    background: #999999;
+}
+
+html .timeline-event-tape, html .timeline-small-event-tape {
+       -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+    border-left: 3px solid #fff;
+    border-right: 3px solid #000;
 }
 
 /*
@@ -240,17 +248,36 @@ html .timeline-ether-weekends {
 }
 
 /*
+ * Timeline Event Labels
+ */
+.timeline-event-label {
+    margin-top: -2px;
+}
+
+/*
  * Hover
  * The timeline provided a method that must be called after timeline creation
  * in order to make this rules to work.
  */
 .timeline-event-label.hover {
-    border-bottom: 2px solid #D8FF26;
-    margin-bottom: -2px;
+    background-color: #D8FF26;
+    border-radius: 3px;
 }
 
 .timeline-event-tape.hover {
-    outline: 2px solid #D8FF26 !important;
+       -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+            box-sizing: content-box;
+    border: 2px solid #D8FF26 !important;
+    border-radius: 3px;
+    margin-top: -2px;
+    margin-left: -2px;
+}
+
+.timeline-event-label.hover,
+.timeline-event-tape.hover,
+.timeline-event-icon.hover {
+    z-index: 99999;
 }
 
 /*
@@ -259,13 +286,19 @@ html .timeline-ether-weekends {
  * in order to make this rules to work.
  */
 .timeline-event-label.focus {
-    border-bottom: 2px solid #4B83B3;
-    margin-bottom: -2px;
+    background-color: #4B83B3;
+    border-radius: 3px;
 }
 
 .timeline-event-label.focus + div, /* dirty, aber gerade das leichteste; eigentlich müsste focus auf dem tape auch beim viewer.refresh hinzugefügt werden */
 .timeline-event-tape.focus {
-    outline: 2px solid #4B83B3 !important;
+       -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+            box-sizing: content-box;
+    border: 2px solid #4B83B3 !important;
+    border-radius: 3px;
+    margin-top: -2px;
+    margin-left: -2px;
 }
 
 /*

@@ -37,4 +37,14 @@ public class AnkerAdaptingListener implements IAnkerListener {
 		}
 	}
 
+	@Override
+	public void ankerHovered(IAnker anker, boolean entered) {
+		try {
+			this.uriListener.uriHovered(new URI(anker.getHref()), entered);
+		} catch (URISyntaxException e) {
+			LOGGER.error("Error converting " + anker.getHref() + " to a "
+					+ URI.class.getSimpleName(), e);
+		}
+	}
+
 }

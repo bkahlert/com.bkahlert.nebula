@@ -19,6 +19,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
@@ -53,6 +57,28 @@ public abstract class BrowserComposite extends Composite implements
 		this.browser = new Browser(this, SWT.NONE);
 
 		this.activateExceptionHandling();
+
+		this.enqueueJs("$(\"body\").on({mouseenter:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseenter\"]&&typeof window[\"mouseenter\"]){window[\"mouseenter\"](e)}},mouseleave:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](e)}}},\"a\")");
+		new BrowserFunction(this.browser, "mouseenter") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length == 1 && arguments[0] instanceof String) {
+					BrowserComposite.this.fireAnkerHover((String) arguments[0],
+							true);
+				}
+				return null;
+			}
+		};
+		new BrowserFunction(this.browser, "mouseleave") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length == 1 && arguments[0] instanceof String) {
+					BrowserComposite.this.fireAnkerHover((String) arguments[0],
+							false);
+				}
+				return null;
+			}
+		};
 
 		this.getBrowser().setUrl(url);
 
@@ -115,6 +141,31 @@ public abstract class BrowserComposite extends Composite implements
 				event.doit = false;
 			}
 		});
+	}
+
+	/**
+	 * 
+	 * @param string
+	 * @param mouseEnter
+	 *            true if mouseenter; false otherwise
+	 */
+	protected void fireAnkerHover(String html, boolean mouseEnter) {
+		Document document = Jsoup.parse(html);
+		Elements elements = document.getElementsByTag("a");
+		for (Element element : elements) {
+			String href = element.attr("href");
+			if (href == null) {
+				href = element.attr("data-cke-saved-href");
+			}
+			String[] classes = element.attr("class") != null ? element.attr(
+					"class").split("\\s+") : new String[0];
+			String content = element.text();
+
+			IAnker anker = new Anker(href, classes, content);
+			for (IAnkerListener ankerListener : BrowserComposite.this.ankerListeners) {
+				ankerListener.ankerHovered(anker, mouseEnter);
+			}
+		}
 	}
 
 	/**

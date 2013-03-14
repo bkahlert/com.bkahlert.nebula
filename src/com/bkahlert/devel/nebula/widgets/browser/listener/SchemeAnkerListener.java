@@ -34,6 +34,11 @@ public class SchemeAnkerListener implements IAnkerListener {
 			public void ankerClicked(IAnker anker, boolean special) {
 				return;
 			}
+
+			@Override
+			public void ankerHovered(IAnker anker, boolean entered) {
+				return;
+			}
 		};
 	}
 
@@ -72,6 +77,46 @@ public class SchemeAnkerListener implements IAnkerListener {
 						if (!handled) {
 							SchemeAnkerListener.this.defaultListener
 									.ankerClicked(anker, special);
+						}
+					}
+				} catch (URISyntaxException e) {
+					LOGGER.error("Invalid URI in "
+							+ SchemeAnkerListener.class.getSimpleName() + ": "
+							+ anker);
+				}
+			}
+		});
+	}
+
+	@Override
+	public void ankerHovered(final IAnker anker, final boolean entered) {
+		ExecutorUtil.nonUIAsyncExec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					final URI uri = new URI(anker.getHref());
+					if (uri.getScheme() == null) {
+						if (SchemeAnkerListener.this.listeners
+								.containsKey(null)) {
+							SchemeAnkerListener.this.listeners.get(null)
+									.ankerHovered(anker, entered);
+						} else {
+							return;
+						}
+					} else {
+						boolean handled = false;
+						for (String schema : SchemeAnkerListener.this.listeners
+								.keySet()) {
+							if (uri.getScheme().equalsIgnoreCase(schema)) {
+								SchemeAnkerListener.this.listeners.get(schema)
+										.ankerHovered(anker, entered);
+								handled = true;
+								break;
+							}
+						}
+						if (!handled) {
+							SchemeAnkerListener.this.defaultListener
+									.ankerHovered(anker, entered);
 						}
 					}
 				} catch (URISyntaxException e) {

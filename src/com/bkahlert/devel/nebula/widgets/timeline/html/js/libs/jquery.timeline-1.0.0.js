@@ -265,7 +265,7 @@
             if (options)
                 $.extend(settings, options, true);
 
-            // If zoom steps have been have been defined and their unit property is text
+            // If zoom steps have been defined and their unit property is text
             // look for the corresponding variable (e.g. "Timeline.DateTime.SECOND" -> Timeline.DateTime.SECOND)
             if (settings.zoomSteps) {
                 for (var i = 0; i < settings.zoomSteps.length; i++) {
@@ -430,6 +430,37 @@
                         "top" : bandContainer.css("top"),
                     });
                     bandLabel.data('bandContainer', bandContainer);
+                }
+                
+                /*
+                 * Move labels and icons if their tape is only partly visible
+                 */
+                for (var i = 0, m = bandSettings.length; i < m; i++) {
+                    var band = $this.data('timeline').getBand(i);
+                    band.addOnScrollListener(function(band, x) {
+                        var minVisibleDate = band.getMinVisibleDate();
+                        var minVisiblePixel = Math.round(band.dateToPixelOffset(minVisibleDate));
+                        var maxVisibleDate = band.getMaxVisibleDate();
+                        var maxVisiblePixel = Math.round(band.dateToPixelOffset(maxVisibleDate));
+                        
+                        var labels = $(band._div).find(".timeline-event-label");
+                        labels.each(function() {
+                            $label = $(this);
+                            $tape = $label.next();
+                            $icon = $tape.next();
+                            if(!$icon.hasClass("timeline-event-icon")) $icon = null;
+                            
+                            var labelOffset = 21; // takes too much CPU: $icon != null ? parseInt($label.css("left")) - parseInt($icon.css("left")) : 0;
+                            
+                            var startPixel = parseInt($tape.css("left"));
+                            var endPixel = startPixel+parseInt($tape.css("width"));
+                            if(startPixel < minVisiblePixel && endPixel > minVisiblePixel) {
+                                startPixel = minVisiblePixel;
+                            }
+                            $label.css("left", startPixel + labelOffset + "px");
+                            if($icon) $icon.css("left", startPixel + "px");
+                        });
+                    });
                 }
 
                 /*
@@ -872,6 +903,153 @@ Timeline.OverviewEventPainter.prototype.paintDurationEvent = function(evt, metri
 
     this._createHighlightDiv(highlightIndex, tapeElmtData, theme);
 };
+
+
+/*
+ * If a tape is only partly visible its label and icon should be moved to the viewport.
+ * This is done with an onScrollListener in the init method of the facade.
+ * Since onScroll is not triggered when the pages starts the following function
+ * properly moved the labels and icons already accordingly.
+ */ 
+Timeline.CompactEventPainter.prototype.paintTapeIconLabel = function(
+    anchorDate, 
+    commonData,
+    tapeData, 
+    iconData, 
+    labelData, 
+    metrics, 
+    theme, 
+    highlightIndex
+) {
+    var band = this._band;
+    var getPixelOffset = function(date) {
+        return Math.round(band.dateToPixelOffset(date));
+    };
+    var anchorPixel = getPixelOffset(anchorDate);
+    var newTracks = [];
+    
+    var tapeHeightOccupied = 0;         // how many pixels (vertically) the tape occupies, including bottom margin
+    var tapeTrackCount = 0;             // how many tracks the tape takes up, usually just 1
+    var tapeLastTrackExtraSpace = 0;    // on the last track that the tape occupies, how many pixels are left (for icon and label to occupy as well)
+    if (tapeData != null) {
+        tapeHeightOccupied = metrics.tapeHeight + metrics.tapeBottomMargin;
+        tapeTrackCount = Math.ceil(metrics.tapeHeight / metrics.trackHeight);
+        
+        var tapeEndPixelOffset = getPixelOffset(tapeData.end) - anchorPixel;
+        var tapeStartPixelOffset = getPixelOffset(tapeData.start) - anchorPixel;
+        
+        for (var t = 0; t < tapeTrackCount; t++) {
+            newTracks.push({ start: tapeStartPixelOffset, end: tapeEndPixelOffset });
+        }
+        
+        tapeLastTrackExtraSpace = metrics.trackHeight - (tapeHeightOccupied % metrics.tapeHeight);
+    }
+    
+    var iconStartPixelOffset = 0;        // where the icon starts compared to the anchor pixel; 
+                                         // this can be negative if the icon is center-aligned around the anchor
+    var iconHorizontalSpaceOccupied = 0; // how many pixels the icon take up from the anchor pixel, 
+                                         // including the gap between the icon and the label
+    if (iconData != null) {
+        if ("iconAlign" in iconData && iconData.iconAlign == "center") {
+            iconStartPixelOffset = -Math.floor(iconData.width / 2);
+        }
+        iconHorizontalSpaceOccupied = iconStartPixelOffset + iconData.width + metrics.iconLabelGap;
+        
+        if (tapeTrackCount > 0) {
+            newTracks[tapeTrackCount - 1].end = Math.max(newTracks[tapeTrackCount - 1].end, iconHorizontalSpaceOccupied);
+        }
+        
+        var iconHeight = iconData.height + metrics.iconBottomMargin + tapeLastTrackExtraSpace;
+        while (iconHeight > 0) {
+            newTracks.push({ start: iconStartPixelOffset, end: iconHorizontalSpaceOccupied });
+            iconHeight -= metrics.trackHeight;
+        }
+    }
+    
+    var text = labelData.text;
+    var labelSize = this._frc.computeSize(text);
+    var labelHeight = labelSize.height + metrics.labelBottomMargin + tapeLastTrackExtraSpace;
+    var labelEndPixelOffset = iconHorizontalSpaceOccupied + labelSize.width + metrics.labelRightMargin;
+    if (tapeTrackCount > 0) {
+        newTracks[tapeTrackCount - 1].end = Math.max(newTracks[tapeTrackCount - 1].end, labelEndPixelOffset);
+    }
+    for (var i = 0; labelHeight > 0; i++) {
+        if (tapeTrackCount + i < newTracks.length) {
+            var track = newTracks[tapeTrackCount + i];
+            track.end = labelEndPixelOffset;
+        } else {
+            newTracks.push({ start: 0, end: labelEndPixelOffset });
+        }
+        labelHeight -= metrics.trackHeight;
+    }
+    
+    /*
+     *  Try to fit the new track on top of the existing tracks, then
+     *  render the various elements.
+     */
+    var firstTrack = this._fitTracks(anchorPixel, newTracks);
+    var verticalPixelOffset = firstTrack * metrics.trackHeight + metrics.trackOffset;
+    var result = {};
+    
+    // MOVE LABELS FEATURE
+    var labelLeft = (tapeData.start < band.getMinVisibleDate() && tapeData.end > band.getMinVisibleDate()) ? getPixelOffset(band.getMinVisibleDate()) : anchorPixel;
+    result.labelElmtData = this._paintEventLabel(
+        commonData,
+        labelData,
+        labelLeft + iconHorizontalSpaceOccupied,
+        verticalPixelOffset + tapeHeightOccupied,
+        labelSize.width, 
+        labelSize.height, 
+        theme
+    );
+    
+    if (tapeData != null) {
+        if ("latestStart" in tapeData || "earliestEnd" in tapeData) {
+            result.impreciseTapeElmtData = this._paintEventTape(
+                commonData,
+                tapeData,
+                metrics.tapeHeight,
+                verticalPixelOffset, 
+                getPixelOffset(tapeData.start),
+                getPixelOffset(tapeData.end),
+                theme.event.duration.impreciseColor,
+                theme.event.duration.impreciseOpacity, 
+                metrics, 
+                theme
+            );
+        }
+        if (!tapeData.isInstant && "start" in tapeData && "end" in tapeData) {
+            result.tapeElmtData = this._paintEventTape(
+                commonData,
+                tapeData,
+                metrics.tapeHeight,
+                verticalPixelOffset,
+                anchorPixel,
+                getPixelOffset("earliestEnd" in tapeData ? tapeData.earliestEnd : tapeData.end), 
+                tapeData.color, 
+                100, 
+                metrics, 
+                theme
+            );
+        }
+    }
+    
+    if (iconData != null) {
+        result.iconElmtData = this._paintEventIcon(
+            commonData,
+            iconData,
+            verticalPixelOffset + tapeHeightOccupied,
+            labelLeft + iconStartPixelOffset,
+            metrics, 
+            theme
+        );
+    }
+    //this._createHighlightDiv(highlightIndex, iconElmtData, theme);
+    
+    return result;
+};
+
+
 
 /**
  * Zooms the band to the specified index

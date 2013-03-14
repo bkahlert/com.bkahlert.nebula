@@ -32,6 +32,11 @@ public class BrowserOpeningAnkerListener extends AnkerAdaptingListener {
 							+ uri.toString());
 				}
 			}
+
+			@Override
+			public void uriHovered(URI uri, boolean entered) {
+				return;
+			}
 		});
 	}
 

@@ -87,6 +87,12 @@ public class ComposerDemo extends Composite {
 				System.err.println((special ? "special " : "") + "clicked on "
 						+ anker.getHref());
 			}
+
+			@Override
+			public void ankerHovered(IAnker anker, boolean entered) {
+				System.err.println((entered ? "entered " : "left") + ": "
+						+ anker.getHref());
+			}
 		});
 		composer.addModifyListener(new ModifyListener() {
 			@Override
