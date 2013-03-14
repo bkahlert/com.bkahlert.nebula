@@ -88,9 +88,8 @@ public class ComposerDemo extends Composite {
 			private PopupDialog popup = null;
 
 			@Override
-			public void ankerClicked(IAnker anker, boolean special) {
-				System.err.println((special ? "special " : "") + "clicked on "
-						+ anker.getHref());
+			public void ankerClicked(IAnker anker) {
+				System.err.println("clicked on " + anker.getHref());
 			}
 
 			@Override

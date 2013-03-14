@@ -73,7 +73,10 @@
       </handler>
    </extension>
    <extension
-         point="org.eclipse.ui.menus">
+         point="org.eclipse.ui.startup">
+      <startup
+            class="com.bkahlert.devel.nebula.utils.KeyboardUtils">
+      </startup>
    </extension>
 
 </plugin>

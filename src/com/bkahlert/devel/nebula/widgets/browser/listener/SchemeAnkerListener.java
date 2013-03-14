@@ -31,7 +31,7 @@ public class SchemeAnkerListener implements IAnkerListener {
 		this.listeners = listeners;
 		this.defaultListener = new IAnkerListener() {
 			@Override
-			public void ankerClicked(IAnker anker, boolean special) {
+			public void ankerClicked(IAnker anker) {
 				return;
 			}
 
@@ -49,7 +49,7 @@ public class SchemeAnkerListener implements IAnkerListener {
 	}
 
 	@Override
-	public void ankerClicked(final IAnker anker, final boolean special) {
+	public void ankerClicked(final IAnker anker) {
 		ExecutorUtil.nonUIAsyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -59,7 +59,7 @@ public class SchemeAnkerListener implements IAnkerListener {
 						if (SchemeAnkerListener.this.listeners
 								.containsKey(null)) {
 							SchemeAnkerListener.this.listeners.get(null)
-									.ankerClicked(anker, special);
+									.ankerClicked(anker);
 						} else {
 							return;
 						}
@@ -69,18 +69,18 @@ public class SchemeAnkerListener implements IAnkerListener {
 								.keySet()) {
 							if (uri.getScheme().equalsIgnoreCase(schema)) {
 								SchemeAnkerListener.this.listeners.get(schema)
-										.ankerClicked(anker, special);
+										.ankerClicked(anker);
 								handled = true;
 								break;
 							}
 						}
 						if (!handled) {
 							SchemeAnkerListener.this.defaultListener
-									.ankerClicked(anker, special);
+									.ankerClicked(anker);
 						}
 					}
 				} catch (URISyntaxException e) {
-					LOGGER.error("Invalid URI in "
+					LOGGER.info("Invalid URI in "
 							+ SchemeAnkerListener.class.getSimpleName() + ": "
 							+ anker);
 				}
@@ -120,7 +120,7 @@ public class SchemeAnkerListener implements IAnkerListener {
 						}
 					}
 				} catch (URISyntaxException e) {
-					LOGGER.error("Invalid URI in "
+					LOGGER.info("Invalid URI in "
 							+ SchemeAnkerListener.class.getSimpleName() + ": "
 							+ anker);
 				}

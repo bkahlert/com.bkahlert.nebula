@@ -17,7 +17,7 @@ public class BrowserOpeningAnkerListener extends AnkerAdaptingListener {
 	public BrowserOpeningAnkerListener() {
 		super(new IURIListener() {
 			@Override
-			public void uriClicked(URI uri, boolean special) {
+			public void uriClicked(URI uri) {
 				try {
 					IWebBrowser browser = PlatformUI.getWorkbench()
 							.getBrowserSupport().getExternalBrowser();

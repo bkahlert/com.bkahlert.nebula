@@ -7,11 +7,8 @@ public interface IURIListener {
 	 * This method is called if an {@link URI} was clicked.
 	 * 
 	 * @param uri
-	 * @param special
-	 *            is true if while clicking the control ⌃ (Ctrl) or command ⌘
-	 *            (Command) key was pressed
 	 */
-	public void uriClicked(URI uri, boolean special);
+	public void uriClicked(URI uri);
 
 	/**
 	 * This method is called if the user's mouse entered of left a {@link URI}.

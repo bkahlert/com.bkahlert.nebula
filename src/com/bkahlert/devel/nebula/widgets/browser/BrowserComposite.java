@@ -16,7 +16,6 @@ import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.jsoup.Jsoup;
@@ -46,7 +45,6 @@ public abstract class BrowserComposite extends Composite implements
 
 	private Browser browser;
 	private boolean loadingCompleted = false;
-	private boolean metaKeyPressed = false;
 	private List<String> enqueuedJs = new ArrayList<String>();
 	private List<IJavaScriptExceptionListener> javaScriptExceptionListeners = new ArrayList<IJavaScriptExceptionListener>();
 	private List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
@@ -112,31 +110,12 @@ public abstract class BrowserComposite extends Composite implements
 			}
 		});
 
-		Listener metaKeyListener = new Listener() {
-			@Override
-			public void handleEvent(Event e) {
-				if (e.type == SWT.FocusOut
-						&& e.widget != BrowserComposite.this.browser) {
-					return;
-				}
-
-				BrowserComposite.this.metaKeyPressed = e.type == SWT.KeyDown
-						&& ((e.stateMask & SWT.CTRL) != 0
-								|| (e.stateMask & SWT.COMMAND) != 0
-								|| (e.keyCode & SWT.CTRL) != 0 || (e.keyCode & SWT.COMMAND) != 0);
-			}
-		};
-		Display.getCurrent().addFilter(SWT.KeyDown, metaKeyListener);
-		Display.getCurrent().addFilter(SWT.KeyUp, metaKeyListener);
-		Display.getCurrent().addFilter(SWT.FocusOut, metaKeyListener);
-
 		this.browser.addLocationListener(new LocationAdapter() {
 			@Override
 			public void changing(LocationEvent event) {
 				IAnker anker = new Anker(event.location, null, null);
 				for (IAnkerListener ankerListener : BrowserComposite.this.ankerListeners) {
-					ankerListener.ankerClicked(anker,
-							BrowserComposite.this.metaKeyPressed);
+					ankerListener.ankerClicked(anker);
 				}
 				event.doit = false;
 			}

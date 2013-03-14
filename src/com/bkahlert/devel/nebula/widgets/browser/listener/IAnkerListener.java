@@ -10,11 +10,8 @@ public interface IAnkerListener {
 	 * The other methods return null; FIXME: Fill other values
 	 * 
 	 * @param anker
-	 * @param special
-	 *            is true if while clicking the control ⌃ (Ctrl) or command ⌘
-	 *            (Command) key was pressed
 	 */
-	public void ankerClicked(IAnker anker, boolean special);
+	public void ankerClicked(IAnker anker);
 
 	/**
 	 * This method is called if the user's mouse entered or left a
