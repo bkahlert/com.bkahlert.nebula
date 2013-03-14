@@ -18,6 +18,19 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
             e.editor.on('change', function(e) {
                 com.bkahlert.devel.nebula.editor.onchange();
             });
+            
+            function turnOffTitle(editor) {
+                var editable = editor.editable();
+                if (editable && editable.isInline()) {
+                    editable.changeAttr('aria-label', "");
+                    editable.changeAttr('title', "");
+                }
+            }
+            e.editor.on('mode', function(e) {
+                turnOffTitle(e.editor);
+            });
+            turnOffTitle(e.editor);
+            
             $(window).on('beforeunload', function() {
                 com.bkahlert.devel.nebula.editor.onchange();
             });
@@ -149,7 +162,7 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
 
                 });
             });
-            
+
             window["mouseenter"] = function(html) {
                 console.log("enter " + html);
             }
