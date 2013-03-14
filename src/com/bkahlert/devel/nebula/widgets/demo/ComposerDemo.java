@@ -10,7 +10,10 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 
+import com.bkahlert.devel.nebula.dialogs.PopupDialog;
 import com.bkahlert.devel.nebula.widgets.RoundedComposite;
 import com.bkahlert.devel.nebula.widgets.browser.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
@@ -82,6 +85,8 @@ public class ComposerDemo extends Composite {
 			}
 		});
 		composer.addAnkerListener(new IAnkerListener() {
+			private PopupDialog popup = null;
+
 			@Override
 			public void ankerClicked(IAnker anker, boolean special) {
 				System.err.println((special ? "special " : "") + "clicked on "
@@ -89,9 +94,24 @@ public class ComposerDemo extends Composite {
 			}
 
 			@Override
-			public void ankerHovered(IAnker anker, boolean entered) {
+			public void ankerHovered(final IAnker anker, boolean entered) {
 				System.err.println((entered ? "entered " : "left") + ": "
 						+ anker.getHref());
+				if (this.popup != null) {
+					this.popup.close();
+					this.popup = null;
+				}
+				if (entered) {
+					this.popup = new PopupDialog() {
+						@Override
+						protected Control createControls(Composite parent) {
+							Label label = new Label(parent, SWT.NONE);
+							label.setText(anker.toHtml());
+							return label;
+						};
+					};
+					this.popup.open();
+				}
 			}
 		});
 		composer.addModifyListener(new ModifyListener() {
@@ -156,5 +176,4 @@ public class ComposerDemo extends Composite {
 			}
 		});
 	}
-
 }
