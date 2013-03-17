@@ -41,8 +41,9 @@ public class TimelineJsonGenerator {
 		try {
 			generator = factory.createJsonGenerator(writer);
 			generator.setCodec(new ObjectMapper());
-			if (pretty)
+			if (pretty) {
 				generator.setPrettyPrinter(new DefaultPrettyPrinter());
+			}
 
 			writeDecorators(decorators, generator);
 
@@ -69,8 +70,9 @@ public class TimelineJsonGenerator {
 
 	public static void writeDecorator(JsonGenerator generator,
 			IDecorator decorator) throws IOException, JsonGenerationException {
-		if (decorator.getStartDate() == null && decorator.getEndDate() == null)
+		if (decorator.getStartDate() == null && decorator.getEndDate() == null) {
 			return;
+		}
 
 		generator.writeStartObject();
 
@@ -128,8 +130,9 @@ public class TimelineJsonGenerator {
 
 	public static String toJson(ITimelineInput input, boolean pretty,
 			IProgressMonitor monitor) {
-		if (input == null)
+		if (input == null) {
 			return null;
+		}
 		int eventCount = input.getEventCount();
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 5 + eventCount + 5);
 
@@ -281,6 +284,10 @@ public class TimelineJsonGenerator {
 		generator.writeFieldName("title");
 		generator.writeString(event.getTitle());
 
+		generator.writeFieldName("tooltip");
+		generator.writeString(event.getTooltip() != null ? event.getTooltip()
+				: "");
+
 		if (event.getIcon() != null) {
 			generator.writeFieldName("icon");
 			generator.writeString(event.getIcon().toString());
@@ -324,8 +331,9 @@ public class TimelineJsonGenerator {
 			int offset = c.getTimeZone().getOffset(new Date().getTime());
 			int globalOffset = (int) Math
 					.round(timeZoneOffset * 60f * 60f * 1000f);
-			if (offset != globalOffset)
+			if (offset != globalOffset) {
 				classNames.add("deviant_timezone_offset");
+			}
 		}
 
 		generator.writeFieldName("start");
@@ -343,8 +351,9 @@ public class TimelineJsonGenerator {
 		generator.writeString(colors.length > 0 ? colors[0].toHexString()
 				: null);
 
-		if (event.isResizable())
+		if (event.isResizable()) {
 			classNames.add("resizable");
+		}
 
 		generator.writeFieldName("classname");
 		generator.writeString(StringUtils.join(classNames, " "));
@@ -360,8 +369,9 @@ public class TimelineJsonGenerator {
 	 * @return
 	 */
 	public static String enquote(String s) {
-		if (s == null)
+		if (s == null) {
 			return null;
+		}
 
 		StringBuffer sb = new StringBuffer();
 		sb.append("\"");
@@ -393,13 +403,14 @@ public class TimelineJsonGenerator {
 				sb.append("\\\\");
 				break; // backslash
 			default:
-				if (c >= ' ' && c < '\u007f')
+				if (c >= ' ' && c < '\u007f') {
 					sb.append(c); // readable ASCII
-				else // convert to unicode form
+				} else // convert to unicode form
 				{
 					char[] hexdigits = new char[4];
-					for (int x = (int) c, j = hexdigits.length - 1; j >= 0; j--, x /= 16)
+					for (int x = (int) c, j = hexdigits.length - 1; j >= 0; j--, x /= 16) {
 						hexdigits[j] = Character.forDigit(x % 16, 16);
+					}
 					sb.append("\\u").append(hexdigits);
 				}
 			}

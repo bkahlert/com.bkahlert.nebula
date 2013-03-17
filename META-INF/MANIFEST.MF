@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.ui,
  com.bkahlert.devel.rcp.selectionUtils;bundle-version="1.0.1",
  org.codehaus.jackson.core;bundle-version="1.6.0",
  org.codehaus.jackson.mapper;bundle-version="1.6.0",
- org.apache.commons.lang;bundle-version="2.4.0"
+ org.apache.commons.lang;bundle-version="2.4.0",
+ org.eclipse.jface.text;bundle-version="3.7.2"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.bkahlert.devel.nebula.colors,
@@ -23,6 +24,7 @@ Export-Package: com.bkahlert.devel.nebula.colors,
  com.bkahlert.devel.nebula.rendering,
  com.bkahlert.devel.nebula.utils,
  com.bkahlert.devel.nebula.utils.history,
+ com.bkahlert.devel.nebula.utils.information,
  com.bkahlert.devel.nebula.viewer,
  com.bkahlert.devel.nebula.viewer.timeline,
  com.bkahlert.devel.nebula.viewer.timeline.impl,
@@ -59,3 +61,4 @@ Bundle-ClassPath: lib/cglib-nodep-2.2.jar,
  lib/jsoup-1.7.2-javadoc.jar,
  lib/jsoup-1.7.2-sources.jar,
  lib/jsoup-1.7.2.jar
+Import-Package: com.bkahlert.devel.nebula.widgets.browser

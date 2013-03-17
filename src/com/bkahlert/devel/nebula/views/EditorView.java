@@ -17,18 +17,15 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
-import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.composer.Composer;
 import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
-import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 import com.bkahlert.devel.nebula.widgets.editor.AutosaveEditor;
 import com.bkahlert.devel.nebula.widgets.editor.Editor;
 
 /**
- * Instances of this class create {@link ViewPart}s that wrap a {@link Editor}.
+ * Instances of this class are {@link ViewPart}s that wrap a {@link Editor}.
  * 
  * @author bkahlert
- * 
  */
 public abstract class EditorView<T> extends ViewPart {
 
@@ -82,10 +79,14 @@ public abstract class EditorView<T> extends ViewPart {
 		this.autosave = autosave;
 	}
 
+	public Editor<T> getEditor() {
+		return this.editor;
+	}
+
 	protected void refreshHeader() {
 		final PartInfo partInfo;
-		if (this.editor.getLoadedObject() != null) {
-			partInfo = this.getPartInfo(this.editor.getLoadedObject());
+		if (this.getEditor().getLoadedObject() != null) {
+			partInfo = this.getPartInfo(this.getEditor().getLoadedObject());
 		} else {
 			partInfo = this.getDefaultPartInfo();
 		}
@@ -178,8 +179,8 @@ public abstract class EditorView<T> extends ViewPart {
 	 * @see Editor#load(Object)
 	 */
 	public final void load(T objectToLoad) {
-		if (!this.editor.isDisposed()) {
-			Job loadJob = this.editor.load(objectToLoad);
+		if (!this.getEditor().isDisposed()) {
+			Job loadJob = this.getEditor().load(objectToLoad);
 			if (loadJob != null) {
 				loadJob.addJobChangeListener(new JobChangeAdapter() {
 					@Override
@@ -198,8 +199,8 @@ public abstract class EditorView<T> extends ViewPart {
 	 * @see {@link Editor#save()}
 	 */
 	public final void save() throws Exception {
-		if (!this.editor.isDisposed()) {
-			this.editor.save();
+		if (!this.getEditor().isDisposed()) {
+			this.getEditor().save();
 		}
 	}
 
@@ -208,7 +209,7 @@ public abstract class EditorView<T> extends ViewPart {
 	 * @see {@link Editor#getLoadedObject()}
 	 */
 	public T getLoadedObject() {
-		return this.editor.getLoadedObject();
+		return this.getEditor().getLoadedObject();
 	}
 
 	/**
@@ -229,38 +230,6 @@ public abstract class EditorView<T> extends ViewPart {
 	 */
 	public abstract void setHtml(T loadedObject, String html,
 			IProgressMonitor monitor);
-
-	/**
-	 * @param ankerListener
-	 * @see com.bkahlert.devel.nebula.widgets.editor.Editor#addAnkerListener(com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener)
-	 */
-	public void addAnkerListener(IAnkerListener ankerListener) {
-		this.editor.addAnkerListener(ankerListener);
-	}
-
-	/**
-	 * @param ankerLabelProvider
-	 * @see com.bkahlert.devel.nebula.widgets.editor.Editor#addAnkerLabelProvider(com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider)
-	 */
-	public void addAnkerLabelProvider(IAnkerLabelProvider ankerLabelProvider) {
-		this.editor.addAnkerLabelProvider(ankerLabelProvider);
-	}
-
-	/**
-	 * 
-	 * @see com.bkahlert.devel.nebula.widgets.editor.Editor#showSource()
-	 */
-	public void showSource() {
-		this.editor.showSource();
-	}
-
-	/**
-	 * 
-	 * @see com.bkahlert.devel.nebula.widgets.editor.Editor#hideSource()
-	 */
-	public void hideSource() {
-		this.editor.hideSource();
-	}
 
 	@Override
 	public void setFocus() {

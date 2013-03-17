@@ -16,6 +16,8 @@ import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 public interface ITimelineEventLabelProvider {
 	public String getTitle(Object event);
 
+	public String getTooltip(Object event);
+
 	public URI getIcon(Object event);
 
 	public URI getImage(Object event);

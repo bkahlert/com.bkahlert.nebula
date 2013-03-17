@@ -23,6 +23,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.bkahlert.devel.nebula.utils.EventDelegator;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 
@@ -120,6 +121,15 @@ public abstract class BrowserComposite extends Composite implements
 				event.doit = false;
 			}
 		});
+	}
+
+	@Override
+	public void addListener(int eventType, Listener listener) {
+		if (EventDelegator.mustDelegate(eventType, this)) {
+			this.browser.addListener(eventType, listener);
+		} else {
+			super.addListener(eventType, listener);
+		}
 	}
 
 	/**

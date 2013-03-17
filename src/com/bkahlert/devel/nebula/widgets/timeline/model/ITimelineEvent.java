@@ -25,6 +25,8 @@ import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 public interface ITimelineEvent extends IAdaptable {
 	public String getTitle();
 
+	public String getTooltip();
+
 	public URI getIcon();
 
 	public URI getImage();

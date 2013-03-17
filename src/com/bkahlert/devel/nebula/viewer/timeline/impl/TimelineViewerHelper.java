@@ -76,17 +76,20 @@ public class TimelineViewerHelper<TIMELINE extends IBaseTimeline> {
 
 		if (bandLabelProvider != null) {
 			String title = bandLabelProvider.getTitle(band);
-			if (title != null)
+			if (title != null) {
 				bandOptions.setTitle(title);
+			}
 
 			Boolean isShowInOverviewBands = bandLabelProvider
 					.isShowInOverviewBands(band);
-			if (isShowInOverviewBands != null)
+			if (isShowInOverviewBands != null) {
 				bandOptions.setShowInOverviewBands(isShowInOverviewBands);
+			}
 
 			Float ratio = bandLabelProvider.getRatio(band);
-			if (ratio != null)
+			if (ratio != null) {
 				bandOptions.setRatio(ratio);
+			}
 		}
 
 		return bandOptions;
@@ -103,10 +106,12 @@ public class TimelineViewerHelper<TIMELINE extends IBaseTimeline> {
 	 */
 	public static ITimelineEvent getEvent(Object event,
 			ITimelineEventLabelProvider eventLabelProvider) {
-		if (eventLabelProvider == null)
+		if (eventLabelProvider == null) {
 			return null;
+		}
 
 		String title = eventLabelProvider.getTitle(event);
+		String tooltip = eventLabelProvider.getTooltip(event);
 		URI icon = eventLabelProvider.getIcon(event);
 		URI image = eventLabelProvider.getIcon(event);
 		Calendar start = eventLabelProvider.getStart(event);
@@ -115,8 +120,8 @@ public class TimelineViewerHelper<TIMELINE extends IBaseTimeline> {
 		boolean resizable = eventLabelProvider.isResizable(event);
 		String[] classNames = eventLabelProvider.getClassNames(event);
 
-		ITimelineEvent timelineEvent = new TimelineEvent(title, icon, image,
-				start, end, colors, resizable, classNames, event);
+		ITimelineEvent timelineEvent = new TimelineEvent(title, tooltip, icon,
+				image, start, end, colors, resizable, classNames, event);
 		return timelineEvent;
 	}
 }

@@ -802,11 +802,16 @@
  * Simply copying the original sources(!) from
  * http://code.google.com/searchframe#Lhpgg-dZ4PI/timeline/trunk/src/webapp/api/scripts/compact-painter.js&q=CompactEventPainter%20package:simile-widgets%5C.googlecode%5C.com
  * makes it work.
+ * 
+ * Empty tooltips will no more overwritten by getText()
  */
 Timeline.CompactEventPainter.prototype.paintPreciseDurationEvent = function(evt, metrics, theme, highlightIndex) {
+    
     var commonData = {
         tooltip : evt.getProperty("tooltip") || evt.getText()
     };
+    // NEW
+    if(evt.getProperty("tooltip") == null || evt.getProperty("tooltip") == "") commonData.tooltip = "";
 
     var tapeData = {
         start : evt.getStart(),

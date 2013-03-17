@@ -24,10 +24,12 @@ public class TimelineEvent implements ITimelineEvent {
 	static Calendar[] getCalendarRange(List<ITimelineEvent> events) {
 		List<Calendar> calendars = new ArrayList<Calendar>();
 		for (ITimelineEvent event : events) {
-			if (event.getStart() != null)
+			if (event.getStart() != null) {
 				calendars.add(event.getStart());
-			if (event.getEnd() != null)
+			}
+			if (event.getEnd() != null) {
 				calendars.add(event.getEnd());
+			}
 		}
 		Calendar[] range = CalendarUtils.getRange(calendars);
 		Calendar start, end;
@@ -42,6 +44,7 @@ public class TimelineEvent implements ITimelineEvent {
 	}
 
 	private String title;
+	private String tooltip;
 	private URI icon;
 	private URI image;
 	private Calendar start;
@@ -51,14 +54,16 @@ public class TimelineEvent implements ITimelineEvent {
 	private String[] classNames;
 	private Object payload;
 
-	public TimelineEvent(String title, URI icon, URI image, Calendar start,
-			Calendar end, RGB[] colors, boolean resizable, String[] classNames,
-			Object payload) {
+	public TimelineEvent(String title, String tooltip, URI icon, URI image,
+			Calendar start, Calendar end, RGB[] colors, boolean resizable,
+			String[] classNames, Object payload) {
 		super();
-		if (start == null && end == null)
+		if (start == null && end == null) {
 			throw new IllegalArgumentException(
 					"Event must have at least a start or an end date");
+		}
 		this.title = title;
+		this.tooltip = tooltip;
 		this.icon = icon;
 		this.image = image;
 		this.start = start;
@@ -72,6 +77,10 @@ public class TimelineEvent implements ITimelineEvent {
 	@Override
 	public String getTitle() {
 		return this.title;
+	}
+
+	public String getTooltip() {
+		return this.tooltip;
 	}
 
 	@Override
@@ -123,6 +132,7 @@ public class TimelineEvent implements ITimelineEvent {
 		return this.payload;
 	}
 
+	@Override
 	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		return AdapterManager.getDefault().getAdapter(this, adapter);

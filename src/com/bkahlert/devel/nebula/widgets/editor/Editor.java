@@ -13,7 +13,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Listener;
 
+import com.bkahlert.devel.nebula.utils.EventDelegator;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.composer.Composer;
@@ -58,6 +60,15 @@ public abstract class Editor<T> extends Composite {
 		this.composer.setEnabled(false);
 	}
 
+	@Override
+	public void addListener(int eventType, Listener listener) {
+		if (EventDelegator.mustDelegate(eventType, this)) {
+			this.composer.addListener(eventType, listener);
+		} else {
+			super.addListener(eventType, listener);
+		}
+	}
+
 	/**
 	 * @param ankerListener
 	 * @see com.bkahlert.devel.nebula.widgets.browser.BrowserComposite#addAnkerListener(com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener)
@@ -67,11 +78,27 @@ public abstract class Editor<T> extends Composite {
 	}
 
 	/**
+	 * @param ankerListener
+	 * @see com.bkahlert.devel.nebula.widgets.browser.BrowserComposite#removeAnkerListener(com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener)
+	 */
+	public void removeAnkerListener(IAnkerListener ankerListener) {
+		this.composer.removeAnkerListener(ankerListener);
+	}
+
+	/**
 	 * @param ankerLabelProvider
 	 * @see com.bkahlert.devel.nebula.widgets.composer.Composer#addAnkerLabelProvider(com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider)
 	 */
 	public void addAnkerLabelProvider(IAnkerLabelProvider ankerLabelProvider) {
 		this.composer.addAnkerLabelProvider(ankerLabelProvider);
+	}
+
+	/**
+	 * @param ankerLabelProvider
+	 * @see com.bkahlert.devel.nebula.widgets.composer.Composer#removeAnkerLabelProvider(com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider)
+	 */
+	public void removeAnkerLabelProvider(IAnkerLabelProvider ankerLabelProvider) {
+		this.composer.removeAnkerLabelProvider(ankerLabelProvider);
 	}
 
 	/**

@@ -31,9 +31,9 @@ public class ToggleSourceModeHandler extends AbstractHandler {
 				if (part instanceof EditorView<?>) {
 					EditorView<?> editorView = (EditorView<?>) part;
 					if (sourceMode) {
-						editorView.showSource();
+						editorView.getEditor().showSource();
 					} else {
-						editorView.hideSource();
+						editorView.getEditor().hideSource();
 					}
 				}
 			}
