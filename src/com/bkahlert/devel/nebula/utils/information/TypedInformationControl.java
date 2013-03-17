@@ -1,6 +1,9 @@
 package com.bkahlert.devel.nebula.utils.information;
 
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.text.AbstractInformationControl;
+import org.eclipse.jface.text.DefaultInformationControl;
+import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IInformationControlExtension2;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
@@ -25,6 +28,13 @@ public abstract class TypedInformationControl<INFORMATION> extends
 
 	public TypedInformationControl(Shell parentShell, boolean resizable) {
 		super(parentShell, resizable);
+		this.create();
+	}
+
+	public TypedInformationControl(Shell parentShell,
+			ToolBarManager toolBarManager) {
+		super(parentShell, toolBarManager);
+		DefaultInformationControl x;
 		this.create();
 	}
 
@@ -56,6 +66,11 @@ public abstract class TypedInformationControl<INFORMATION> extends
 	public Point computeSizeHint() {
 		// currently ignores size constraints
 		return this.getShell().computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+	}
+
+	@Override
+	public IInformationControlCreator getInformationPresenterControlCreator() {
+		return super.getInformationPresenterControlCreator();
 	}
 
 }

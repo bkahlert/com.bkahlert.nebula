@@ -1,6 +1,8 @@
 package com.bkahlert.devel.nebula.widgets.demo;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.internal.text.html.HTMLTextPresenter;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -13,6 +15,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.about.AboutAction;
 
 import com.bkahlert.devel.nebula.dialogs.PopupDialog;
 import com.bkahlert.devel.nebula.utils.information.ISubjectInformationProvider;
@@ -88,6 +92,8 @@ public class EditorDemo extends Composite {
 					// this.popup.open();
 				}
 			}
+
+			HTMLTextPresenter x;
 		});
 
 		TypedInformationControlManager<Editor<?>, IAnker> editorInformationControlManager = new TypedInformationControlManager<Editor<?>, IAnker>(
@@ -95,8 +101,11 @@ public class EditorDemo extends Composite {
 					@Override
 					public TypedInformationControl<IAnker> createInformationControl(
 							Shell parent) {
+						ToolBarManager toolBarManager = new ToolBarManager();
+						toolBarManager.add(new AboutAction(PlatformUI
+								.getWorkbench().getActiveWorkbenchWindow()));
 						return new TypedInformationControl<IAnker>(parent,
-								false) {
+								toolBarManager) {
 							private Label label;
 
 							@Override
@@ -109,6 +118,7 @@ public class EditorDemo extends Composite {
 								if (input == null) {
 									return false;
 								}
+								this.setStatusText(input.toHtml());
 								this.label.setText(input.toHtml());
 								return true;
 							}
