@@ -20,9 +20,9 @@ import org.eclipse.ui.internal.about.AboutAction;
 
 import com.bkahlert.devel.nebula.dialogs.PopupDialog;
 import com.bkahlert.devel.nebula.utils.information.ISubjectInformationProvider;
-import com.bkahlert.devel.nebula.utils.information.ITypedInformationControlCreator;
 import com.bkahlert.devel.nebula.utils.information.TypedInformationControl;
 import com.bkahlert.devel.nebula.utils.information.TypedInformationControlManager;
+import com.bkahlert.devel.nebula.utils.information.TypedReusableInformationControlCreator;
 import com.bkahlert.devel.nebula.widgets.RoundedComposite;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import com.bkahlert.devel.nebula.widgets.browser.IAnker;
@@ -97,9 +97,10 @@ public class EditorDemo extends Composite {
 		});
 
 		TypedInformationControlManager<Editor<?>, IAnker> editorInformationControlManager = new TypedInformationControlManager<Editor<?>, IAnker>(
-				new ITypedInformationControlCreator<IAnker>() {
+				new TypedReusableInformationControlCreator<IAnker>() {
+
 					@Override
-					public TypedInformationControl<IAnker> createInformationControl(
+					protected TypedInformationControl<IAnker> doCreateInformationControl(
 							Shell parent) {
 						return new TypedInformationControl<IAnker>(parent,
 								"Press 'F2' for focus") {
@@ -122,10 +123,10 @@ public class EditorDemo extends Composite {
 							// TODO creator separat übergeben an
 							// TypedInformationControlManaer
 							@Override
-							public ITypedInformationControlCreator<IAnker> getInformationPresenterControlCreator() {
-								return new ITypedInformationControlCreator<IAnker>() {
+							public TypedReusableInformationControlCreator<IAnker> getInformationPresenterControlCreator() {
+								return new TypedReusableInformationControlCreator<IAnker>() {
 									@Override
-									public TypedInformationControl<IAnker> createInformationControl(
+									protected TypedInformationControl<IAnker> doCreateInformationControl(
 											Shell parent) {
 										ToolBarManager toolBarManager = new ToolBarManager();
 										toolBarManager

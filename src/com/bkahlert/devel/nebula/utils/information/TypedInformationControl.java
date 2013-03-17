@@ -8,6 +8,8 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
+import com.bkahlert.devel.nebula.widgets.browser.IAnker;
+
 /**
  * This is a typed version of the {@link IInformationControlExtension2}.<br>
  * Instead of having to override
@@ -74,7 +76,7 @@ public abstract class TypedInformationControl<INFORMATION> extends
 	}
 
 	@Override
-	public ITypedInformationControlCreator<INFORMATION> getInformationPresenterControlCreator() {
+	public TypedReusableInformationControlCreator<IAnker> getInformationPresenterControlCreator() {
 		return null;
 	}
 
