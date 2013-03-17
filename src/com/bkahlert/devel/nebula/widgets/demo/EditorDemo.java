@@ -20,9 +20,9 @@ import org.eclipse.ui.internal.about.AboutAction;
 
 import com.bkahlert.devel.nebula.dialogs.PopupDialog;
 import com.bkahlert.devel.nebula.utils.information.ISubjectInformationProvider;
-import com.bkahlert.devel.nebula.utils.information.TypedInformationControl;
-import com.bkahlert.devel.nebula.utils.information.TypedInformationControlManager;
-import com.bkahlert.devel.nebula.utils.information.TypedReusableInformationControlCreator;
+import com.bkahlert.devel.nebula.utils.information.InformationControl;
+import com.bkahlert.devel.nebula.utils.information.InformationControlManager;
+import com.bkahlert.devel.nebula.utils.information.ReusableInformationControlCreator;
 import com.bkahlert.devel.nebula.widgets.RoundedComposite;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import com.bkahlert.devel.nebula.widgets.browser.IAnker;
@@ -96,13 +96,13 @@ public class EditorDemo extends Composite {
 			HTMLTextPresenter x;
 		});
 
-		TypedInformationControlManager<Editor<?>, IAnker> editorInformationControlManager = new TypedInformationControlManager<Editor<?>, IAnker>(
-				new TypedReusableInformationControlCreator<IAnker>() {
+		InformationControlManager<Editor<?>, IAnker> editorInformationControlManager = new InformationControlManager<Editor<?>, IAnker>(
+				new ReusableInformationControlCreator<IAnker>() {
 
 					@Override
-					protected TypedInformationControl<IAnker> doCreateInformationControl(
+					protected InformationControl<IAnker> doCreateInformationControl(
 							Shell parent) {
-						return new TypedInformationControl<IAnker>(parent,
+						return new InformationControl<IAnker>(parent,
 								"Press 'F2' for focus") {
 							private Label label;
 
@@ -123,10 +123,10 @@ public class EditorDemo extends Composite {
 							// TODO creator separat übergeben an
 							// TypedInformationControlManaer
 							@Override
-							public TypedReusableInformationControlCreator<IAnker> getInformationPresenterControlCreator() {
-								return new TypedReusableInformationControlCreator<IAnker>() {
+							public ReusableInformationControlCreator<IAnker> getInformationPresenterControlCreator() {
+								return new ReusableInformationControlCreator<IAnker>() {
 									@Override
-									protected TypedInformationControl<IAnker> doCreateInformationControl(
+									protected InformationControl<IAnker> doCreateInformationControl(
 											Shell parent) {
 										ToolBarManager toolBarManager = new ToolBarManager();
 										toolBarManager
@@ -134,7 +134,7 @@ public class EditorDemo extends Composite {
 														PlatformUI
 																.getWorkbench()
 																.getActiveWorkbenchWindow()));
-										return new TypedInformationControl<IAnker>(
+										return new InformationControl<IAnker>(
 												parent, toolBarManager) {
 											private Label label;
 

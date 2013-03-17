@@ -20,6 +20,17 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+/**
+ * Instances of this class serve as a {@link InformationControlReplacer} that
+ * hide when the mouse leaves the popup control.
+ * <p>
+ * Originally copied from
+ * {@link org.eclipse.jface.internal.text.StickyHoverManager}.
+ * 
+ * @author bkahlert
+ * 
+ * @param <INFORMATION>
+ */
 public class StickyHoverManager<INFORMATION> extends InformationControlReplacer {
 
 	/**
@@ -275,7 +286,7 @@ public class StickyHoverManager<INFORMATION> extends InformationControlReplacer 
 	 *            the text viewer
 	 */
 	public StickyHoverManager(
-			TypedReusableInformationControlCreator<INFORMATION> creator) {
+			ReusableInformationControlCreator<INFORMATION> creator) {
 		super(creator);
 
 		this.setCloser(new Closer());

@@ -18,13 +18,13 @@ import org.eclipse.swt.widgets.Display;
  * @param <CONTROL>
  * @param <INFORMATION>
  */
-public class TypedInformationControlManager<CONTROL extends Control, INFORMATION>
+public class InformationControlManager<CONTROL extends Control, INFORMATION>
 		extends AbstractHoverInformationControlManager {
 
 	private ISubjectInformationProvider<CONTROL, INFORMATION> subjectInformationProvider;
 
-	public TypedInformationControlManager(
-			TypedReusableInformationControlCreator<INFORMATION> creator,
+	public InformationControlManager(
+			ReusableInformationControlCreator<INFORMATION> creator,
 			ISubjectInformationProvider<CONTROL, INFORMATION> subjectInformationProvider) {
 		super(creator);
 		this.getInternalAccessor().setInformationControlReplacer(

@@ -24,22 +24,22 @@ import com.bkahlert.devel.nebula.widgets.browser.IAnker;
  * 
  * @param <INFORMATION>
  */
-public abstract class TypedInformationControl<INFORMATION> extends
+public abstract class InformationControl<INFORMATION> extends
 		AbstractInformationControl implements IInformationControlExtension2 {
 
 	private boolean hasContents = false;
 
-	public TypedInformationControl(Shell parentShell, boolean resizable) {
+	public InformationControl(Shell parentShell, boolean resizable) {
 		super(parentShell, resizable);
 		this.create();
 	}
 
-	public TypedInformationControl(Shell parentShell, String statusFieldText) {
+	public InformationControl(Shell parentShell, String statusFieldText) {
 		super(parentShell, statusFieldText);
 		this.create();
 	}
 
-	public TypedInformationControl(Shell parentShell,
+	public InformationControl(Shell parentShell,
 			ToolBarManager toolBarManager) {
 		super(parentShell, toolBarManager);
 		this.create();
@@ -76,7 +76,7 @@ public abstract class TypedInformationControl<INFORMATION> extends
 	}
 
 	@Override
-	public TypedReusableInformationControlCreator<IAnker> getInformationPresenterControlCreator() {
+	public ReusableInformationControlCreator<IAnker> getInformationPresenterControlCreator() {
 		return null;
 	}
 
