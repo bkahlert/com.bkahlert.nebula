@@ -8,8 +8,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
-import com.bkahlert.devel.nebula.widgets.browser.IAnker;
-
 /**
  * This is a typed version of the {@link IInformationControlExtension2}.<br>
  * Instead of having to override
@@ -17,8 +15,9 @@ import com.bkahlert.devel.nebula.widgets.browser.IAnker;
  * {@link #setTypedInput(Object)} that returns a boolean whether to show
  * information or not.
  * <p>
- * Make sure to override {@link #getInformationPresenterControlCreator()} if you
- * want to allow the user to hover the popup and get an enhanced version.
+ * <strong>Make sure to override
+ * {@link #getInformationPresenterControlCreator()} if you want to allow the
+ * user to hover the popup and get an enhanced version.</strong>
  * 
  * @author bkahlert
  * 
@@ -29,9 +28,14 @@ public abstract class InformationControl<INFORMATION> extends
 
 	private boolean hasContents = false;
 
-	public InformationControl(Shell parentShell, boolean resizable) {
-		super(parentShell, resizable);
-		this.create();
+	protected InformationControl(Shell parentShell, String statusFieldText,
+			Object noCreate) {
+		super(parentShell, statusFieldText);
+	}
+
+	protected InformationControl(Shell parentShell,
+			ToolBarManager toolBarManager, Object noCreate) {
+		super(parentShell, toolBarManager);
 	}
 
 	public InformationControl(Shell parentShell, String statusFieldText) {
@@ -39,8 +43,7 @@ public abstract class InformationControl<INFORMATION> extends
 		this.create();
 	}
 
-	public InformationControl(Shell parentShell,
-			ToolBarManager toolBarManager) {
+	public InformationControl(Shell parentShell, ToolBarManager toolBarManager) {
 		super(parentShell, toolBarManager);
 		this.create();
 	}
@@ -76,7 +79,7 @@ public abstract class InformationControl<INFORMATION> extends
 	}
 
 	@Override
-	public ReusableInformationControlCreator<IAnker> getInformationPresenterControlCreator() {
+	public InformationControlCreator<INFORMATION> getInformationPresenterControlCreator() {
 		return null;
 	}
 

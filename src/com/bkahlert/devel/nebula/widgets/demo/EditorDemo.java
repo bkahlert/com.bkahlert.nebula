@@ -2,7 +2,6 @@ package com.bkahlert.devel.nebula.widgets.demo;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.ToolBarManager;
-import org.eclipse.jface.internal.text.html.HTMLTextPresenter;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -19,10 +18,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.about.AboutAction;
 
 import com.bkahlert.devel.nebula.dialogs.PopupDialog;
+import com.bkahlert.devel.nebula.utils.information.EnhanceableInformationControl;
+import com.bkahlert.devel.nebula.utils.information.EnhanceableInformationControl.Delegate;
 import com.bkahlert.devel.nebula.utils.information.ISubjectInformationProvider;
 import com.bkahlert.devel.nebula.utils.information.InformationControl;
+import com.bkahlert.devel.nebula.utils.information.InformationControlCreator;
 import com.bkahlert.devel.nebula.utils.information.InformationControlManager;
-import com.bkahlert.devel.nebula.utils.information.ReusableInformationControlCreator;
 import com.bkahlert.devel.nebula.widgets.RoundedComposite;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import com.bkahlert.devel.nebula.widgets.browser.IAnker;
@@ -92,74 +93,36 @@ public class EditorDemo extends Composite {
 					// this.popup.open();
 				}
 			}
-
-			HTMLTextPresenter x;
 		});
 
 		InformationControlManager<Editor<?>, IAnker> editorInformationControlManager = new InformationControlManager<Editor<?>, IAnker>(
-				new ReusableInformationControlCreator<IAnker>() {
-
+				new InformationControlCreator<IAnker>() {
 					@Override
 					protected InformationControl<IAnker> doCreateInformationControl(
 							Shell parent) {
-						return new InformationControl<IAnker>(parent,
-								"Press 'F2' for focus") {
-							private Label label;
+						ToolBarManager toolBarManager = new ToolBarManager();
+						toolBarManager.add(new AboutAction(PlatformUI
+								.getWorkbench().getActiveWorkbenchWindow()));
+						return new EnhanceableInformationControl<IAnker>(
+								parent, toolBarManager, new Delegate<IAnker>() {
+									private Label label;
 
-							@Override
-							protected void createContent(Composite parent) {
-								this.label = new Label(parent, SWT.BORDER);
-							}
-
-							@Override
-							public boolean setTypedInput(IAnker input) {
-								if (input == null) {
-									return false;
-								}
-								this.label.setText(input.toHtml());
-								return true;
-							}
-
-							// TODO creator separat übergeben an
-							// TypedInformationControlManaer
-							@Override
-							public ReusableInformationControlCreator<IAnker> getInformationPresenterControlCreator() {
-								return new ReusableInformationControlCreator<IAnker>() {
 									@Override
-									protected InformationControl<IAnker> doCreateInformationControl(
-											Shell parent) {
-										ToolBarManager toolBarManager = new ToolBarManager();
-										toolBarManager
-												.add(new AboutAction(
-														PlatformUI
-																.getWorkbench()
-																.getActiveWorkbenchWindow()));
-										return new InformationControl<IAnker>(
-												parent, toolBarManager) {
-											private Label label;
-
-											@Override
-											protected void createContent(
-													Composite parent) {
-												this.label = new Label(parent,
-														SWT.BORDER);
-											}
-
-											@Override
-											public boolean setTypedInput(
-													IAnker input) {
-												if (input == null) {
-													return false;
-												}
-												this.label.setText(input
-														.toHtml());
-												return true;
-											}
-										};
+									public void build(Composite parent) {
+										this.label = new Label(parent,
+												SWT.BORDER);
 									}
-								};
-							}
-						};
+
+									@Override
+									public boolean load(IAnker anker) {
+										if (anker == null) {
+											return false;
+										}
+										this.label.setText(anker.toHtml());
+										return true;
+									}
+
+								});
 					}
 				}, new ISubjectInformationProvider<Editor<?>, IAnker>() {
 					private IAnker hoveredAnker = null;

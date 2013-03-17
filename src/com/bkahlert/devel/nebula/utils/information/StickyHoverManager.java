@@ -286,9 +286,8 @@ public class StickyHoverManager<INFORMATION> extends InformationControlReplacer 
 	 *            the text viewer
 	 */
 	public StickyHoverManager(
-			ReusableInformationControlCreator<INFORMATION> creator) {
+			InformationControlCreator<INFORMATION> creator) {
 		super(creator);
-
 		this.setCloser(new Closer());
 	}
 
