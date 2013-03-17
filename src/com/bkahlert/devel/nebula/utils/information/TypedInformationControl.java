@@ -2,8 +2,6 @@ package com.bkahlert.devel.nebula.utils.information;
 
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.text.AbstractInformationControl;
-import org.eclipse.jface.text.DefaultInformationControl;
-import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IInformationControlExtension2;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
@@ -16,6 +14,9 @@ import org.eclipse.swt.widgets.Shell;
  * {@link IInformationControlExtension2#setInput(Object)} you have to override
  * {@link #setTypedInput(Object)} that returns a boolean whether to show
  * information or not.
+ * <p>
+ * Make sure to override {@link #getInformationPresenterControlCreator()} if you
+ * want to allow the user to hover the popup and get an enhanced version.
  * 
  * @author bkahlert
  * 
@@ -31,10 +32,14 @@ public abstract class TypedInformationControl<INFORMATION> extends
 		this.create();
 	}
 
+	public TypedInformationControl(Shell parentShell, String statusFieldText) {
+		super(parentShell, statusFieldText);
+		this.create();
+	}
+
 	public TypedInformationControl(Shell parentShell,
 			ToolBarManager toolBarManager) {
 		super(parentShell, toolBarManager);
-		DefaultInformationControl x;
 		this.create();
 	}
 
@@ -69,8 +74,8 @@ public abstract class TypedInformationControl<INFORMATION> extends
 	}
 
 	@Override
-	public IInformationControlCreator getInformationPresenterControlCreator() {
-		return super.getInformationPresenterControlCreator();
+	public ITypedInformationControlCreator<INFORMATION> getInformationPresenterControlCreator() {
+		return null;
 	}
 
 }

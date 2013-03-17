@@ -101,11 +101,8 @@ public class EditorDemo extends Composite {
 					@Override
 					public TypedInformationControl<IAnker> createInformationControl(
 							Shell parent) {
-						ToolBarManager toolBarManager = new ToolBarManager();
-						toolBarManager.add(new AboutAction(PlatformUI
-								.getWorkbench().getActiveWorkbenchWindow()));
 						return new TypedInformationControl<IAnker>(parent,
-								toolBarManager) {
+								"Press 'F2' for focus") {
 							private Label label;
 
 							@Override
@@ -118,9 +115,48 @@ public class EditorDemo extends Composite {
 								if (input == null) {
 									return false;
 								}
-								this.setStatusText(input.toHtml());
 								this.label.setText(input.toHtml());
 								return true;
+							}
+
+							// TODO creator separat übergeben an
+							// TypedInformationControlManaer
+							@Override
+							public ITypedInformationControlCreator<IAnker> getInformationPresenterControlCreator() {
+								return new ITypedInformationControlCreator<IAnker>() {
+									@Override
+									public TypedInformationControl<IAnker> createInformationControl(
+											Shell parent) {
+										ToolBarManager toolBarManager = new ToolBarManager();
+										toolBarManager
+												.add(new AboutAction(
+														PlatformUI
+																.getWorkbench()
+																.getActiveWorkbenchWindow()));
+										return new TypedInformationControl<IAnker>(
+												parent, toolBarManager) {
+											private Label label;
+
+											@Override
+											protected void createContent(
+													Composite parent) {
+												this.label = new Label(parent,
+														SWT.BORDER);
+											}
+
+											@Override
+											public boolean setTypedInput(
+													IAnker input) {
+												if (input == null) {
+													return false;
+												}
+												this.label.setText(input
+														.toHtml());
+												return true;
+											}
+										};
+									}
+								};
 							}
 						};
 					}
@@ -176,5 +212,4 @@ public class EditorDemo extends Composite {
 			}
 		});
 	}
-
 }

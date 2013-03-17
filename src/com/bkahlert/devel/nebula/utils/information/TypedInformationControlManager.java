@@ -1,6 +1,10 @@
 package com.bkahlert.devel.nebula.utils.information;
 
+import org.eclipse.jface.internal.text.InformationControlReplacer;
 import org.eclipse.jface.text.AbstractHoverInformationControlManager;
+import org.eclipse.jface.text.IInformationControl;
+import org.eclipse.jface.text.IInformationControlCreator;
+import org.eclipse.jface.text.IInformationControlCreatorExtension;
 import org.eclipse.jface.util.Geometry;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -22,11 +26,40 @@ public class TypedInformationControlManager<CONTROL extends Control, INFORMATION
 
 	private ISubjectInformationProvider<CONTROL, INFORMATION> subjectInformationProvider;
 
+	public static class XY extends InformationControlReplacer implements
+			IInformationControlCreatorExtension {
+
+		public XY(IInformationControlCreator creator) {
+			super(creator);
+		}
+
+		@Override
+		public boolean canReuse(IInformationControl control) {
+			return true;
+		}
+
+		@Override
+		public boolean canReplace(IInformationControlCreator creator) {
+			return true;
+		}
+
+	}
+
 	public TypedInformationControlManager(
 			ITypedInformationControlCreator<INFORMATION> creator,
 			ISubjectInformationProvider<CONTROL, INFORMATION> subjectInformationProvider) {
 		super(creator);
+		this.getInternalAccessor().setInformationControlReplacer(
+				new XY(creator));
 		this.subjectInformationProvider = subjectInformationProvider;
+	}
+
+	@Override
+	public void install(Control subjectControl) {
+		super.install(subjectControl);
+		// TODO; möglicherweise erst debuggen, ob aufgerufen wird
+		this.getInternalAccessor().getInformationControlReplacer()
+				.install(subjectControl);
 	}
 
 	@SuppressWarnings("unchecked")
