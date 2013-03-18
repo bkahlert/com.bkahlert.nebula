@@ -7,6 +7,7 @@ import com.bkahlert.devel.nebula.viewer.timeline.ITimelineViewer;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
 
 /**
  * Instances of this class can be used to extend {@link ITimeline}s with MVC
@@ -17,12 +18,13 @@ import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
  */
 public interface ITimelineGroupViewer extends ITimelineViewer {
 	/**
-	 * Returns the viewer's underlying {@link ITimeline}.
+	 * Returns the viewer's underlying {@link ITimelineGroup}.
 	 * <p>
-	 * May be safely casted to TIMELINE.
+	 * May be safely casted to ITimelineGroup.
 	 * 
 	 * @return
 	 */
+	@Override
 	public Control getControl();
 
 	/**
@@ -35,6 +37,7 @@ public interface ITimelineGroupViewer extends ITimelineViewer {
 	 * @param input
 	 * @param monitor
 	 */
+	@Override
 	public void setInput(Object input);
 
 	/**
@@ -47,5 +50,6 @@ public interface ITimelineGroupViewer extends ITimelineViewer {
 	/**
 	 * Refreshes the user interface based on a freshly reloaded model.
 	 */
+	@Override
 	public void refresh(IProgressMonitor monitor);
 }

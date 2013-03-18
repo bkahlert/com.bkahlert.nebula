@@ -51,7 +51,8 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 	private ITimelineListener timelineListenerDelegate = new ITimelineListener() {
 		@Override
 		public void clicked(TimelineEvent event) {
-			Object[] listeners = timelineListeners.getListeners();
+			Object[] listeners = TimelineGroup.this.timelineListeners
+					.getListeners();
 			for (Object listener : listeners) {
 				((ITimelineListener) listener).clicked(event);
 			}
@@ -59,7 +60,8 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 
 		@Override
 		public void middleClicked(TimelineEvent event) {
-			Object[] listeners = timelineListeners.getListeners();
+			Object[] listeners = TimelineGroup.this.timelineListeners
+					.getListeners();
 			for (Object listener : listeners) {
 				((ITimelineListener) listener).middleClicked(event);
 			}
@@ -67,7 +69,8 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 
 		@Override
 		public void rightClicked(TimelineEvent event) {
-			Object[] listeners = timelineListeners.getListeners();
+			Object[] listeners = TimelineGroup.this.timelineListeners
+					.getListeners();
 			for (Object listener : listeners) {
 				((ITimelineListener) listener).rightClicked(event);
 			}
@@ -75,7 +78,8 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 
 		@Override
 		public void doubleClicked(TimelineEvent event) {
-			Object[] listeners = timelineListeners.getListeners();
+			Object[] listeners = TimelineGroup.this.timelineListeners
+					.getListeners();
 			for (Object listener : listeners) {
 				((ITimelineListener) listener).doubleClicked(event);
 			}
@@ -83,7 +87,8 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 
 		@Override
 		public void resizeStarted(TimelineEvent event) {
-			Object[] listeners = timelineListeners.getListeners();
+			Object[] listeners = TimelineGroup.this.timelineListeners
+					.getListeners();
 			for (Object listener : listeners) {
 				((ITimelineListener) listener).resizeStarted(event);
 			}
@@ -91,7 +96,8 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 
 		@Override
 		public void resizing(TimelineEvent event) {
-			Object[] listeners = timelineListeners.getListeners();
+			Object[] listeners = TimelineGroup.this.timelineListeners
+					.getListeners();
 			for (Object listener : listeners) {
 				((ITimelineListener) listener).resizing(event);
 			}
@@ -99,7 +105,8 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 
 		@Override
 		public void resized(TimelineEvent event) {
-			Object[] listeners = timelineListeners.getListeners();
+			Object[] listeners = TimelineGroup.this.timelineListeners
+					.getListeners();
 			for (Object listener : listeners) {
 				((ITimelineListener) listener).resized(event);
 			}
@@ -107,7 +114,8 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 
 		@Override
 		public void hoveredIn(TimelineEvent event) {
-			Object[] listeners = timelineListeners.getListeners();
+			Object[] listeners = TimelineGroup.this.timelineListeners
+					.getListeners();
 			for (Object listener : listeners) {
 				((ITimelineListener) listener).hoveredIn(event);
 			}
@@ -115,7 +123,8 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 
 		@Override
 		public void hoveredOut(TimelineEvent event) {
-			Object[] listeners = timelineListeners.getListeners();
+			Object[] listeners = TimelineGroup.this.timelineListeners
+					.getListeners();
 			for (Object listener : listeners) {
 				((ITimelineListener) listener).hoveredOut(event);
 			}
@@ -142,7 +151,7 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 			throw new OperationCanceledException();
 		}
 
-		ITimelineInput[] unpreparedInputs = prepareTimelines(inputs);
+		ITimelineInput[] unpreparedInputs = this.prepareTimelines(inputs);
 
 		if (subMonitor.isCanceled()) {
 			throw new OperationCanceledException();
@@ -160,7 +169,7 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 				timeline = ExecutorUtil.asyncExec(new Callable<TIMELINE>() {
 					@Override
 					public TIMELINE call() throws Exception {
-						return getTimeline(unpreparedInput);
+						return TimelineGroup.this.getTimeline(unpreparedInput);
 					}
 				}).get();
 			} catch (Exception e) {
@@ -176,7 +185,8 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 					timeline = ExecutorUtil.syncExec(new Callable<TIMELINE>() {
 						@Override
 						public TIMELINE call() throws Exception {
-							TIMELINE timeline = createTimeline();
+							TIMELINE timeline = TimelineGroup.this
+									.createTimeline();
 							timeline.setData(unpreparedInput);
 							return timeline;
 						}
@@ -196,7 +206,7 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 			timeline.show(unpreparedInput, 300, 300, subMonitor.newChild(8));
 
 			if (subMonitor.isCanceled()) {
-				disposeTimelines(unpreparedInput);
+				this.disposeTimelines(unpreparedInput);
 				throw new OperationCanceledException();
 			}
 		}
@@ -205,8 +215,9 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 			@Override
 			public T call() throws Exception {
 				TimelineGroup.this.layout();
-				if (success != null)
+				if (success != null) {
 					return success.call();
+				}
 				return null;
 			}
 		});
@@ -221,24 +232,24 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 	public TIMELINE createTimeline() {
 		final TIMELINE timeline = TimelineGroup.this.timelineFactory
 				.createTimeline(TimelineGroup.this, SWT.NONE);
-		timeline.addTimelineListener(timelineListenerDelegate);
+		timeline.addTimelineListener(this.timelineListenerDelegate);
 		timeline.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				timeline.addTimelineListener(timelineListenerDelegate);
+				timeline.addTimelineListener(TimelineGroup.this.timelineListenerDelegate);
 			}
 		});
 		return timeline;
 	}
 
-	public Set<ITimelineInput> getTimelineKeys() {
-		final Set<ITimelineInput> inputs = new HashSet<ITimelineInput>();
+	public Set<Object> getTimelineKeys() {
+		final Set<Object> inputs = new HashSet<Object>();
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
 				for (Control control : TimelineGroup.this.getChildren()) {
 					if (!control.isDisposed() && control instanceof Timeline) {
-						inputs.add((ITimelineInput) control.getData());
+						inputs.add((Object) control.getData());
 					}
 				}
 			}
@@ -250,16 +261,16 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 	 * Returns the {@code TIMELINE} that is associated with the given key.
 	 * 
 	 * @UI must be called from the UI thread
-	 * @param input
+	 * @param object
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public TIMELINE getTimeline(final ITimelineInput input) {
-		Assert.isNotNull(input);
+	public TIMELINE getTimeline(final Object object) {
+		Assert.isNotNull(object);
 		for (Control control : this.getChildren()) {
 			if (!control.isDisposed() && control instanceof IBaseTimeline) {
 				IBaseTimeline timeline = (IBaseTimeline) control;
-				if (input.equals(timeline.getData())) {
+				if (object.equals(timeline.getData())) {
 					try {
 						return (TIMELINE) timeline;
 					} catch (Exception e) {
@@ -295,7 +306,7 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 	private ITimelineInput[] prepareTimelines(Set<ITimelineInput> inputs) {
 		List<Object> neededTimelines = new LinkedList<Object>(inputs);
 		List<Object> existingTimelines = new LinkedList<Object>(
-				getTimelineKeys());
+				this.getTimelineKeys());
 		List<?> preparedTimelines = ListUtils.intersection(existingTimelines,
 				neededTimelines);
 		final List<?> unpreparedTimelines = ListUtils.subtract(neededTimelines,
@@ -310,7 +321,8 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 				while (freeTimelines.size() > 0
 						&& unpreparedTimelines.size() > i) {
 					try {
-						TIMELINE timeline = getTimeline(freeTimelines.remove(0));
+						TIMELINE timeline = TimelineGroup.this
+								.getTimeline(freeTimelines.remove(0));
 						timeline.setData(unpreparedTimelines.get(i));
 					} catch (Exception e) {
 						LOGGER.error("Error assigning new key "
@@ -320,7 +332,7 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 				}
 			}
 		});
-		disposeTimelines(freeTimelines.toArray(new ITimelineInput[0]));
+		this.disposeTimelines(freeTimelines.toArray(new ITimelineInput[0]));
 		return new HashSet<ITimelineInput>(ArrayUtils.getInstances(
 				unpreparedTimelines.toArray(), ITimelineInput.class))
 				.toArray(new ITimelineInput[0]);
@@ -338,9 +350,11 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 			public void run() {
 				for (ITimelineInput timelineInput : timelineInputs) {
 					try {
-						TIMELINE timeline = getTimeline(timelineInput);
-						if (timeline != null && !timeline.isDisposed())
+						TIMELINE timeline = TimelineGroup.this
+								.getTimeline(timelineInput);
+						if (timeline != null && !timeline.isDisposed()) {
 							timeline.dispose();
+						}
 					} catch (Exception e) {
 						LOGGER.error("Error disposing " + Timeline.class);
 					}

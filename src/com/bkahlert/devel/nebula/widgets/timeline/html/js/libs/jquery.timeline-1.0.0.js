@@ -385,9 +385,13 @@
                     bandInfos[i].eventPainter.setFilterMatcher(function(evt) {
                         var num = i;
                         if (evt._start && evt._end) {
+                            // keep events without start or end (simulated by having the same date + specific classes)
+                            if(evt._start.getTime() == evt._end.getTime()) return true;
+                            
                             var width = Math.round(band.dateToPixelOffset(evt._end) - band.dateToPixelOffset(evt._start));
-                            if (width <= 1 && evt._start != evt._end)
-                                return false; // TODO false
+                            if (width <= 1) {
+                                return false;
+                            }
                         }
                         return true;
                     });
