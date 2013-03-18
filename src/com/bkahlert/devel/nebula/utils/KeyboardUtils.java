@@ -30,7 +30,6 @@ public class KeyboardUtils implements IStartup {
 			public void run() {
 				Display.getDefault().addFilter(SWT.KeyDown, metaKeyListener);
 				Display.getDefault().addFilter(SWT.KeyUp, metaKeyListener);
-				Display.getDefault().addFilter(SWT.FocusOut, metaKeyListener);
 			}
 		});
 	}
