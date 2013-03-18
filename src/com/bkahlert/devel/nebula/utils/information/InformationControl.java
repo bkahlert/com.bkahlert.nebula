@@ -3,6 +3,7 @@ package com.bkahlert.devel.nebula.utils.information;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.text.AbstractInformationControl;
 import org.eclipse.jface.text.IInformationControlExtension2;
+import org.eclipse.jface.util.Geometry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -87,12 +88,31 @@ public abstract class InformationControl<INFORMATION> extends
 	}
 
 	public void layout() {
-		Rectangle bounds = this.getBounds();
-		Point curpos = Display.getCurrent().getCursorLocation();
-		this.getShell().layout();
-		// this.getShell().pack();
-		// TODO korrekt platzieren
-		// this.getShell().setLocation(bounds.x, bounds.y + curpos.y);
+		Shell shell = this.getShell();
+		Rectangle oldBounds = shell.getBounds();
+		shell.layout();
+		shell.pack();
+		Point newSize = shell.getSize();
+		Rectangle newBounds = new Rectangle(oldBounds.x, oldBounds.y
+				+ oldBounds.height - newSize.y, newSize.x, newSize.y);
+		int fixedX = newBounds.x;
+		int fixedY = newBounds.y;
+		Geometry.moveInside(newBounds, Display.getCurrent().getBounds());
+		if (newBounds.x < fixedX) {
+			newBounds.width -= fixedX - newBounds.x;
+		}
+		if (newBounds.y != fixedY) {
+			newBounds.height -= fixedY - newBounds.y;
+		}
+		newBounds.x = fixedX;
+		newBounds.y = fixedY;
+		shell.setBounds(newBounds);
+		// TODO subject area des closers aktualisieren
+	}
+
+	@Override
+	public void setFocus() {
+		this.getShell().setFocus();
 	}
 
 }
