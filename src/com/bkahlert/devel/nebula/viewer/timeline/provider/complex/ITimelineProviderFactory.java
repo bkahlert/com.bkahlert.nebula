@@ -1,6 +1,8 @@
 package com.bkahlert.devel.nebula.viewer.timeline.provider.complex;
 
-import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
+import com.bkahlert.devel.nebula.viewer.timeline.impl.AbstractTimelineGroupViewer;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
 
 /**
  * Instances of this class create {@link ITimelineProvider} objects.
@@ -8,6 +10,6 @@ import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
  * @author bkahlert
  * 
  */
-public interface ITimelineProviderFactory<TIMELINE extends IBaseTimeline> {
-	public ITimelineProvider<TIMELINE> createTimelineProvider();
+public interface ITimelineProviderFactory<TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE>, TIMELINE extends ITimeline, INPUT> {
+	public ITimelineProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> createTimelineProvider();
 }

@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.widgets.timelineGroup.impl;
+package com.bkahlert.devel.nebula.widgets.timeline;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -24,14 +24,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Layout;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
-import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
-import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
 /**
@@ -39,8 +33,7 @@ import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
  * 
  * @author bkahlert
  */
-public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
-		implements ITimelineGroup<TIMELINE> {
+public class TimelineGroup<TIMELINE extends ITimeline> extends Composite {
 
 	private static final Logger LOGGER = Logger.getLogger(TimelineGroup.class);
 
@@ -140,7 +133,6 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 		this.timelineFactory = timelineFactory;
 	}
 
-	@Override
 	public <T> Future<T> show(Set<ITimelineInput> inputs,
 			IProgressMonitor monitor, final Callable<T> success) {
 
@@ -228,7 +220,6 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 		return rs;
 	}
 
-	@Override
 	public TIMELINE createTimeline() {
 		final TIMELINE timeline = TimelineGroup.this.timelineFactory
 				.createTimeline(TimelineGroup.this, SWT.NONE);
@@ -374,12 +365,10 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite
 		return;
 	}
 
-	@Override
 	public void addTimelineListener(ITimelineListener timelineListener) {
 		this.timelineListeners.add(timelineListener);
 	}
 
-	@Override
 	public void removeTimelineListener(ITimelineListener timelineListener) {
 		this.timelineListeners.remove(timelineListener);
 	}

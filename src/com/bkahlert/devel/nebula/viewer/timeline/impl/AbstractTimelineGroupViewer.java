@@ -1,24 +1,34 @@
-package com.bkahlert.devel.nebula.viewer.timelineGroup.impl;
+package com.bkahlert.devel.nebula.viewer.timeline.impl;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.content.IContentTypeManager.ISelectionPolicy;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
-import com.bkahlert.devel.nebula.viewer.timelineGroup.ITimelineGroupViewer;
+import com.bkahlert.devel.nebula.viewer.timeline.ITimelineGroupViewer;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
+import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
 
-public abstract class AbstractTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<? extends ITimeline>>
-		extends Viewer implements ITimelineGroupViewer {
+/**
+ * This abstract {@link ITimelineGroupViewer} implements the
+ * {@link ISelectionPolicy} functionality.
+ * 
+ * @author bkahlert
+ * 
+ * @param <TIMELINEGROUP>
+ * @param <INPUT>
+ */
+public abstract class AbstractTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE>, TIMELINE extends ITimeline, INPUT>
+		extends Viewer implements
+		ITimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT> {
 
 	private TIMELINEGROUP timelineGroup;
 
@@ -26,22 +36,26 @@ public abstract class AbstractTimelineGroupViewer<TIMELINEGROUP extends ITimelin
 	private ITimelineListener timelineListener = new ITimelineListener() {
 		@Override
 		public void clicked(TimelineEvent event) {
-			setSelection(new StructuredSelection(event.getSource()));
+			AbstractTimelineGroupViewer.this
+					.setSelection(new StructuredSelection(event.getSource()));
 		}
 
 		@Override
 		public void middleClicked(TimelineEvent event) {
-			setSelection(new StructuredSelection(event.getSource()));
+			AbstractTimelineGroupViewer.this
+					.setSelection(new StructuredSelection(event.getSource()));
 		}
 
 		@Override
 		public void rightClicked(TimelineEvent event) {
-			setSelection(new StructuredSelection(event.getSource()));
+			AbstractTimelineGroupViewer.this
+					.setSelection(new StructuredSelection(event.getSource()));
 		}
 
 		@Override
 		public void doubleClicked(TimelineEvent event) {
-			setSelection(new StructuredSelection(event.getSource()));
+			AbstractTimelineGroupViewer.this
+					.setSelection(new StructuredSelection(event.getSource()));
 		}
 
 		@Override
@@ -86,15 +100,16 @@ public abstract class AbstractTimelineGroupViewer<TIMELINEGROUP extends ITimelin
 						});
 			}
 		};
-		if (Display.getCurrent() == Display.getDefault())
+		if (Display.getCurrent() == Display.getDefault()) {
 			addDisposeListener.run();
-		else
+		} else {
 			Display.getDefault().syncExec(addDisposeListener);
+		}
 	}
 
 	@Override
-	public Control getControl() {
-		return (Control) this.timelineGroup;
+	public TIMELINEGROUP getControl() {
+		return this.timelineGroup;
 	}
 
 	@Override
@@ -105,9 +120,10 @@ public abstract class AbstractTimelineGroupViewer<TIMELINEGROUP extends ITimelin
 	@Override
 	public void setSelection(ISelection selection, boolean reveal) {
 		this.selection = selection;
-		fireSelectionChanged(new SelectionChangedEvent(this, selection));
+		this.fireSelectionChanged(new SelectionChangedEvent(this, selection));
 	}
 
+	@Override
 	public abstract void refresh(IProgressMonitor monitor);
 
 	@Override

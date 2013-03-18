@@ -4,6 +4,7 @@ import java.util.Calendar;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWTException;
+import org.eclipse.ui.services.IDisposable;
 
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.widgets.browser.IBrowserComposite;
@@ -27,7 +28,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
  * @author bkahlert
  * 
  */
-public interface IBaseTimeline extends IBrowserComposite {
+public interface IBaseTimeline extends IBrowserComposite, IDisposable {
 
 	/**
 	 * Runs a Java script in the browser immediately.
@@ -38,6 +39,7 @@ public interface IBaseTimeline extends IBrowserComposite {
 	 * @param js
 	 * @return
 	 */
+	@Override
 	public boolean runJs(String js);
 
 	/**
@@ -45,6 +47,7 @@ public interface IBaseTimeline extends IBrowserComposite {
 	 * 
 	 * @param js
 	 */
+	@Override
 	public void enqueueJs(String js);
 
 	/**
@@ -52,6 +55,7 @@ public interface IBaseTimeline extends IBrowserComposite {
 	 * 
 	 * @param path
 	 */
+	@Override
 	public void injectCssFile(String path);
 
 	/**

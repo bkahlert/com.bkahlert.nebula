@@ -4,8 +4,11 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import com.bkahlert.devel.nebula.viewer.timeline.impl.AbstractTimelineGroupViewer;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 
@@ -16,7 +19,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
  * @author bkahlert
  * 
  */
-public interface ITimelineProvider<TIMELINE extends IBaseTimeline> {
+public interface ITimelineProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE>, TIMELINE extends ITimeline, INPUT> {
 
 	/**
 	 * Instances of this class can be used to influence the
@@ -44,7 +47,7 @@ public interface ITimelineProvider<TIMELINE extends IBaseTimeline> {
 	 * 
 	 * @return
 	 */
-	public List<IBandGroupProvider> getBandGroupProviders();
+	public List<IBandGroupProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT>> getBandGroupProviders();
 
 	/**
 	 * Generates an {@link ITimelineInput} object that can serve as the input

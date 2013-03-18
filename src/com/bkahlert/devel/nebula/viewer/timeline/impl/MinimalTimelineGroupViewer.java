@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.viewer.timelineGroup.impl;
+package com.bkahlert.devel.nebula.viewer.timeline.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,53 +17,55 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.viewer.timeline.ITimelineGroupViewer;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProvider.ITimelineLabelProviderCreationInterceptor;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProviderFactory;
-import com.bkahlert.devel.nebula.viewer.timelineGroup.ITimelineGroupViewer;
 import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IOptions;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
-import com.bkahlert.devel.nebula.widgets.timelineGroup.ITimelineGroup;
 
 /**
  * This class implements a minimal implementation of
  * {@link ITimelineGroupViewer}.
  * <p>
- * Timelines are economically used. They are only created if necessary. No more
- * needed timelines are used to load another key if no more needed.
+ * {@link ITimeline}s are economically used. They are only created if necessary.
+ * No more needed {@link ITimeline}s are used to load another key if no more
+ * needed.
  * 
  * @author bkahlert
  * 
  * @param <TIMELINEGROUP>
  * @param <TIMELINE>
  */
-public class MinimalTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIMELINE>, TIMELINE extends ITimeline>
-		extends AbstractTimelineGroupViewer<TIMELINEGROUP> {
+public class MinimalTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE>, TIMELINE extends ITimeline, INPUT>
+		extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(MinimalTimelineGroupViewer.class);
 
-	private static class Asset<TIMELINE extends IBaseTimeline> {
+	private static class Asset<TIMELINEGROUPVIEWER extends MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE>, TIMELINE extends ITimeline, INPUT> {
 		private TIMELINE timeline;
-		private ITimelineProvider<TIMELINE> timelineProvider;
+		private ITimelineProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> timelineProvider;
 
-		public Asset(TIMELINE timeline,
-				ITimelineProvider<TIMELINE> timelineProvider) {
+		public Asset(
+				TIMELINE timeline,
+				ITimelineProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> timelineProvider) {
 			super();
 			this.timeline = timeline;
 			this.timelineProvider = timelineProvider;
 		}
 
 		public TIMELINE getTimeline() {
-			return timeline;
+			return this.timeline;
 		}
 
-		public ITimelineProvider<TIMELINE> getTimelineProvider() {
-			return timelineProvider;
+		public ITimelineProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> getTimelineProvider() {
+			return this.timelineProvider;
 		}
 	}
 
@@ -77,12 +79,15 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIM
 	 * @return
 	 */
 	public static Object[] breakUp(Object input) {
-		if (input == null)
+		if (input == null) {
 			return null;
-		if (input.getClass().isArray())
+		}
+		if (input.getClass().isArray()) {
 			return (Object[]) input;
-		if (input instanceof Collection<?>)
+		}
+		if (input instanceof Collection<?>) {
 			return ((Collection<?>) input).toArray();
+		}
 		return new Object[] { input };
 	}
 
@@ -103,16 +108,17 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIM
 		}
 	}
 
-	private ITimelineProviderFactory<TIMELINE> timelineProviderFactory;
+	private ITimelineProviderFactory<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> timelineProviderFactory;
 	private Object rawInput;
 
 	/**
 	 * Contains completely loaded keys and their {@link Asset}s.
 	 */
-	private Map<Object, Asset<TIMELINE>> loadedKeys = new HashMap<Object, Asset<TIMELINE>>();
+	private Map<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>> loadedKeys = new HashMap<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>>();
 
-	public MinimalTimelineGroupViewer(TIMELINEGROUP timelineGroup,
-			ITimelineProviderFactory<TIMELINE> timelineProviderFactory) {
+	public MinimalTimelineGroupViewer(
+			TIMELINEGROUP timelineGroup,
+			ITimelineProviderFactory<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> timelineProviderFactory) {
 		super(timelineGroup);
 		Assert.isNotNull(timelineProviderFactory);
 		this.timelineProviderFactory = timelineProviderFactory;
@@ -131,9 +137,9 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIM
 	}
 
 	protected void notifyInputChanged(
-			ITimelineProvider<TIMELINE> timelineProvider, Object oldInput,
-			Object newInput) {
-		for (IBandGroupProvider bandGroupProvider : timelineProvider
+			ITimelineProvider<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> timelineProvider,
+			INPUT oldInput, INPUT newInput) {
+		for (IBandGroupProvider<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> bandGroupProvider : timelineProvider
 				.getBandGroupProviders()) {
 			bandGroupProvider.getContentProvider().inputChanged(this, oldInput,
 					newInput);
@@ -147,27 +153,29 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIM
 
 	@Override
 	public void refresh(IProgressMonitor monitor) {
-		@SuppressWarnings("unchecked")
-		final TIMELINEGROUP timelineGroup = (TIMELINEGROUP) getControl();
+		final TIMELINEGROUP timelineGroup = this.getControl();
 
 		List<Object> neededKeys = new ArrayList<Object>(
-				Arrays.asList(breakUp(rawInput)));
+				Arrays.asList(breakUp(this.rawInput)));
 
 		final SubMonitor subMonitor = SubMonitor.convert(monitor,
 				neededKeys.size());
 
 		final List<TIMELINE> recyclableTimelines = new ArrayList<TIMELINE>();
-		for (Iterator<Entry<Object, Asset<TIMELINE>>> iterator = loadedKeys
+		for (Iterator<Entry<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>>> iterator = this.loadedKeys
 				.entrySet().iterator(); iterator.hasNext();) {
-			final Entry<Object, Asset<TIMELINE>> loaded = iterator.next();
+			final Entry<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>> loaded = iterator
+					.next();
 			if (!neededKeys.contains(loaded.getKey())) {
 				ExecutorUtil.syncExec(new Runnable() {
+					@SuppressWarnings("unchecked")
 					@Override
 					public void run() {
 						TIMELINE timeline = loaded.getValue().getTimeline();
-						ITimelineProvider<TIMELINE> provider = loaded
+						ITimelineProvider<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> provider = loaded
 								.getValue().getTimelineProvider();
-						notifyInputChanged(provider, timeline.getData(), null);
+						MinimalTimelineGroupViewer.this.notifyInputChanged(
+								provider, (INPUT) timeline.getData(), null);
 						loaded.getValue().getTimeline().setData(null);
 						recyclableTimelines.add(timeline);
 					}
@@ -181,8 +189,8 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIM
 		 * key (2) recyclableTimelines contains timelines that can be reused
 		 */
 		@SuppressWarnings("unchecked")
-		List<Object> unpreparedKeys = new ArrayList<Object>(
-				CollectionUtils.subtract(neededKeys, loadedKeys.keySet()));
+		List<INPUT> unpreparedKeys = new ArrayList<INPUT>(
+				CollectionUtils.subtract(neededKeys, this.loadedKeys.keySet()));
 
 		if (unpreparedKeys.size() > recyclableTimelines.size()) {
 			int missingTimelines = unpreparedKeys.size()
@@ -209,8 +217,9 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIM
 			ExecutorUtil.syncExec(new Runnable() {
 				@Override
 				public void run() {
-					for (int i = 0; i < toManyTimelines; i++)
+					for (int i = 0; i < toManyTimelines; i++) {
 						recyclableTimelines.remove(0).dispose();
+					}
 				}
 			});
 		}
@@ -223,9 +232,9 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIM
 		/*
 		 * Prepare unpreparated keys
 		 */
-		Map<Object, Asset<TIMELINE>> preparedKeys = new HashMap<Object, Asset<TIMELINE>>();
+		Map<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>> preparedKeys = new HashMap<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>>();
 		for (int i = 0, m = unpreparedKeys.size(); i < m; i++) {
-			final Object unpreparedKey = unpreparedKeys.remove(unpreparedKeys
+			final INPUT unpreparedKey = unpreparedKeys.remove(unpreparedKeys
 					.size() - 1);
 			final TIMELINE recyclableTimeline = recyclableTimelines
 					.remove(recyclableTimelines.size() - 1);
@@ -235,25 +244,27 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIM
 					recyclableTimeline.setData(unpreparedKey);
 				}
 			});
-			ITimelineProvider<TIMELINE> timelineProvider = this.timelineProviderFactory
+			ITimelineProvider<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> timelineProvider = this.timelineProviderFactory
 					.createTimelineProvider();
-			notifyInputChanged(timelineProvider, null, unpreparedKey);
-			preparedKeys.put(unpreparedKey, new Asset<TIMELINE>(
-					recyclableTimeline, timelineProvider));
+			this.notifyInputChanged(timelineProvider, null, unpreparedKey);
+			preparedKeys
+					.put(unpreparedKey,
+							new Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>(
+									recyclableTimeline, timelineProvider));
 		}
 
 		Assert.isTrue(unpreparedKeys.isEmpty());
 		Assert.isTrue(recyclableTimelines.isEmpty());
-		Assert.isTrue(loadedKeys.keySet().size() + preparedKeys.keySet().size() == neededKeys
-				.size());
+		Assert.isTrue(this.loadedKeys.keySet().size()
+				+ preparedKeys.keySet().size() == neededKeys.size());
 		Assert.isTrue(CollectionUtils.isEqualCollection(
-				CollectionUtils.union(loadedKeys.keySet(),
+				CollectionUtils.union(this.loadedKeys.keySet(),
 						preparedKeys.keySet()), neededKeys));
 
-		refresh(loadedKeys, false, subMonitor.newChild(1));
-		refresh(preparedKeys, true, subMonitor.newChild(1));
+		this.refresh(this.loadedKeys, false, subMonitor.newChild(1));
+		this.refresh(preparedKeys, true, subMonitor.newChild(1));
 
-		loadedKeys.putAll(preparedKeys);
+		this.loadedKeys.putAll(preparedKeys);
 
 		ExecutorUtil.syncExec(new Runnable() {
 			@Override
@@ -267,14 +278,15 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIM
 	// different content providers can make this method be called multiple times
 	// because of one core event
 	// FIXME: TimelineRefresher no more needed then
-	public void refresh(Map<Object, Asset<TIMELINE>> keys,
+	public void refresh(
+			Map<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>> keys,
 			final boolean keysAreNew, final IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 3);
 		for (final Object key : keys.keySet()) {
 			try {
 				TIMELINE timeline = keys.get(key).getTimeline();
-				ITimelineProvider<TIMELINE> timelineProvider = keys.get(key)
-						.getTimelineProvider();
+				ITimelineProvider<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> timelineProvider = keys
+						.get(key).getTimelineProvider();
 
 				ITimelineInput timelineInput = timelineProvider
 						.generateTimelineInput(
@@ -290,7 +302,7 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends ITimelineGroup<TIM
 									}
 								}, subMonitor.newChild(1));
 
-				postProcess(timeline, timelineInput, keysAreNew);
+				this.postProcess(timeline, timelineInput, keysAreNew);
 
 				if (keysAreNew) {
 					timeline.show(timelineInput, 300, 300,
