@@ -101,7 +101,7 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 	}
 
 	@Override
-	protected final void createContent(Composite parent) {
+	protected final void create(Composite parent) {
 		this.delegate.build(parent);
 	}
 

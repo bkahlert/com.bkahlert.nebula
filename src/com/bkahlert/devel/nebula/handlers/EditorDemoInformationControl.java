@@ -5,11 +5,19 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.dialogs.MessageDialog;
 
+import com.bkahlert.devel.nebula.utils.information.InformationControl;
+import com.bkahlert.devel.nebula.utils.information.InformationControlManagerUtils;
+
 public class EditorDemoInformationControl extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		MessageDialog.openInformation(null, "bkahlert.com Nebula",
-				"Hello, Eclipse world");
+		InformationControl<?> control = InformationControlManagerUtils
+				.getCurrentControl();
+		Object input = InformationControlManagerUtils.getCurrentInput();
+		MessageDialog.openInformation(null, "Control & Input",
+				"Current control: " + control.getClass().getSimpleName() + "\n"
+						+ control + "\n\nCurrent input: "
+						+ input.getClass().getSimpleName() + "\n" + input);
 		return null;
 	}
 }

@@ -15,6 +15,8 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.IMenuService;
 
+import com.bkahlert.nebula.SourceProvider;
+
 /**
  * This is a typed version of the {@link IInformationControlExtension2}.<br>
  * Instead of having to override
@@ -80,13 +82,20 @@ public abstract class InformationControl<INFORMATION> extends
 	}
 
 	@Override
-	protected abstract void createContent(Composite parent);
+	protected final void createContent(Composite parent) {
+		SourceProvider.controlChanged(this);
+		this.create(parent);
+	}
+
+	protected abstract void create(Composite parent);
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public final void setInput(Object input) {
 		try {
-			this.hasContents = this.load((INFORMATION) input);
+			INFORMATION information = (INFORMATION) input;
+			SourceProvider.inputChanged(information);
+			this.hasContents = this.load(information);
 		} catch (ClassCastException e) {
 			this.hasContents = false;
 		}

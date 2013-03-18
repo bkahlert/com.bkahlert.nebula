@@ -100,8 +100,28 @@
          <command
                commandId="com.bkahlert.devel.nebula.commands.EditorDemoInformationControl"
                style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="com.bkahlert.devel.nebula.with1">
+               </with>
+            </visibleWhen>
          </command>
       </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.services">
+          <sourceProvider
+            provider="com.bkahlert.nebula.SourceProvider">
+         <variable
+               name="de.fu_berlin.inf.dpp.Saros"
+               priorityLevel="workbench">
+         </variable>
+         <variable
+               name="de.fu_berlin.inf.dpp.SarosSession"
+               priorityLevel="workbench">
+         </variable>
+      </sourceProvider>
    </extension>
 
 </plugin>
