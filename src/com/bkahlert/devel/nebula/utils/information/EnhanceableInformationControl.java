@@ -110,6 +110,7 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 		ToolBarManager toolBarManager = this.getToolBarManager();
 		if (toolBarManager != null) {
 			toolBarManager.removeAll();
+			this.addMenuServiceContributions(toolBarManager);
 		}
 		@SuppressWarnings("unchecked")
 		boolean load = this.delegate

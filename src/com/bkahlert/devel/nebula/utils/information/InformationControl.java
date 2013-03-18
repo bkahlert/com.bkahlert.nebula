@@ -1,5 +1,6 @@
 package com.bkahlert.devel.nebula.utils.information;
 
+import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.text.AbstractInformationControl;
 import org.eclipse.jface.text.IInformationControlExtension2;
@@ -10,6 +11,9 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.menus.IMenuService;
 
 /**
  * This is a typed version of the {@link IInformationControlExtension2}.<br>
@@ -39,16 +43,40 @@ public abstract class InformationControl<INFORMATION> extends
 	protected InformationControl(Shell parentShell,
 			ToolBarManager toolBarManager, Object noCreate) {
 		super(parentShell, toolBarManager);
+		toolBarManager.add(new GroupMarker(
+				IWorkbenchActionConstants.MB_ADDITIONS));
+		this.addMenuServiceContributions(toolBarManager);
 	}
 
 	public InformationControl(Shell parentShell, String statusFieldText) {
-		super(parentShell, statusFieldText);
+		this(parentShell, statusFieldText, null);
 		this.create();
 	}
 
+	/**
+	 * Constructs a new {@link InformationControl} using the specified
+	 * {@link ToolBarManager}.
+	 * <p>
+	 * You can make contributions to your toolBarManager using the
+	 * <code>plugin.xml-menuContributions</code> with location set to
+	 * <code>toolbar:com.bkahlert.nebula.information</code>.
+	 * <p>
+	 * An {@link IWorkbenchActionConstants#MB_ADDITIONS} is automatically added
+	 * to the end of the {@link ToolBarManager}.
+	 * 
+	 * @param parentShell
+	 * @param toolBarManager
+	 */
 	public InformationControl(Shell parentShell, ToolBarManager toolBarManager) {
-		super(parentShell, toolBarManager);
+		this(parentShell, toolBarManager, null);
 		this.create();
+	}
+
+	protected void addMenuServiceContributions(ToolBarManager toolBarManager) {
+		IMenuService menuService = (IMenuService) PlatformUI.getWorkbench()
+				.getService(IMenuService.class);
+		menuService.populateContributionManager(toolBarManager,
+				"toolbar:com.bkahlert.nebula.information");
 	}
 
 	@Override

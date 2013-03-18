@@ -117,7 +117,8 @@ public class EditorDemo extends Composite {
 											@Override
 											public boolean load(
 													IAnker anker,
-													ToolBarManager toolBarManager) {
+													ToolBarManager toolBarManager,
+													EnhanceableInformationControl<IAnker, Delegate<IAnker>> enhanceableInformationControl) {
 												if (anker == null) {
 													return false;
 												}
