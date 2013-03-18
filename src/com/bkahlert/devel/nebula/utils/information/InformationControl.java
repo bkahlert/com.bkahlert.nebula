@@ -5,15 +5,17 @@ import org.eclipse.jface.text.AbstractInformationControl;
 import org.eclipse.jface.text.IInformationControlExtension2;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 /**
  * This is a typed version of the {@link IInformationControlExtension2}.<br>
  * Instead of having to override
  * {@link IInformationControlExtension2#setInput(Object)} you have to override
- * {@link #setTypedInput(Object)} that returns a boolean whether to show
- * information or not.
+ * {@link #load(Object)} that returns a boolean whether to show information or
+ * not.
  * <p>
  * <strong>Make sure to override
  * {@link #getInformationPresenterControlCreator()} if you want to allow the
@@ -55,17 +57,17 @@ public abstract class InformationControl<INFORMATION> extends
 	@Override
 	public final void setInput(Object input) {
 		try {
-			this.hasContents = this.setTypedInput((INFORMATION) input);
+			this.hasContents = this.load((INFORMATION) input);
 		} catch (ClassCastException e) {
 			this.hasContents = false;
 		}
 	}
 
-	public abstract boolean setTypedInput(INFORMATION input);
+	public abstract boolean load(INFORMATION input);
 
 	/**
 	 * This implementation delegates this method's return value computation to
-	 * {@link #setTypedInput(Object)}.
+	 * {@link #load(Object)}.
 	 */
 	@Override
 	public final boolean hasContents() {
@@ -76,11 +78,21 @@ public abstract class InformationControl<INFORMATION> extends
 	public Point computeSizeHint() {
 		// currently ignores size constraints
 		return this.getShell().computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+		// return super.computeSizeHint();
 	}
 
 	@Override
 	public InformationControlCreator<INFORMATION> getInformationPresenterControlCreator() {
 		return null;
+	}
+
+	public void layout() {
+		Rectangle bounds = this.getBounds();
+		Point curpos = Display.getCurrent().getCursorLocation();
+		this.getShell().layout();
+		// this.getShell().pack();
+		// TODO korrekt platzieren
+		// this.getShell().setLocation(bounds.x, bounds.y + curpos.y);
 	}
 
 }

@@ -20,6 +20,7 @@ import org.eclipse.ui.internal.about.AboutAction;
 import com.bkahlert.devel.nebula.dialogs.PopupDialog;
 import com.bkahlert.devel.nebula.utils.information.EnhanceableInformationControl;
 import com.bkahlert.devel.nebula.utils.information.EnhanceableInformationControl.Delegate;
+import com.bkahlert.devel.nebula.utils.information.EnhanceableInformationControl.DelegateFactory;
 import com.bkahlert.devel.nebula.utils.information.ISubjectInformationProvider;
 import com.bkahlert.devel.nebula.utils.information.InformationControl;
 import com.bkahlert.devel.nebula.utils.information.InformationControlCreator;
@@ -90,7 +91,6 @@ public class EditorDemo extends Composite {
 							return label;
 						};
 					};
-					// this.popup.open();
 				}
 			}
 		});
@@ -100,28 +100,47 @@ public class EditorDemo extends Composite {
 					@Override
 					protected InformationControl<IAnker> doCreateInformationControl(
 							Shell parent) {
-						ToolBarManager toolBarManager = new ToolBarManager();
-						toolBarManager.add(new AboutAction(PlatformUI
-								.getWorkbench().getActiveWorkbenchWindow()));
-						return new EnhanceableInformationControl<IAnker>(
-								parent, toolBarManager, new Delegate<IAnker>() {
-									private Label label;
-
+						return new EnhanceableInformationControl<IAnker, Delegate<IAnker>>(
+								parent,
+								new DelegateFactory<Delegate<IAnker>>() {
 									@Override
-									public void build(Composite parent) {
-										this.label = new Label(parent,
-												SWT.BORDER);
-									}
+									public Delegate<IAnker> create() {
+										return new Delegate<IAnker>() {
+											private Label label;
 
-									@Override
-									public boolean load(IAnker anker) {
-										if (anker == null) {
-											return false;
-										}
-										this.label.setText(anker.toHtml());
-										return true;
-									}
+											@Override
+											public void build(Composite parent) {
+												this.label = new Label(parent,
+														SWT.BORDER);
+											}
 
+											@Override
+											public boolean load(
+													IAnker anker,
+													ToolBarManager toolBarManager) {
+												if (anker == null) {
+													return false;
+												}
+
+												System.out.println(this.label
+														.hashCode());
+
+												if (toolBarManager != null) {
+													toolBarManager
+															.add(new AboutAction(
+																	PlatformUI
+																			.getWorkbench()
+																			.getActiveWorkbenchWindow()));
+												}
+												String content = toolBarManager != null ? anker
+														.toHtml() : anker
+														.getContent();
+												System.out.println(content);
+												this.label.setText(content);
+												return true;
+											}
+										};
+									}
 								});
 					}
 				}, new ISubjectInformationProvider<Editor<?>, IAnker>() {

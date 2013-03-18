@@ -1,6 +1,8 @@
 package com.bkahlert.devel.nebula.utils.information;
 
-import org.eclipse.core.runtime.Assert;
+import java.util.Arrays;
+import java.util.List;
+
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
@@ -8,7 +10,7 @@ import org.eclipse.swt.widgets.ToolBar;
 
 /**
  * This is a variant of the {@link InformationControl} you want to use if your
- * enhanced {@link InformationControl} equals the normal version.<br>
+ * enhancedCreator {@link InformationControl} equals the normal version.<br>
  * In this case you don't have to override
  * {@link InformationControl#getInformationPresenterControlCreator()}.
  * 
@@ -16,48 +18,85 @@ import org.eclipse.swt.widgets.ToolBar;
  * 
  * @param <INFORMATION>
  */
-public class EnhanceableInformationControl<INFORMATION> extends
-		InformationControl<INFORMATION> {
+public class EnhanceableInformationControl<INFORMATION, DELEGATE extends EnhanceableInformationControl.Delegate<INFORMATION>>
+		extends InformationControl<INFORMATION> {
 
-	public static interface Delegate<INFORMATION> {
-		public void build(Composite parent);
-
-		public boolean load(INFORMATION information);
+	/**
+	 * Instances of this class create {@link Delegate}.<br>
+	 * {@link EnhanceableInformationControl} needs two delegates: one for the
+	 * normal and another one for the enhancedCreator version.
+	 * 
+	 * @author bkahlert
+	 * 
+	 * @param <DELEGATE>
+	 * @param <INFORMATION>
+	 */
+	public static interface DelegateFactory<DELEGATE> {
+		public DELEGATE create();
 	}
 
-	private boolean isEnhanced;
+	/**
+	 * Instances of this class are responsible to create the contents of a
+	 * {@link InformationControl}.
+	 * 
+	 * @author bkahlert
+	 * 
+	 * @param <INFORMATION>
+	 */
+	public static interface Delegate<INFORMATION> {
+		/**
+		 * Is called when a new {@link InformationControl} is being constructed.
+		 * 
+		 * @param parent
+		 */
+		public void build(Composite parent);
+
+		/**
+		 * Is called when a constructed {@link InformationControl} needs to be
+		 * filled with information.
+		 * 
+		 * @param information
+		 *            to be used to load
+		 * @param toolBarManager
+		 * @param enhanceableInformationControl
+		 *            is null if the standard version should be loaded; is a
+		 *            proper {@link ToolBarManager} if the enhancedCreator
+		 *            version should be loaded.
+		 * @return
+		 */
+		public boolean load(
+				INFORMATION information,
+				ToolBarManager toolBarManager,
+				EnhanceableInformationControl<INFORMATION, Delegate<INFORMATION>> enhanceableInformationControl);
+	}
+
 	private Shell parentShell;
-	private Delegate<INFORMATION> delegate;
-	private ToolBarManager toolBarManager;
+	private DELEGATE delegate;
+	private DELEGATE enhancedDelegate;
+
+	private InformationControlCreator<INFORMATION> enhancedCreator = null;
 
 	private EnhanceableInformationControl(Shell parentShell,
-			ToolBarManager toolBarManager, Delegate<INFORMATION> content,
-			Object empty) {
+			ToolBarManager toolBarManager, DELEGATE enhancedDelegate) {
 		super(parentShell, toolBarManager, null);
-		Assert.isNotNull(content);
-		this.isEnhanced = true;
 		this.parentShell = parentShell;
-		this.delegate = content;
-		this.toolBarManager = toolBarManager;
+		this.delegate = enhancedDelegate;
 		this.create();
 	}
 
 	/**
 	 * Constructs a new {@link EnhanceableInformationControl} that show a
-	 * {@link ToolBar} as soon as it becomes enhanced.
+	 * {@link ToolBar} as soon as it becomes enhancedCreator.
 	 * 
 	 * @param parentShell
-	 * @param toolBarManager
-	 * @param delegate
+	 * @param delegateFactory
 	 */
 	public EnhanceableInformationControl(Shell parentShell,
-			ToolBarManager toolBarManager, Delegate<INFORMATION> delegate) {
+			DelegateFactory<DELEGATE> delegateFactory) {
 		super(parentShell, "Press 'F2' for focus", null);
-		Assert.isNotNull(delegate);
-		this.isEnhanced = false;
 		this.parentShell = parentShell;
-		this.delegate = delegate;
-		this.toolBarManager = toolBarManager;
+		this.delegate = delegateFactory.create();
+		this.enhancedDelegate = delegateFactory.create();
 		this.create();
 	}
 
@@ -67,25 +106,59 @@ public class EnhanceableInformationControl<INFORMATION> extends
 	}
 
 	@Override
-	public boolean setTypedInput(INFORMATION input) {
-		return this.delegate.load(input);
+	public boolean load(INFORMATION input) {
+		ToolBarManager toolBarManager = this.getToolBarManager();
+		if (toolBarManager != null) {
+			toolBarManager.removeAll();
+		}
+		@SuppressWarnings("unchecked")
+		boolean load = this.delegate
+				.load(input,
+						toolBarManager,
+						(EnhanceableInformationControl<INFORMATION, Delegate<INFORMATION>>) this);
+		if (load && toolBarManager != null) {
+			// the toolbar was already create in the creation step
+			// reflect contributions
+			toolBarManager.update(true);
+		}
+		return load;
 	}
 
 	@Override
 	public InformationControlCreator<INFORMATION> getInformationPresenterControlCreator() {
-		if (this.isEnhanced) {
+		if (this.enhancedDelegate == null) {
 			return null;
 		} else {
-			return new InformationControlCreator<INFORMATION>() {
-				@Override
-				protected InformationControl<INFORMATION> doCreateInformationControl(
-						Shell parent) {
-					return new EnhanceableInformationControl<INFORMATION>(
-							EnhanceableInformationControl.this.parentShell,
-							EnhanceableInformationControl.this.toolBarManager,
-							EnhanceableInformationControl.this.delegate, null);
-				}
-			};
+			if (this.enhancedCreator == null) {
+				this.enhancedCreator = new InformationControlCreator<INFORMATION>() {
+					@Override
+					protected InformationControl<INFORMATION> doCreateInformationControl(
+							Shell parent) {
+						return new EnhanceableInformationControl<INFORMATION, DELEGATE>(
+								EnhanceableInformationControl.this.parentShell,
+								new ToolBarManager(),
+								EnhanceableInformationControl.this.enhancedDelegate);
+					}
+				};
+			}
+			return this.enhancedCreator;
+		}
+	}
+
+	@Override
+	public void dispose() {
+		if (this.getToolBarManager() != null) {
+			this.getToolBarManager().dispose();
+		}
+		super.dispose();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<DELEGATE> getDelegates() {
+		if (this.enhancedDelegate != null) {
+			return Arrays.asList(this.delegate, this.enhancedDelegate);
+		} else {
+			return Arrays.asList(this.delegate);
 		}
 	}
 }
