@@ -26,7 +26,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
  * @param <TIMELINEGROUP>
  * @param <INPUT>
  */
-public abstract class AbstractTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE>, TIMELINE extends ITimeline, INPUT>
+public abstract class AbstractTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT>
 		extends Viewer implements
 		ITimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT> {
 

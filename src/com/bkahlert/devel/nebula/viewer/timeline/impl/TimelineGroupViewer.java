@@ -29,7 +29,7 @@ import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
  * @param <TIMELINEGROUP>
  * @param <TIMELINE>
  */
-public class TimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE>, TIMELINE extends ITimeline, INPUT>
+public class TimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT>
 		extends MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT> {
 
 	private static final Logger LOGGER = Logger

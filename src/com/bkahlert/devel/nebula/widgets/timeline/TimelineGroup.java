@@ -1,8 +1,10 @@
 package com.bkahlert.devel.nebula.widgets.timeline;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -26,14 +28,13 @@ import org.eclipse.swt.widgets.Layout;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
-import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
 /**
  * This widget display one or more {@code TIMELINE}s.
  * 
  * @author bkahlert
  */
-public class TimelineGroup<TIMELINE extends ITimeline> extends Composite {
+public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite {
 
 	private static final Logger LOGGER = Logger.getLogger(TimelineGroup.class);
 
@@ -133,7 +134,7 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite {
 		this.timelineFactory = timelineFactory;
 	}
 
-	public <T> Future<T> show(Set<ITimelineInput> inputs,
+	public <T> Future<T> show(Map<INPUT, ITimelineInput> inputs,
 			IProgressMonitor monitor, final Callable<T> success) {
 
 		final SubMonitor subMonitor = SubMonitor.convert(monitor,
@@ -143,7 +144,7 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite {
 			throw new OperationCanceledException();
 		}
 
-		ITimelineInput[] unpreparedInputs = this.prepareTimelines(inputs);
+		List<INPUT> unpreparedKeys = this.prepareTimelines(inputs.keySet());
 
 		if (subMonitor.isCanceled()) {
 			throw new OperationCanceledException();
@@ -151,7 +152,7 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite {
 
 		subMonitor.worked(2);
 
-		for (final ITimelineInput unpreparedInput : unpreparedInputs) {
+		for (final INPUT unpreparedKey : unpreparedKeys) {
 			if (subMonitor.isCanceled()) {
 				throw new OperationCanceledException();
 			}
@@ -161,13 +162,13 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite {
 				timeline = ExecutorUtil.asyncExec(new Callable<TIMELINE>() {
 					@Override
 					public TIMELINE call() throws Exception {
-						return TimelineGroup.this.getTimeline(unpreparedInput);
+						return TimelineGroup.this.getTimeline(unpreparedKey);
 					}
 				}).get();
 			} catch (Exception e) {
 				LOGGER.error("Error retrieving "
-						+ Timeline.class.getSimpleName() + " for "
-						+ unpreparedInput);
+						+ ITimeline.class.getSimpleName() + " for "
+						+ unpreparedKey);
 				continue;
 			}
 
@@ -179,13 +180,13 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite {
 						public TIMELINE call() throws Exception {
 							TIMELINE timeline = TimelineGroup.this
 									.createTimeline();
-							timeline.setData(unpreparedInput);
+							timeline.setData(unpreparedKey);
 							return timeline;
 						}
 					});
 				} catch (Exception e) {
-					LOGGER.error("Error creating " + Timeline.class + " for "
-							+ unpreparedInput);
+					LOGGER.error("Error creating " + ITimeline.class + " for "
+							+ unpreparedKey);
 					continue;
 				}
 			} else {
@@ -195,10 +196,13 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite {
 
 			subMonitor.worked(2);
 
-			timeline.show(unpreparedInput, 300, 300, subMonitor.newChild(8));
+			timeline.show(inputs.get(unpreparedKey), 300, 300,
+					subMonitor.newChild(8));
 
 			if (subMonitor.isCanceled()) {
-				this.disposeTimelines(unpreparedInput);
+				List<INPUT> unpreparedInput_ = new ArrayList<INPUT>();
+				unpreparedInput_.add(unpreparedKey);
+				this.disposeTimelines(unpreparedInput_);
 				throw new OperationCanceledException();
 			}
 		}
@@ -233,14 +237,15 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite {
 		return timeline;
 	}
 
-	public Set<Object> getTimelineKeys() {
-		final Set<Object> inputs = new HashSet<Object>();
+	public Set<INPUT> getTimelineKeys() {
+		final Set<INPUT> inputs = new HashSet<INPUT>();
 		Display.getDefault().syncExec(new Runnable() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public void run() {
 				for (Control control : TimelineGroup.this.getChildren()) {
-					if (!control.isDisposed() && control instanceof Timeline) {
-						inputs.add((Object) control.getData());
+					if (!control.isDisposed() && control instanceof ITimeline) {
+						inputs.add((INPUT) control.getData());
 					}
 				}
 			}
@@ -252,16 +257,16 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite {
 	 * Returns the {@code TIMELINE} that is associated with the given key.
 	 * 
 	 * @UI must be called from the UI thread
-	 * @param object
+	 * @param key
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public TIMELINE getTimeline(final Object object) {
-		Assert.isNotNull(object);
+	public TIMELINE getTimeline(final INPUT key) {
+		Assert.isNotNull(key);
 		for (Control control : this.getChildren()) {
-			if (!control.isDisposed() && control instanceof IBaseTimeline) {
-				IBaseTimeline timeline = (IBaseTimeline) control;
-				if (object.equals(timeline.getData())) {
+			if (!control.isDisposed() && control instanceof ITimeline) {
+				ITimeline timeline = (ITimeline) control;
+				if (key.equals(timeline.getData())) {
 					try {
 						return (TIMELINE) timeline;
 					} catch (Exception e) {
@@ -288,61 +293,67 @@ public class TimelineGroup<TIMELINE extends ITimeline> extends Composite {
 	 * caller can load the actual contents)
 	 * </ol>
 	 * 
-	 * @param inputs
+	 * @param set
 	 * @return keys that were not associated to an existing
 	 *         {@link SelectionTimeline} or were associated with a
 	 *         {@link SelectionTimeline} that before was responsible for another
 	 *         key
 	 */
-	private ITimelineInput[] prepareTimelines(Set<ITimelineInput> inputs) {
-		List<Object> neededTimelines = new LinkedList<Object>(inputs);
-		List<Object> existingTimelines = new LinkedList<Object>(
+	@SuppressWarnings("unchecked")
+	private List<INPUT> prepareTimelines(Set<INPUT> set) {
+		List<INPUT> neededTimelinesKeys = new LinkedList<INPUT>(set);
+		List<INPUT> existingTimelinesKeys = new LinkedList<INPUT>(
 				this.getTimelineKeys());
-		List<?> preparedTimelines = ListUtils.intersection(existingTimelines,
-				neededTimelines);
-		final List<?> unpreparedTimelines = ListUtils.subtract(neededTimelines,
-				preparedTimelines);
-		final List<ITimelineInput> freeTimelines = ArrayUtils.getInstances(
-				ListUtils.subtract(existingTimelines, preparedTimelines)
-						.toArray(), ITimelineInput.class);
+		List<?> preparedTimelinesKeys = ListUtils.intersection(
+				existingTimelinesKeys, neededTimelinesKeys);
+		final List<?> unpreparedTimelinesKeys = ListUtils.subtract(
+				neededTimelinesKeys, preparedTimelinesKeys);
+		final List<INPUT> freeTimelinesKeys = new ArrayList<INPUT>();
+		for (Object freeTimelineKey : ListUtils.subtract(existingTimelinesKeys,
+				preparedTimelinesKeys)) {
+			freeTimelinesKeys.add((INPUT) freeTimelineKey);
+		}
+
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
 				int i = 0;
-				while (freeTimelines.size() > 0
-						&& unpreparedTimelines.size() > i) {
+				while (freeTimelinesKeys.size() > 0
+						&& unpreparedTimelinesKeys.size() > i) {
 					try {
 						TIMELINE timeline = TimelineGroup.this
-								.getTimeline(freeTimelines.remove(0));
-						timeline.setData(unpreparedTimelines.get(i));
+								.getTimeline(freeTimelinesKeys.remove(0));
+						timeline.setData(unpreparedTimelinesKeys.get(i));
 					} catch (Exception e) {
 						LOGGER.error("Error assigning new key "
-								+ unpreparedTimelines.get(i) + " to "
+								+ unpreparedTimelinesKeys.get(i) + " to "
 								+ Timeline.class);
 					}
 				}
 			}
 		});
-		this.disposeTimelines(freeTimelines.toArray(new ITimelineInput[0]));
-		return new HashSet<ITimelineInput>(ArrayUtils.getInstances(
-				unpreparedTimelines.toArray(), ITimelineInput.class))
-				.toArray(new ITimelineInput[0]);
+		this.disposeTimelines(freeTimelinesKeys);
+
+		final List<INPUT> unpreparedTimelinesKeys_ = new ArrayList<INPUT>();
+		for (Object unpreparedTimelineKey : unpreparedTimelinesKeys) {
+			unpreparedTimelinesKeys_.add((INPUT) unpreparedTimelineKey);
+		}
+		return unpreparedTimelinesKeys_;
 	}
 
 	/**
 	 * Disposes all {@link SelectionTimeline}s that are identified by at least
 	 * one of the provided keys.
 	 * 
-	 * @param timelineInputs
+	 * @param freeTimelinesKeys
 	 */
-	private void disposeTimelines(final ITimelineInput... timelineInputs) {
+	private void disposeTimelines(final List<INPUT> freeTimelinesKeys) {
 		ExecutorUtil.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				for (ITimelineInput timelineInput : timelineInputs) {
+				for (INPUT key : freeTimelinesKeys) {
 					try {
-						TIMELINE timeline = TimelineGroup.this
-								.getTimeline(timelineInput);
+						TIMELINE timeline = TimelineGroup.this.getTimeline(key);
 						if (timeline != null && !timeline.isDisposed()) {
 							timeline.dispose();
 						}

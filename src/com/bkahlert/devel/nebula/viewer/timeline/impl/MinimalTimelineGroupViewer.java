@@ -42,13 +42,24 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
  * @param <TIMELINEGROUP>
  * @param <TIMELINE>
  */
-public class MinimalTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE>, TIMELINE extends ITimeline, INPUT>
+public class MinimalTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT>
 		extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(MinimalTimelineGroupViewer.class);
 
-	private static class Asset<TIMELINEGROUPVIEWER extends MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE>, TIMELINE extends ITimeline, INPUT> {
+	/**
+	 * Stores the {@link ITimeline} and the {@link ITimelineProvider} that
+	 * provides its content.
+	 * 
+	 * @author bkahlert
+	 * 
+	 * @param <TIMELINEGROUPVIEWER>
+	 * @param <TIMELINEGROUP>
+	 * @param <TIMELINE>
+	 * @param <INPUT>
+	 */
+	private static class Asset<TIMELINEGROUPVIEWER extends MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT> {
 		private TIMELINE timeline;
 		private ITimelineProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> timelineProvider;
 
@@ -136,6 +147,13 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIME
 		return this.rawInput;
 	}
 
+	/**
+	 * Notifies a {@link ITimelineProvider} about a changed input
+	 * 
+	 * @param timelineProvider
+	 * @param oldInput
+	 * @param newInput
+	 */
 	protected void notifyInputChanged(
 			ITimelineProvider<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> timelineProvider,
 			INPUT oldInput, INPUT newInput) {

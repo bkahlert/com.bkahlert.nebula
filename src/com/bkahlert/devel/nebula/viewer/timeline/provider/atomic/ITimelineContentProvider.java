@@ -12,7 +12,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
  * @author bkahlert
  * 
  */
-public interface ITimelineContentProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE>, TIMELINE extends ITimeline, INPUT> {
+public interface ITimelineContentProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT> {
 	public void inputChanged(TIMELINEGROUPVIEWER timelineGroupViewer,
 			INPUT oldInput, INPUT newInput);
 

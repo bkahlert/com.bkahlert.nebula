@@ -15,7 +15,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
  * @author bkahlert
  * 
  */
-public interface ITimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE>, TIMELINE extends ITimeline, INPUT>
+public interface ITimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT>
 		extends IInputSelectionProvider {
 
 	/**

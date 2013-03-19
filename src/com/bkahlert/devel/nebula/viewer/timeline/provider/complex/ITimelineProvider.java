@@ -19,7 +19,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
  * @author bkahlert
  * 
  */
-public interface ITimelineProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE>, TIMELINE extends ITimeline, INPUT> {
+public interface ITimelineProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT> {
 
 	/**
 	 * Instances of this class can be used to influence the
