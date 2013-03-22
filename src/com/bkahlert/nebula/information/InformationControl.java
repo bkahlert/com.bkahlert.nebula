@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.utils.information;
+package com.bkahlert.nebula.information;
 
 import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.ToolBarManager;
@@ -8,7 +8,6 @@ import org.eclipse.jface.util.Geometry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchActionConstants;
@@ -81,24 +80,26 @@ public abstract class InformationControl<INFORMATION> extends
 				"toolbar:com.bkahlert.nebula.information");
 	}
 
-	@Override
-	protected final void createContent(Composite parent) {
-		SourceProvider.controlChanged(this);
-		this.create(parent);
-	}
-
-	protected abstract void create(Composite parent);
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public final void setInput(Object input) {
 		try {
 			INFORMATION information = (INFORMATION) input;
+			SourceProvider.controlChanged(this);
 			SourceProvider.inputChanged(information);
 			this.hasContents = this.load(information);
 		} catch (ClassCastException e) {
 			this.hasContents = false;
 		}
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		if (!visible) {
+			SourceProvider.controlChanged(null);
+			SourceProvider.inputChanged(null);
+		}
+		super.setVisible(visible);
 	}
 
 	public abstract boolean load(INFORMATION input);

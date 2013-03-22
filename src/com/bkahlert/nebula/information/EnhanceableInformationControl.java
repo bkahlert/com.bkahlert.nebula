@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.utils.information;
+package com.bkahlert.nebula.information;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,7 +47,7 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 		/**
 		 * Is called when a new {@link InformationControl} is being constructed.
 		 * 
-		 * @param parent
+		 * @param root
 		 */
 		public void build(Composite parent);
 
@@ -58,16 +58,13 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 		 * @param information
 		 *            to be used to load
 		 * @param toolBarManager
-		 * @param enhanceableInformationControl
 		 *            is null if the standard version should be loaded; is a
 		 *            proper {@link ToolBarManager} if the enhancedCreator
 		 *            version should be loaded.
 		 * @return
 		 */
-		public boolean load(
-				INFORMATION information,
-				ToolBarManager toolBarManager,
-				EnhanceableInformationControl<INFORMATION, Delegate<INFORMATION>> enhanceableInformationControl);
+		public boolean load(INFORMATION information,
+				ToolBarManager toolBarManager);
 	}
 
 	private Shell parentShell;
@@ -100,8 +97,11 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 		this.create();
 	}
 
+	private Composite root;
+
 	@Override
-	protected final void create(Composite parent) {
+	protected final void createContent(Composite parent) {
+		this.root = parent;
 		this.delegate.build(parent);
 	}
 
@@ -112,16 +112,13 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 			toolBarManager.removeAll();
 			this.addMenuServiceContributions(toolBarManager);
 		}
-		@SuppressWarnings("unchecked")
-		boolean load = this.delegate
-				.load(input,
-						toolBarManager,
-						(EnhanceableInformationControl<INFORMATION, Delegate<INFORMATION>>) this);
+		boolean load = this.delegate.load(input, toolBarManager);
 		if (load && toolBarManager != null) {
 			// the toolbar was already create in the creation step
 			// reflect contributions
 			toolBarManager.update(true);
 		}
+		this.root.layout();
 		return load;
 	}
 

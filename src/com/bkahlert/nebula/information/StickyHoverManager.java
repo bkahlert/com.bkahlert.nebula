@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.utils.information;
+package com.bkahlert.nebula.information;
 
 import org.eclipse.jface.internal.text.InformationControlReplacer;
 import org.eclipse.jface.text.IInformationControl;

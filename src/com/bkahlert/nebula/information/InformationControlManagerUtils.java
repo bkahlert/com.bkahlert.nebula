@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.utils.information;
+package com.bkahlert.nebula.information;
 
 import org.eclipse.core.expressions.IEvaluationContext;
 import org.eclipse.ui.PlatformUI;

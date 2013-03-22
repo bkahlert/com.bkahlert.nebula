@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.utils.information;
+package com.bkahlert.nebula.information;
 
 import org.eclipse.jface.text.AbstractReusableInformationControlCreator;
 import org.eclipse.swt.widgets.Shell;

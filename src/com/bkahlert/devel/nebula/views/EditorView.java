@@ -69,7 +69,7 @@ public abstract class EditorView<T> extends ViewPart {
 	 * @param delayChangeEventUpTo
 	 *            is the delay that must have been passed in order save the
 	 *            currently loaded object. If 0 no delay will be applied. The
-	 *            minimal delay however defined by the wrapped {@link Composer}.
+	 *            minimal delay however defined by the wrapped {@link Image}.
 	 * @param autosave
 	 */
 	public EditorView(long delayChangeEventUpTo, ToolbarSet toolbarSet,

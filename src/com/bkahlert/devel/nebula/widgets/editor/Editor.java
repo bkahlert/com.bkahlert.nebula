@@ -23,7 +23,7 @@ import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 
 /**
- * Instances of this class wrap a {@link Composer} and at load and save
+ * Instances of this class wrap a {@link Image} and at load and save
  * functionality.
  * 
  * @author bkahlert
@@ -47,7 +47,7 @@ public abstract class Editor<T> extends Composite {
 	 * @param delayChangeEventUpTo
 	 *            is the delay that must have been passed in order save the
 	 *            currently loaded object. If 0 no delay will be applied. The
-	 *            minimal delay however defined by the wrapped {@link Composer}.
+	 *            minimal delay however defined by the wrapped {@link Image}.
 	 * @param toolbarSet
 	 */
 	public Editor(Composite parent, int style, final long delayChangeEventUpTo,

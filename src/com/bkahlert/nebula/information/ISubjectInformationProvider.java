@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.utils.information;
+package com.bkahlert.nebula.information;
 
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Control;
@@ -17,7 +17,7 @@ public interface ISubjectInformationProvider<CONTROL extends Control, INFORMATIO
 
 	public void unregister(CONTROL subject);
 
-	public Point getInformationSize();
+	public Point getHoverArea();
 
 	public INFORMATION getInformation();
 }

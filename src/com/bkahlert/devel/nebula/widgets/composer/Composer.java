@@ -376,11 +376,11 @@ public class Composer extends BrowserComposite {
 	}
 
 	/**
-	 * Adds a {@link ModifyListener} to this {@link Composer}.
+	 * Adds a {@link ModifyListener} to this {@link Image}.
 	 * <p>
 	 * Please note that {@link ModifyListener#modifyText(ModifyEvent)} is also
-	 * fired when the {@link Composer} is being disposed. This is the last
-	 * opportunity to read the {@link Composer}'s current content.
+	 * fired when the {@link Image} is being disposed. This is the last
+	 * opportunity to read the {@link Image}'s current content.
 	 * 
 	 * @param modifyListener
 	 */
@@ -389,7 +389,7 @@ public class Composer extends BrowserComposite {
 	}
 
 	/**
-	 * Removes a {@link ModifyListener} from this {@link Composer}.
+	 * Removes a {@link ModifyListener} from this {@link Image}.
 	 * 
 	 * @param modifyListener
 	 */

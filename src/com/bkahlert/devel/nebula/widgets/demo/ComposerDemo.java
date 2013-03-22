@@ -55,7 +55,7 @@ public class ComposerDemo extends Composite {
 
 		final Composer composer = new Composer(this, SWT.BORDER);
 		composer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		composer.setSource("Hello CKEditor - Composer");
+		composer.setSource("Hello CKEditor - Image");
 		composer.addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {
 			@Override
 			public boolean thrown(JavaScriptException exception) {

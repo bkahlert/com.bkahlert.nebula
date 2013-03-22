@@ -18,6 +18,7 @@ public class SourceProvider extends AbstractSourceProvider {
 
 	private static final List<SourceProvider> INSTANCES = new ArrayList<SourceProvider>();
 
+	// TODO not called yet
 	public static void managerChanged(Object manager) {
 		if (manager == null) {
 			manager = NULL_MANAGER;
@@ -28,6 +29,7 @@ public class SourceProvider extends AbstractSourceProvider {
 	}
 
 	public static void controlChanged(Object control) {
+		// System.err.println(control);
 		if (control == null) {
 			control = NULL_CONTROL;
 		}

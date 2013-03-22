@@ -18,13 +18,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.about.AboutAction;
 
 import com.bkahlert.devel.nebula.dialogs.PopupDialog;
-import com.bkahlert.devel.nebula.utils.information.EnhanceableInformationControl;
-import com.bkahlert.devel.nebula.utils.information.EnhanceableInformationControl.Delegate;
-import com.bkahlert.devel.nebula.utils.information.EnhanceableInformationControl.DelegateFactory;
-import com.bkahlert.devel.nebula.utils.information.ISubjectInformationProvider;
-import com.bkahlert.devel.nebula.utils.information.InformationControl;
-import com.bkahlert.devel.nebula.utils.information.InformationControlCreator;
-import com.bkahlert.devel.nebula.utils.information.InformationControlManager;
 import com.bkahlert.devel.nebula.widgets.RoundedComposite;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import com.bkahlert.devel.nebula.widgets.browser.IAnker;
@@ -33,6 +26,13 @@ import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.nebula.widgets.editor.AutosaveEditor;
 import com.bkahlert.devel.nebula.widgets.editor.Editor;
+import com.bkahlert.nebula.information.EnhanceableInformationControl;
+import com.bkahlert.nebula.information.ISubjectInformationProvider;
+import com.bkahlert.nebula.information.InformationControl;
+import com.bkahlert.nebula.information.InformationControlCreator;
+import com.bkahlert.nebula.information.InformationControlManager;
+import com.bkahlert.nebula.information.EnhanceableInformationControl.Delegate;
+import com.bkahlert.nebula.information.EnhanceableInformationControl.DelegateFactory;
 
 public class EditorDemo extends Composite {
 
@@ -117,8 +117,7 @@ public class EditorDemo extends Composite {
 											@Override
 											public boolean load(
 													IAnker anker,
-													ToolBarManager toolBarManager,
-													EnhanceableInformationControl<IAnker, Delegate<IAnker>> enhanceableInformationControl) {
+													ToolBarManager toolBarManager) {
 												if (anker == null) {
 													return false;
 												}
@@ -164,7 +163,7 @@ public class EditorDemo extends Composite {
 					}
 
 					@Override
-					public Point getInformationSize() {
+					public Point getHoverArea() {
 						return new Point(50, 20);
 					}
 

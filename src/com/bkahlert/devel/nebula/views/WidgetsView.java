@@ -1,22 +1,16 @@
 package com.bkahlert.devel.nebula.views;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.part.ViewPart;
 
-import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.images.Images;
 import com.bkahlert.devel.nebula.widgets.demo.ComposerDemo;
 import com.bkahlert.devel.nebula.widgets.demo.EditorDemo;
+import com.bkahlert.nebula.widgets.image.Image;
+import com.bkahlert.nebula.widgets.image.Image.IImageListener;
 
 public class WidgetsView extends ViewPart {
 
@@ -29,142 +23,40 @@ public class WidgetsView extends ViewPart {
 
 	@Override
 	public void createPartControl(final Composite parent) {
-		parent.setLayout(GridLayoutFactory.swtDefaults().create());
 
-		new Thread(new Runnable() {
+		parent.setBackground(Display.getCurrent()
+				.getSystemColor(SWT.COLOR_GRAY));
+		parent.setLayout(new GridLayout(1, false));
+
+		final Image image = new Image(parent, SWT.NONE);
+		image.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false,
+				1, 1));
+		image.addImageListener(new IImageListener() {
 			@Override
-			public void run() {
-				Job x = new Job("Parallel Job Execution") {
-					@Override
-					protected IStatus run(final IProgressMonitor monitor) {
-						final SubMonitor subMonitor = SubMonitor
-								.convert(monitor);
-						subMonitor.beginTask("Begin Task", 100);
-						subMonitor.setWorkRemaining(100);
-						Thread a = new Thread(new Runnable() {
-							@Override
-							public void run() {
-								for (int i = 0; i < 50; i++) {
-									try {
-										Thread.sleep(100);
-										System.err.println("a - " + i);
-									} catch (InterruptedException e) {
-										e.printStackTrace();
-									}
-									subMonitor.worked(1);
-								}
-							}
-						});
-						Thread b = new Thread(new Runnable() {
-							@Override
-							public void run() {
-								for (int i = 0; i < 50; i++) {
-									try {
-										Thread.sleep(150);
-										System.err.println("b - " + i);
-									} catch (InterruptedException e) {
-										e.printStackTrace();
-									}
-									subMonitor.worked(1);
-								}
-							}
-						});
-						a.start();
-						b.start();
-						try {
-							a.join();
-							System.err.println("a finished");
-							b.join();
-							System.err.println("b finished");
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						subMonitor.done();
-						return Status.OK_STATUS;
-					}
-				};
-				x.schedule();
-				try {
-					x.join();
-					System.err.println("x joined");
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-
-				Job y = new Job("Parallel Job Execution with Sub Monitors") {
-					@Override
-					protected IStatus run(final IProgressMonitor monitor) {
-						final SubMonitor subMonitor = SubMonitor
-								.convert(monitor);
-						subMonitor.beginTask("Begin Task", 2);
-						Thread a = new Thread(new Runnable() {
-							@Override
-							public void run() {
-								SubMonitor aMonitor = subMonitor.newChild(1);
-								for (int i = 0; i < 50; i++) {
-									try {
-										Thread.sleep(100);
-										System.err.println("sub a - " + i);
-									} catch (InterruptedException e) {
-										e.printStackTrace();
-									}
-									aMonitor.worked(1);
-								}
-								aMonitor.done();
-							}
-						});
-						Thread b = new Thread(new Runnable() {
-							@Override
-							public void run() {
-								SubMonitor bMonitor = subMonitor.newChild(1);
-								for (int i = 0; i < 50; i++) {
-									try {
-										Thread.sleep(150);
-										System.err.println("sub b - " + i);
-									} catch (InterruptedException e) {
-										e.printStackTrace();
-									}
-									bMonitor.worked(1);
-								}
-								bMonitor.done();
-							}
-						});
-						a.start();
-						b.start();
-						try {
-							a.join();
-							System.err.println("sub a finished");
-							b.join();
-							System.err.println("sub b finished");
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						subMonitor.done();
-						return Status.OK_STATUS;
-					}
-				};
-				y.schedule();
-				try {
-					y.join();
-					System.err.println("y joined");
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+			public void imageLoaded(long width, long height) {
+				System.out.println("Image loaded: " + width + " x " + height);
 			}
-		}); // .start();
 
-		parent.setLayout(new FillLayout());
-		parent.setBackground(Display.getCurrent().getSystemColor(
-				SWT.COLOR_BLACK));
+			@Override
+			public void imageResized(long width, long height) {
+				System.out.println("Image resized: " + width + " x " + height);
+			}
+		});
+		image.load(
+				"http://static3.depositphotos.com/1006137/238/i/950/depositphotos_2389382-Old--Grunge-background.jpg",
+				new Runnable() {
+					@Override
+					public void run() {
+						parent.layout();
+					}
+				});
 
-		Label dot = new Label(parent, SWT.NONE);
-		dot.setImage(Images.getOverlayDot(new RGB(0.5f, 0.4f, 0.2f))
-				.createImage());
-
-		new EditorDemo(parent, SWT.BORDER);
-		new ComposerDemo(parent, SWT.BORDER);
+		EditorDemo editorDemo = new EditorDemo(parent, SWT.BORDER);
+		editorDemo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,
+				1, 1));
+		ComposerDemo composerDemo = new ComposerDemo(parent, SWT.BORDER);
+		composerDemo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,
+				1, 1));
 
 		/*
 		 * Button openFileListDialog = new Button(parent, SWT.PUSH);

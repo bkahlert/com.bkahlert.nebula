@@ -4,8 +4,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -84,8 +87,9 @@ public abstract class BrowserComposite extends Composite implements
 		this.browser.addProgressListener(new ProgressAdapter() {
 			@Override
 			public void completed(ProgressEvent event) {
-				// WORKAROUND: If multiple browsers are instantiated I can occur
-				// that some have no loaded, yet! Therefore we poll the page
+				// WORKAROUND: If multiple browsers are instantiated it can
+				// occur
+				// that some have not loaded, yet! Therefore we poll the page
 				// until it is really loaded.
 				String readyState = (String) BrowserComposite.this.browser
 						.evaluate("return document.readyState;");
@@ -106,6 +110,9 @@ public abstract class BrowserComposite extends Composite implements
 							LOGGER.error("Error occured while running JavaScript in browser: "
 									+ js);
 						}
+					}
+					synchronized (BrowserComposite.this.monitor) {
+						BrowserComposite.this.monitor.notifyAll();
 					}
 				}
 			}
@@ -212,6 +219,45 @@ public abstract class BrowserComposite extends Composite implements
 		return this.loadingCompleted;
 	}
 
+	private Object monitor = new Object();
+
+	@Override
+	public <T> Future<T> run(final String script, final IConverter<T> converter) {
+		Assert.isLegal(converter != null);
+		return ExecutorUtil.nonUIAsyncExec(new Callable<T>() {
+			@Override
+			public T call() throws Exception {
+				if (!BrowserComposite.this.loadingCompleted) {
+					synchronized (BrowserComposite.this.monitor) {
+						BrowserComposite.this.monitor.wait();
+					}
+				}
+				if (BrowserComposite.this.isDisposed()) {
+					return null;
+				}
+				return ExecutorUtil.syncExec(new Callable<T>() {
+					@Override
+					public T call() throws Exception {
+						Object returnValue = BrowserComposite.this.getBrowser()
+								.evaluate(script);
+						return converter.convert(returnValue);
+					}
+				});
+			}
+		});
+	}
+
+	@Override
+	public Future<Object> run(final String script) {
+		return this.run(script, new IConverter<Object>() {
+			@Override
+			public Object convert(Object object) {
+				return object;
+			}
+		});
+	}
+
+	@Deprecated
 	@Override
 	public boolean runJs(String js) {
 		if (this.isDisposed()) {
@@ -225,6 +271,7 @@ public abstract class BrowserComposite extends Composite implements
 		return success;
 	}
 
+	@Deprecated
 	@Override
 	public void enqueueJs(String js) {
 		if (this.loadingCompleted) {

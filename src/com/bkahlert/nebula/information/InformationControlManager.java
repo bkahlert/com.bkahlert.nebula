@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.utils.information;
+package com.bkahlert.nebula.information;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.internal.text.InformationControlReplacer;
@@ -98,19 +98,19 @@ public class InformationControlManager<CONTROL extends Control, INFORMATION>
 
 	@Override
 	protected void computeInformation() {
-		Point informationSize = this.subjectInformationProvider
-				.getInformationSize();
-		if (informationSize == null) {
-			informationSize = new Point(10, 10);
+		Point hoverArea = this.subjectInformationProvider
+				.getHoverArea();
+		if (hoverArea == null) {
+			hoverArea = new Point(10, 10);
 		}
 		INFORMATION information = this.subjectInformationProvider
 				.getInformation();
 
 		Point mouseLocation = Display.getCurrent().getCursorLocation();
 		Rectangle subjectArea = Geometry.toControl(this.getSubjectControl(),
-				new Rectangle(mouseLocation.x - informationSize.x / 2,
-						mouseLocation.y - informationSize.y / 2,
-						informationSize.x, informationSize.y));
+				new Rectangle(mouseLocation.x - hoverArea.x / 2,
+						mouseLocation.y - hoverArea.y / 2,
+						hoverArea.x, hoverArea.y));
 
 		this.setInformation(information, subjectArea);
 	}

@@ -5,8 +5,8 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.dialogs.MessageDialog;
 
-import com.bkahlert.devel.nebula.utils.information.InformationControl;
-import com.bkahlert.devel.nebula.utils.information.InformationControlManagerUtils;
+import com.bkahlert.nebula.information.InformationControl;
+import com.bkahlert.nebula.information.InformationControlManagerUtils;
 
 public class EditorDemoInformationControl extends AbstractHandler {
 	@Override
