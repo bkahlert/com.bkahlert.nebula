@@ -295,8 +295,7 @@ public class Composer extends BrowserComposite {
 	}
 
 	public void selectAll() {
-		String js = "com.bkahlert.devel.nebula.editor.selectAll();";
-		this.enqueueJs(js);
+		this.run("com.bkahlert.devel.nebula.editor.selectAll();");
 	}
 
 	public void setSource(String html) {
@@ -312,10 +311,9 @@ public class Composer extends BrowserComposite {
 			this.delayChangeTimerTask.run();
 			this.delayChangeTimerTask = null;
 		}
-		String js = "com.bkahlert.devel.nebula.editor.setSource("
+		this.run("com.bkahlert.devel.nebula.editor.setSource("
 				+ TimelineJsonGenerator.enquote(html) + ", "
-				+ (restoreSelection ? "true" : "false") + ");";
-		this.enqueueJs(js);
+				+ (restoreSelection ? "true" : "false") + ");");
 	}
 
 	public String getSource() {
@@ -328,9 +326,7 @@ public class Composer extends BrowserComposite {
 	}
 
 	public void setMode(String mode) {
-		String js = "com.bkahlert.devel.nebula.editor.setMode(\"" + mode
-				+ "\");";
-		this.enqueueJs(js);
+		this.run("com.bkahlert.devel.nebula.editor.setMode(\"" + mode + "\");");
 	}
 
 	public void showSource() {
@@ -353,18 +349,17 @@ public class Composer extends BrowserComposite {
 	}
 
 	public void saveSelection() {
-		this.enqueueJs("com.bkahlert.devel.nebula.editor.saveSelection();");
+		this.run("com.bkahlert.devel.nebula.editor.saveSelection();");
 	}
 
 	public void restoreSelection() {
-		this.enqueueJs("com.bkahlert.devel.nebula.editor.restoreSelection();");
+		this.run("com.bkahlert.devel.nebula.editor.restoreSelection();");
 	}
 
 	@Override
 	public void setEnabled(boolean isEnabled) {
-		String js = "com.bkahlert.devel.nebula.editor.setEnabled("
-				+ (isEnabled ? "true" : "false") + ");";
-		this.enqueueJs(js);
+		this.run("com.bkahlert.devel.nebula.editor.setEnabled("
+				+ (isEnabled ? "true" : "false") + ");");
 	}
 
 	public void addAnkerLabelProvider(IAnkerLabelProvider ankerLabelProvider) {

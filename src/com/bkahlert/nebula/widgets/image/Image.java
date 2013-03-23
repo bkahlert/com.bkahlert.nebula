@@ -29,31 +29,38 @@ public class Image extends BrowserComposite {
 
 	private static final Logger LOGGER = Logger.getLogger(Image.class);
 
-	public static long[] extractSize(Object size) {
+	public static Point extractSize(Object size) {
 		if (size instanceof Object[] && ((Object[]) size).length == 2
 				&& ((Object[]) size)[0] instanceof Double) {
 			long width = Math.round((Double) ((Object[]) size)[0]);
 			long height = Math.round((Double) ((Object[]) size)[1]);
-			return new long[] { width, height };
+			return new Point((int) width, (int) height);
 		}
 		return null;
 	}
 
 	public static interface IImageListener {
-		public void imageLoaded(long width, long height);
+		public void imageLoaded(Point size);
 
-		public void imageResized(long width, long height);
+		public void imageResized(Point size);
 	}
 
 	private List<IImageListener> imageListeners = new ArrayList<IImageListener>();
 	private final Object imageLoadMonitor = new Object();
-	private long[] cachedOriginalSize = new long[] { 100, 100 };
-	private long[] cachedCurrentSize = new long[] { 100, 100 };
+	private Point cachedOriginalSize;
+	private Point cachedCurrentSize;
 
 	public Image(Composite parent, int style) {
+		this(parent, style, new Point(100, 100));
+	}
+
+	public Image(Composite parent, int style, Point defaultSize) {
 		super(parent, style, getFileUrl(Image.class, "html/index.html")
 				+ "?internal=true");
 		this.deactivateNativeMenu();
+
+		this.cachedOriginalSize = defaultSize;
+		this.cachedCurrentSize = defaultSize;
 
 		this.addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {
 			@Override
@@ -68,13 +75,12 @@ public class Image extends BrowserComposite {
 			@Override
 			public Object function(Object[] arguments) {
 				if (arguments.length == 1) {
-					long[] originalSize = Image.extractSize(arguments[0]);
+					Point originalSize = Image.extractSize(arguments[0]);
 					Image.this.cachedOriginalSize = originalSize;
 					Image.this.notifyImageLoaded();
 					if (originalSize != null) {
 						for (IImageListener imageListener : Image.this.imageListeners) {
-							imageListener.imageLoaded(originalSize[0],
-									originalSize[1]);
+							imageListener.imageLoaded(originalSize);
 						}
 					}
 				}
@@ -86,12 +92,11 @@ public class Image extends BrowserComposite {
 			@Override
 			public Object function(Object[] arguments) {
 				if (arguments.length == 1) {
-					long[] currentSize = Image.extractSize(arguments[0]);
+					Point currentSize = Image.extractSize(arguments[0]);
 					Image.this.cachedCurrentSize = currentSize;
 					if (currentSize != null) {
 						for (IImageListener imageListener : Image.this.imageListeners) {
-							imageListener.imageResized(currentSize[0],
-									currentSize[1]);
+							imageListener.imageResized(currentSize);
 						}
 					}
 				}
@@ -161,33 +166,30 @@ public class Image extends BrowserComposite {
 	@Override
 	public Point computeSize(int wHint, int hHint, boolean changed) {
 		if (wHint == SWT.DEFAULT && hHint == SWT.DEFAULT) {
-			long[] size = this.getOriginalSize();
-			return new Point((int) size[0], (int) size[1]);
+			return this.getOriginalSize();
 		} else if (wHint == SWT.DEFAULT && hHint != SWT.DEFAULT) {
-			long width = this.getWidth(hHint);
-			return new Point((int) width, hHint);
+			return new Point(this.getWidth(hHint), hHint);
 		} else if (wHint != SWT.DEFAULT && hHint == SWT.DEFAULT) {
-			long height = this.getHeight(wHint);
-			return new Point(wHint, (int) height);
+			return new Point(wHint, this.getHeight(wHint));
 		} else {
 			return new Point(wHint, hHint);
 		}
 	}
 
-	public long[] getOriginalSize() {
+	public Point getOriginalSize() {
 		return this.cachedOriginalSize;
 	}
 
-	public long[] getCurrentSize() {
+	public Point getCurrentSize() {
 		return this.cachedCurrentSize;
 	}
 
-	public long getWidth(long height) {
-		return (long) (this.cachedCurrentSize[0] * ((double) height / this.cachedCurrentSize[1]));
+	public int getWidth(long height) {
+		return (int) (this.cachedCurrentSize.x * ((double) height / this.cachedCurrentSize.y));
 	}
 
-	public long getHeight(long width) {
-		return (long) (this.cachedCurrentSize[1] * ((double) width / this.cachedCurrentSize[0]));
+	public int getHeight(long width) {
+		return (int) (this.cachedCurrentSize.y * ((double) width / this.cachedCurrentSize.x));
 	}
 
 	public void addImageListener(IImageListener imageListener) {

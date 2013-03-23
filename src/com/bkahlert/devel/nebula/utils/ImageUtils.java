@@ -23,6 +23,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
@@ -220,4 +221,22 @@ public class ImageUtils {
 		return null;
 	}
 
+	public static Point resizeWithinArea(Point size, Point maxSize) {
+
+		int finalWidth = maxSize.x;
+		int finalHeight = maxSize.y;
+
+		if (size.y > maxSize.y || size.x > maxSize.x) {
+			float ratio = (float) size.x / (float) size.y;
+			finalHeight = maxSize.y;
+			finalWidth = Math.round(finalHeight * ratio);
+
+			if (finalWidth > maxSize.x) {
+				finalHeight = Math.round(maxSize.x / ratio);
+				finalWidth = maxSize.x;
+			}
+		}
+
+		return new Point(finalWidth, finalHeight);
+	}
 }

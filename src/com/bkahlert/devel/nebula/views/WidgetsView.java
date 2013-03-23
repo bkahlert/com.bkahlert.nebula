@@ -1,6 +1,7 @@
 package com.bkahlert.devel.nebula.views;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -33,13 +34,13 @@ public class WidgetsView extends ViewPart {
 				1, 1));
 		image.addImageListener(new IImageListener() {
 			@Override
-			public void imageLoaded(long width, long height) {
-				System.out.println("Image loaded: " + width + " x " + height);
+			public void imageLoaded(Point size) {
+				System.out.println("Image loaded: " + size);
 			}
 
 			@Override
-			public void imageResized(long width, long height) {
-				System.out.println("Image resized: " + width + " x " + height);
+			public void imageResized(Point size) {
+				System.out.println("Image resized: " + size);
 			}
 		});
 		image.load(

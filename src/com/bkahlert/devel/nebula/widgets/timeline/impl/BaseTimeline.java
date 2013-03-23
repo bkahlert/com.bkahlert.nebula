@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -106,13 +107,20 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 					+ escapedJson + ", null, " + startAnimationDuration + ", "
 					+ endAnimationDuration + ");";
 		}
-
-		ExecutorUtil.asyncExec(new Runnable() {
+		final Future<Object> rt = this.run(js);
+		ExecutorUtil.nonUIAsyncExec(new Runnable() {
 			@Override
 			public void run() {
-				BaseTimeline.this.enqueueJs(js);
-				// TODO layout als callback; evtl. Browser noch nicht geladen
-				BaseTimeline.this.layout();
+				try {
+					rt.get();
+				} catch (Exception e) {
+				}
+				ExecutorUtil.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						BaseTimeline.this.layout();
+					}
+				});
 			}
 		});
 	}
