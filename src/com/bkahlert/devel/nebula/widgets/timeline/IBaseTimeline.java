@@ -31,26 +31,6 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 public interface IBaseTimeline extends IBrowserComposite, IDisposable {
 
 	/**
-	 * Runs a Java script in the browser immediately.
-	 * <p>
-	 * Warning: Calling this method does not guarantee that the DOM has been
-	 * loaded, yet. Use {@link #enqueueJs(String)} if you want to make sure.
-	 * 
-	 * @param js
-	 * @return
-	 */
-	@Override
-	public boolean runJs(String js);
-
-	/**
-	 * Runs a Java script in the browser after the DOM has been loaded.
-	 * 
-	 * @param js
-	 */
-	@Override
-	public void enqueueJs(String js);
-
-	/**
 	 * Includes the given path as a cascading style sheet.
 	 * 
 	 * @param path

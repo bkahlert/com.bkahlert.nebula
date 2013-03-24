@@ -29,10 +29,6 @@ public interface IBrowserComposite extends IWidget {
 	 */
 	public Browser getBrowser();
 
-	boolean runJs(String js);
-
-	void enqueueJs(String js);
-
 	void injectCssFile(String path);
 
 	/**

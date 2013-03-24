@@ -2,10 +2,13 @@ package com.bkahlert.devel.nebula.widgets.browser;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
@@ -49,7 +52,6 @@ public abstract class BrowserComposite extends Composite implements
 
 	private Browser browser;
 	private boolean loadingCompleted = false;
-	private List<String> enqueuedJs = new ArrayList<String>();
 	private List<IJavaScriptExceptionListener> javaScriptExceptionListeners = new ArrayList<IJavaScriptExceptionListener>();
 	private List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
 
@@ -60,7 +62,7 @@ public abstract class BrowserComposite extends Composite implements
 
 		this.activateExceptionHandling();
 
-		this.enqueueJs("$(\"body\").on({mouseenter:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseenter\"]&&typeof window[\"mouseenter\"]){window[\"mouseenter\"](e)}},mouseleave:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](e)}}},\"a\")");
+		this.run("$(\"body\").on({mouseenter:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseenter\"]&&typeof window[\"mouseenter\"]){window[\"mouseenter\"](e)}},mouseleave:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](e)}}},\"a\")");
 		new BrowserFunction(this.browser, "mouseenter") {
 			@Override
 			public Object function(Object[] arguments) {
@@ -102,15 +104,6 @@ public abstract class BrowserComposite extends Composite implements
 					}, 50);
 				} else {
 					BrowserComposite.this.loadingCompleted = true;
-					for (Iterator<String> iterator = BrowserComposite.this.enqueuedJs
-							.iterator(); iterator.hasNext();) {
-						String js = iterator.next();
-						iterator.remove();
-						if (!BrowserComposite.this.browser.execute(js)) {
-							LOGGER.error("Error occured while running JavaScript in browser: "
-									+ js);
-						}
-					}
 					synchronized (BrowserComposite.this.monitor) {
 						BrowserComposite.this.monitor.notifyAll();
 					}
@@ -224,27 +217,65 @@ public abstract class BrowserComposite extends Composite implements
 	@Override
 	public <T> Future<T> run(final String script, final IConverter<T> converter) {
 		Assert.isLegal(converter != null);
-		return ExecutorUtil.nonUIAsyncExec(new Callable<T>() {
+		final Callable<T> callable = new Callable<T>() {
 			@Override
 			public T call() throws Exception {
-				if (!BrowserComposite.this.loadingCompleted) {
-					synchronized (BrowserComposite.this.monitor) {
-						BrowserComposite.this.monitor.wait();
-					}
-				}
-				if (BrowserComposite.this.isDisposed()) {
-					return null;
-				}
-				return ExecutorUtil.syncExec(new Callable<T>() {
-					@Override
-					public T call() throws Exception {
-						Object returnValue = BrowserComposite.this.getBrowser()
-								.evaluate(script);
-						return converter.convert(returnValue);
-					}
-				});
+				Object returnValue = BrowserComposite.this.getBrowser()
+						.evaluate(script);
+				return converter.convert(returnValue);
 			}
-		});
+		};
+		if (BrowserComposite.this.loadingCompleted) {
+			final AtomicReference<T> converted = new AtomicReference<T>();
+			try {
+				converted.set(ExecutorUtil.syncExec(callable));
+			} catch (Exception e) {
+				LOGGER.fatal(e);
+			}
+			return new Future<T>() {
+				@Override
+				public boolean cancel(boolean mayInterruptIfRunning) {
+					return false;
+				}
+
+				@Override
+				public boolean isCancelled() {
+					return false;
+				}
+
+				@Override
+				public boolean isDone() {
+					return true;
+				}
+
+				@Override
+				public T get() throws InterruptedException, ExecutionException {
+					return converted.get();
+				}
+
+				@Override
+				public T get(long timeout, TimeUnit unit)
+						throws InterruptedException, ExecutionException,
+						TimeoutException {
+					return converted.get();
+				}
+			};
+		} else {
+			return ExecutorUtil.nonUIAsyncExec(new Callable<T>() {
+				@Override
+				public T call() throws Exception {
+					if (!BrowserComposite.this.loadingCompleted) {
+						synchronized (BrowserComposite.this.monitor) {
+							BrowserComposite.this.monitor.wait();
+						}
+					}
+					if (BrowserComposite.this.isDisposed()) {
+						return null;
+					}
+					return ExecutorUtil.syncExec(callable);
+				}
+			});
+		}
 	}
 
 	@Override
@@ -257,37 +288,12 @@ public abstract class BrowserComposite extends Composite implements
 		});
 	}
 
-	@Deprecated
-	@Override
-	public boolean runJs(String js) {
-		if (this.isDisposed()) {
-			return false;
-		}
-		boolean success = this.getBrowser().execute(js);
-		if (!success) {
-			LOGGER.error("Error occured while running JavaScript in browser: "
-					+ js);
-		}
-		return success;
-	}
-
-	@Deprecated
-	@Override
-	public void enqueueJs(String js) {
-		if (this.loadingCompleted) {
-			this.runJs(js);
-		} else {
-			this.enqueuedJs.add(js);
-		}
-	}
-
 	@Override
 	public void injectCssFile(String path) {
-		String js = "if(document.createStyleSheet){document.createStyleSheet(\""
+		this.run("if(document.createStyleSheet){document.createStyleSheet(\""
 				+ path
 				+ "\")}else{$(\"head\").append($(\"<link rel=\\\"stylesheet\\\" href=\\\""
-				+ path + "\\\" type=\\\"text/css\\\" />\"))}";
-		this.enqueueJs(js);
+				+ path + "\\\" type=\\\"text/css\\\" />\"))}");
 	}
 
 	public void addJavaScriptExceptionListener(

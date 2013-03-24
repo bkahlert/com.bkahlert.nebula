@@ -1,6 +1,7 @@
 package com.bkahlert.nebula;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,10 @@ public class SourceProvider extends AbstractSourceProvider {
 	public static final Object NULL_CONTROL = new Object();
 	public static final Object NULL_INPUT = new Object();
 
+	private static final long timeForDetailedInformationControlToOpen = 500;
+	private static long lastNotNullControlChanged = 0;
+	private static long lastNotNullInputChanged = 0;
+
 	private static final List<SourceProvider> INSTANCES = new ArrayList<SourceProvider>();
 
 	// TODO not called yet
@@ -29,12 +34,16 @@ public class SourceProvider extends AbstractSourceProvider {
 	}
 
 	public static void controlChanged(Object control) {
-		// System.err.println(control);
 		if (control == null) {
 			control = NULL_CONTROL;
 		}
-		for (SourceProvider sourceProvider : INSTANCES) {
-			sourceProvider.fireControlChanged(control);
+		long now = new Date().getTime();
+		if (control != NULL_CONTROL
+				|| now - lastNotNullControlChanged > timeForDetailedInformationControlToOpen) {
+			lastNotNullControlChanged = now;
+			for (SourceProvider sourceProvider : INSTANCES) {
+				sourceProvider.fireControlChanged(control);
+			}
 		}
 	}
 
@@ -42,8 +51,13 @@ public class SourceProvider extends AbstractSourceProvider {
 		if (input == null) {
 			input = NULL_INPUT;
 		}
-		for (SourceProvider sourceProvider : INSTANCES) {
-			sourceProvider.fireInputChanged(input);
+		long now = new Date().getTime();
+		if (input != NULL_INPUT
+				|| now - lastNotNullInputChanged > timeForDetailedInformationControlToOpen) {
+			lastNotNullInputChanged = now;
+			for (SourceProvider sourceProvider : INSTANCES) {
+				sourceProvider.fireInputChanged(input);
+			}
 		}
 	}
 
@@ -65,14 +79,11 @@ public class SourceProvider extends AbstractSourceProvider {
 	 */
 	public static final String INPUT = "com.bkahlert.nebula.information.input";
 
-	protected Object manager;
-	protected Object control;
-	protected Object input;
+	protected Object manager = NULL_MANAGER;
+	protected Object control = NULL_CONTROL;
+	protected Object input = NULL_INPUT;
 
 	public SourceProvider() {
-		this.fireSourceChanged(ISources.WORKBENCH, MANAGER, this.manager);
-		this.fireSourceChanged(ISources.WORKBENCH, CONTROL, this.control);
-		this.fireSourceChanged(ISources.WORKBENCH, INPUT, this.input);
 		INSTANCES.add(this);
 	}
 

@@ -148,9 +148,4 @@ public abstract class InformationControl<INFORMATION> extends
 		// TODO subject area des closers aktualisieren
 	}
 
-	@Override
-	public void setFocus() {
-		this.getShell().setFocus();
-	}
-
 }

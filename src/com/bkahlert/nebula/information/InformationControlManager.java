@@ -3,7 +3,6 @@ package com.bkahlert.nebula.information;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.internal.text.InformationControlReplacer;
 import org.eclipse.jface.text.AbstractHoverInformationControlManager;
-import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.util.Geometry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
@@ -12,7 +11,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
 
 /**
  * Instances of this class are watching a {@link Control} and consult a
@@ -50,32 +48,12 @@ public class InformationControlManager<CONTROL extends Control, INFORMATION>
 
 	private ISubjectInformationProvider<CONTROL, INFORMATION> subjectInformationProvider;
 
-	/**
-	 * Because {@link InformationControlManager} does not use the
-	 * {@link InformationControlReplacer}'s provided
-	 * {@link IInformationControlCreator} but the
-	 * {@link InformationControlManager}'s one we can pass a fake
-	 * {@link IInformationControlCreator}.
-	 * 
-	 * @author bkahlert
-	 * 
-	 * @param <INFORMATION>
-	 */
-	private static class FakeReusableInformationControlCreator<INFORMATION>
-			extends InformationControlCreator<INFORMATION> {
-		@Override
-		protected InformationControl<INFORMATION> doCreateInformationControl(
-				Shell parent) {
-			return null;
-		}
-	}
-
 	public InformationControlManager(
 			InformationControlCreator<INFORMATION> creator,
 			ISubjectInformationProvider<CONTROL, INFORMATION> subjectInformationProvider) {
 		super(creator);
 		StickyHoverManager<INFORMATION> replacer = new StickyHoverManager<INFORMATION>(
-				new FakeReusableInformationControlCreator<INFORMATION>());
+				creator);
 		this.getInternalAccessor().setInformationControlReplacer(replacer);
 		this.subjectInformationProvider = subjectInformationProvider;
 	}
@@ -98,8 +76,7 @@ public class InformationControlManager<CONTROL extends Control, INFORMATION>
 
 	@Override
 	protected void computeInformation() {
-		Point hoverArea = this.subjectInformationProvider
-				.getHoverArea();
+		Point hoverArea = this.subjectInformationProvider.getHoverArea();
 		if (hoverArea == null) {
 			hoverArea = new Point(10, 10);
 		}
@@ -109,8 +86,8 @@ public class InformationControlManager<CONTROL extends Control, INFORMATION>
 		Point mouseLocation = Display.getCurrent().getCursorLocation();
 		Rectangle subjectArea = Geometry.toControl(this.getSubjectControl(),
 				new Rectangle(mouseLocation.x - hoverArea.x / 2,
-						mouseLocation.y - hoverArea.y / 2,
-						hoverArea.x, hoverArea.y));
+						mouseLocation.y - hoverArea.y / 2, hoverArea.x,
+						hoverArea.y));
 
 		this.setInformation(information, subjectArea);
 	}
