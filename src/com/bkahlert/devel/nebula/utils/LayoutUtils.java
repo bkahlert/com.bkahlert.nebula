@@ -70,19 +70,6 @@ public class LayoutUtils {
 	}
 
 	/**
-	 * Creates a {@link GridLayout} with one column, no margin and the default
-	 * {@link GridLayout#horizontalSpacing} and
-	 * {@link GridLayout#verticalSpacing}.
-	 * 
-	 * @return
-	 */
-	public static GridLayout createGridLayout() {
-		return createGridLayout(1, false, 0, 0,
-				new GridLayout().horizontalSpacing,
-				new GridLayout().verticalSpacing);
-	}
-
-	/**
 	 * Create a {@link GridData} that fills its cell and grabs the space.
 	 * 
 	 * @return

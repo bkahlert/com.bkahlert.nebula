@@ -23,7 +23,7 @@ import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 
 /**
- * Instances of this class wrap a {@link Image} and at load and save
+ * Instances of this class wrap a {@link Composer} and add load and save
  * functionality.
  * 
  * @author bkahlert

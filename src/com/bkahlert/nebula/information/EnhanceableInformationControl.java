@@ -47,7 +47,7 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 		/**
 		 * Is called when a new {@link InformationControl} is being constructed.
 		 * 
-		 * @param root
+		 * @param parent
 		 */
 		public void build(Composite parent);
 
@@ -97,11 +97,8 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 		this.create();
 	}
 
-	private Composite root;
-
 	@Override
-	protected final void createContent(Composite parent) {
-		this.root = parent;
+	public final void create(Composite parent) {
 		this.delegate.build(parent);
 	}
 
@@ -118,7 +115,6 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 			// reflect contributions
 			toolBarManager.update(true);
 		}
-		this.root.layout();
 		return load;
 	}
 

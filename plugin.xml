@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="com.bkahlert.nebula.information" name="Nebula Information" schema="schema/com.bkahlert.nebula.information.exsd"/>
    <extension
          id="id2"
          point="org.eclipse.core.runtime.applications">
@@ -9,7 +10,7 @@
             thread="main"
             visible="true">
          <run
-               class="com.bkahlert.devel.nebula.Application">
+               class="com.bkahlert.nebula.gallery.application.Application">
          </run>
       </application>
    </extension>
@@ -18,22 +19,22 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             name="RCP Perspective"
-            class="com.bkahlert.devel.nebula.Perspective"
+            class="com.bkahlert.nebula.gallery.application.Perspective"
             id="de.fu_berlin.imp.seqan.usability_analyzer.nebula.perspective">
       </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.views">
       <view
-            class="com.bkahlert.devel.nebula.views.WidgetsView"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.nebula.ui.views.WidgetsView"
-            name="Widgets"
-            restorable="true">
-      </view>
-      <view
             class="com.bkahlert.devel.nebula.views.SampleEditorView"
             id="de.fu_berlin.imp.seqan.usability_analyzer.nebula.ui.views.SampleEditorView"
             name="Sample Editor"
+            restorable="true">
+      </view>
+      <view
+            class="com.bkahlert.nebula.gallery.views.GalleryView"
+            id="com.bkahlert.nebula.gallery.views.GalleryView"
+            name="Gallery"
             restorable="true">
       </view>
    </extension>
@@ -64,6 +65,10 @@
             commandId="com.bkahlert.devel.nebula.toggleSourceMode"
             icon="icons/elcl16/sourceMode_tsk.png">
       </image>
+      <image
+            commandId="org.eclipse.ui.file.refresh"
+            icon="icons/elcl16/reload.png">
+      </image>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -71,6 +76,21 @@
             class="com.bkahlert.devel.nebula.handlers.ToggleSourceModeHandler"
             commandId="com.bkahlert.devel.nebula.toggleSourceMode">
       </handler>
+      <handler
+            class="com.bkahlert.nebula.gallery.handlers.RefreshDemoHandler"
+            commandId="org.eclipse.ui.file.refresh">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:com.bkahlert.nebula.gallery.views.GalleryView?after=additions">
+         <command
+               commandId="org.eclipse.ui.file.refresh"
+               style="push">
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.startup">
@@ -122,6 +142,13 @@
                priorityLevel="workbench">
          </variable>
       </sourceProvider>
+   </extension>
+   <extension
+         point="com.bkahlert.nebula.information">
+      <extender
+            class="com.bkahlert.nebula.gallery.demoSuits.information.InformationManagerDemo$InformationControlExtender"
+            informationClass="com.bkahlert.nebula.gallery.demoSuits.information.InformationManagerDemo$InformationControlDemoInput">
+      </extender>
    </extension>
 
 </plugin>
