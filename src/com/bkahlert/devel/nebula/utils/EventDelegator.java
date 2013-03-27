@@ -28,7 +28,8 @@ public class EventDelegator {
 		if (control instanceof Composite) {
 			return eventType == SWT.MouseMove || eventType == SWT.MouseEnter
 					|| eventType == SWT.MouseHover
-					|| eventType == SWT.MouseExit;
+					|| eventType == SWT.MouseExit || eventType == SWT.FocusIn
+					|| eventType == SWT.FocusOut;
 		}
 		return false;
 	}

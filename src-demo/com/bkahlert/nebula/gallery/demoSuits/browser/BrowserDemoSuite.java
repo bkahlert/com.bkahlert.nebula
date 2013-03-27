@@ -7,7 +7,7 @@ import com.bkahlert.nebula.gallery.demoExplorer.DemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 
 @DemoSuite(value = { BrowserDemo.class, ComposerDemo.class, EditorDemo.class,
-		ImageDemo.class, TimelineDemo.class })
+		MultipleEditorsDemo.class, ImageDemo.class, TimelineDemo.class })
 @Demo
 public class BrowserDemoSuite extends AbstractDemo {
 

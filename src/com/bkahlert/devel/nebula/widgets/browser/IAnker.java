@@ -23,7 +23,7 @@ public interface IAnker {
 	public String[] getClasses();
 
 	/**
-	 * Returns the {@link IAnker}'s content, which is the portion between the
+	 * Returns the {@link IAnker}'s demoAreaContent, which is the portion between the
 	 * opening and closing tag.
 	 * 
 	 * @return

@@ -50,7 +50,7 @@ public class MinSizeComposite extends Composite {
 	}
 
 	/**
-	 * Returns the minimum width of the content control.
+	 * Returns the minimum width of the demoAreaContent control.
 	 * 
 	 * @return the minimum width
 	 * 
@@ -69,7 +69,7 @@ public class MinSizeComposite extends Composite {
 
 	/**
 	 * Specify the minimum width at which the ScrolledComposite will begin
-	 * scrolling the content with the horizontal scroll bar. This value is only
+	 * scrolling the demoAreaContent with the horizontal scroll bar. This value is only
 	 * relevant if setExpandHorizontal(true) has been set.
 	 * 
 	 * @param width
@@ -88,7 +88,7 @@ public class MinSizeComposite extends Composite {
 	}
 
 	/**
-	 * Returns the minimum height of the content control.
+	 * Returns the minimum height of the demoAreaContent control.
 	 * 
 	 * @return the minimum height
 	 * 
@@ -107,7 +107,7 @@ public class MinSizeComposite extends Composite {
 
 	/**
 	 * Specify the minimum height at which the ScrolledComposite will begin
-	 * scrolling the content with the vertical scroll bar. This value is only
+	 * scrolling the demoAreaContent with the vertical scroll bar. This value is only
 	 * relevant if setExpandVertical(true) has been set.
 	 * 
 	 * @param height
@@ -127,7 +127,7 @@ public class MinSizeComposite extends Composite {
 
 	/**
 	 * Specify the minimum width and height at which the ScrolledComposite will
-	 * begin scrolling the content with the horizontal scroll bar. This value is
+	 * begin scrolling the demoAreaContent with the horizontal scroll bar. This value is
 	 * only relevant if setExpandHorizontal(true) and setExpandVertical(true)
 	 * have been set.
 	 * 
@@ -152,7 +152,7 @@ public class MinSizeComposite extends Composite {
 
 	/**
 	 * Specify the minimum width and height at which the ScrolledComposite will
-	 * begin scrolling the content with the horizontal scroll bar. This value is
+	 * begin scrolling the demoAreaContent with the horizontal scroll bar. This value is
 	 * only relevant if setExpandHorizontal(true) and setExpandVertical(true)
 	 * have been set.
 	 * 

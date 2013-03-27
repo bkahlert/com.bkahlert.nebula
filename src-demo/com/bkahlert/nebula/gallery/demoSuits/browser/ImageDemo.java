@@ -25,12 +25,12 @@ public class ImageDemo extends AbstractDemo {
 		this.image.addImageListener(new IImageListener() {
 			@Override
 			public void imageLoaded(Point size) {
-				ImageDemo.this.addConsoleMessage("Image loaded: " + size);
+				ImageDemo.log("Image loaded: " + size);
 			}
 
 			@Override
 			public void imageResized(Point size) {
-				ImageDemo.this.addConsoleMessage("Image resized: " + size);
+				ImageDemo.log("Image resized: " + size);
 			}
 		});
 	}
@@ -54,8 +54,7 @@ public class ImageDemo extends AbstractDemo {
 								new Runnable() {
 									@Override
 									public void run() {
-										ImageDemo.this
-												.addConsoleMessage("loaded");
+										ImageDemo.log("loaded");
 										ImageDemo.this.layout();
 									}
 								});
@@ -69,8 +68,7 @@ public class ImageDemo extends AbstractDemo {
 								new Runnable() {
 									@Override
 									public void run() {
-										ImageDemo.this
-												.addConsoleMessage("loaded");
+										ImageDemo.log("loaded");
 										ImageDemo.this.layout();
 									}
 								});
@@ -84,8 +82,7 @@ public class ImageDemo extends AbstractDemo {
 								new Runnable() {
 									@Override
 									public void run() {
-										ImageDemo.this
-												.addConsoleMessage("loaded");
+										ImageDemo.log("loaded");
 										ImageDemo.this.layout();
 									}
 								});
@@ -99,8 +96,7 @@ public class ImageDemo extends AbstractDemo {
 								new Runnable() {
 									@Override
 									public void run() {
-										ImageDemo.this
-												.addConsoleMessage("loaded");
+										ImageDemo.log("loaded");
 										ImageDemo.this.layout();
 									}
 								});

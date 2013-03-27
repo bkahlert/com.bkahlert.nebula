@@ -6,7 +6,7 @@ import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 
 
-@Demo("All available wizards.")
+@Demo(title = "All available wizards.")
 public class AllWizardsDemo extends AbstractDemo {
 	@Override
 	public void createDemo(final Composite parent) {

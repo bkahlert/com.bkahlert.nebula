@@ -5,7 +5,6 @@ import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -16,59 +15,42 @@ import org.eclipse.ui.internal.about.AboutAction;
 
 import com.bkahlert.devel.nebula.colors.ColorUtils;
 import com.bkahlert.devel.nebula.widgets.SimpleRoundedComposite;
-import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
-import com.bkahlert.devel.nebula.widgets.editor.Editor;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.information.EnhanceableInformationControl;
 import com.bkahlert.nebula.information.EnhanceableInformationControl.Delegate;
 import com.bkahlert.nebula.information.EnhanceableInformationControl.DelegateFactory;
-import com.bkahlert.nebula.information.IInformationControlExtender;
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.information.InformationControl;
 import com.bkahlert.nebula.information.InformationControlCreator;
 import com.bkahlert.nebula.information.InformationControlManager;
+import com.bkahlert.nebula.information.extender.EditorInformationControlExtender;
 
 @Demo
-public class InformationManagerDemo extends AbstractDemo {
+public class InformationControlExtenderDemo extends AbstractDemo {
 
-	public static class InformationControlExtender implements
-			IInformationControlExtender<InformationControlDemoInput> {
+	/*
+	 * This class is instantiated by plugin.xml
+	 */
+	public static class InformationControlExtender extends
+			EditorInformationControlExtender<InformationControlDemoInput> {
 
-		private InformationControl<InformationControlDemoInput> informationControl = null;
-		private Editor<String> editor = null;
-
-		@Override
-		public void extend(
-				InformationControl<InformationControlDemoInput> informationControl,
-				Composite parent) {
-			this.informationControl = informationControl;
-			this.editor = new Editor<String>(parent, SWT.NONE, 500,
-					ToolbarSet.DEFAULT) {
-				@Override
-				public String getHtml(String objectToLoad,
-						IProgressMonitor monitor) {
-					InformationManagerDemo.this.addConsoleMessage("Loaded: "
-							+ objectToLoad);
-					return objectToLoad;
-				}
-
-				@Override
-				public void setHtml(String loadedObject, String html,
-						IProgressMonitor monitor) {
-					InformationManagerDemo.this.addConsoleMessage("Saved: "
-							+ html);
-				}
-			};
-			this.editor.setLayoutData(GridDataFactory.fillDefaults()
-					.grab(true, true).minSize(400, 400).create());
+		public InformationControlExtender() {
+			super(GridDataFactory.fillDefaults().grab(true, true)
+					.minSize(400, 400).create());
 		}
 
 		@Override
-		public void extend(InformationControlDemoInput information) {
-			this.informationControl.setSize(300, 300);
-			this.informationControl.layout();
-			this.editor.load(information.toString());
+		public String getHtml(InformationControlDemoInput objectToLoad,
+				IProgressMonitor monitor) {
+			log("Loading " + objectToLoad);
+			return objectToLoad.toString();
+		}
+
+		@Override
+		public void setHtml(InformationControlDemoInput loadedObject,
+				String html, IProgressMonitor monitor) {
+			log("Saving " + html);
 		}
 
 	}
@@ -95,16 +77,16 @@ public class InformationManagerDemo extends AbstractDemo {
 		SimpleRoundedComposite area = new SimpleRoundedComposite(composite,
 				SWT.BORDER);
 		area.setText("Hover over me!");
-		area.setBackground(new Color(Display.getCurrent(), ColorUtils
-				.getRandomRGB().toClassicRGB()));
+		area.setBackground(ColorUtils.createRandomColor());
 		area.setLayoutData(GridDataFactory.fillDefaults().grab(true, true)
 				.create());
 
-		InformationControlCreator<InformationControlDemoInput> creator = new InformationControlCreator<InformationManagerDemo.InformationControlDemoInput>() {
+		InformationControlCreator<InformationControlDemoInput> creator = new InformationControlCreator<InformationControlExtenderDemo.InformationControlDemoInput>() {
 			@Override
 			protected InformationControl<InformationControlDemoInput> doCreateInformationControl(
 					Shell parent) {
 				return new EnhanceableInformationControl<InformationControlDemoInput, Delegate<InformationControlDemoInput>>(
+						InformationControlDemoInput.class,
 						parent,
 						new DelegateFactory<Delegate<InformationControlDemoInput>>() {
 							@Override
@@ -133,10 +115,6 @@ public class InformationManagerDemo extends AbstractDemo {
 											return false;
 										}
 
-										InformationManagerDemo.this
-												.addConsoleMessage(this.label
-														.hashCode() + "");
-
 										if (toolBarManager != null) {
 											toolBarManager
 													.add(new AboutAction(
@@ -144,9 +122,6 @@ public class InformationManagerDemo extends AbstractDemo {
 																	.getWorkbench()
 																	.getActiveWorkbenchWindow()));
 										}
-										InformationManagerDemo.this
-												.addConsoleMessage(input
-														.toString());
 										this.label.setText(input.toString());
 										return true;
 									}
@@ -156,21 +131,22 @@ public class InformationManagerDemo extends AbstractDemo {
 			}
 		};
 
-		ISubjectInformationProvider<Composite, InformationControlDemoInput> provider = new ISubjectInformationProvider<Composite, InformationManagerDemo.InformationControlDemoInput>() {
+		ISubjectInformationProvider<Composite, InformationControlDemoInput> provider = new ISubjectInformationProvider<Composite, InformationControlExtenderDemo.InformationControlDemoInput>() {
 			@Override
 			public void register(Composite subject) {
-				InformationManagerDemo.this.addConsoleMessage("registered");
+				InformationControlExtenderDemo.log("registered");
 			}
 
 			@Override
 			public void unregister(Composite subject) {
-				InformationManagerDemo.this.addConsoleMessage("unregistered");
+				InformationControlExtenderDemo.log("unregistered");
 			}
 
 			@Override
 			public InformationControlDemoInput getInformation() {
 				Point pos = Display.getCurrent().getCursorLocation();
-				return new InformationControlDemoInput(pos.x + " - " + pos.y);
+				return new InformationControlDemoInput(
+						"Cursor position:<br>x: " + pos.x + "<br>y: " + pos.y);
 			}
 
 			@Override
@@ -179,7 +155,7 @@ public class InformationManagerDemo extends AbstractDemo {
 			}
 		};
 
-		InformationControlManager<Composite, InformationControlDemoInput> manager = new InformationControlManager<Composite, InformationManagerDemo.InformationControlDemoInput>(
+		InformationControlManager<Composite, InformationControlDemoInput> manager = new InformationControlManager<Composite, InformationControlExtenderDemo.InformationControlDemoInput>(
 				creator, provider);
 		manager.install(area);
 	}

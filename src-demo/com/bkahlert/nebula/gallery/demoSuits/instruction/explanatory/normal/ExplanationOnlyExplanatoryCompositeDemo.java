@@ -49,7 +49,7 @@ public class ExplanationOnlyExplanatoryCompositeDemo extends AbstractDemo {
 			}
 		});
 
-		// content
+		// demoAreaContent
 		Button contentControl = new Button(explanatoryComposite, SWT.PUSH);
 		explanatoryComposite.setContentControl(contentControl);
 		contentControl.setText("Show the explanation...");

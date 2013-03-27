@@ -159,13 +159,13 @@ public class ChatControlDemo extends AbstractDemo {
 		this.chatControl.addChatControlListener(new IChatControlListener() {
 			@Override
 			public void messageEntered(MessageEnteredEvent event) {
-				ChatControlDemo.this.addConsoleMessage("Message entered: "
+				ChatControlDemo.log("Message entered: "
 						+ event.getEnteredMessage());
 			}
 
 			@Override
 			public void characterEntered(CharacterEnteredEvent event) {
-				ChatControlDemo.this.addConsoleMessage("Character entered: "
+				ChatControlDemo.log("Character entered: "
 						+ event.getEnteredCharacter());
 			}
 

@@ -59,7 +59,7 @@ public class SimpleNoteComposite extends NoteComposite {
 	}
 
 	/**
-	 * Sets the content's image
+	 * Sets the demoAreaContent's image
 	 * 
 	 * @param systemImage
 	 *            SWT constant that declares a system image (e.g.
@@ -71,7 +71,7 @@ public class SimpleNoteComposite extends NoteComposite {
 	}
 
 	/**
-	 * Sets the content's image
+	 * Sets the demoAreaContent's image
 	 */
 	@Override
 	public void setImage(Image image) {
@@ -79,7 +79,7 @@ public class SimpleNoteComposite extends NoteComposite {
 	}
 
 	/**
-	 * Sets the content's text
+	 * Sets the demoAreaContent's text
 	 * 
 	 * @param text
 	 */

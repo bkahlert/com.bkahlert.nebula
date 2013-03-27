@@ -67,15 +67,18 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 				ToolBarManager toolBarManager);
 	}
 
+	private Class<INFORMATION> informationClass;
 	private Shell parentShell;
 	private DELEGATE delegate;
 	private DELEGATE enhancedDelegate;
 
 	private InformationControlCreator<INFORMATION> enhancedCreator = null;
 
-	private EnhanceableInformationControl(Shell parentShell,
-			ToolBarManager toolBarManager, DELEGATE enhancedDelegate) {
-		super(parentShell, toolBarManager, null);
+	private EnhanceableInformationControl(Class<INFORMATION> informationClass,
+			Shell parentShell, ToolBarManager toolBarManager,
+			DELEGATE enhancedDelegate) {
+		super(informationClass, parentShell, toolBarManager, null);
+		this.informationClass = informationClass;
 		this.parentShell = parentShell;
 		this.delegate = enhancedDelegate;
 		this.create();
@@ -85,12 +88,14 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 	 * Constructs a new {@link EnhanceableInformationControl} that show a
 	 * {@link ToolBar} as soon as it becomes enhancedCreator.
 	 * 
+	 * @param informationClass
 	 * @param parentShell
 	 * @param delegateFactory
 	 */
-	public EnhanceableInformationControl(Shell parentShell,
-			DelegateFactory<DELEGATE> delegateFactory) {
-		super(parentShell, "Press 'F2' for focus", null);
+	public EnhanceableInformationControl(Class<INFORMATION> informationClass,
+			Shell parentShell, DelegateFactory<DELEGATE> delegateFactory) {
+		super(informationClass, parentShell, "Press 'F2' for focus", null);
+		this.informationClass = informationClass;
 		this.parentShell = parentShell;
 		this.delegate = delegateFactory.create();
 		this.enhancedDelegate = delegateFactory.create();
@@ -129,6 +134,7 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 					protected InformationControl<INFORMATION> doCreateInformationControl(
 							Shell parent) {
 						return new EnhanceableInformationControl<INFORMATION, DELEGATE>(
+								EnhanceableInformationControl.this.informationClass,
 								EnhanceableInformationControl.this.parentShell,
 								new ToolBarManager(),
 								EnhanceableInformationControl.this.enhancedDelegate);

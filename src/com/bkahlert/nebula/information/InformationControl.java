@@ -23,6 +23,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.IMenuService;
 
 import com.bkahlert.nebula.SourceProvider;
+import com.bkahlert.nebula.information.extender.IInformationControlExtender;
 
 /**
  * This is a typed version of the {@link IInformationControlExtension2}.<br>
@@ -46,13 +47,34 @@ public abstract class InformationControl<INFORMATION> extends
 			.getLogger(InformationControl.class);
 
 	@SuppressWarnings("unchecked")
-	protected static <INFORMATION> List<IInformationControlExtender<INFORMATION>> getExtenders() {
+	protected static <INFORMATION> List<IInformationControlExtender<INFORMATION>> getExtenders(
+			Class<INFORMATION> informationClass) {
 		IConfigurationElement[] config = Platform.getExtensionRegistry()
 				.getConfigurationElementsFor("com.bkahlert.nebula.information");
 		final List<IInformationControlExtender<INFORMATION>> extenders = new ArrayList<IInformationControlExtender<INFORMATION>>();
 		for (IConfigurationElement configElement : config) {
+			/*
+			 * filter for extenders that handle the given information class
+			 */
+			String currentInformationClassName = configElement
+					.getAttribute("informationClass");
 			try {
-				Object o = configElement.createExecutableExtension("class");
+				Class<?> currentInformationClass = informationClass
+						.getClassLoader()
+						.loadClass(currentInformationClassName);
+				if (informationClass != currentInformationClass) {
+					continue;
+				}
+			} catch (ClassNotFoundException e) {
+				continue;
+			}
+
+			/*
+			 * invariant: only extenders that handle the given information class
+			 */
+			try {
+				Object o = configElement
+						.createExecutableExtension("extenderClass");
 				if (o instanceof IInformationControlExtender) {
 					try {
 						extenders
@@ -74,24 +96,28 @@ public abstract class InformationControl<INFORMATION> extends
 	}
 
 	private List<IInformationControlExtender<INFORMATION>> extenders = null;
+	private Class<INFORMATION> informationClass = null;
 	private boolean hasContents = false;
 	private Composite parent = null;
 
-	protected InformationControl(Shell parentShell, String statusFieldText,
-			Object noCreate) {
+	protected InformationControl(Class<INFORMATION> informationClass,
+			Shell parentShell, String statusFieldText, Object noCreate) {
 		super(parentShell, statusFieldText);
+		this.informationClass = informationClass;
 	}
 
-	protected InformationControl(Shell parentShell,
-			ToolBarManager toolBarManager, Object noCreate) {
+	protected InformationControl(Class<INFORMATION> informationClass,
+			Shell parentShell, ToolBarManager toolBarManager, Object noCreate) {
 		super(parentShell, toolBarManager);
+		this.informationClass = informationClass;
 		toolBarManager.add(new GroupMarker(
 				IWorkbenchActionConstants.MB_ADDITIONS));
 		this.addMenuServiceContributions(toolBarManager);
 	}
 
-	public InformationControl(Shell parentShell, String statusFieldText) {
-		this(parentShell, statusFieldText, null);
+	public InformationControl(Class<INFORMATION> informationClass,
+			Shell parentShell, String statusFieldText) {
+		this(informationClass, parentShell, statusFieldText, null);
 		this.create();
 	}
 
@@ -109,8 +135,9 @@ public abstract class InformationControl<INFORMATION> extends
 	 * @param parentShell
 	 * @param toolBarManager
 	 */
-	public InformationControl(Shell parentShell, ToolBarManager toolBarManager) {
-		this(parentShell, toolBarManager, null);
+	public InformationControl(Class<INFORMATION> informationClass,
+			Shell parentShell, ToolBarManager toolBarManager) {
+		this(informationClass, parentShell, toolBarManager, null);
 		this.create();
 	}
 
@@ -124,7 +151,8 @@ public abstract class InformationControl<INFORMATION> extends
 	@Override
 	protected final void createContent(Composite parent) {
 		this.parent = parent;
-		this.extenders = InformationControl.<INFORMATION> getExtenders();
+		this.extenders = InformationControl
+				.<INFORMATION> getExtenders(this.informationClass);
 		this.create(parent);
 		for (IInformationControlExtender<INFORMATION> extender : this.extenders) {
 			extender.extend(this, parent);
@@ -141,7 +169,7 @@ public abstract class InformationControl<INFORMATION> extends
 			this.hasContents = this.load(information);
 			this.parent.layout();
 			for (IInformationControlExtender<INFORMATION> extender : this.extenders) {
-				extender.extend(information);
+				extender.extend(this, information);
 			}
 		} catch (ClassCastException e) {
 			this.hasContents = false;
@@ -188,7 +216,6 @@ public abstract class InformationControl<INFORMATION> extends
 		shell.layout();
 		shell.pack();
 		Point newSize = shell.getSize();
-		System.err.println(newSize);
 		Rectangle newBounds = new Rectangle(oldBounds.x, oldBounds.y
 				+ oldBounds.height - newSize.y, newSize.x, newSize.y);
 		int fixedX = newBounds.x;

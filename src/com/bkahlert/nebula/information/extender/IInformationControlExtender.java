@@ -1,6 +1,8 @@
-package com.bkahlert.nebula.information;
+package com.bkahlert.nebula.information.extender;
 
 import org.eclipse.swt.widgets.Composite;
+
+import com.bkahlert.nebula.information.InformationControl;
 
 /**
  * Instances of this class can extend {@link InformationControl}s by extending
@@ -13,5 +15,6 @@ public interface IInformationControlExtender<INFORMATION> {
 	public void extend(InformationControl<INFORMATION> informationControl,
 			Composite parent);
 
-	public void extend(INFORMATION information);
+	public void extend(InformationControl<INFORMATION> informationControl,
+			INFORMATION information);
 }

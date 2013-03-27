@@ -13,7 +13,7 @@ import com.bkahlert.devel.nebula.widgets.explanation.note.SimpleNoteComposite;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 
-@Demo("Different NoteComposites with various system icons and colors")
+@Demo(title = "Different NoteComposites with various system icons and colors")
 public class SimpleNoteCompositeDemo extends AbstractDemo {
 	protected SimpleNoteComposite createNoteComposite(Composite parent,
 			int iconId, int fgColorId, int bgColorId, String text) {

@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Layout;
 
 /**
  * This composite displays a {@link ExplanationComposite} with list items as its
- * content.
+ * demoAreaContent.
  * <p>
  * This composite does <strong>NOT</strong> handle setting the layout and adding
  * sub {@link Control}s correctly.

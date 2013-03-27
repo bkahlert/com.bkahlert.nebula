@@ -146,8 +146,8 @@
    <extension
          point="com.bkahlert.nebula.information">
       <extender
-            class="com.bkahlert.nebula.gallery.demoSuits.information.InformationManagerDemo$InformationControlExtender"
-            informationClass="com.bkahlert.nebula.gallery.demoSuits.information.InformationManagerDemo$InformationControlDemoInput">
+            extenderClass="com.bkahlert.nebula.gallery.demoSuits.information.InformationControlExtenderDemo$InformationControlExtender"
+            informationClass="com.bkahlert.nebula.gallery.demoSuits.information.InformationControlExtenderDemo$InformationControlDemoInput">
       </extender>
    </extension>
 

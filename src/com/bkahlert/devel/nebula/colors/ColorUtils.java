@@ -7,6 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Display;
+
 public class ColorUtils {
 
 	public static double GOLDEN_RATIO_CONJUGATE = 0.618033988749895;
@@ -28,8 +31,9 @@ public class ColorUtils {
 	 * @see <a href="http://en.wikipedia.org/wiki/HSL_and_HSV">HLS and HSV</a>
 	 */
 	public static RGB addLightness(RGB rgb, float lightness) {
-		if (lightness < -1 || lightness > 1)
+		if (lightness < -1 || lightness > 1) {
 			throw new IndexOutOfBoundsException();
+		}
 
 		/*
 		 * Convert to HLS; HLS and HLS are synonym
@@ -40,10 +44,12 @@ public class ColorUtils {
 		 * Scale the lightness
 		 */
 		double newLightness = hls.getLightness() + lightness;
-		if (newLightness < 0)
+		if (newLightness < 0) {
 			newLightness = 0;
-		if (newLightness > 1)
+		}
+		if (newLightness > 1) {
 			newLightness = 1;
+		}
 		hls.setLightness(newLightness);
 
 		/*
@@ -64,8 +70,9 @@ public class ColorUtils {
 	 * @see <a href="http://en.wikipedia.org/wiki/HSL_and_HSV">HLS and HSV</a>
 	 */
 	public static RGB scaleLightnessBy(RGB rgb, float scale) {
-		if (scale < 0)
+		if (scale < 0) {
 			throw new IllegalArgumentException();
+		}
 
 		/*
 		 * Convert to HLS; HLS and HLS are synonym
@@ -85,8 +92,9 @@ public class ColorUtils {
 	}
 
 	public static RGB scaleSaturationBy(RGB rgb, float scale) {
-		if (scale < 0)
+		if (scale < 0) {
 			throw new IllegalArgumentException();
+		}
 
 		/*
 		 * Convert to HLS; HLS and HLS are synonym
@@ -133,6 +141,19 @@ public class ColorUtils {
 	}
 
 	/**
+	 * Creates a new random {@link Color}.
+	 * <p>
+	 * <strong>You have to dispose this {@link Color} if you don't need it
+	 * anymore.
+	 * 
+	 * @return
+	 */
+	public static Color createRandomColor() {
+		return new Color(Display.getCurrent(), ColorUtils.getRandomRGB()
+				.toClassicRGB());
+	}
+
+	/**
 	 * This method generates a color with the biggest possible distance to the
 	 * given colors concerning the hue (meaning saturation and lightness are not
 	 * considered).
@@ -143,23 +164,27 @@ public class ColorUtils {
 	 */
 	public static HLS getBestComplementColorHLS(List<HLS> colors) {
 		// 0 different colors
-		if (colors == null || colors.size() == 0)
+		if (colors == null || colors.size() == 0) {
 			return getRandomHLS();
+		}
 
 		// 1 different color -> complement
 		List<Double> hues = new LinkedList<Double>();
 		for (HLS color : colors) {
 			double hue = color.getHue() % 1;
-			if (!hues.contains(hue))
+			if (!hues.contains(hue)) {
 				hues.add(hue);
+			}
 		}
-		if (hues.size() == 1)
+		if (hues.size() == 1) {
 			return new HLS((colors.get(0).getHue() + 0.5) % 1, colors.get(0)
 					.getLightness(), colors.get(0).getSaturation());
+		}
 
 		// > 1 different colors
 		List<HLS> hlss = new ArrayList<HLS>(colors);
 		Collections.sort(hlss, new Comparator<HLS>() {
+			@Override
 			public int compare(HLS o1, HLS o2) {
 				return new Double(o1.getHue()).compareTo(o2.getHue());
 			}
@@ -198,8 +223,9 @@ public class ColorUtils {
 	 */
 	public static RGB getBestComplementColor(Set<RGB> rgbs) {
 		List<HLS> hlss = new ArrayList<HLS>(rgbs.size() + 2);
-		for (RGB rgb : rgbs)
+		for (RGB rgb : rgbs) {
 			hlss.add(ColorSpaceConverter.RGBtoHLS(rgb));
+		}
 		HLS hls = getBestComplementColorHLS(hlss);
 		return ColorSpaceConverter.HLStoRGB(hls);
 	}

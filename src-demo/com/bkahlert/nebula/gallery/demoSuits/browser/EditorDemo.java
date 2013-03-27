@@ -49,7 +49,7 @@ public class EditorDemo extends AbstractDemo {
 			@Override
 			public void setHtml(String objectToLoad, String html,
 					IProgressMonitor monitor) {
-				EditorDemo.this.addConsoleMessage("saved: " + html);
+				EditorDemo.log("saved: " + html);
 			}
 		};
 		this.editor.addAnkerListener(new IAnkerListener() {
@@ -57,13 +57,12 @@ public class EditorDemo extends AbstractDemo {
 
 			@Override
 			public void ankerClicked(IAnker anker) {
-				addConsoleMessage("clicked on " + anker.getHref());
+				log("clicked on " + anker.getHref());
 			}
 
 			@Override
 			public void ankerHovered(final IAnker anker, boolean entered) {
-				addConsoleMessage((entered ? "entered " : "left") + ": "
-						+ anker.getHref());
+				log((entered ? "entered " : "left") + ": " + anker.getHref());
 				if (this.popup != null) {
 					this.popup.close();
 					this.popup = null;
@@ -89,7 +88,7 @@ public class EditorDemo extends AbstractDemo {
 					protected InformationControl<IAnker> doCreateInformationControl(
 							Shell parent) {
 						return new EnhanceableInformationControl<IAnker, Delegate<IAnker>>(
-								parent,
+								IAnker.class, parent,
 								new DelegateFactory<Delegate<IAnker>>() {
 									@Override
 									public Delegate<IAnker> create() {
@@ -110,10 +109,8 @@ public class EditorDemo extends AbstractDemo {
 													return false;
 												}
 
-												EditorDemo.this
-														.addConsoleMessage(this.label
-																.hashCode()
-																+ "");
+												EditorDemo.log(this.label
+														.hashCode() + "");
 
 												if (toolBarManager != null) {
 													toolBarManager
@@ -125,8 +122,7 @@ public class EditorDemo extends AbstractDemo {
 												String content = toolBarManager != null ? anker
 														.toHtml() : anker
 														.getContent();
-												EditorDemo.this
-														.addConsoleMessage(content);
+												EditorDemo.log(content);
 												this.label.setText(content);
 												return true;
 											}

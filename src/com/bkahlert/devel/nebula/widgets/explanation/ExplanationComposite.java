@@ -34,7 +34,7 @@ import com.bkahlert.devel.nebula.widgets.IllustratedComposite;
 public class ExplanationComposite extends IllustratedComposite {
 
 	/**
-	 * The space between illustrative image and content
+	 * The space between illustrative image and demoAreaContent
 	 */
 	private static final int EXPLANATION_COMPOSITE_SPACING = 20;
 

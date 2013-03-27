@@ -33,7 +33,7 @@ public interface IBrowserComposite extends IWidget {
 
 	/**
 	 * Runs the given script in the {@link IBrowserComposite} as soon as its
-	 * content is loaded and returns the {@link IBrowserComposite}'s return
+	 * demoAreaContent is loaded and returns the {@link IBrowserComposite}'s return
 	 * value.
 	 * <p>
 	 * <strong>WARNING!<br>
@@ -51,7 +51,7 @@ public interface IBrowserComposite extends IWidget {
 
 	/**
 	 * Runs the given script in the {@link IBrowserComposite} as soon as its
-	 * content is loaded and returns the {@link IBrowserComposite}'s converted
+	 * demoAreaContent is loaded and returns the {@link IBrowserComposite}'s converted
 	 * return value.
 	 * <p>
 	 * <strong>WARNING!<br>

@@ -10,7 +10,7 @@ import com.bkahlert.devel.nebula.widgets.explanation.ListExplanationComposite.Li
 
 /**
  * Instances of this class are controls which are capable of containing exactly
- * <strong>one</strong> content {@link Control} and an implicitly generated
+ * <strong>one</strong> demoAreaContent {@link Control} and an implicitly generated
  * {@link ListExplanationComposite} to display explanatory information.<br>
  * Although this composite may be subclasses <strong>only the control registered
  * trough {@link ListExplanatoryComposite#setContentControl(Control)} can be
@@ -51,7 +51,7 @@ public class ListExplanatoryComposite extends ExplanatoryComposite {
 	}
 
 	/**
-	 * Hides the content and displays an explanation.
+	 * Hides the demoAreaContent and displays an explanation.
 	 * 
 	 * @param listExplanation
 	 *            The explanation to be displayed; if null the explanation gets
@@ -67,7 +67,7 @@ public class ListExplanatoryComposite extends ExplanatoryComposite {
 	}
 
 	/**
-	 * Hides the explanation and displays the content.
+	 * Hides the explanation and displays the demoAreaContent.
 	 */
 	@Override
 	public void hideExplanation() {

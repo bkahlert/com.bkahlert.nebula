@@ -33,8 +33,7 @@ public class ComposerDemo extends AbstractDemo {
 				.addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {
 					@Override
 					public boolean thrown(JavaScriptException exception) {
-						ComposerDemo.this.addConsoleMessage(exception
-								.getDetail());
+						ComposerDemo.log(exception.getDetail());
 						return true;
 					}
 				});
@@ -64,14 +63,13 @@ public class ComposerDemo extends AbstractDemo {
 
 			@Override
 			public void ankerClicked(IAnker anker) {
-				ComposerDemo.this.addConsoleMessage("clicked on "
-						+ anker.getHref());
+				ComposerDemo.log("clicked on " + anker.getHref());
 			}
 
 			@Override
 			public void ankerHovered(final IAnker anker, boolean entered) {
-				ComposerDemo.this.addConsoleMessage((entered ? "entered "
-						: "left") + ": " + anker.getHref());
+				ComposerDemo.log((entered ? "entered " : "left")
+						+ ": " + anker.getHref());
 				if (this.popup != null) {
 					this.popup.close();
 					this.popup = null;
@@ -92,7 +90,7 @@ public class ComposerDemo extends AbstractDemo {
 		this.composer.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
-				ComposerDemo.this.addConsoleMessage("changed: " + e.data);
+				ComposerDemo.log("changed: " + e.data);
 			}
 		});
 	}
@@ -121,7 +119,7 @@ public class ComposerDemo extends AbstractDemo {
 		composerGetSource.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ComposerDemo.this.addConsoleMessage(ComposerDemo.this.composer
+				ComposerDemo.log(ComposerDemo.this.composer
 						.getSource());
 			}
 		});

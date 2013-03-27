@@ -1,6 +1,8 @@
 package com.bkahlert.devel.nebula.widgets.editor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -25,6 +27,9 @@ import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 /**
  * Instances of this class wrap a {@link Composer} and add load and save
  * functionality.
+ * <p>
+ * If multiple {@link Editor}s loaded the same information, only the one in
+ * focus saved its changed whereas the other reflect them.
  * 
  * @author bkahlert
  * 
@@ -33,6 +38,14 @@ public abstract class Editor<T> extends Composite {
 
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(Editor.class);
+
+	/**
+	 * Reference to the {@link Editor} that executed the last save action.
+	 * <p>
+	 * Used to distinguish the saving {@link AbstractMemoView} from the others
+	 * which need to reload their contents if they loaded the same object.
+	 */
+	private static Map<Object, List<Editor<Object>>> responsibleEditors = new HashMap<Object, List<Editor<Object>>>();
 
 	private T loadedObject = null;
 	private Job loadJob = null;
@@ -140,6 +153,13 @@ public abstract class Editor<T> extends Composite {
 	 * @throws Exception
 	 */
 	public final Job load(final T objectToLoad) {
+		if (responsibleEditors.get(this.loadedObject) != null) {
+			responsibleEditors.get(this.loadedObject).remove(this);
+			if (responsibleEditors.get(this.loadedObject).isEmpty()) {
+				responsibleEditors.remove(this.loadedObject);
+			}
+		}
+
 		if (this.loadedObject == objectToLoad) {
 			return null;
 		}
@@ -161,6 +181,7 @@ public abstract class Editor<T> extends Composite {
 			return null;
 		} else {
 			this.loadJob = new Job("Loading " + objectToLoad) {
+				@SuppressWarnings("unchecked")
 				@Override
 				protected IStatus run(IProgressMonitor progressMonitor) {
 					if (progressMonitor.isCanceled()) {
@@ -182,6 +203,12 @@ public abstract class Editor<T> extends Composite {
 					monitor.worked(1);
 					monitor.done();
 					Editor.this.loadedObject = objectToLoad;
+					if (responsibleEditors.get(objectToLoad) == null) {
+						responsibleEditors.put(objectToLoad,
+								new ArrayList<Editor<Object>>());
+					}
+					responsibleEditors.get(objectToLoad).add(
+							(Editor<Object>) Editor.this);
 					return Status.OK_STATUS;
 				}
 			};
@@ -221,8 +248,29 @@ public abstract class Editor<T> extends Composite {
 	 * @return the {@link Job} used to save the object.
 	 */
 	synchronized Job save(final String html) {
-		final T savedLoadedObject = this.loadedObject;
+		try {
+			if (!ExecutorUtil.syncExec(new Callable<Boolean>() {
+				@Override
+				public Boolean call() throws Exception {
+					return Editor.this.composer.getBrowser().isFocusControl();
+				}
+			})) {
+				return null;
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"Error saving memo because current control in focus not found.",
+					e);
+		}
 
+		for (Editor<Object> responsibleEditor : responsibleEditors
+				.get(this.loadedObject)) {
+			if (responsibleEditor != this) {
+				responsibleEditor.composer.setSource(html);
+			}
+		}
+
+		final T savedLoadedObject = this.loadedObject;
 		if (this.saveJobs.get(savedLoadedObject) != null) {
 			this.saveJobs.get(savedLoadedObject).cancel();
 		}

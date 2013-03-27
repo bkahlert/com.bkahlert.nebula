@@ -1,7 +1,5 @@
 package com.bkahlert.devel.nebula.widgets.decoration;
 
-import java.util.concurrent.Callable;
-
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusEvent;
@@ -127,33 +125,16 @@ public class EmptyText {
 	 * @see Text#getText()
 	 */
 	public String getText() {
-		try {
-			ExecutorUtil.syncExec(new Callable<String>() {
-				@Override
-				public String call() throws Exception {
-					return (EmptyText.this.control.getText()
-							.equals(EmptyText.this.emptyText)) ? ""
-							: EmptyText.this.control.getText();
-				}
-			});
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return "";
+		return (this.control.getText().equals(this.emptyText)) ? ""
+				: this.control.getText();
 	}
 
 	/**
 	 * @see Text#setText(String)
 	 */
 	public void setText(final String string) {
-		ExecutorUtil.syncExec(new Runnable() {
-			@Override
-			public void run() {
-				EmptyText.this.control.setText(string);
-				EmptyText.this.update();
-			}
-		});
+		this.control.setText(string);
+		this.update();
 	}
 
 	/**

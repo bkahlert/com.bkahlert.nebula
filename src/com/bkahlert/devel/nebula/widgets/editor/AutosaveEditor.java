@@ -8,8 +8,7 @@ import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 
 /**
  * In contrast to the classic {@link Editor} instances of this class
- * automatically save changes whenever changes are made or a new object is
- * loaded.
+ * automatically save changes whenever they are made or a new object is loaded.
  * 
  * @author bkahlert
  * 

@@ -52,7 +52,7 @@ public class ExplanatoryCompositeDemo extends AbstractDemo {
 		});
 
 		/*
-		 * content
+		 * demoAreaContent
 		 */
 		Button contentControl = new Button(explanatoryComposite, SWT.PUSH);
 		explanatoryComposite.setContentControl(contentControl);

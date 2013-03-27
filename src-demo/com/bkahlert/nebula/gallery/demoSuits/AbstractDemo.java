@@ -12,13 +12,16 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.decoration.EmptyText;
 import com.bkahlert.nebula.gallery.util.deprecated.CompositeUtils;
 
 public abstract class AbstractDemo {
 
+	private static AbstractDemo currentDemo = null;
+
 	/**
-	 * Contains all controls and the content.
+	 * Contains all controls and the demoAreaContent.
 	 */
 	protected Composite composite;
 	protected Composite controls;
@@ -53,6 +56,8 @@ public abstract class AbstractDemo {
 		this.console = new EmptyText(console, "Debug Console");
 		this.hideConsole();
 
+		currentDemo = this;
+
 		this.recreateDemo();
 	}
 
@@ -79,14 +84,23 @@ public abstract class AbstractDemo {
 	 * 
 	 * @param message
 	 */
-	public void addConsoleMessage(String message) {
-		final String newLine = consoleDateFormat.format(new Date()) + " "
-				+ message + "\n";
-		String oldText = this.console.getText();
-		String newText = oldText + newLine;
-		this.console.setText(newText);
-		this.console.getControl().setSelection(newText.length());
-		this.showConsole();
+	public static void log(final String message) {
+		if (currentDemo == null) {
+			return;
+		}
+
+		ExecutorUtil.syncExec(new Runnable() {
+			@Override
+			public void run() {
+				String newLine = consoleDateFormat.format(new Date()) + " "
+						+ message + "\n";
+				String oldText = currentDemo.console.getText();
+				String newText = oldText + newLine;
+				currentDemo.console.setText(newText);
+				currentDemo.console.getControl().setSelection(newText.length());
+				currentDemo.showConsole();
+			}
+		});
 	}
 
 	/**
@@ -97,11 +111,12 @@ public abstract class AbstractDemo {
 	 * @param composite
 	 */
 	public void createControls(Composite composite) {
-		composite.setVisible(false);
+		this.controls.setVisible(false);
+		((GridData) this.controls.getLayoutData()).heightHint = 0;
 	}
 
 	/**
-	 * Creates the content for this demo.
+	 * Creates the demoAreaContent for this demo.
 	 * 
 	 * @param composite
 	 */
@@ -110,7 +125,7 @@ public abstract class AbstractDemo {
 	}
 
 	public void dispose() {
-
+		currentDemo = null;
 	}
 
 	/**
@@ -120,8 +135,8 @@ public abstract class AbstractDemo {
 		CompositeUtils.emptyComposite(this.controls);
 		CompositeUtils.emptyComposite(this.content);
 		this.controls.setLayout(new RowLayout());
-		this.createControls(this.controls);
 		this.content.setLayout(new FillLayout());
+		this.createControls(this.controls);
 		this.createDemo(this.content);
 		this.composite.layout();
 	}

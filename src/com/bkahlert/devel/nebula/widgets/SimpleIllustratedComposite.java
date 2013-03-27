@@ -45,7 +45,7 @@ public class SimpleIllustratedComposite extends IllustratedComposite {
 		protected Image image;
 
 		/**
-		 * Constructs new content for use with
+		 * Constructs new demoAreaContent for use with
 		 * {@link SimpleIllustratedComposite}.
 		 * 
 		 * @param text
@@ -56,7 +56,7 @@ public class SimpleIllustratedComposite extends IllustratedComposite {
 		}
 
 		/**
-		 * Constructs new content for use with
+		 * Constructs new demoAreaContent for use with
 		 * {@link SimpleIllustratedComposite}.
 		 * 
 		 * @param systemImage
@@ -68,7 +68,7 @@ public class SimpleIllustratedComposite extends IllustratedComposite {
 		}
 
 		/**
-		 * Constructs new content for use with
+		 * Constructs new demoAreaContent for use with
 		 * {@link SimpleIllustratedComposite}.
 		 * 
 		 * @param image
@@ -79,7 +79,7 @@ public class SimpleIllustratedComposite extends IllustratedComposite {
 		}
 
 		/**
-		 * Constructs new content for use with
+		 * Constructs new demoAreaContent for use with
 		 * {@link SimpleIllustratedComposite}.
 		 * 
 		 * @param systemImage
@@ -93,7 +93,7 @@ public class SimpleIllustratedComposite extends IllustratedComposite {
 		}
 
 		/**
-		 * Constructs new content for use with
+		 * Constructs new demoAreaContent for use with
 		 * {@link SimpleIllustratedComposite}.
 		 * 
 		 * @param image
@@ -153,7 +153,7 @@ public class SimpleIllustratedComposite extends IllustratedComposite {
 	}
 
 	/**
-	 * Sets the explanation content
+	 * Sets the explanation demoAreaContent
 	 * 
 	 * @param illustratedText
 	 *            Explanation to be displayed by the

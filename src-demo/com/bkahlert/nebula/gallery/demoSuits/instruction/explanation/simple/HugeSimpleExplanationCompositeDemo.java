@@ -10,7 +10,7 @@ import com.bkahlert.devel.nebula.widgets.explanation.SimpleExplanationComposite.
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 
-@Demo("The following SimpleExplanationComposite has a minimal width/height of 300/300.")
+@Demo(title = "The following SimpleExplanationComposite has a minimal width/height of 300/300.")
 public class HugeSimpleExplanationCompositeDemo extends AbstractDemo {
 	public static int MIN_WIDTH = 300;
 	public static int MIN_HEIGHT = 300;

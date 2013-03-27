@@ -50,7 +50,7 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIME
 
 	/**
 	 * Stores the {@link ITimeline} and the {@link ITimelineProvider} that
-	 * provides its content.
+	 * provides its demoAreaContent.
 	 * 
 	 * @author bkahlert
 	 * 
@@ -293,7 +293,7 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIME
 	}
 
 	// FIXME: make this function abort itself on consecutive calls
-	// different content providers can make this method be called multiple times
+	// different demoAreaContent providers can make this method be called multiple times
 	// because of one core event
 	// FIXME: TimelineRefresher no more needed then
 	public void refresh(

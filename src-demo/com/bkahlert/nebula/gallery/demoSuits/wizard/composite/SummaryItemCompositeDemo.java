@@ -33,7 +33,7 @@ public class SummaryItemCompositeDemo extends AbstractDemo {
 			summaryItemCompositeDemo.setLayoutData(new GridData(SWT.FILL,
 					SWT.CENTER, true, false));
 			summaryItemCompositeDemo.setContent(new IllustratedText(image,
-					"Summary title\nSummary content: "
+					"Summary title\nSummary demoAreaContent: "
 							+ StringUtils.genRandom(32)));
 		}
 	}

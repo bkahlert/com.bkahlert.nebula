@@ -14,7 +14,7 @@ import com.bkahlert.devel.nebula.widgets.explanation.exceptions.ContentControlIn
 
 /**
  * Instances of this class are controls which are capable of containing exactly
- * <strong>one</strong> content {@link Control} and {@link ExplanationComposite}
+ * <strong>one</strong> demoAreaContent {@link Control} and {@link ExplanationComposite}
  * s to display explanatory information.<br>
  * Although this composite may be subclasses <strong>only the control registered
  * trough {@link ExplanatoryComposite#setContentControl(Control)} can be
@@ -77,9 +77,9 @@ public class ExplanatoryComposite extends Composite {
 	protected Control contentControl;
 
 	/**
-	 * Because we want the content (and not the explanation) layer to be
+	 * Because we want the demoAreaContent (and not the explanation) layer to be
 	 * initially displayed, we add a PaintListener which sets marks the
-	 * eventually added content layer as the visible layer.
+	 * eventually added demoAreaContent layer as the visible layer.
 	 */
 	protected PaintListener showContentControlListener = new PaintListener() {
 		public void paintControl(PaintEvent e) {
@@ -104,7 +104,7 @@ public class ExplanatoryComposite extends Composite {
 	}
 
 	/**
-	 * Hides the content and displays an explanation.
+	 * Hides the demoAreaContent and displays an explanation.
 	 * 
 	 * @param composite
 	 *            The explanation to be displayed; if null the explanation gets
@@ -117,7 +117,7 @@ public class ExplanatoryComposite extends Composite {
 			Control contentControl = this.getContentControl();
 			if (contentControl == null)
 				throw new ContentControlInvalidException(
-						"The content control was not set!", null);
+						"The demoAreaContent control was not set!", null);
 
 			this.stackLayout.topControl = contentControl;
 			if (contentControl instanceof Composite) {
@@ -134,7 +134,7 @@ public class ExplanatoryComposite extends Composite {
 	}
 
 	/**
-	 * Hides the explanation and displays the content.
+	 * Hides the explanation and displays the demoAreaContent.
 	 */
 	public void hideExplanation() {
 		this.showExplanation(null);

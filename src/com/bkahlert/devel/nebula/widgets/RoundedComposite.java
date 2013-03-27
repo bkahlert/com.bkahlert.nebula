@@ -16,7 +16,7 @@ import com.bkahlert.devel.nebula.utils.PaintUtils;
  * Instances of this class are controls which are capable of containing other
  * controls.
  * <p>
- * The composite's content is surrounded by a rounded rectangle if a background
+ * The composite's demoAreaContent is surrounded by a rounded rectangle if a background
  * is set.
  * <p>
  * <img src="doc-files/RoundedComposite-1.png"/>
@@ -29,7 +29,7 @@ import com.bkahlert.devel.nebula.utils.PaintUtils;
  * </dl>
  * 
  * <p>
- * Note: If you use SEPARATOR the content gets right aligned and the generated
+ * Note: If you use SEPARATOR the demoAreaContent gets right aligned and the generated
  * space filled with a small horizontal line.
  * </p>
  * 

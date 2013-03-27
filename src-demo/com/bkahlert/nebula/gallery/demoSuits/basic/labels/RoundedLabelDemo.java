@@ -2,9 +2,7 @@ package com.bkahlert.nebula.gallery.demoSuits.basic.labels;
 
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.devel.nebula.colors.ColorUtils;
 import com.bkahlert.devel.nebula.widgets.RoundedLabel;
@@ -25,8 +23,7 @@ public class RoundedLabelDemo extends AbstractDemo {
 		label2.setText("SWT.BORDER");
 
 		RoundedLabel label3 = new RoundedLabel(composite, SWT.BORDER);
-		label3.setBackground(new Color(Display.getCurrent(), ColorUtils
-				.getRandomRGB().toClassicRGB()));
+		label3.setBackground(ColorUtils.createRandomColor());
 		label3.setText("SWT.BORDER | Random Background Color");
 
 	}

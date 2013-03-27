@@ -125,6 +125,9 @@ public abstract class BrowserComposite extends Composite implements
 
 	@Override
 	public void addListener(int eventType, Listener listener) {
+		// TODO evtl. erst ausführen, wenn alles wirklich geladen wurde, um
+		// evtl. falsche Mauskoordinaten zu verhindern und so ein Fehlverhalten
+		// im InformationControl vorzeugen
 		if (EventDelegator.mustDelegate(eventType, this)) {
 			this.browser.addListener(eventType, listener);
 		} else {
@@ -187,7 +190,7 @@ public abstract class BrowserComposite extends Composite implements
 
 		this.getBrowser()
 				.execute(
-						"window.onerror = function(detail, filename, lineNumber) { if ( typeof window['error_callback'] !== 'function') return; return window['error_callback'](filename, lineNumber, detail); }");
+						"window.onerror = function(detail, filename, lineNumber) { if ( typeof window['error_callback'] !== 'function') return; return window['error_callback'](filename ? filename : 'unknown file', lineNumber ? lineNumber : 'unknown line number', detail ? detail : 'unknown detail'); }");
 	}
 
 	/**

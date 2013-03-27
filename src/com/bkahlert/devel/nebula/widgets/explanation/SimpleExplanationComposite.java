@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.Layout;
 
 /**
  * This composite displays a simple {@link ExplanationComposite} and allows it's
- * content to be scrollable if the composite becomes to small.
+ * demoAreaContent to be scrollable if the composite becomes to small.
  * <p>
  * This composite does <strong>NOT</strong> handle setting the layout and adding
  * sub {@link Control}s correctly.
@@ -138,7 +138,7 @@ public class SimpleExplanationComposite extends ExplanationComposite {
 	}
 
 	/**
-	 * Sets the explanation content
+	 * Sets the explanation demoAreaContent
 	 * 
 	 * @param simpleExplanation
 	 *            Explanation to be displayed by the

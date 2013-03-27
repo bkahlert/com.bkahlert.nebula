@@ -148,7 +148,7 @@ public class Image extends BrowserComposite {
 	}
 
 	/**
-	 * Loads an {@link org.eclipse.swt.graphics.Image} into the content area.
+	 * Loads an {@link org.eclipse.swt.graphics.Image} into the demoAreaContent area.
 	 * <p>
 	 * The {@link org.eclipse.swt.graphics.Image} may directly be disposed after
 	 * having called this method.

@@ -15,7 +15,9 @@ public class BrowserDemo extends AbstractDemo {
 	public void createDemo(Composite parent) {
 		parent.setLayout(new FillLayout());
 
-		new BrowserComposite(parent, SWT.NONE, "http://google.com") {
+		BrowserComposite browserComposite = new BrowserComposite(parent,
+				SWT.NONE, "http://lab.simurai.com/tilt-shift/") {
 		};
+		log(browserComposite.getBrowser().getUrl());
 	}
 }

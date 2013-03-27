@@ -18,7 +18,6 @@ import com.bkahlert.nebula.gallery.demoExplorer.DemoElement;
 import com.bkahlert.nebula.gallery.demoExplorer.DemoExplorer;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.gallery.util.deprecated.CompositeUtils;
-import com.bkahlert.nebula.gallery.widgets.BannerComposite;
 import com.bkahlert.nebula.gallery.widgets.DemoBannerComposite;
 
 public class GalleryView extends ViewPart {
@@ -26,9 +25,9 @@ public class GalleryView extends ViewPart {
 	public static SelectionProviderIntermediate selectionProviderIntermediate = new SelectionProviderIntermediate();
 
 	protected DemoExplorer demoExplorer;
-	protected DemoBannerComposite demoBannerComposite;
-	protected Composite demoComposite;
-	protected Composite content;
+	protected Composite demoArea;
+	protected DemoBannerComposite demoAreaBanner;
+	protected Composite demoAreaContent;
 	protected AbstractDemo currentDemo;
 
 	@Override
@@ -37,8 +36,6 @@ public class GalleryView extends ViewPart {
 				.create());
 
 		this.getSite().setSelectionProvider(selectionProviderIntermediate);
-
-		// createBanner(parent);
 
 		SashForm sashForm = new SashForm(parent, SWT.HORIZONTAL | SWT.FLAT);
 		sashForm.setLayoutData(GridDataFactory.fillDefaults().grab(true, true)
@@ -55,15 +52,7 @@ public class GalleryView extends ViewPart {
 		this.openDemo();
 	}
 
-	protected void createBanner(final Composite parent) {
-		BannerComposite bannerComposite = new BannerComposite(parent, SWT.NONE);
-		bannerComposite.setLayoutData(GridDataFactory.fillDefaults()
-				.grab(true, false).create());
-		bannerComposite.setContent(new IllustratedText(
-				ImageManager.WIDGET_GALLERY_32, "Saros Widget Gallery"));
-	}
-
-	protected DemoExplorer createDemoExplorer(SashForm sashForm) {
+	protected void createDemoExplorer(SashForm sashForm) {
 		this.demoExplorer = new DemoExplorer(sashForm, SWT.NONE);
 		this.demoExplorer.getViewer().addSelectionChangedListener(
 				new ISelectionChangedListener() {
@@ -72,41 +61,26 @@ public class GalleryView extends ViewPart {
 						GalleryView.this.openDemo();
 					}
 				});
-		return this.demoExplorer;
 	}
 
 	protected void createDemoArea(SashForm sashForm) {
-		this.demoComposite = new Composite(sashForm, SWT.NONE);
-		this.demoComposite.setLayout(GridLayoutFactory.fillDefaults()
-				.spacing(0, 0).create());
+		this.demoArea = new Composite(sashForm, SWT.NONE);
+		this.demoArea.setLayout(GridLayoutFactory.fillDefaults().spacing(0, 0)
+				.create());
 
 		/*
 		 * Headline
 		 */
-		Composite headline = this.createHeadline(this.demoComposite);
-		headline.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true,
-				false));
+		this.demoAreaBanner = new DemoBannerComposite(this.demoArea, SWT.NONE);
+		this.demoAreaBanner.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING,
+				true, false));
 
 		/*
 		 * Content
 		 */
-		this.content = new Composite(this.demoComposite, SWT.NONE);
-		this.content
-				.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-	}
-
-	/**
-	 * Creates the controls for this demo
-	 * 
-	 * @param composite
-	 * @return
-	 */
-	public Composite createHeadline(Composite composite) {
-		this.demoBannerComposite = new DemoBannerComposite(composite, SWT.NONE);
-		this.demoBannerComposite.setLayoutData(new GridData(SWT.FILL,
-				SWT.BEGINNING, true, false));
-
-		return this.demoBannerComposite;
+		this.demoAreaContent = new Composite(this.demoArea, SWT.NONE);
+		this.demoAreaContent.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
+				true, true));
 	}
 
 	public void openDemo() {
@@ -116,25 +90,25 @@ public class GalleryView extends ViewPart {
 		}
 
 		Demo meta = demoElement.getDemo().getAnnotation(Demo.class);
-		String title = (meta != null && !meta.value().isEmpty()) ? meta.value()
+		String title = (meta != null && !meta.title().isEmpty()) ? meta.title()
 				: "Demo: " + demoElement.getStyledText().toString();
-		this.demoBannerComposite.setContent(new IllustratedText(
-				ImageManager.DEMO, title));
-		this.demoComposite.layout();
+		this.demoAreaBanner.setContent(new IllustratedText(ImageManager.DEMO,
+				title));
 
 		if (this.currentDemo != null) {
 			this.currentDemo.dispose();
 		}
-		CompositeUtils.emptyComposite(this.content);
+		CompositeUtils.emptyComposite(this.demoAreaContent);
 
 		try {
 			this.currentDemo = demoElement.getDemo().newInstance();
-			this.currentDemo.createPartControls(this.content);
+			this.currentDemo.createPartControls(this.demoAreaContent);
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
+		this.demoArea.layout();
 	}
 
 	@Override

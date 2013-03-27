@@ -16,7 +16,7 @@ import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 
-@Demo("This demo show a BaseProjectSelectionComposite that reflects the currently selected projects in the workbench.")
+@Demo(title = "This demo show a BaseProjectSelectionComposite that reflects the currently selected projects in the workbench.")
 public class BaseProjectSelectionCompositeDemo extends AbstractDemo {
 	protected BaseProjectSelectionComposite baseProjectSelectionComposite;
 

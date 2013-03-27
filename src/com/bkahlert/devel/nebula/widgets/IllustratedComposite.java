@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ScrollBar;
 
 /**
- * This composite displays a system icon or {@link Image} left to its content.<br/>
+ * This composite displays a system icon or {@link Image} left to its demoAreaContent.<br/>
  * Use this composite like every other composite, especially by setting the
  * layout and adding sub {@link Control}s.
  * 
@@ -46,7 +46,7 @@ public class IllustratedComposite extends MinSizeComposite {
 	protected Image image;
 
 	/**
-	 * The space between illustrative image and content
+	 * The space between illustrative image and demoAreaContent
 	 */
 	protected int spacing = 10;
 
@@ -145,7 +145,7 @@ public class IllustratedComposite extends MinSizeComposite {
 	}
 
 	/**
-	 * Returns the space between illustrative image and content
+	 * Returns the space between illustrative image and demoAreaContent
 	 * 
 	 * @return
 	 */
@@ -154,7 +154,7 @@ public class IllustratedComposite extends MinSizeComposite {
 	}
 
 	/**
-	 * Sets the spacing between illustrative image and content
+	 * Sets the spacing between illustrative image and demoAreaContent
 	 * 
 	 * @param spacing
 	 */
