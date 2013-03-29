@@ -1,5 +1,7 @@
 package com.bkahlert.devel.nebula.colors;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Instances of this class describe colors in the RGB (red, green, blue) color
  * space.
@@ -38,15 +40,16 @@ public class RGB {
 	 * @return red
 	 */
 	public double getRed() {
-		return red;
+		return this.red;
 	}
 
 	/**
 	 * @param red
 	 */
 	public void setRed(double red) {
-		if (red < 0 || red > 1)
+		if (red < 0 || red > 1) {
 			throw new IllegalArgumentException("Red must be between 0 and 1");
+		}
 		this.red = red;
 	}
 
@@ -54,15 +57,16 @@ public class RGB {
 	 * @return green
 	 */
 	public double getGreen() {
-		return green;
+		return this.green;
 	}
 
 	/**
 	 * @param green
 	 */
 	public void setGreen(double green) {
-		if (green < 0 || green > 1)
+		if (green < 0 || green > 1) {
 			throw new IllegalArgumentException("Green must be between 0 and 1");
+		}
 		this.green = green;
 	}
 
@@ -70,15 +74,16 @@ public class RGB {
 	 * @return blue
 	 */
 	public double getBlue() {
-		return blue;
+		return this.blue;
 	}
 
 	/**
 	 * @param blue
 	 */
 	public void setBlue(double blue) {
-		if (blue < 0 || blue > 1)
+		if (blue < 0 || blue > 1) {
 			throw new IllegalArgumentException("Blue must be between 0 and 1");
+		}
 		this.blue = blue;
 	}
 
@@ -92,11 +97,11 @@ public class RGB {
 		final int prime = 31;
 		int result = 1;
 		long temp;
-		temp = Double.doubleToLongBits(blue);
+		temp = Double.doubleToLongBits(this.blue);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(green);
+		temp = Double.doubleToLongBits(this.green);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(red);
+		temp = Double.doubleToLongBits(this.red);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
@@ -108,32 +113,45 @@ public class RGB {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof RGB))
+		}
+		if (!(obj instanceof RGB)) {
 			return false;
+		}
 		RGB other = (RGB) obj;
-		if (Double.doubleToLongBits(blue) != Double
-				.doubleToLongBits(other.blue))
+		if (Double.doubleToLongBits(this.blue) != Double
+				.doubleToLongBits(other.blue)) {
 			return false;
-		if (Double.doubleToLongBits(green) != Double
-				.doubleToLongBits(other.green))
+		}
+		if (Double.doubleToLongBits(this.green) != Double
+				.doubleToLongBits(other.green)) {
 			return false;
-		if (Double.doubleToLongBits(red) != Double.doubleToLongBits(other.red))
+		}
+		if (Double.doubleToLongBits(this.red) != Double
+				.doubleToLongBits(other.red)) {
 			return false;
+		}
 		return true;
 	}
 
 	public String toHexString() {
 		return "#"
-				+ Integer.toHexString((int) Math.round(this.getRed() * 255))
-						.toUpperCase()
-				+ Integer.toHexString((int) Math.round(this.getGreen() * 255))
-						.toUpperCase()
-				+ Integer.toHexString((int) Math.round(this.getBlue() * 255))
-						.toUpperCase();
+				+ StringUtils.leftPad(
+						Integer.toHexString(
+								(int) Math.round(this.getRed() * 255))
+								.toUpperCase(), 2, '0')
+				+ StringUtils.leftPad(
+						Integer.toHexString(
+								(int) Math.round(this.getGreen() * 255))
+								.toUpperCase(), 2, '0')
+				+ StringUtils.leftPad(
+						Integer.toHexString(
+								(int) Math.round(this.getBlue() * 255))
+								.toUpperCase(), 2, '0');
 	}
 
 	@Override
