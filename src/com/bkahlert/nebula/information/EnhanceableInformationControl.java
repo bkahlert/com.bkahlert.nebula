@@ -161,4 +161,14 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 			return Arrays.asList(this.delegate);
 		}
 	}
+
+	/**
+	 * Returns true if this {@link EnhanceableInformationControl} instance is
+	 * the enhanced version.
+	 * 
+	 * @return
+	 */
+	public boolean isEnhanced() {
+		return this.enhancedDelegate == null;
+	}
 }

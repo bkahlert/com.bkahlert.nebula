@@ -1,0 +1,73 @@
+package com.bkahlert.nebula.gallery.demoSuits.browser;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+
+import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
+import com.bkahlert.devel.nebula.widgets.browser.JavaScriptException;
+import com.bkahlert.devel.nebula.widgets.composer.ComposerReadOnly;
+import com.bkahlert.nebula.gallery.annotations.Demo;
+import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+
+@Demo
+public class ComposerReadOnlyDemo extends AbstractDemo {
+
+	private ComposerReadOnly composer = null;
+
+	@Override
+	public void createDemo(Composite composite) {
+		this.composer = new ComposerReadOnly(composite, SWT.BORDER);
+		this.composer.setSource("Hello CKEditor - Image");
+		this.composer
+				.addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {
+					@Override
+					public boolean thrown(JavaScriptException exception) {
+						ComposerReadOnlyDemo.log(exception.getDetail());
+						return true;
+					}
+				});
+	}
+
+	@Override
+	public void createControls(Composite composite) {
+		Button composerGetSource = new Button(composite, SWT.PUSH);
+		composerGetSource.setText("Get Source");
+		Button composerSetSource = new Button(composite, SWT.PUSH);
+		composerSetSource.setText("Set Source");
+		Button composerShowSource = new Button(composite, SWT.PUSH);
+		composerShowSource.setText("Show Source");
+		Button composerHideSource = new Button(composite, SWT.PUSH);
+		composerHideSource.setText("Hide Source");
+
+		composerGetSource.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ComposerReadOnlyDemo.log(ComposerReadOnlyDemo.this.composer
+						.getSource());
+			}
+		});
+		composerSetSource.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ComposerReadOnlyDemo.this.composer
+						.setSource("<p title='test'><b>Hallo</b><i>Welt!</i></p>");
+			}
+		});
+		composerShowSource.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ComposerReadOnlyDemo.this.composer.showSource();
+			}
+		});
+		composerHideSource.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ComposerReadOnlyDemo.this.composer.hideSource();
+			}
+		});
+	}
+
+}

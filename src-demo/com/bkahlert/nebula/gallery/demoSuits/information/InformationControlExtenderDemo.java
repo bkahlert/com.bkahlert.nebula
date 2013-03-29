@@ -37,7 +37,7 @@ public class InformationControlExtenderDemo extends AbstractDemo {
 
 		public InformationControlExtender() {
 			super(GridDataFactory.fillDefaults().grab(true, true)
-					.minSize(400, 400).create());
+					.minSize(400, 400));
 		}
 
 		@Override

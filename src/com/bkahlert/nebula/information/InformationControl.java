@@ -167,10 +167,10 @@ public abstract class InformationControl<INFORMATION> extends
 			SourceProvider.controlChanged(this);
 			SourceProvider.inputChanged(information);
 			this.hasContents = this.load(information);
-			this.parent.layout();
 			for (IInformationControlExtender<INFORMATION> extender : this.extenders) {
 				extender.extend(this, information);
 			}
+			this.parent.layout();
 		} catch (ClassCastException e) {
 			this.hasContents = false;
 		}

@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Listener;
@@ -128,6 +129,11 @@ public abstract class Editor<T> extends Composite {
 	 */
 	public void hideSource() {
 		this.composer.hideSource();
+	}
+
+	@Override
+	public void setBackground(Color color) {
+		this.composer.setBackground(color);
 	}
 
 	@Override

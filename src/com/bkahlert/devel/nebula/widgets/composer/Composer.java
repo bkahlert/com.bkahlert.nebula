@@ -17,6 +17,7 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -25,6 +26,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.Anker;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
@@ -51,7 +53,7 @@ public class Composer extends BrowserComposite {
 			.compile("(.*?)(\\w+://[!#$&-;=?-\\[\\]_a-zA-Z~%]+)(.*?)");
 
 	public static enum ToolbarSet {
-		DEFAULT, TERMINAL;
+		DEFAULT, TERMINAL, NONE;
 	}
 
 	private List<IAnkerLabelProvider> ankerLabelProviders = new ArrayList<IAnkerLabelProvider>();
@@ -360,6 +362,15 @@ public class Composer extends BrowserComposite {
 	public void setEnabled(boolean isEnabled) {
 		this.run("com.bkahlert.devel.nebula.editor.setEnabled("
 				+ (isEnabled ? "true" : "false") + ");");
+		super.setEnabled(isEnabled);
+	}
+
+	@Override
+	public void setBackground(Color color) {
+		// TODO get rid of window.setTimeout
+		String hex = new RGB(color.getRGB()).toHexString();
+		this.run("window.setTimeout(function() {$('.cke_reset').css('background-color', '"
+				+ hex + "');},100);");
 	}
 
 	public void addAnkerLabelProvider(IAnkerLabelProvider ankerLabelProvider) {

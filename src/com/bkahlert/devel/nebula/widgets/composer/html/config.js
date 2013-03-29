@@ -34,7 +34,11 @@ CKEDITOR.editorConfig = function(config) {
     if (!toolbarSet)
         toolbarSet = "default";
 
-    if (toolbarSet == "terminal") {
+    if (toolbarSet == "none") {
+        config.startupFocus = false;
+        config.readOnly = true;
+        config.removePlugins = 'toolbar';
+    } else if (toolbarSet == "terminal") {
         config.toolbar = [{
             name : 'terminal',
             items : ['HorizontalRule', 'Styles', 'RemoveFormat', 'ShowBlocks', '-', 'Syntaxhighlight']
