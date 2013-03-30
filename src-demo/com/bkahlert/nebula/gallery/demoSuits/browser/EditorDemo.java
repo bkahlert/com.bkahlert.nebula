@@ -39,7 +39,7 @@ public class EditorDemo extends AbstractDemo {
 
 	@Override
 	public void createDemo(Composite composite) {
-		this.editor = new AutosaveEditor<String>(composite, SWT.NONE, 500,
+		this.editor = new AutosaveEditor<String>(composite, SWT.NONE, 5000,
 				ToolbarSet.DEFAULT) {
 			@Override
 			public String getHtml(String objectToLoad, IProgressMonitor monitor) {
