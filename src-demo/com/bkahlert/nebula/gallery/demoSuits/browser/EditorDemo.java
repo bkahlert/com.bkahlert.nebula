@@ -96,9 +96,11 @@ public class EditorDemo extends AbstractDemo {
 											private Label label;
 
 											@Override
-											public void build(Composite parent) {
+											public Composite build(
+													Composite parent) {
 												this.label = new Label(parent,
 														SWT.BORDER);
+												return parent;
 											}
 
 											@Override

@@ -152,9 +152,11 @@ public abstract class InformationControl<INFORMATION> extends
 		this.parent = parent;
 		this.extenders = InformationControl
 				.<INFORMATION> getExtenders(this.informationClass);
-		this.create(parent);
-		for (IInformationControlExtender<INFORMATION> extender : this.extenders) {
-			extender.extend(this, parent);
+		Composite extensionComposite = this.create(parent);
+		if (extensionComposite != null) {
+			for (IInformationControlExtender<INFORMATION> extender : this.extenders) {
+				extender.extend(this, parent);
+			}
 		}
 	}
 
@@ -189,7 +191,14 @@ public abstract class InformationControl<INFORMATION> extends
 		return this.getShell().isVisible();
 	}
 
-	public abstract void create(Composite parent);
+	/**
+	 * Creates the popup's user content (not the technical stuff like the
+	 * toolbar)
+	 * 
+	 * @param parent
+	 * @return the part that may be extended
+	 */
+	public abstract Composite create(Composite parent);
 
 	public abstract boolean load(INFORMATION input);
 

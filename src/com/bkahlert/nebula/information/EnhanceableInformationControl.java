@@ -48,8 +48,9 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 		 * Is called when a new {@link InformationControl} is being constructed.
 		 * 
 		 * @param parent
+		 * @return the {@link Composite} that may be extended
 		 */
-		public void build(Composite parent);
+		public Composite build(Composite parent);
 
 		/**
 		 * Is called when a constructed {@link InformationControl} needs to be
@@ -103,8 +104,8 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 	}
 
 	@Override
-	public final void create(Composite parent) {
-		this.delegate.build(parent);
+	public final Composite create(Composite parent) {
+		return this.delegate.build(parent);
 	}
 
 	@Override

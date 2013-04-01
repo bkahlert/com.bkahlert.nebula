@@ -53,7 +53,7 @@ public class InformationControlDemo extends AbstractDemo {
 									private Label label;
 
 									@Override
-									public void build(Composite parent) {
+									public Composite build(Composite parent) {
 										parent.setLayout(GridLayoutFactory
 												.fillDefaults().create());
 										this.label = new Label(parent,
@@ -63,6 +63,7 @@ public class InformationControlDemo extends AbstractDemo {
 														.fillDefaults()
 														.grab(true, false)
 														.create());
+										return parent;
 									}
 
 									@Override

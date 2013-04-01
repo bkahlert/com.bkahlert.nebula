@@ -99,7 +99,7 @@ public class InformationControlManagerDemo extends AbstractDemo {
 								private Label label;
 
 								@Override
-								public void build(Composite parent) {
+								public Composite build(Composite parent) {
 									parent.setLayout(GridLayoutFactory
 											.fillDefaults().create());
 									this.image = new Image(parent, SWT.NONE);
@@ -116,6 +116,7 @@ public class InformationControlManagerDemo extends AbstractDemo {
 									this.label.setLayoutData(GridDataFactory
 											.fillDefaults().grab(true, false)
 											.minSize(400, 500).create());
+									return parent;
 								}
 
 								@Override
