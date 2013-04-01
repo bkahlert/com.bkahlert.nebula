@@ -156,7 +156,7 @@ public class InformationControlExtenderDemo extends AbstractDemo {
 		};
 
 		InformationControlManager<Composite, InformationControlDemoInput> manager = new InformationControlManager<Composite, InformationControlExtenderDemo.InformationControlDemoInput>(
-				creator, provider);
+				InformationControlDemoInput.class, creator, provider);
 		manager.install(area);
 	}
 

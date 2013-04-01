@@ -113,7 +113,7 @@ public class InformationControlDemo extends AbstractDemo {
 		};
 
 		InformationControlManager<Composite, String> manager = new InformationControlManager<Composite, String>(
-				creator, provider);
+				String.class, creator, provider);
 		manager.install(area);
 	}
 

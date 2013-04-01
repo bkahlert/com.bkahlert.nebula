@@ -171,4 +171,10 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 	public boolean isEnhanced() {
 		return this.enhancedDelegate == null;
 	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + " ("
+				+ (this.isEnhanced() ? "enhanced" : "standard") + ")";
+	}
 }

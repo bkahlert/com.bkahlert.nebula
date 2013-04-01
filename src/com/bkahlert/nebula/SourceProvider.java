@@ -23,7 +23,6 @@ public class SourceProvider extends AbstractSourceProvider {
 
 	private static final List<SourceProvider> INSTANCES = new ArrayList<SourceProvider>();
 
-	// TODO not called yet
 	public static void managerChanged(Object manager) {
 		if (manager == null) {
 			manager = NULL_MANAGER;
@@ -107,6 +106,7 @@ public class SourceProvider extends AbstractSourceProvider {
 	}
 
 	private final void fireManagerChanged(final Object manager) {
+		this.manager = manager;
 		ExecutorUtil.syncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -117,6 +117,7 @@ public class SourceProvider extends AbstractSourceProvider {
 	}
 
 	private final void fireControlChanged(final Object control) {
+		this.control = control;
 		ExecutorUtil.syncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -127,6 +128,7 @@ public class SourceProvider extends AbstractSourceProvider {
 	}
 
 	private final void fireInputChanged(final Object input) {
+		this.input = input;
 		ExecutorUtil.syncExec(new Runnable() {
 			@Override
 			public void run() {

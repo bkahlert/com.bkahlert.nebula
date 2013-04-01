@@ -83,7 +83,7 @@ public class EditorDemo extends AbstractDemo {
 		});
 
 		InformationControlManager<Editor<?>, IAnker> editorInformationControlManager = new InformationControlManager<Editor<?>, IAnker>(
-				new InformationControlCreator<IAnker>() {
+				IAnker.class, new InformationControlCreator<IAnker>() {
 					@Override
 					protected InformationControl<IAnker> doCreateInformationControl(
 							Shell parent) {

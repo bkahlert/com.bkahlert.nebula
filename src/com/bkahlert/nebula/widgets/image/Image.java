@@ -8,9 +8,11 @@ import java.util.concurrent.Future;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.BrowserFunction;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
+import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.utils.ImageUtils;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
@@ -105,6 +107,14 @@ public class Image extends BrowserComposite {
 		};
 	}
 
+	@Override
+	public void setBackground(Color color) {
+		// TODO get rid of window.setTimeout
+		String hex = new RGB(color.getRGB()).toHexString();
+		this.run("window.setTimeout(function() {$('body').css('background-color', '"
+				+ hex + "');},100);");
+	}
+
 	protected void notifyImageLoaded() {
 		synchronized (Image.this.imageLoadMonitor) {
 			Image.this.imageLoadMonitor.notifyAll();
@@ -148,7 +158,8 @@ public class Image extends BrowserComposite {
 	}
 
 	/**
-	 * Loads an {@link org.eclipse.swt.graphics.Image} into the demoAreaContent area.
+	 * Loads an {@link org.eclipse.swt.graphics.Image} into the demoAreaContent
+	 * area.
 	 * <p>
 	 * The {@link org.eclipse.swt.graphics.Image} may directly be disposed after
 	 * having called this method.
@@ -165,15 +176,20 @@ public class Image extends BrowserComposite {
 
 	@Override
 	public Point computeSize(int wHint, int hHint, boolean changed) {
+		Point size;
 		if (wHint == SWT.DEFAULT && hHint == SWT.DEFAULT) {
-			return this.getOriginalSize();
+			size = this.getOriginalSize();
 		} else if (wHint == SWT.DEFAULT && hHint != SWT.DEFAULT) {
-			return new Point(this.getWidth(hHint), hHint);
+			size = new Point(this.getWidth(hHint), hHint);
 		} else if (wHint != SWT.DEFAULT && hHint == SWT.DEFAULT) {
-			return new Point(wHint, this.getHeight(wHint));
+			size = new Point(wHint, this.getHeight(wHint));
 		} else {
-			return new Point(wHint, hHint);
+			size = new Point(wHint, hHint);
 		}
+		Point maxSize = new Point(Math.min(this.getOriginalSize().x, size.x),
+				Math.min(this.getOriginalSize().y, size.y));
+		size = ImageUtils.resizeWithinArea(size, maxSize);
+		return size;
 	}
 
 	public Point getOriginalSize() {

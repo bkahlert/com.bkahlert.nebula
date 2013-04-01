@@ -11,12 +11,9 @@ import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.text.AbstractInformationControl;
 import org.eclipse.jface.text.IInformationControlExtension2;
-import org.eclipse.jface.util.Geometry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
@@ -48,7 +45,7 @@ public abstract class InformationControl<INFORMATION> extends
 
 	@SuppressWarnings("unchecked")
 	protected static <INFORMATION> List<IInformationControlExtender<INFORMATION>> getExtenders(
-			Class<INFORMATION> informationClass) {
+			Class<INFORMATION> targetInformationClass) {
 		IConfigurationElement[] config = Platform.getExtensionRegistry()
 				.getConfigurationElementsFor("com.bkahlert.nebula.information");
 		final List<IInformationControlExtender<INFORMATION>> extenders = new ArrayList<IInformationControlExtender<INFORMATION>>();
@@ -56,13 +53,15 @@ public abstract class InformationControl<INFORMATION> extends
 			/*
 			 * filter for extenders that handle the given information class
 			 */
-			String currentInformationClassName = configElement
+			String informationClassName = configElement
 					.getAttribute("informationClass");
 			try {
-				Class<?> currentInformationClass = informationClass
-						.getClassLoader()
-						.loadClass(currentInformationClassName);
-				if (informationClass != currentInformationClass) {
+				ClassLoader targetClassLoader = targetInformationClass
+						.getClassLoader();
+				Class<?> informationClass = targetClassLoader != null ? targetClassLoader
+						.loadClass(informationClassName) : Class
+						.forName(informationClassName);
+				if (targetInformationClass != informationClass) {
 					continue;
 				}
 			} catch (ClassNotFoundException e) {
@@ -185,6 +184,11 @@ public abstract class InformationControl<INFORMATION> extends
 		super.setVisible(visible);
 	}
 
+	@Override
+	public boolean isVisible() {
+		return this.getShell().isVisible();
+	}
+
 	public abstract void create(Composite parent);
 
 	public abstract boolean load(INFORMATION input);
@@ -208,29 +212,6 @@ public abstract class InformationControl<INFORMATION> extends
 	@Override
 	public InformationControlCreator<INFORMATION> getInformationPresenterControlCreator() {
 		return null;
-	}
-
-	public void layout() {
-		Shell shell = this.getShell();
-		Rectangle oldBounds = shell.getBounds();
-		shell.layout();
-		shell.pack();
-		Point newSize = shell.getSize();
-		Rectangle newBounds = new Rectangle(oldBounds.x, oldBounds.y
-				+ oldBounds.height - newSize.y, newSize.x, newSize.y);
-		int fixedX = newBounds.x;
-		int fixedY = newBounds.y;
-		Geometry.moveInside(newBounds, Display.getCurrent().getBounds());
-		if (newBounds.x < fixedX) {
-			newBounds.width -= fixedX - newBounds.x;
-		}
-		if (newBounds.y != fixedY) {
-			newBounds.height -= fixedY - newBounds.y;
-		}
-		newBounds.x = fixedX;
-		newBounds.y = fixedY;
-		shell.setBounds(newBounds);
-		// TODO subject area des closers aktualisieren
 	}
 
 }

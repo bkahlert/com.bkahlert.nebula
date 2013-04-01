@@ -6,6 +6,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
@@ -33,6 +34,8 @@ public class ImageDemo extends AbstractDemo {
 				ImageDemo.log("Image resized: " + size);
 			}
 		});
+		this.image.setBackground(Display.getCurrent().getSystemColor(
+				SWT.COLOR_GRAY));
 	}
 
 	@Override

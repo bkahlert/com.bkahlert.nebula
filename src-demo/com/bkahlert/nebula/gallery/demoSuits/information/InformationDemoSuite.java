@@ -5,7 +5,8 @@ import com.bkahlert.nebula.gallery.demoExplorer.DemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 
 @DemoSuite(value = { InformationControlDemo.class,
-		InformationControlExtenderDemo.class })
+		InformationControlExtenderDemo.class,
+		InformationControlManagerDemo.class })
 @Demo
 public class InformationDemoSuite extends AbstractDemo {
 }
