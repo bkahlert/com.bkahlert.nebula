@@ -3,6 +3,7 @@ package com.bkahlert.devel.nebula.viewer.timeline.impl;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -183,24 +184,25 @@ public class TimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, I
 		// TODO implement mememto that saves all information below
 
 		// center data
-		Calendar centerVisibleDate = null;
+		Future<Calendar> centerVisibleDate = null;
 		try {
-			centerVisibleDate = ExecutorUtil.syncExec(new Callable<Calendar>() {
-				@Override
-				public Calendar call() throws Exception {
-					return timeline.getCenterVisibleDate();
-				}
-			});
+			centerVisibleDate = ExecutorUtil
+					.syncExec(new Callable<Future<Calendar>>() {
+						@Override
+						public Future<Calendar> call() throws Exception {
+							return timeline.getCenterVisibleDate();
+						}
+					});
 		} catch (Exception e) {
 			LOGGER.error("Error retrieving the currently centered time", e);
 		}
 
 		// zoom index
-		Integer zoomIndex = null;
+		Future<Integer> zoomIndex = null;
 		try {
-			zoomIndex = ExecutorUtil.syncExec(new Callable<Integer>() {
+			zoomIndex = ExecutorUtil.syncExec(new Callable<Future<Integer>>() {
 				@Override
-				public Integer call() throws Exception {
+				public Future<Integer> call() throws Exception {
 					return timeline.getZoomIndex();
 				}
 			});
@@ -210,8 +212,14 @@ public class TimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, I
 
 		// on first start we don't want to override the original set date
 		if (centerVisibleDate != null) {
-			input.getOptions().setCenterStart(centerVisibleDate);
-			input.getOptions().setZoomIndex(zoomIndex);
+			try {
+				input.getOptions().setCenterStart(centerVisibleDate.get());
+				input.getOptions().setZoomIndex(zoomIndex.get());
+			} catch (Exception e) {
+				LOGGER.error(
+						"Error restoring center start and zoom index of timeline",
+						e);
+			}
 		}
 
 		input.getOptions().setDecorators(timeline.getDecorators());

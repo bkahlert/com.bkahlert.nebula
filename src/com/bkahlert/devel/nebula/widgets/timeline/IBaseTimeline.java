@@ -1,6 +1,7 @@
 package com.bkahlert.devel.nebula.widgets.timeline;
 
 import java.util.Calendar;
+import java.util.concurrent.Future;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWTException;
@@ -109,7 +110,7 @@ public interface IBaseTimeline extends IBrowserComposite, IDisposable {
 	 *                disposed</li>
 	 *                </ul>
 	 */
-	public Calendar getCenterVisibleDate();
+	public Future<Calendar> getCenterVisibleDate();
 
 	/**
 	 * Sets the date where the visible part of the {@link IBaseTimeline} should
@@ -138,7 +139,7 @@ public interface IBaseTimeline extends IBrowserComposite, IDisposable {
 	 * 
 	 * @return null if timeline does not support zooming.
 	 */
-	public Integer getZoomIndex();
+	public Future<Integer> getZoomIndex();
 
 	/**
 	 * Applies the given {@link IDecorator}s to the timeline. Replaces all

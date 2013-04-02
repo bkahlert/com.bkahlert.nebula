@@ -220,11 +220,18 @@ public abstract class BrowserComposite extends Composite implements
 	@Override
 	public <T> Future<T> run(final String script, final IConverter<T> converter) {
 		Assert.isLegal(converter != null);
+		if (this.getBrowser() == null || this.getBrowser().isDisposed()) {
+			return null;
+		}
+		System.out.println(script);
 		final Callable<T> callable = new Callable<T>() {
 			@Override
 			public T call() throws Exception {
-				Object returnValue = BrowserComposite.this.getBrowser()
-						.evaluate(script);
+				Browser browser = BrowserComposite.this.getBrowser();
+				if (browser == null || browser.isDisposed()) {
+					return null;
+				}
+				Object returnValue = browser.evaluate(script);
 				return converter.convert(returnValue);
 			}
 		};

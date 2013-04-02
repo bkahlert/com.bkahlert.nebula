@@ -146,69 +146,58 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 
 	@Override
 	public void setMinVisibleDate(Calendar calendar) {
-		if (!this.isDisposed()) {
-			this.getBrowser().execute(
-					"com.bkahlert.devel.nebula.timeline.setMinVisibleDate('"
-							+ calendar + "');");
-		}
+		this.run("com.bkahlert.devel.nebula.timeline.setMinVisibleDate('"
+				+ calendar + "');");
 	}
 
 	@Override
 	public void setCenterVisibleDate(Calendar calendar) {
-		if (!this.isDisposed()) {
-			this.getBrowser().execute(
-					"com.bkahlert.devel.nebula.timeline.setCenterVisibleDate('"
-							+ CalendarUtils.toISO8601(calendar) + "');");
-		}
+		this.run("com.bkahlert.devel.nebula.timeline.setCenterVisibleDate('"
+				+ CalendarUtils.toISO8601(calendar) + "');");
 	}
 
 	@Override
-	public Calendar getCenterVisibleDate() {
-		if (!this.isDisposed()) {
-			String centerVisibleDate = (String) this
-					.getBrowser()
-					.evaluate(
-							"return com.bkahlert.devel.nebula.timeline.getCenterVisibleDate();");
-			if (centerVisibleDate != null) {
-				return CalendarUtils.fromISO8601(centerVisibleDate);
-			}
-		}
-		return null;
+	public Future<Calendar> getCenterVisibleDate() {
+		return this
+				.run("return com.bkahlert.devel.nebula.timeline.getCenterVisibleDate();",
+						new IConverter<Calendar>() {
+							@Override
+							public Calendar convert(Object returnValue) {
+								String centerVisibleDate = (String) returnValue;
+								if (centerVisibleDate != null) {
+									return CalendarUtils
+											.fromISO8601(centerVisibleDate);
+								} else {
+									return null;
+								}
+							}
+						});
 	}
 
 	@Override
 	public void setMaxVisibleDate(Calendar calendar) {
-		if (!this.isDisposed()) {
-			this.getBrowser().execute(
-					"com.bkahlert.devel.nebula.timeline.setMaxVisibleDate('"
-							+ calendar + "');");
-		}
+		this.run("com.bkahlert.devel.nebula.timeline.setMaxVisibleDate('"
+				+ calendar + "');");
 	}
 
 	@Override
 	public void setZoomIndex(final int index) {
-		ExecutorUtil.syncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (!BaseTimeline.this.isDisposed()) {
-					BaseTimeline.this.getBrowser().execute(
-							"com.bkahlert.devel.nebula.timeline.setZoomIndex("
-									+ index + ");");
-				}
-			}
-		});
+		this.run("com.bkahlert.devel.nebula.timeline.setZoomIndex(" + index
+				+ ");");
 	}
 
 	@Override
-	public Integer getZoomIndex() {
-		if (!this.isDisposed()) {
-			Double zoomIndex = (Double) this
-					.getBrowser()
-					.evaluate(
-							"return com.bkahlert.devel.nebula.timeline.getZoomIndex();");
-			return zoomIndex != null ? (int) Math.round(zoomIndex) : null;
-		}
-		return null;
+	public Future<Integer> getZoomIndex() {
+		return this.run(
+				"return com.bkahlert.devel.nebula.timeline.getZoomIndex();",
+				new IConverter<Integer>() {
+					@Override
+					public Integer convert(Object returnValue) {
+						Double zoomIndex = (Double) returnValue;
+						return zoomIndex != null ? (int) Math.round(zoomIndex)
+								: null;
+					}
+				});
 	}
 
 	@Override
@@ -218,17 +207,8 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 		final String decoratorJSON = TimelineJsonGenerator.toJson(decorators,
 				false);
 
-		ExecutorUtil.syncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (!BaseTimeline.this.isDisposed()) {
-					BaseTimeline.this.getBrowser().execute(
-							"com.bkahlert.devel.nebula.timeline.setDecorators("
-									+ TimelineJsonGenerator
-											.enquote(decoratorJSON) + ");");
-				}
-			}
-		});
+		this.run("com.bkahlert.devel.nebula.timeline.setDecorators("
+				+ TimelineJsonGenerator.enquote(decoratorJSON) + ");");
 	}
 
 	@Override
