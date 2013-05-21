@@ -1,5 +1,6 @@
 package com.bkahlert.devel.nebula.widgets.browser;
 
+import java.io.File;
 import java.util.concurrent.Future;
 
 import org.eclipse.swt.browser.Browser;
@@ -32,8 +33,19 @@ public interface IBrowserComposite extends IWidget {
 	void injectCssFile(String path);
 
 	/**
+	 * Runs the script included in the given {@link File} in the
+	 * {@link IBrowserComposite} as soon as its content is loaded.
+	 * 
+	 * @param script
+	 * @return
+	 * 
+	 * @ArbitraryThread may be called from whatever thread.
+	 */
+	public void run(File script);
+
+	/**
 	 * Runs the given script in the {@link IBrowserComposite} as soon as its
-	 * demoAreaContent is loaded and returns the {@link IBrowserComposite}'s return
+	 * content is loaded and returns the {@link IBrowserComposite}'s return
 	 * value.
 	 * <p>
 	 * <strong>WARNING!<br>
@@ -51,7 +63,7 @@ public interface IBrowserComposite extends IWidget {
 
 	/**
 	 * Runs the given script in the {@link IBrowserComposite} as soon as its
-	 * demoAreaContent is loaded and returns the {@link IBrowserComposite}'s converted
+	 * content is loaded and returns the {@link IBrowserComposite}'s converted
 	 * return value.
 	 * <p>
 	 * <strong>WARNING!<br>

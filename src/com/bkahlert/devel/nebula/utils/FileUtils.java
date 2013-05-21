@@ -41,4 +41,19 @@ public class FileUtils {
 		tempDirectory.mkdir();
 		return tempDirectory;
 	}
+
+	public static File getTempFile(String prefix, String suffix) {
+		try {
+			File tempFile = File.createTempFile(prefix, suffix);
+			tempFile.deleteOnExit();
+			return tempFile;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static File getTempFile() {
+		return getTempFile(
+				new BigInteger(130, new SecureRandom()).toString(32), ".tmp");
+	}
 }

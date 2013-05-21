@@ -6,7 +6,7 @@ import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoExplorer.DemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 
-@DemoSuite(value = { ColorUtilsDemo.class })
+@DemoSuite(value = { ColorUtilsDemo.class, DiffUtilsDemo.class })
 @Demo
 public class UtilsDemoSuite extends AbstractDemo {
 

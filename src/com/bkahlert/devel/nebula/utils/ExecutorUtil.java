@@ -75,7 +75,7 @@ public class ExecutorUtil {
 		public void run() {
 			if (!this.run) {
 				try {
-					Thread.sleep(delay);
+					Thread.sleep(this.delay);
 					this.runnable.run();
 					this.run = true;
 				} catch (InterruptedException e) {
@@ -147,8 +147,9 @@ public class ExecutorUtil {
 	 * @throws Exception
 	 */
 	public static <V> V syncExec(final Callable<V> callable) throws Exception {
-		if (isUIThread())
+		if (isUIThread()) {
 			return callable.call();
+		}
 
 		final AtomicReference<V> r = new AtomicReference<V>();
 		final AtomicReference<Exception> exception = new AtomicReference<Exception>();
@@ -169,8 +170,9 @@ public class ExecutorUtil {
 		} catch (InterruptedException e) {
 			LOGGER.error(e);
 		}
-		if (exception.get() != null)
+		if (exception.get() != null) {
 			throw exception.get();
+		}
 		return r.get();
 	}
 
@@ -183,10 +185,11 @@ public class ExecutorUtil {
 	 * @param runnable
 	 */
 	public static void syncExec(Runnable runnable) {
-		if (isUIThread())
+		if (isUIThread()) {
 			runnable.run();
-		else
+		} else {
 			Display.getDefault().syncExec(runnable);
+		}
 	}
 
 	/**
@@ -216,8 +219,9 @@ public class ExecutorUtil {
 					}
 				});
 				mutex.acquire();
-				if (exception.get() != null)
+				if (exception.get() != null) {
 					throw exception.get();
+				}
 				return r.get();
 			}
 		});
@@ -241,6 +245,7 @@ public class ExecutorUtil {
 	 */
 	public static void asyncExec(final Runnable runnable, final long delay) {
 		ExecutorUtil.asyncRun(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Thread.sleep(delay);
@@ -252,6 +257,21 @@ public class ExecutorUtil {
 				Display.getDefault().asyncExec(runnable);
 			}
 		});
+	}
+
+	/**
+	 * Runs the given {@link Runnable} in a non-UI thread. If the caller already
+	 * runs in such one the {@link Runnable} is simply executed. Otherwise a new
+	 * thread is started.
+	 * 
+	 * @param runnable
+	 */
+	public static void nonUIExec(Runnable runnable) {
+		if (isUIThread()) {
+			new Thread(runnable).start();
+		} else {
+			runnable.run();
+		}
 	}
 
 	/**
@@ -329,6 +349,7 @@ public class ExecutorUtil {
 	 */
 	public static void asyncRun(final Runnable runnable, final long delay) {
 		ExecutorUtil.nonUIAsyncExec(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Thread.sleep(delay);

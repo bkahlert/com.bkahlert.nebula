@@ -1,5 +1,7 @@
 package com.bkahlert.devel.nebula.widgets.timeline;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.util.DefaultPrettyPrinter;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
@@ -128,19 +131,21 @@ public class TimelineJsonGenerator {
 		generator.writeEndObject();
 	}
 
-	public static String toJson(ITimelineInput input, boolean pretty,
-			IProgressMonitor monitor) {
-		if (input == null) {
-			return null;
-		}
+	public static File toJson(ITimelineInput input, boolean pretty,
+			IProgressMonitor monitor) throws IOException {
+		Assert.isLegal(input != null && input.getOptions() != null
+				&& input.getOptions().getTimeZone() != null);
 		int eventCount = input.getEventCount();
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 5 + eventCount + 5);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 5 + eventCount);
 
 		JsonFactory factory = new JsonFactory();
-		StringWriter stringWriter = new StringWriter();
+		File tmpFile = File.createTempFile(
+				TimelineJsonGenerator.class.getSimpleName(), ".json");
+		tmpFile.deleteOnExit();
+		FileWriter fileWriter = new FileWriter(tmpFile);
 		JsonGenerator generator;
 		try {
-			generator = factory.createJsonGenerator(stringWriter);
+			generator = factory.createJsonGenerator(fileWriter);
 
 			generator.setCodec(new ObjectMapper());
 
@@ -157,11 +162,9 @@ public class TimelineJsonGenerator {
 
 			generator.close();
 
-			String json = stringWriter.toString();
-			stringWriter.close();
-			subMonitor.worked(5);
+			fileWriter.close();
 			subMonitor.done();
-			return json;
+			return tmpFile;
 		} catch (IOException e) {
 			logger.fatal("Error using " + StringWriter.class.getSimpleName(), e);
 		}

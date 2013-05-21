@@ -27,14 +27,20 @@ com.bkahlert.devel.nebula.timeline = com.bkahlert.devel.nebula.timeline || {};
             timestart = timestart || 300;
             timeend = timeend || 300;
             com.bkahlert.devel.nebula.timeline.animate(function($this) {
-                $this.timeline('loadJSON', json);
+                com.bkahlert.devel.nebula.timeline.loadJSON(json, callback);
             }, timestart, timeend, callback);
         },
 
         loadJSON : function(json, callback) {
-            $(".timeline").timeline('loadJSON', json);
-            if ( typeof callback == "function")
-                callback(this);
+            if(typeof(json) === "string") {
+                // if string interpret as url and call again with parsed json 
+                Timeline.loadJSON(json, function(json, url) {
+                    com.bkahlert.devel.nebula.timeline.loadJSON(json, callback);
+                });
+            } else {
+                $(".timeline").timeline('loadJSON', json);
+                if(typeof callback == "function") callback(this);
+            }
         },
 
         replace : function(pos, json) {

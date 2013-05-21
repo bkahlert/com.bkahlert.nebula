@@ -1,5 +1,7 @@
 package com.bkahlert.devel.nebula.widgets.timeline.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -71,7 +73,6 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 		return events;
 	}
 
-	@SuppressWarnings("unused")
 	private static Logger LOGGER = Logger.getLogger(BaseTimeline.class);
 
 	private IDecorator[] decorators = null;
@@ -91,21 +92,24 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 	 * <p>
 	 * May be called from whatever thread.
 	 * 
-	 * @param jsonTimeline
+	 * @param json
 	 */
-	private void show(final String jsonTimeline,
-			final int startAnimationDuration, final int endAnimationDuration) {
+	private void show(final File json, final int startAnimationDuration,
+			final int endAnimationDuration) {
 		// System.err.println(jsonTimeline);
-		final String escapedJson = TimelineJsonGenerator.enquote(jsonTimeline);
-
+		// final String escapedJson = TimelineJsonGenerator.enquote(json);
 		final String js;
 		if (startAnimationDuration <= 0 || endAnimationDuration <= 0) {
-			js = "com.bkahlert.devel.nebula.timeline.loadJSON(" + escapedJson
-					+ ");";
+			js = "com.bkahlert.devel.nebula.timeline.loadJSON(\"file://"
+					+ json.getAbsolutePath() + "\");";
 		} else {
-			js = "com.bkahlert.devel.nebula.timeline.loadJSONAnimated("
-					+ escapedJson + ", null, " + startAnimationDuration + ", "
-					+ endAnimationDuration + ");";
+			js = "com.bkahlert.devel.nebula.timeline.loadJSONAnimated(\"file://"
+					+ json.getAbsolutePath()
+					+ "\", null, "
+					+ startAnimationDuration
+					+ ", "
+					+ endAnimationDuration
+					+ ");";
 		}
 		final Future<Object> rt = this.run(js);
 		ExecutorUtil.nonUIAsyncExec(new Runnable() {
@@ -138,10 +142,16 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 		this.sortedEvents = getSortedEvents(input);
 		subMonitor.worked(1);
 
-		String json = TimelineJsonGenerator.toJson(input, false,
-				subMonitor.newChild(10));
+		try {
+			File json = TimelineJsonGenerator.toJson(input, false,
+					subMonitor.newChild(10));
+			this.show(json, startAnimationDuration, endAnimationDuration);
+		} catch (IOException e) {
+			LOGGER.error(
+					"Error serializing JSON for "
+							+ BaseTimeline.class.getSimpleName(), e);
+		}
 
-		this.show(json, startAnimationDuration, endAnimationDuration);
 	}
 
 	@Override

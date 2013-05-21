@@ -37,7 +37,7 @@ public abstract class AbstractDemo {
 
 	protected int consoleHeight = 150;
 
-	public void createPartControls(Composite composite) {
+	public final void createPartControls(Composite composite) {
 		this.composite = composite;
 		this.composite.setLayout(GridLayoutFactory.fillDefaults().spacing(0, 0)
 				.create());
@@ -134,7 +134,9 @@ public abstract class AbstractDemo {
 	public void recreateDemo() {
 		CompositeUtils.emptyComposite(this.controls);
 		CompositeUtils.emptyComposite(this.content);
-		this.controls.setLayout(new RowLayout());
+		RowLayout rowLayout = new RowLayout();
+		rowLayout.fill = true;
+		this.controls.setLayout(rowLayout);
 		this.content.setLayout(new FillLayout());
 		this.createControls(this.controls);
 		this.createDemo(this.content);

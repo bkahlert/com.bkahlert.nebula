@@ -1,5 +1,6 @@
 package com.bkahlert.devel.nebula.widgets.browser;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -218,12 +219,26 @@ public abstract class BrowserComposite extends Composite implements
 	private Object monitor = new Object();
 
 	@Override
+	public void run(final File script) {
+		Assert.isLegal(script.canRead());
+		ExecutorUtil.nonUIExec(new Runnable() {
+			@Override
+			public void run() {
+				String js = "var h = document.getElementsByTagName(\"head\")[0];var s = document.createElement(\"script\");s.type = \"text/javascript\";s.src = \"file://"
+						+ script.getAbsolutePath()
+						+ "\";s.onload=function(e){h.removeChild(s);};h.appendChild(s);";
+				BrowserComposite.this.run(js);
+			}
+		});
+	}
+
+	@Override
 	public <T> Future<T> run(final String script, final IConverter<T> converter) {
 		Assert.isLegal(converter != null);
 		if (this.getBrowser() == null || this.getBrowser().isDisposed()) {
 			return null;
 		}
-		System.out.println(script);
+		// System.out.println(script);
 		final Callable<T> callable = new Callable<T>() {
 			@Override
 			public T call() throws Exception {
