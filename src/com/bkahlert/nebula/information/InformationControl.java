@@ -32,6 +32,9 @@ import com.bkahlert.nebula.information.extender.IInformationControlExtender;
  * <strong>Make sure to override
  * {@link #getInformationPresenterControlCreator()} if you want to allow the
  * user to hover the popup and get an enhanced version.</strong>
+ * <p>
+ * Using the {@link IInformationControlExtender}s {@link InformationControl}s
+ * can be extended.
  * 
  * @author bkahlert
  * 
@@ -148,7 +151,7 @@ public abstract class InformationControl<INFORMATION> extends
 	}
 
 	@Override
-	protected final void createContent(Composite parent) {
+	protected final void createContent(final Composite parent) {
 		this.parent = parent;
 		this.extenders = InformationControl
 				.<INFORMATION> getExtenders(this.informationClass);

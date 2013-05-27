@@ -5,10 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
@@ -33,6 +30,7 @@ import org.jsoup.select.Elements;
 import com.bkahlert.devel.nebula.utils.EventDelegator;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
+import com.bkahlert.nebula.utils.CompletedFuture;
 
 public abstract class BrowserComposite extends Composite implements
 		IBrowserComposite {
@@ -257,34 +255,7 @@ public abstract class BrowserComposite extends Composite implements
 			} catch (Exception e) {
 				LOGGER.fatal(e);
 			}
-			return new Future<T>() {
-				@Override
-				public boolean cancel(boolean mayInterruptIfRunning) {
-					return false;
-				}
-
-				@Override
-				public boolean isCancelled() {
-					return false;
-				}
-
-				@Override
-				public boolean isDone() {
-					return true;
-				}
-
-				@Override
-				public T get() throws InterruptedException, ExecutionException {
-					return converted.get();
-				}
-
-				@Override
-				public T get(long timeout, TimeUnit unit)
-						throws InterruptedException, ExecutionException,
-						TimeoutException {
-					return converted.get();
-				}
-			};
+			return new CompletedFuture<T>(converted.get());
 		} else {
 			return ExecutorUtil.nonUIAsyncExec(new Callable<T>() {
 				@Override

@@ -6,6 +6,8 @@ com.bkahlert.nebula.image = com.bkahlert.nebula.image || {};
     $.extend(com.bkahlert.nebula.image, {
 
         initEnabled : true,
+        
+        maxSize : null,
 
         start : function(image) {
             $("html").addClass("ready");
@@ -37,6 +39,10 @@ com.bkahlert.nebula.image = com.bkahlert.nebula.image || {};
             return [w, h];  
         },
         
+        limitToOriginalSize : function() {
+            $("#image").css({ width: "auto", height: "auto", maxWidth: "100%", maxHeight: "100%" });
+        },
+        
         onload : function() {
             var originalSize = com.bkahlert.nebula.image.getOriginalSize();
             if (originalSize && window["imageLoaded"] && typeof window["imageLoaded"]) {
@@ -52,27 +58,11 @@ com.bkahlert.nebula.image = com.bkahlert.nebula.image || {};
         },
 
         openDemo : function() {
-            com.bkahlert.nebula.image.load("http://wallpapersinbox.files.wordpress.com/2011/07/abstract-3d-wallpaper-22.jpg");
+            com.bkahlert.nebula.image.load("http://www.w3.org/html/logo/downloads/HTML5_Logo_512.png");
+            com.bkahlert.nebula.image.limitToOriginalSize();
         }
     });
 })(jQuery);
 
 $(window).resize(com.bkahlert.nebula.image.onresize);
 $(document).ready(com.bkahlert.nebula.image.start);
-
-function testFunction() {
-    var test = true;
-    var offset = null;
-    editor.addCommand("test", {
-        exec : function(editor) {
-            if (test) {
-                offset = $(".cke_editable").saveSelection();
-                console.log(offset);
-                console.log("locked");
-            } else {
-                $(".cke_editable").restoreSelection(offset);
-            }
-            test = !test;
-        }
-    });
-}

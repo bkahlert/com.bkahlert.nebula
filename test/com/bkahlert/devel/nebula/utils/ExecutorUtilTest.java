@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.Test;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil.DelayableThread;
+import com.bkahlert.devel.nebula.utils.ExecutorService.DelayableThread;
 
 public class ExecutorUtilTest {
 
@@ -53,8 +53,8 @@ public class ExecutorUtilTest {
 	 * @throws InterruptedException
 	 */
 	public boolean testDelayableThreadComplex(long initialDelay,
-			final long timeToWaitBeforeSettingDelay, final long newDelay, long tolerance)
-			throws InterruptedException {
+			final long timeToWaitBeforeSettingDelay, final long newDelay,
+			long tolerance) throws InterruptedException {
 		final AtomicLong finishedRunning = new AtomicLong(0l);
 		final DelayableThread dt = new DelayableThread(new Runnable() {
 			@Override
@@ -80,24 +80,25 @@ public class ExecutorUtilTest {
 
 		dt.join();
 		long difference = finishedRunning.get() - startedRunning;
-		long expected = initialDelay > timeToWaitBeforeSettingDelay ? timeToWaitBeforeSettingDelay + newDelay
+		long expected = initialDelay > timeToWaitBeforeSettingDelay ? timeToWaitBeforeSettingDelay
+				+ newDelay
 				: initialDelay;
 		return Math.abs(difference - expected) <= tolerance;
 	}
 
 	@Test
 	public void testDelayableThread() throws InterruptedException {
-		assertTrue(testDelayableThreadSimple(0, 10));
-		assertTrue(testDelayableThreadSimple(50, 10));
-		assertTrue(testDelayableThreadSimple(200, 10));
-		assertTrue(testDelayableThreadSimple(2000, 10));
+		assertTrue(this.testDelayableThreadSimple(0, 10));
+		assertTrue(this.testDelayableThreadSimple(50, 10));
+		assertTrue(this.testDelayableThreadSimple(200, 10));
+		assertTrue(this.testDelayableThreadSimple(2000, 10));
 
-		assertTrue(testDelayableThreadComplex(0, 1000, 2000, 10));
-		assertTrue(testDelayableThreadComplex(1000, 2000, 1000000000, 10));
+		assertTrue(this.testDelayableThreadComplex(0, 1000, 2000, 10));
+		assertTrue(this.testDelayableThreadComplex(1000, 2000, 1000000000, 10));
 
-		assertTrue(testDelayableThreadComplex(50, 20, 100, 10));
-		assertTrue(testDelayableThreadComplex(100, 90, 30, 120));
-		assertTrue(testDelayableThreadComplex(2000, 1000, 2000, 10));
+		assertTrue(this.testDelayableThreadComplex(50, 20, 100, 10));
+		assertTrue(this.testDelayableThreadComplex(100, 90, 30, 120));
+		assertTrue(this.testDelayableThreadComplex(2000, 1000, 2000, 10));
 	}
 
 }

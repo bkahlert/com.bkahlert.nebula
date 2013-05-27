@@ -107,15 +107,17 @@ public class InformationControlManagerDemo extends AbstractDemo {
 											.load("http://www.fantom-xp.com/wallpapers/23/Butterfly_abstract_wallpaper.jpg",
 													null);
 									this.image.setLayoutData(GridDataFactory
-											.fillDefaults().grab(true, false)
-											.create());
+											.fillDefaults().grab(true, true)
+											.minSize(300, 300).create());
 									this.image.setBackground(Display
 											.getCurrent().getSystemColor(
 													SWT.COLOR_INFO_BACKGROUND));
+									this.image.limitToOriginalSize();
 									this.label = new Label(parent, SWT.BORDER);
 									this.label.setLayoutData(GridDataFactory
-											.fillDefaults().grab(true, false)
-											.minSize(400, 500).create());
+											.fillDefaults().grab(true, true)
+											.hint(400, 500).minSize(100, 280)
+											.create());
 									return parent;
 								}
 
