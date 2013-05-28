@@ -61,7 +61,20 @@ public abstract class BrowserComposite extends Composite implements
 
 		this.activateExceptionHandling();
 
-		this.run("$(\"body\").on({mouseenter:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseenter\"]&&typeof window[\"mouseenter\"]){window[\"mouseenter\"](e)}},mouseleave:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](e)}}},\"a\")");
+		/*
+		 * window["hoveredAnker"] = null; $("body").bind("DOMSubtreeModified"
+		 * "beforeunload", function () { if (window["mouseleave"] && typeof
+		 * window["mouseleave"]) { window["mouseleave"](window["hoveredAnker"])
+		 * } }); $("body").on({ mouseenter: function () { var e =
+		 * $(this).clone().wrap(" <p> ").parent().html(); window["hoveredAnker"]
+		 * = e; if (window["mouseenter"] && typeof window["mouseenter"]) {
+		 * window["mouseenter"](e) } }, mouseleave: function () { var e =
+		 * $(this).clone().wrap(" <p>
+		 * ").parent().html(); if (window["mouseleave"] && typeof
+		 * window["mouseleave"]) { window["mouseleave"](e) } } }, "a")
+		 */
+		String js = "window[\"hoveredAnker\"]=null;$(\"body\").bind(\"DOMSubtreeModified beforeunload\",function(){if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](window[\"hoveredAnker\"])}});$(\"body\").on({mouseenter:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();window[\"hoveredAnker\"]=e;if(window[\"mouseenter\"]&&typeof window[\"mouseenter\"]){window[\"mouseenter\"](e)}},mouseleave:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](e)}}},\"a\")";
+		this.run(js);
 		new BrowserFunction(this.browser, "mouseenter") {
 			@Override
 			public Object function(Object[] arguments) {
