@@ -32,7 +32,7 @@ public interface ITimelineLabelProvider<TIMELINE extends IBaseTimeline> {
 
 	public IZoomStep[] getZoomSteps(TIMELINE timeline);
 
-	public Integer getZoomIndex();
+	public Integer getZoomIndex(TIMELINE timeline);
 
 	public Float getTimeZone(TIMELINE timeline);
 
