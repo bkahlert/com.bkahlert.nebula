@@ -32,14 +32,6 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 public interface IBaseTimeline extends IBrowserComposite, IDisposable {
 
 	/**
-	 * Includes the given path as a cascading style sheet.
-	 * 
-	 * @param path
-	 */
-	@Override
-	public void injectCssFile(String path);
-
-	/**
 	 * Displays the given {@link ITimelineInput} on the {@link IBaseTimeline}.
 	 * <p>
 	 * May be called from whatever thread.

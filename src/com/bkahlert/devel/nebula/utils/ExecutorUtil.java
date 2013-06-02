@@ -115,13 +115,18 @@ public class ExecutorUtil {
 	}
 
 	/**
-	 * Runs the runnable delayedly in a separate {@link Thread} and returns it.
+	 * Runs the runnable delayedly in the UI {@link Thread} and returns it.
 	 * 
 	 * @param
 	 * @return the thread that is delayedly executed
 	 */
 	public static void asyncRun(final Runnable runnable, final long delay) {
 		EXECUTOR_SERVICE.asyncExec(runnable, delay);
+	}
+
+	public static Future<?> nonUIAsyncRun(final Runnable runnable,
+			final long delay) {
+		return EXECUTOR_SERVICE.nonUIAsyncRun(runnable, delay);
 	}
 
 	private ExecutorUtil() {

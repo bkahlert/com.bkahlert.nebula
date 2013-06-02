@@ -79,9 +79,11 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 	private List<ITimelineEvent> sortedEvents = null;
 
 	public BaseTimeline(Composite parent, int style) {
-		super(parent, style, getFileUrl(BaseTimeline.class,
-				"../html/timeline.html") + "?internal=true");
+		super(parent, style);
 		this.deactivateNativeMenu();
+		this.open(
+				getFileUrl(BaseTimeline.class, "../html/timeline.html",
+						"?internal=true"), 10000);
 	}
 
 	/**

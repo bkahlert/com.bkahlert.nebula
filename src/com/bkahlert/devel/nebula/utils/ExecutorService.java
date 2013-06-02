@@ -21,8 +21,7 @@ public class ExecutorService {
 	private final java.util.concurrent.ExecutorService asyncPool;
 
 	public ExecutorService() {
-		this.asyncPool = ExecutorService
-				.newFixedMultipleOfProcessorsThreadPool(2);
+		this.asyncPool = Executors.newCachedThreadPool();
 	}
 
 	public ExecutorService(java.util.concurrent.ExecutorService executorService) {
@@ -305,8 +304,8 @@ public class ExecutorService {
 	 * @param callable
 	 * @return
 	 */
-	public void nonUIAsyncExec(final Runnable runnable) {
-		this.asyncPool.submit(runnable);
+	public Future<?> nonUIAsyncExec(final Runnable runnable) {
+		return this.asyncPool.submit(runnable);
 	}
 
 	public <T, V> List<Future<V>> nonUIAsyncExec(Collection<T> collection,
@@ -349,21 +348,37 @@ public class ExecutorService {
 	 * Runs the runnable delayedly in a separate {@link Thread} and returns it.
 	 * 
 	 * @param
+	 * @return
 	 * @return the thread that is delayedly executed
 	 */
-	public void asyncRun(final Runnable runnable, final long delay) {
-		this.nonUIAsyncExec(new Runnable() {
+	public Future<?> asyncRun(final Runnable runnable, final long delay) {
+		return this.nonUIAsyncRun(new Runnable() {
 			@Override
 			public void run() {
-				try {
-					Thread.sleep(delay);
-				} catch (InterruptedException e) {
-					ExecutorService.LOGGER
-							.error("Could not delayedly execute runnable "
-									+ runnable);
-				}
+				ExecutorService.this.syncExec(runnable);
+			}
+		}, delay);
+	}
 
-				ExecutorService.this.asyncExec(runnable);
+	/**
+	 * Runs the runnable delayedly in a separate {@link Thread} and returns it.
+	 * 
+	 * @param
+	 * @param
+	 * @return
+	 * @return the monitor the calling thread uses to wait.
+	 */
+	public Future<?> nonUIAsyncRun(final Runnable runnable, final long delay) {
+		return this.nonUIAsyncExec(new Runnable() {
+			@Override
+			public void run() {
+				synchronized (this) {
+					try {
+						this.wait(delay);
+						runnable.run();
+					} catch (InterruptedException e) {
+					}
+				}
 			}
 		});
 	}

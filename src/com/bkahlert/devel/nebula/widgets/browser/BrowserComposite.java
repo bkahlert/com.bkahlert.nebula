@@ -1,11 +1,16 @@
 package com.bkahlert.devel.nebula.widgets.browser;
 
 import java.io.File;
+import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
@@ -32,49 +37,61 @@ import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.utils.CompletedFuture;
 
-public abstract class BrowserComposite extends Composite implements
-		IBrowserComposite {
+public class BrowserComposite extends Composite implements IBrowserComposite {
 
 	private static Logger LOGGER = Logger.getLogger(BrowserComposite.class);
 
-	public static String getFileUrl(Class<?> clazz, String clazzRelativePath) {
+	public static URI getFileUrl(Class<?> clazz, String clazzRelativePath) {
+		return getFileUrl(clazz, clazzRelativePath, "");
+	}
+
+	public static URI getFileUrl(Class<?> clazz, String clazzRelativePath,
+			String suffix) {
 		try {
 			URL timelineUrl = FileLocator.toFileURL(clazz
 					.getResource(clazzRelativePath));
 			String timelineUrlString = timelineUrl.toString().replace("file:",
 					"file://");
-			return timelineUrlString;
+			return new URI(timelineUrlString + suffix);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	private Browser browser;
+	private boolean settingUri = false;
 	private boolean loadingCompleted = false;
 	private List<IJavaScriptExceptionListener> javaScriptExceptionListeners = new ArrayList<IJavaScriptExceptionListener>();
 	private List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
 
-	public BrowserComposite(Composite parent, int style, String url) {
+	public BrowserComposite(Composite parent, int style) {
 		super(parent, style);
 		this.setLayout(new FillLayout());
 		this.browser = new Browser(this, SWT.NONE);
 
-		this.activateExceptionHandling();
+		new BrowserFunction(this.getBrowser(), "error_callback") {
+			@Override
+			public Object function(Object[] arguments) {
+				String filename = (String) arguments[0];
+				Long lineNumber = Math.round((Double) arguments[1]);
+				String detail = (String) arguments[2];
 
-		/*
-		 * window["hoveredAnker"] = null; $("body").bind("DOMSubtreeModified"
-		 * "beforeunload", function () { if (window["mouseleave"] && typeof
-		 * window["mouseleave"]) { window["mouseleave"](window["hoveredAnker"])
-		 * } }); $("body").on({ mouseenter: function () { var e =
-		 * $(this).clone().wrap(" <p> ").parent().html(); window["hoveredAnker"]
-		 * = e; if (window["mouseenter"] && typeof window["mouseenter"]) {
-		 * window["mouseenter"](e) } }, mouseleave: function () { var e =
-		 * $(this).clone().wrap(" <p>
-		 * ").parent().html(); if (window["mouseleave"] && typeof
-		 * window["mouseleave"]) { window["mouseleave"](e) } } }, "a")
-		 */
-		String js = "window[\"hoveredAnker\"]=null;$(\"body\").bind(\"DOMSubtreeModified beforeunload\",function(){if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](window[\"hoveredAnker\"])}});$(\"body\").on({mouseenter:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();window[\"hoveredAnker\"]=e;if(window[\"mouseenter\"]&&typeof window[\"mouseenter\"]){window[\"mouseenter\"](e)}},mouseleave:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](e)}}},\"a\")";
-		this.run(js);
+				JavaScriptException javaScriptException = new JavaScriptException(
+						filename, lineNumber, detail);
+				return this.fire(javaScriptException);
+			}
+
+			private boolean fire(JavaScriptException e) {
+				boolean preventDefault = false;
+				for (IJavaScriptExceptionListener javaScriptExceptionListener : BrowserComposite.this.javaScriptExceptionListeners) {
+					if (javaScriptExceptionListener.thrown(e)) {
+						preventDefault = true;
+					}
+				}
+				return preventDefault;
+			}
+		};
+
 		new BrowserFunction(this.browser, "mouseenter") {
 			@Override
 			public Object function(Object[] arguments) {
@@ -96,8 +113,6 @@ public abstract class BrowserComposite extends Composite implements
 			}
 		};
 
-		this.getBrowser().setUrl(url);
-
 		this.browser.addProgressListener(new ProgressAdapter() {
 			@Override
 			public void completed(ProgressEvent event) {
@@ -116,9 +131,32 @@ public abstract class BrowserComposite extends Composite implements
 					}, 50);
 				} else {
 					BrowserComposite.this.loadingCompleted = true;
-					synchronized (BrowserComposite.this.monitor) {
-						BrowserComposite.this.monitor.notifyAll();
+
+					URI uri = null;
+					try {
+						uri = new URI(BrowserComposite.this.browser.getUrl());
+					} catch (URISyntaxException e) {
+						LOGGER.error(e);
 					}
+					final Future<Void> finished = BrowserComposite.this
+							.afterCompletion(uri);
+					ExecutorUtil.nonUIAsyncExec(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								if (finished != null) {
+									finished.get();
+								}
+							} catch (Exception e) {
+								LOGGER.error(e);
+							}
+
+							// notify threads that want to run javascripts
+							synchronized (BrowserComposite.this.monitor) {
+								BrowserComposite.this.monitor.notifyAll();
+							}
+						}
+					});
 				}
 			}
 		});
@@ -130,9 +168,92 @@ public abstract class BrowserComposite extends Composite implements
 				for (IAnkerListener ankerListener : BrowserComposite.this.ankerListeners) {
 					ankerListener.ankerClicked(anker);
 				}
-				event.doit = false;
+				event.doit = BrowserComposite.this.settingUri;
 			}
 		});
+	}
+
+	@Override
+	public Future<Boolean> open(final URI uri, final Integer timeout) {
+		this.loadingCompleted = false;
+		return ExecutorUtil.nonUIAsyncExec(new Callable<Boolean>() {
+			@Override
+			public Boolean call() throws Exception {
+				// stops waiting after timeout
+				Future<?> timeoutMonitor = null;
+				if (timeout != null && timeout > 0) {
+					timeoutMonitor = ExecutorUtil.nonUIAsyncRun(new Runnable() {
+						@Override
+						public void run() {
+							synchronized (BrowserComposite.this.monitor) {
+								if (!BrowserComposite.this.loadingCompleted) {
+									BrowserComposite.this.monitor.notify();
+								}
+							}
+						}
+					}, timeout);
+				} else {
+					LOGGER.warn("timeout must be greater or equal 0. Ignoring timeout.");
+				}
+
+				/*
+				 * window["hoveredAnker"] = null;
+				 * $("body").bind("DOMSubtreeModified" "beforeunload", function
+				 * () { if (window["mouseleave"] && typeof window["mouseleave"])
+				 * { window["mouseleave"](window["hoveredAnker"]) } });
+				 * $("body").on({ mouseenter: function () { var e =
+				 * $(this).clone().wrap(" <p> ").parent().html();
+				 * window["hoveredAnker"] = e; if (window["mouseenter"] &&
+				 * typeof window["mouseenter"]) { window["mouseenter"](e) } },
+				 * mouseleave: function () { var e = $(this).clone().wrap(" <p>
+				 * ").parent().html(); if (window["mouseleave"] && typeof
+				 * window["mouseleave"]) { window["mouseleave"](e) } } }, "a")
+				 */
+
+				BrowserComposite.this.beforeLoad(uri);
+
+				ExecutorUtil.syncExec(new Runnable() {
+					@Override
+					public void run() {
+						BrowserComposite.this.settingUri = true;
+						BrowserComposite.this.browser.setUrl(uri.toString());
+						BrowserComposite.this.activateExceptionHandling();
+						BrowserComposite.this.settingUri = false;
+					}
+				});
+
+				String js = "window[\"hoveredAnker\"]=null;$(\"body\").bind(\"DOMSubtreeModified beforeunload\",function(){if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](window[\"hoveredAnker\"])}});$(\"body\").on({mouseenter:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();window[\"hoveredAnker\"]=e;if(window[\"mouseenter\"]&&typeof window[\"mouseenter\"]){window[\"mouseenter\"](e)}},mouseleave:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](e)}}},\"a\")";
+				BrowserComposite.this.run(js);
+
+				BrowserComposite.this.afterLoad(uri);
+
+				synchronized (BrowserComposite.this.monitor) {
+					if (!BrowserComposite.this.loadingCompleted) {
+						BrowserComposite.this.monitor.wait();
+						// notified by progresslistener or by timeout
+					}
+
+					if (timeoutMonitor != null) {
+						timeoutMonitor.cancel(true);
+					}
+
+					return BrowserComposite.this.loadingCompleted;
+				}
+			}
+		});
+	}
+
+	@Override
+	public void beforeLoad(URI uri) {
+	}
+
+	@Override
+	public void afterLoad(URI uri) {
+	}
+
+	@Override
+	public Future<Void> afterCompletion(URI uri) {
+		return null;
 	}
 
 	@Override
@@ -172,34 +293,16 @@ public abstract class BrowserComposite extends Composite implements
 		}
 	}
 
+	@Override
+	public Future<Boolean> inject(URI script) {
+		return this.run(script, false);
+	}
+
 	/**
 	 * Notifies all registered {@link IJavaScriptExceptionListener}s in case a
 	 * JavaScript error occurred.
 	 */
 	private void activateExceptionHandling() {
-		new BrowserFunction(this.getBrowser(), "error_callback") {
-			@Override
-			public Object function(Object[] arguments) {
-				String filename = (String) arguments[0];
-				Long lineNumber = Math.round((Double) arguments[1]);
-				String detail = (String) arguments[2];
-
-				JavaScriptException javaScriptException = new JavaScriptException(
-						filename, lineNumber, detail);
-				return this.fire(javaScriptException);
-			}
-
-			private boolean fire(JavaScriptException e) {
-				boolean preventDefault = false;
-				for (IJavaScriptExceptionListener javaScriptExceptionListener : BrowserComposite.this.javaScriptExceptionListeners) {
-					if (javaScriptExceptionListener.thrown(e)) {
-						preventDefault = true;
-					}
-				}
-				return preventDefault;
-			}
-		};
-
 		this.getBrowser()
 				.execute(
 						"window.onerror = function(detail, filename, lineNumber) { if ( typeof window['error_callback'] !== 'function') return; return window['error_callback'](filename ? filename : 'unknown file', lineNumber ? lineNumber : 'unknown line number', detail ? detail : 'unknown detail'); }");
@@ -232,13 +335,60 @@ public abstract class BrowserComposite extends Composite implements
 	@Override
 	public void run(final File script) {
 		Assert.isLegal(script.canRead());
-		ExecutorUtil.nonUIExec(new Runnable() {
+		try {
+			this.run(new URI("file://" + script.getAbsolutePath()));
+		} catch (URISyntaxException e) {
+			LOGGER.error("Error running script included in " + script, e);
+		}
+	}
+
+	@Override
+	public Future<Boolean> run(final URI script) {
+		return this.run(script, true);
+	}
+
+	private Future<Boolean> run(final URI script,
+			final boolean removeAfterExecution) {
+		Assert.isLegal(script != null);
+		return ExecutorUtil.nonUIAsyncExec(new Callable<Boolean>() {
 			@Override
-			public void run() {
-				String js = "var h = document.getElementsByTagName(\"head\")[0];var s = document.createElement(\"script\");s.type = \"text/javascript\";s.src = \"file://"
-						+ script.getAbsolutePath()
-						+ "\";s.onload=function(e){h.removeChild(s);};h.appendChild(s);";
+			public Boolean call() {
+				final String callbackFunctionName = new BigInteger(130,
+						new SecureRandom()).toString(32);
+
+				final Semaphore mutex = new Semaphore(0);
+				ExecutorUtil.syncExec(new Runnable() {
+					@Override
+					public void run() {
+						final AtomicReference<BrowserFunction> callback = new AtomicReference<BrowserFunction>();
+						callback.set(new BrowserFunction(BrowserComposite.this
+								.getBrowser(), callbackFunctionName) {
+							@Override
+							public Object function(Object[] arguments) {
+								System.err.println("Finished");
+								callback.get().dispose();
+								mutex.release();
+								return super.function(arguments);
+							}
+						});
+					}
+				});
+
+				String js = "var h = document.getElementsByTagName(\"head\")[0]; var s = document.createElement(\"script\");s.type = \"text/javascript\";s.src = \""
+						+ script.toString() + "\"; s.onload=function(e){";
+				if (removeAfterExecution) {
+					js += "h.removeChild(s);";
+				}
+				js += "window['" + callbackFunctionName + "']();";
+				js += "};h.appendChild(s);";
+
 				BrowserComposite.this.run(js);
+				try {
+					mutex.acquire();
+				} catch (InterruptedException e) {
+					LOGGER.error(e);
+				}
+				return null;
 			}
 		});
 	}
@@ -249,15 +399,20 @@ public abstract class BrowserComposite extends Composite implements
 		if (this.getBrowser() == null || this.getBrowser().isDisposed()) {
 			return null;
 		}
-		// System.out.println(script);
 		final Callable<T> callable = new Callable<T>() {
 			@Override
 			public T call() throws Exception {
+				String logScript = script.length() > 100 ? script.substring(0,
+						100) + "..." : script;
+				logScript = logScript.replace("\n", " ").replace("\r", " ")
+						.replace("\t", " ");
+				LOGGER.info("Running " + logScript);
 				Browser browser = BrowserComposite.this.getBrowser();
 				if (browser == null || browser.isDisposed()) {
 					return null;
 				}
 				Object returnValue = browser.evaluate(script);
+				LOGGER.info("Returned " + returnValue);
 				return converter.convert(returnValue);
 			}
 		};
@@ -281,6 +436,7 @@ public abstract class BrowserComposite extends Composite implements
 					if (BrowserComposite.this.isDisposed()) {
 						return null;
 					}
+					// TODO possibly check if page was really loaded
 					return ExecutorUtil.syncExec(callable);
 				}
 			});
@@ -298,11 +454,11 @@ public abstract class BrowserComposite extends Composite implements
 	}
 
 	@Override
-	public void injectCssFile(String path) {
+	public void injectCssFile(URI uri) {
 		this.run("if(document.createStyleSheet){document.createStyleSheet(\""
-				+ path
+				+ uri.toString()
 				+ "\")}else{$(\"head\").append($(\"<link rel=\\\"stylesheet\\\" href=\\\""
-				+ path + "\\\" type=\\\"text/css\\\" />\"))}");
+				+ uri.toString() + "\\\" type=\\\"text/css\\\" />\"))}");
 	}
 
 	public void addJavaScriptExceptionListener(
@@ -321,6 +477,18 @@ public abstract class BrowserComposite extends Composite implements
 
 	public void removeAnkerListener(IAnkerListener ankerListener) {
 		this.ankerListeners.remove(ankerListener);
+	}
+
+	@Override
+	public Future<Boolean> containsElementWithID(String id) {
+		return this.run("return document.getElementById('" + id + "') != null",
+				IBrowserComposite.CONVERTER_BOOLEAN);
+	}
+
+	@Override
+	public Future<Boolean> containsElementsWithName(String name) {
+		return this.run("return document.getElementsByName('" + name
+				+ "').length > 0", IBrowserComposite.CONVERTER_BOOLEAN);
 	}
 
 }

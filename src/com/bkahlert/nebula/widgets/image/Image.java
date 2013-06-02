@@ -57,8 +57,7 @@ public class Image extends BrowserComposite {
 	}
 
 	public Image(Composite parent, int style, Point defaultSize) {
-		super(parent, style, getFileUrl(Image.class, "html/index.html")
-				+ "?internal=true");
+		super(parent, style);
 		this.deactivateNativeMenu();
 
 		this.cachedOriginalSize = defaultSize;
@@ -105,6 +104,9 @@ public class Image extends BrowserComposite {
 				return null;
 			}
 		};
+
+		this.open(getFileUrl(Image.class, "html/index.html", "?internal=true"),
+				5000);
 	}
 
 	@Override
@@ -176,7 +178,6 @@ public class Image extends BrowserComposite {
 
 	@Override
 	public Point computeSize(int wHint, int hHint, boolean changed) {
-		System.out.println(wHint + " - " + hHint);
 		Point size;
 		if (wHint == SWT.DEFAULT && hHint == SWT.DEFAULT) {
 			size = this.getOriginalSize();
@@ -190,7 +191,6 @@ public class Image extends BrowserComposite {
 		Point maxSize = new Point(Math.min(this.getOriginalSize().x, size.x),
 				Math.min(this.getOriginalSize().y, size.y));
 		size = ImageUtils.resizeWithinArea(size, maxSize);
-		System.out.println(size);
 		return size;
 	}
 

@@ -1,6 +1,7 @@
 package com.bkahlert.devel.nebula.widgets.browser;
 
 import java.io.File;
+import java.net.URI;
 import java.util.concurrent.Future;
 
 import org.eclipse.swt.browser.Browser;
@@ -21,6 +22,16 @@ public interface IBrowserComposite extends IWidget {
 		public T convert(Object returnValue);
 	}
 
+	public static final IConverter<Boolean> CONVERTER_BOOLEAN = new IConverter<Boolean>() {
+		@Override
+		public Boolean convert(Object returnValue) {
+			if (returnValue == null || !Boolean.class.isInstance(returnValue)) {
+				return false;
+			}
+			return (Boolean) returnValue;
+		}
+	};
+
 	/**
 	 * Return the {@link Browser} used by this timeline.
 	 * 
@@ -30,7 +41,59 @@ public interface IBrowserComposite extends IWidget {
 	 */
 	public Browser getBrowser();
 
-	void injectCssFile(String path);
+	/**
+	 * Opens the given {@link URI}.
+	 * 
+	 * @param uri
+	 * @param timeout
+	 *            after which the {@link IBrowserComposite} stops loading and
+	 *            throws an exception.
+	 * @return
+	 */
+	public Future<Boolean> open(URI uri, Integer timeout);
+
+	/**
+	 * This method is called from a non-UI thread before the
+	 * {@link Browser#setUrl(String)} method is called.
+	 * 
+	 * @param uri
+	 */
+	public void beforeLoad(URI uri);
+
+	/**
+	 * This method is called from a non-UI thread after the
+	 * {@link Browser#setUrl(String)} method has been called.
+	 * 
+	 * @param uri
+	 */
+	public void afterLoad(URI uri);
+
+	/**
+	 * This method is called from the-UI thread after the
+	 * {@link IBrowserComposite} completed loading the page.
+	 * 
+	 * @param uri
+	 * @return
+	 */
+	public Future<Void> afterCompletion(URI uri);
+
+	/**
+	 * Injects the given script and returns a {@link Future} that blocks until
+	 * the script is completely loaded.
+	 * 
+	 * @param script
+	 * @return
+	 * 
+	 * @ArbitraryThread may be called from whatever thread.
+	 */
+	public Future<Boolean> inject(URI script);
+
+	/**
+	 * Includes the given path as a cascading style sheet.
+	 * 
+	 * @param path
+	 */
+	public void injectCssFile(URI uri);
 
 	/**
 	 * Runs the script included in the given {@link File} in the
@@ -42,6 +105,17 @@ public interface IBrowserComposite extends IWidget {
 	 * @ArbitraryThread may be called from whatever thread.
 	 */
 	public void run(File script);
+
+	/**
+	 * Runs the script included in the given {@link URI} in the
+	 * {@link IBrowserComposite} as soon as its content is loaded.
+	 * 
+	 * @param script
+	 * @return
+	 * 
+	 * @ArbitraryThread may be called from whatever thread.
+	 */
+	public Future<Boolean> run(URI script);
 
 	/**
 	 * Runs the given script in the {@link IBrowserComposite} as soon as its
@@ -79,4 +153,23 @@ public interface IBrowserComposite extends IWidget {
 	 * @ArbitraryThread may be called from whatever thread.
 	 */
 	public <T> Future<T> run(String script, IConverter<T> converter);
+
+	/**
+	 * Returns a {@link Future} that tells you if an element with the given id
+	 * exists.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public Future<Boolean> containsElementWithID(String id);
+
+	/**
+	 * Returns a {@link Future} that tells you if at least one element with the
+	 * given name exists.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public Future<Boolean> containsElementsWithName(String name);
+
 }

@@ -78,9 +78,7 @@ public class Composer extends BrowserComposite {
 	 */
 	public Composer(Composite parent, int style,
 			final long delayChangeEventUpTo, ToolbarSet toolbarSet) {
-		super(parent, style, getFileUrl(Composer.class, "html/index.html")
-				+ "?internal=true&toolbarSet="
-				+ toolbarSet.toString().toLowerCase());
+		super(parent, style);
 		this.deactivateNativeMenu();
 
 		this.addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {
@@ -94,6 +92,11 @@ public class Composer extends BrowserComposite {
 
 		this.fixShortcuts(delayChangeEventUpTo);
 		this.listenForModifications(delayChangeEventUpTo);
+
+		this.open(
+				getFileUrl(Composer.class, "html/index.html",
+						"?internal=true&toolbarSet="
+								+ toolbarSet.toString().toLowerCase()), 10000);
 	}
 
 	public void fixShortcuts(final long delayChangeEventUpTo) {
