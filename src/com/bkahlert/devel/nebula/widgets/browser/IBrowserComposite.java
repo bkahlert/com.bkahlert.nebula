@@ -8,6 +8,7 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.devel.nebula.widgets.IWidget;
+import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 
 /**
  * Instances of this interface denote a {@link Composite} that is based on a
@@ -51,6 +52,14 @@ public interface IBrowserComposite extends IWidget {
 	 * @return
 	 */
 	public Future<Boolean> open(URI uri, Integer timeout);
+
+	/**
+	 * Sets if {@link IBrowserComposite} may change its location by actions now
+	 * invoked by {@link #open(URI, Integer)}.
+	 * 
+	 * @param allow
+	 */
+	public void setAllowLocationChange(boolean allow);
 
 	/**
 	 * This method is called from a non-UI thread before the
@@ -171,5 +180,9 @@ public interface IBrowserComposite extends IWidget {
 	 * @return
 	 */
 	public Future<Boolean> containsElementsWithName(String name);
+
+	public void addAnkerListener(IAnkerListener ankerListener);
+
+	public void removeAnkerListener(IAnkerListener ankerListener);
 
 }

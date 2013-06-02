@@ -14,11 +14,11 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
-import com.bkahlert.devel.nebula.utils.ImageUtils;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
 import com.bkahlert.devel.nebula.widgets.browser.JavaScriptException;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineJsonGenerator;
+import com.bkahlert.nebula.utils.ImageUtils;
 
 /**
  * Shows an image in a way that it always fills the {@link Composite}'s

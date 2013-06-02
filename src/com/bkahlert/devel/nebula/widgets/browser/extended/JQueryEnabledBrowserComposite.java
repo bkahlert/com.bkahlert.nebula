@@ -4,14 +4,17 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.widgets.browser.IBrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.extended.extensions.IBrowserCompositeExtension;
 import com.bkahlert.devel.nebula.widgets.browser.extended.extensions.JQueryExtension;
 import com.bkahlert.devel.nebula.widgets.browser.extended.extensions.JQueryScrollToExtension;
 
-public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite {
+public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
+		implements IJQueryEnabledBrowserComposite {
 	private static final Logger LOGGER = Logger
 			.getLogger(JQueryEnabledBrowserComposite.class);
 
@@ -20,13 +23,13 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite {
 				new JQueryExtension(), new JQueryScrollToExtension() });
 	}
 
-	/**
-	 * Scrolls to the given position.
-	 * 
-	 * @param x
-	 * @param y
-	 * @return false if no scroll action was necessary
-	 */
+	@Override
+	public Future<Boolean> containsElements(ISelector selector) {
+		return this.run("return $('" + selector.toString() + "').length > 0;",
+				IBrowserComposite.CONVERTER_BOOLEAN);
+	}
+
+	@Override
 	public Future<Boolean> scrollTo(final int x, final int y) {
 		return ExecutorUtil.nonUIAsyncExec(new Callable<Boolean>() {
 			@Override
@@ -45,16 +48,19 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite {
 		});
 	}
 
-	/**
-	 * Sets the given value of the elements specified by the given selector.
-	 * 
-	 * @param selector
-	 * @param value
-	 * 
-	 * @see <a href="http://api.jquery.com/val/">api.jquery.com/val/</a>
-	 */
-	public Future<Object> val(String selector, String value) {
+	@Override
+	public Future<Boolean> scrollTo(Point pos) {
+		return this.scrollTo(pos.x, pos.y);
+	}
+
+	@Override
+	public Future<Object> val(ISelector selector, String value) {
 		return this.run("$('" + selector + "').val('" + value + "');");
+	}
+
+	@Override
+	public Future<Object> submit(ISelector selector) {
+		return this.run("$('" + selector + "').closest('form').submit();");
 	}
 
 }

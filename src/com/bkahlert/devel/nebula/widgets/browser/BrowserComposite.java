@@ -60,6 +60,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 
 	private Browser browser;
 	private boolean settingUri = false;
+	private boolean allowLocationChange = false;
 	private boolean loadingCompleted = false;
 	private List<IJavaScriptExceptionListener> javaScriptExceptionListeners = new ArrayList<IJavaScriptExceptionListener>();
 	private List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
@@ -168,7 +169,8 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				for (IAnkerListener ankerListener : BrowserComposite.this.ankerListeners) {
 					ankerListener.ankerClicked(anker);
 				}
-				event.doit = BrowserComposite.this.settingUri;
+				event.doit = BrowserComposite.this.allowLocationChange
+						|| BrowserComposite.this.settingUri;
 			}
 		});
 	}
@@ -241,6 +243,11 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				}
 			}
 		});
+	}
+
+	@Override
+	public void setAllowLocationChange(boolean allow) {
+		this.allowLocationChange = allow;
 	}
 
 	@Override
@@ -471,10 +478,12 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		this.javaScriptExceptionListeners.remove(javaScriptExceptionListener);
 	}
 
+	@Override
 	public void addAnkerListener(IAnkerListener ankerListener) {
 		this.ankerListeners.add(ankerListener);
 	}
 
+	@Override
 	public void removeAnkerListener(IAnkerListener ankerListener) {
 		this.ankerListeners.remove(ankerListener);
 	}

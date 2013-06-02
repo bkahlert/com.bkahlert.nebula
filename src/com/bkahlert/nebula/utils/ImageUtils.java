@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.utils;
+package com.bkahlert.nebula.utils;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
@@ -238,5 +238,42 @@ public class ImageUtils {
 		}
 
 		return new Point(finalWidth, finalHeight);
+	}
+
+	/**
+	 * Writes the given image to a temp file and returns it.
+	 * <p>
+	 * Note: The temporary file gets deleted when the virtual machine
+	 * terminates.
+	 * 
+	 * @param bufferedImage
+	 * @param format
+	 *            e.g. "png"
+	 * @return
+	 * @throws IOException
+	 */
+	public static File saveImageToTempFile(BufferedImage bufferedImage,
+			String format) throws IOException {
+		File tempFile = File.createTempFile("image", "." + format);
+		tempFile.deleteOnExit();
+		saveImageToFile(bufferedImage, format, tempFile);
+		return tempFile;
+	}
+
+	/**
+	 * Writes the given image to the given location.
+	 * <p>
+	 * Note: The temporary file gets deleted when the virtual machine
+	 * terminates.
+	 * 
+	 * @param bufferedImage
+	 * @param format
+	 *            e.g. "png"
+	 * @return
+	 * @throws IOException
+	 */
+	public static void saveImageToFile(BufferedImage bufferedImage,
+			String format, File location) throws IOException {
+		ImageIO.write(bufferedImage, format, location);
 	}
 }

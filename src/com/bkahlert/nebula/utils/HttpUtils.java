@@ -3,6 +3,7 @@ package com.bkahlert.nebula.utils;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 public class HttpUtils {
@@ -20,6 +21,11 @@ public class HttpUtils {
 		connection.setRequestMethod("GET");
 		connection.connect();
 		return connection.getResponseCode();
+	}
+
+	public static int getResponseCode(URI uri) throws MalformedURLException,
+			IOException {
+		return getResponseCode(uri.toURL());
 	}
 
 }
