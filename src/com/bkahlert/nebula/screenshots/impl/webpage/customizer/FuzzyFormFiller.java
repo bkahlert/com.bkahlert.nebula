@@ -1,10 +1,10 @@
-package com.bkahlert.nebula.screenshots.impl.webpage;
+package com.bkahlert.nebula.screenshots.impl.webpage.customizer;
 
 import org.apache.log4j.Logger;
 
 import com.bkahlert.devel.nebula.widgets.browser.extended.IJQueryEnabledBrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector;
-import com.bkahlert.nebula.screenshots.webpage.IWebpageFormFiller;
+import com.bkahlert.nebula.screenshots.webpage.IWebpageScreenshotRequest;
 
 /**
  * Fills out a form while only needing fuzzy information. The filler iterates
@@ -14,7 +14,7 @@ import com.bkahlert.nebula.screenshots.webpage.IWebpageFormFiller;
  * @author bkahlert
  * 
  */
-public class FuzzyFormFiller implements IWebpageFormFiller {
+public class FuzzyFormFiller extends WebpageScreenshotCustomizer {
 
 	public static interface IFieldFill {
 		public ISelector getFieldSelector();
@@ -52,14 +52,15 @@ public class FuzzyFormFiller implements IWebpageFormFiller {
 	}
 
 	@Override
-	public void fill(final IJQueryEnabledBrowserComposite browserComposite) {
+	public void betweenLoadingAndScrolling(IWebpageScreenshotRequest request,
+			IJQueryEnabledBrowserComposite browserComposite) {
 		boolean matched = false;
 		for (IFieldFill fieldFill : this.fieldFills) {
 			ISelector selector = fieldFill.getFieldSelector();
 			try {
 				if (browserComposite.containsElements(selector).get()) {
-					browserComposite.val(selector, fieldFill.getFieldValue())
-							.get();
+					browserComposite.simulateTyping(selector,
+							fieldFill.getFieldValue()).get();
 					matched = true;
 					if (this.strategy == Strategy.FILL_FIRST) {
 						break;

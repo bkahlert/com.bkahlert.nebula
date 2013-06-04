@@ -1,6 +1,5 @@
 package com.bkahlert.nebula.screenshots;
 
-
 /**
  * Implementations can be submitted to an {@link IScreenshotTaker}.
  * 
@@ -26,5 +25,7 @@ public interface IScreenshotRequest {
 	 * @return
 	 */
 	public FORMAT getFormat();
+
+	public IScreenshotCustomizer getCustomizer();
 
 }

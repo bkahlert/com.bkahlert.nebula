@@ -146,6 +146,24 @@ public interface IBrowserComposite extends IWidget {
 
 	/**
 	 * Runs the given script in the {@link IBrowserComposite} as soon as its
+	 * content is loaded and returns the {@link IBrowserComposite}'s return
+	 * value.
+	 * <p>
+	 * <strong>WARNING!<br>
+	 * The {@link Future#get()} must not be called from the UI thread without
+	 * checking {@link Future#isDone()}. Because the UI thread itself is needed
+	 * for the {@link Future} to finish its computation, calling
+	 * {@link Future#get()} before it is done results in a deadlock!</strong>.
+	 * 
+	 * @param script
+	 * @return
+	 * 
+	 * @ArbitraryThread may be called from whatever thread.
+	 */
+	public Future<Object> run(IJavaScript script);
+
+	/**
+	 * Runs the given script in the {@link IBrowserComposite} as soon as its
 	 * content is loaded and returns the {@link IBrowserComposite}'s converted
 	 * return value.
 	 * <p>

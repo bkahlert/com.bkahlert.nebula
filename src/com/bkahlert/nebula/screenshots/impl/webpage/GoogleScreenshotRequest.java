@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.Rectangle;
 
+import com.bkahlert.nebula.screenshots.impl.webpage.customizer.SearchFormFiller;
 
 public class GoogleScreenshotRequest extends WebpageScreenshotRequest {
 
@@ -24,7 +25,7 @@ public class GoogleScreenshotRequest extends WebpageScreenshotRequest {
 
 	public GoogleScreenshotRequest(FORMAT format, Rectangle bounds,
 			final String query, final int timeout) {
-		super(format, uri, bounds, new SearchFormFiller(query), timeout);
+		super(format, uri, bounds, timeout, new SearchFormFiller(query));
 
 	}
 

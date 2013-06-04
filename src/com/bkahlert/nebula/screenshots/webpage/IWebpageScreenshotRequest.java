@@ -17,8 +17,6 @@ public interface IWebpageScreenshotRequest extends IScreenshotRequest {
 
 	public Point getScrollPosition();
 
-	public IWebpageFormFiller getFormFiller();
-
 	public int getTimeout();
 
 }

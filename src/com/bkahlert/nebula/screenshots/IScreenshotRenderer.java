@@ -10,7 +10,7 @@ import org.eclipse.swt.graphics.Rectangle;
  * @author bkahlert
  * 
  */
-public interface IScreenshotRenderer<ORDER extends IScreenshotRequest> {
+public interface IScreenshotRenderer<REQUEST extends IScreenshotRequest> {
 
 	/**
 	 * Implementors encapsulates all information concerning a
@@ -44,10 +44,10 @@ public interface IScreenshotRenderer<ORDER extends IScreenshotRequest> {
 	 * Returns a {@link Callable} that renders the given
 	 * {@link IScreenshotRequest} on request.
 	 * 
-	 * @param order
+	 * @param request
 	 * @return
 	 */
-	public Callable<IScreenshotRendererSession> render(ORDER order);
+	public Callable<IScreenshotRendererSession> render(REQUEST request);
 
 	/**
 	 * Disposes all resources this {@link IScreenshotRenderer} occupies.

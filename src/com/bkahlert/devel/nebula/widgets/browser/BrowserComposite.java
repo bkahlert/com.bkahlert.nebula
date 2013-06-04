@@ -181,6 +181,9 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		return ExecutorUtil.nonUIAsyncExec(new Callable<Boolean>() {
 			@Override
 			public Boolean call() throws Exception {
+				final AtomicReference<Boolean> isCancelled = new AtomicReference<Boolean>(
+						false);
+
 				// stops waiting after timeout
 				Future<?> timeoutMonitor = null;
 				if (timeout != null && timeout > 0) {
@@ -189,7 +192,8 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 						public void run() {
 							synchronized (BrowserComposite.this.monitor) {
 								if (!BrowserComposite.this.loadingCompleted) {
-									BrowserComposite.this.monitor.notify();
+									isCancelled.set(true);
+									BrowserComposite.this.monitor.notifyAll();
 								}
 							}
 						}
@@ -230,7 +234,13 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				BrowserComposite.this.afterLoad(uri);
 
 				synchronized (BrowserComposite.this.monitor) {
-					if (!BrowserComposite.this.loadingCompleted) {
+					while (!BrowserComposite.this.loadingCompleted
+							&& !isCancelled.get()) {
+						LOGGER.debug("WAITING FOR LOADING COMPLETED:\nURI = "
+								+ uri + "\nThread = " + Thread.currentThread()
+								+ "\nLOADING COMPLETED = "
+								+ BrowserComposite.this.loadingCompleted
+								+ "\nTIMEOUT CANCELLED: " + isCancelled.get());
 						BrowserComposite.this.monitor.wait();
 						// notified by progresslistener or by timeout
 					}
@@ -459,6 +469,11 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 			}
 		});
 	}
+
+	@Override
+	public Future<Object> run(IJavaScript script) {
+		return this.run(script.toString());
+	};
 
 	@Override
 	public void injectCssFile(URI uri) {

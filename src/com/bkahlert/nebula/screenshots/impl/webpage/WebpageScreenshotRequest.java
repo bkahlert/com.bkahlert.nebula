@@ -6,8 +6,8 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 
+import com.bkahlert.nebula.screenshots.IScreenshotCustomizer;
 import com.bkahlert.nebula.screenshots.impl.ScreenshotRequest;
-import com.bkahlert.nebula.screenshots.webpage.IWebpageFormFiller;
 import com.bkahlert.nebula.screenshots.webpage.IWebpageScreenshotRequest;
 
 public class WebpageScreenshotRequest extends ScreenshotRequest implements
@@ -15,22 +15,20 @@ public class WebpageScreenshotRequest extends ScreenshotRequest implements
 
 	private URI uri;
 	private Rectangle bounds;
-	private IWebpageFormFiller webpageFormFiller;
 	private int timeout;
 
 	public WebpageScreenshotRequest(FORMAT format, URI uri, Rectangle bounds,
-			IWebpageFormFiller webpageFormFiller, int timeout) {
-		super(format);
+			int timeout, IScreenshotCustomizer customizer) {
+		super(format, customizer);
 		Assert.isLegal(uri != null && bounds != null);
 		this.uri = uri;
 		this.bounds = bounds;
-		this.webpageFormFiller = webpageFormFiller;
 		this.timeout = timeout;
 	}
 
 	public WebpageScreenshotRequest(FORMAT format, URI uri, Rectangle bounds,
 			int timeout) {
-		this(format, uri, bounds, null, timeout);
+		this(format, uri, bounds, timeout, null);
 	}
 
 	@Override
@@ -51,11 +49,6 @@ public class WebpageScreenshotRequest extends ScreenshotRequest implements
 	@Override
 	public Point getScrollPosition() {
 		return new Point(this.bounds.x, this.bounds.y);
-	}
-
-	@Override
-	public IWebpageFormFiller getFormFiller() {
-		return this.webpageFormFiller;
 	}
 
 	@Override

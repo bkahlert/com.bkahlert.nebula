@@ -2,12 +2,16 @@ package com.bkahlert.nebula.screenshots.impl;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
+import org.apache.log4j.Logger;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.nebula.screenshots.IScreenshotRenderer;
@@ -17,13 +21,16 @@ import com.bkahlert.nebula.screenshots.IScreenshotTaker;
 import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.utils.ShellUtils;
 
-public class ScreenshotTaker<ORDER extends IScreenshotRequest> implements
-		IScreenshotTaker<ORDER> {
+public class ScreenshotTaker<REQUEST extends IScreenshotRequest> implements
+		IScreenshotTaker<REQUEST> {
+
+	private static final Logger LOGGER = Logger
+			.getLogger(ScreenshotTaker.class);
 
 	private ExecutorService queue;
-	private IScreenshotRenderer<ORDER> renderer;
+	private IScreenshotRenderer<REQUEST> renderer;
 
-	public ScreenshotTaker(int numThreads, IScreenshotRenderer<ORDER> renderer) {
+	public ScreenshotTaker(int numThreads, IScreenshotRenderer<REQUEST> renderer) {
 		this.queue = Executors.newFixedThreadPool(numThreads,
 				new ThreadFactory() {
 					@Override
@@ -37,24 +44,35 @@ public class ScreenshotTaker<ORDER extends IScreenshotRequest> implements
 	}
 
 	@Override
-	public Future<File> submitOrder(final ORDER order) {
+	public Future<File> submitOrder(final REQUEST request) {
 		return this.queue.submit(new Callable<File>() {
 			@Override
 			public File call() throws Exception {
 				final IScreenshotRendererSession session = ScreenshotTaker.this.renderer
-						.render(order).call();
+						.render(request).call();
 
 				BufferedImage image;
 				synchronized (Display.getDefault()) {
 					session.bringToFront();
-					image = ShellUtils.captureScreen(session.getBounds());
+					Rectangle bounds = session.getBounds();
+					LOGGER.info("Capturing " + bounds);
+					image = ShellUtils.captureScreen(bounds);
 					session.dispose();
 				}
 
-				return ImageUtils.saveImageToTempFile(image, order.getFormat()
-						.getName());
+				return ImageUtils.saveImageToTempFile(image, request
+						.getFormat().getName());
 			}
 		});
+	}
+
+	@Override
+	public List<Future<File>> submitOrder(List<REQUEST> requests) {
+		List<Future<File>> screenshots = new ArrayList<Future<File>>();
+		for (REQUEST request : requests) {
+			screenshots.add(this.submitOrder(request));
+		}
+		return screenshots;
 	}
 
 	@Override
