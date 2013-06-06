@@ -1,5 +1,7 @@
 package com.bkahlert.devel.nebula.widgets.browser.extended;
 
+import org.apache.commons.lang.StringUtils;
+
 public interface ISelector {
 
 	/**
@@ -46,14 +48,26 @@ public interface ISelector {
 	}
 
 	/**
+	 * Instances of this class match all the provided {@link ISelector}s.
+	 * 
+	 * @author bkahlert
+	 * 
+	 */
+	public static class OrSelector extends CssSelector {
+		public OrSelector(ISelector... selectors) {
+			super(StringUtils.join(selectors, ","));
+		}
+	}
+
+	/**
 	 * Instances of this class select all elements with a certain ID or name.
 	 * 
 	 * @return
 	 */
-	public static class FieldSelector extends CssSelector {
+	public static class FieldSelector extends OrSelector {
 
 		public FieldSelector(String idOrName) {
-			super("#" + idOrName + ",*[name=" + idOrName + "]");
+			super(new IdSelector(idOrName), new NameSelector(idOrName));
 		}
 
 	}

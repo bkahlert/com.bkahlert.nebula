@@ -1,15 +1,15 @@
 package com.bkahlert.nebula.screenshots.impl.webpage;
 
-import org.eclipse.swt.widgets.Shell;
-
+import com.bkahlert.nebula.screenshots.IScreenshotRenderer;
 import com.bkahlert.nebula.screenshots.impl.ScreenshotTaker;
-import com.bkahlert.nebula.screenshots.webpage.IWebpageScreenshotRequest;
+import com.bkahlert.nebula.screenshots.webpage.IWebpage;
 
-public class WebpageScreenshotTaker extends
-		ScreenshotTaker<IWebpageScreenshotRequest> {
+public class WebpageScreenshotTaker<WEBPAGE extends IWebpage> extends
+		ScreenshotTaker<WEBPAGE> {
 
-	public WebpageScreenshotTaker(int numThreads, Shell parentShell) {
-		super(numThreads, new WebpageRenderer(parentShell));
+	public WebpageScreenshotTaker(int numThreads,
+			IScreenshotRenderer<WEBPAGE, ?> renderer) {
+		super(numThreads, renderer);
 	}
 
 }

@@ -6,29 +6,19 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 
-import com.bkahlert.nebula.screenshots.IScreenshotCustomizer;
-import com.bkahlert.nebula.screenshots.impl.ScreenshotRequest;
-import com.bkahlert.nebula.screenshots.webpage.IWebpageScreenshotRequest;
+import com.bkahlert.nebula.screenshots.webpage.IWebpage;
 
-public class WebpageScreenshotRequest extends ScreenshotRequest implements
-		IWebpageScreenshotRequest {
+public class Webpage implements IWebpage {
 
 	private URI uri;
 	private Rectangle bounds;
 	private int timeout;
 
-	public WebpageScreenshotRequest(FORMAT format, URI uri, Rectangle bounds,
-			int timeout, IScreenshotCustomizer customizer) {
-		super(format, customizer);
+	public Webpage(URI uri, Rectangle bounds, int timeout) {
 		Assert.isLegal(uri != null && bounds != null);
 		this.uri = uri;
 		this.bounds = bounds;
 		this.timeout = timeout;
-	}
-
-	public WebpageScreenshotRequest(FORMAT format, URI uri, Rectangle bounds,
-			int timeout) {
-		this(format, uri, bounds, timeout, null);
 	}
 
 	@Override

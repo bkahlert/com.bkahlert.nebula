@@ -16,13 +16,15 @@ import com.bkahlert.nebula.gallery.demoSuits.dialog.DialogDemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.information.InformationDemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.instruction.InstructionDemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.project.ProjectDemoSuite;
+import com.bkahlert.nebula.gallery.demoSuits.sound.SoundDemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.utils.UtilsDemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.wizard.WizardDemoSuite;
 
 @DemoSuite({ DecorationDemoSuite.class, BasicDemoSuite.class,
 		InstructionDemoSuite.class, ChatDemoSuite.class,
 		ProjectDemoSuite.class, WizardDemoSuite.class, BrowserDemoSuite.class,
-		DialogDemoSuite.class, InformationDemoSuite.class, UtilsDemoSuite.class })
+		DialogDemoSuite.class, InformationDemoSuite.class,
+		SoundDemoSuite.class, UtilsDemoSuite.class })
 @Demo
 public class MainDemo extends AbstractDemo {
 

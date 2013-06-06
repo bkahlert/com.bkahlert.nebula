@@ -1,23 +1,20 @@
-package com.bkahlert.nebula.screenshots.impl.webpage.customizer;
+package com.bkahlert.nebula.screenshots.impl.webpage;
 
+import java.net.URI;
 import java.util.Iterator;
+
+import org.eclipse.swt.graphics.Rectangle;
 
 import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector;
 
-/**
- * Fills out a form field.
- * 
- * @author bkahlert
- * 
- */
-public class FormFieldFiller extends FuzzyFormFiller {
+public class SingleFieldWebpage extends FormContainingWebpage {
 
-	public FormFieldFiller(final ISelector selector, final String value,
-			int wait) {
-		super(new Iterable<IFieldFill>() {
+	public SingleFieldWebpage(URI uri, Rectangle bounds, int timeout,
+			final ISelector selector, final String value, int wait) {
+		super(uri, bounds, timeout, new Iterable<IFieldFill>() {
 			@Override
 			public Iterator<IFieldFill> iterator() {
-				return new Iterator<FuzzyFormFiller.IFieldFill>() {
+				return new Iterator<IFieldFill>() {
 					private boolean returned = false;
 
 					@Override

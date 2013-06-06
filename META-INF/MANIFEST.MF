@@ -54,7 +54,6 @@ Export-Package: com.bkahlert.devel.nebula.colors,
  com.bkahlert.nebula.screenshots,
  com.bkahlert.nebula.screenshots.impl,
  com.bkahlert.nebula.screenshots.impl.webpage,
- com.bkahlert.nebula.screenshots.impl.webpage.customizer,
  com.bkahlert.nebula.screenshots.webpage,
  com.bkahlert.nebula.utils,
  com.bkahlert.nebula.widgets.image

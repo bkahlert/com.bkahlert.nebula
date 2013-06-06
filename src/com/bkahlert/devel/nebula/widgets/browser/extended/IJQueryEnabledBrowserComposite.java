@@ -17,6 +17,10 @@ public interface IJQueryEnabledBrowserComposite extends IBrowserComposite {
 	 */
 	public Future<Boolean> containsElements(ISelector selector);
 
+	public Future<Point> getRelativePosition(ISelector selector);
+
+	Future<Point> getScrollPosition();
+
 	/**
 	 * Scrolls to the given position.
 	 * 

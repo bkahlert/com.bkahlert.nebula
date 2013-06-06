@@ -13,6 +13,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.widgets.Display;
 
+import com.bkahlert.nebula.utils.CompletedFuture;
+
 public class ExecutorService {
 
 	private static final Logger LOGGER = Logger
@@ -204,12 +206,26 @@ public class ExecutorService {
 	/**
 	 * Executes the given {@link Callable} asynchronously in the UI thread.
 	 * <p>
+	 * If run from the UI thread already the {@link Callable} is run
+	 * synchronously.
+	 * <p>
 	 * The return value is returned in the calling thread.
 	 * 
 	 * @param callable
 	 * @return
 	 */
 	public <V> Future<V> asyncExec(final Callable<V> callable) {
+		if (this.isUIThread()) {
+			V value = null;
+			Exception exception = null;
+			try {
+				value = callable.call();
+			} catch (Exception e) {
+				exception = e;
+			}
+			return new CompletedFuture<V>(value, exception);
+		}
+
 		return this.asyncPool.submit(new Callable<V>() {
 			@Override
 			public V call() throws Exception {

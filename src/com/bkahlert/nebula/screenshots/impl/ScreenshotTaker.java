@@ -16,21 +16,20 @@ import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.nebula.screenshots.IScreenshotRenderer;
 import com.bkahlert.nebula.screenshots.IScreenshotRenderer.IScreenshotRendererSession;
-import com.bkahlert.nebula.screenshots.IScreenshotRequest;
 import com.bkahlert.nebula.screenshots.IScreenshotTaker;
 import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.utils.ShellUtils;
 
-public class ScreenshotTaker<REQUEST extends IScreenshotRequest> implements
-		IScreenshotTaker<REQUEST> {
+public class ScreenshotTaker<SUBJECT> implements IScreenshotTaker<SUBJECT> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(ScreenshotTaker.class);
 
 	private ExecutorService queue;
-	private IScreenshotRenderer<REQUEST> renderer;
+	private IScreenshotRenderer<SUBJECT, ?> renderer;
 
-	public ScreenshotTaker(int numThreads, IScreenshotRenderer<REQUEST> renderer) {
+	public ScreenshotTaker(int numThreads,
+			IScreenshotRenderer<SUBJECT, ?> renderer) {
 		this.queue = Executors.newFixedThreadPool(numThreads,
 				new ThreadFactory() {
 					@Override
@@ -44,33 +43,33 @@ public class ScreenshotTaker<REQUEST extends IScreenshotRequest> implements
 	}
 
 	@Override
-	public Future<File> submitOrder(final REQUEST request) {
+	public Future<File> takeScreenshot(final SUBJECT subject,
+			final Format format) {
 		return this.queue.submit(new Callable<File>() {
 			@Override
 			public File call() throws Exception {
 				final IScreenshotRendererSession session = ScreenshotTaker.this.renderer
-						.render(request).call();
+						.render(subject).call();
 
 				BufferedImage image;
 				synchronized (Display.getDefault()) {
-					session.bringToFront();
-					Rectangle bounds = session.getBounds();
+					Rectangle bounds = session.display();
 					LOGGER.info("Capturing " + bounds);
 					image = ShellUtils.captureScreen(bounds);
 					session.dispose();
 				}
 
-				return ImageUtils.saveImageToTempFile(image, request
-						.getFormat().getName());
+				return ImageUtils.saveImageToTempFile(image, format.getName());
 			}
 		});
 	}
 
 	@Override
-	public List<Future<File>> submitOrder(List<REQUEST> requests) {
+	public List<Future<File>> takeScreenshots(List<SUBJECT> subjects,
+			Format format) {
 		List<Future<File>> screenshots = new ArrayList<Future<File>>();
-		for (REQUEST request : requests) {
-			screenshots.add(this.submitOrder(request));
+		for (SUBJECT request : subjects) {
+			screenshots.add(this.takeScreenshot(request, Format.PNG));
 		}
 		return screenshots;
 	}

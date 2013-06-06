@@ -5,9 +5,7 @@ import java.net.URI;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 
-import com.bkahlert.nebula.screenshots.IScreenshotRequest;
-
-public interface IWebpageScreenshotRequest extends IScreenshotRequest {
+public interface IWebpage {
 
 	public URI getUri();
 

@@ -26,13 +26,17 @@ import org.eclipse.swt.widgets.Shell;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.extended.IJQueryEnabledBrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.extended.JQueryEnabledBrowserComposite;
+import com.bkahlert.nebula.screenshots.webpage.IWebpage;
 import com.bkahlert.nebula.screenshots.webpage.IWebpageScreenshotRenderer;
-import com.bkahlert.nebula.screenshots.webpage.IWebpageScreenshotRequest;
 import com.bkahlert.nebula.utils.HttpUtils;
 import com.bkahlert.nebula.utils.ShellUtils;
 
-public class WebpageRenderer implements
-		IWebpageScreenshotRenderer<IWebpageScreenshotRequest> {
+public class WebpageScreenshotRenderer<WEBPAGE extends IWebpage> implements
+		IWebpageScreenshotRenderer<WEBPAGE, IJQueryEnabledBrowserComposite> {
+
+	public static final Point SCREENSHOOTING_POSITION = new Point(10, 10);
+	public static final Point NON_SCREENSHOTED_RENDERERS_SHIFT = new Point(30,
+			30);
 
 	public static class WebpageRendererException extends Exception {
 
@@ -57,7 +61,7 @@ public class WebpageRenderer implements
 	}
 
 	private static final Logger LOGGER = Logger
-			.getLogger(WebpageRenderer.class);
+			.getLogger(WebpageScreenshotRenderer.class);
 
 	private static class Renderer extends Dialog {
 
@@ -92,18 +96,18 @@ public class WebpageRenderer implements
 	}
 
 	private Shell parentShell;
-	private Map<Renderer, IWebpageScreenshotRequest> renderers;
+	private Map<Renderer, WEBPAGE> renderers;
 	private List<Renderer> renderersInUse;
 	private List<Renderer> availableRenderers;
 
-	public WebpageRenderer(Shell parentShell) {
+	public WebpageScreenshotRenderer(Shell parentShell) {
 		this.parentShell = parentShell;
-		this.renderers = new HashMap<Renderer, IWebpageScreenshotRequest>();
+		this.renderers = new HashMap<Renderer, WEBPAGE>();
 		this.renderersInUse = new ArrayList<Renderer>();
 		this.availableRenderers = new ArrayList<Renderer>();
 	}
 
-	synchronized private Renderer getRenderer(IWebpageScreenshotRequest request) {
+	synchronized private Renderer getRenderer(WEBPAGE request) {
 		if (this.availableRenderers.size() == 0) {
 			Shell shell = this.parentShell != null ? new Shell(this.parentShell)
 					: new Shell(Display.getCurrent());
@@ -124,8 +128,7 @@ public class WebpageRenderer implements
 	}
 
 	@Override
-	public Callable<IScreenshotRendererSession> render(
-			final IWebpageScreenshotRequest request) {
+	public Callable<IScreenshotRendererSession> render(final WEBPAGE request) {
 		return new Callable<IScreenshotRendererSession>() {
 
 			private Renderer renderer = null;
@@ -139,56 +142,78 @@ public class WebpageRenderer implements
 
 					this.configuredRenderer();
 
+					WebpageScreenshotRenderer.this
+							.preparedWebpageControlFinished(request,
+									this.renderer.browser);
+
 					if (!this.loadUri()) {
 						throw new WebpageRendererException("Opening "
 								+ request.getUri() + " timeout out");
 					}
 
-					if (request.getCustomizer() != null) {
-						request.getCustomizer().betweenLoadingAndScrolling(
-								request, WebpageRenderer.this);
-					}
+					WebpageScreenshotRenderer.this.loadingWebpageFinished(
+							request, this.renderer.browser);
 
 					if (this.scroll()) {
 						Thread.sleep(800);
 					}
 
+					WebpageScreenshotRenderer.this.scrollingWebpageFinished(
+							request, this.renderer.browser);
+
+					WebpageScreenshotRenderer.this.renderingFinished(request,
+							this.renderer.browser);
+
 					return new IScreenshotRendererSession() {
 						@Override
-						public void bringToFront() {
-							ExecutorUtil.syncExec(new Runnable() {
-								@Override
-								public void run() {
-									try {
-										for (Renderer other : WebpageRenderer.this.renderers
-												.keySet()) {
-											ShellUtils.setVisible(
-													other.getShell(),
-													other == renderer);
-										}
-										renderer.getShell().setActive();
-										renderer.getShell().forceActive();
-										renderer.getShell().forceFocus();
-									} catch (Exception e) {
-										LOGGER.error(e);
-									}
-								}
-							});
-						}
-
-						@Override
-						public Rectangle getBounds() {
-							return ShellUtils.getInnerArea(renderer.getShell());
+						public Rectangle display() {
+							try {
+								return ExecutorUtil
+										.syncExec(new Callable<Rectangle>() {
+											@Override
+											public Rectangle call()
+													throws Exception {
+												renderer.getShell()
+														.setLocation(
+																SCREENSHOOTING_POSITION);
+												Point otherLocation = new Point(
+														renderer.getShell()
+																.getLocation().x
+																+ renderer
+																		.getShell()
+																		.getSize().x
+																+ 300,
+														SCREENSHOOTING_POSITION.y);
+												for (Renderer other : WebpageScreenshotRenderer.this.renderers
+														.keySet()) {
+													if (other != renderer) {
+														other.getShell()
+																.setLocation(
+																		otherLocation);
+														otherLocation.x += NON_SCREENSHOTED_RENDERERS_SHIFT.x;
+														otherLocation.y += NON_SCREENSHOTED_RENDERERS_SHIFT.y;
+													}
+												}
+												return ShellUtils
+														.getInnerArea(renderer
+																.getShell());
+											}
+										});
+							} catch (Exception e) {
+								throw new RuntimeException(e);
+							}
 						}
 
 						@Override
 						public void dispose() {
-							WebpageRenderer.this.releaseRenderer(renderer);
+							WebpageScreenshotRenderer.this
+									.releaseRenderer(renderer);
 						}
 					};
 				} catch (Exception e) {
 					if (this.renderer != null) {
-						WebpageRenderer.this.releaseRenderer(this.renderer);
+						WebpageScreenshotRenderer.this
+								.releaseRenderer(this.renderer);
 					}
 					throw e;
 				}
@@ -214,7 +239,8 @@ public class WebpageRenderer implements
 				ExecutorUtil.syncExec(new Runnable() {
 					@Override
 					public void run() {
-						renderer = WebpageRenderer.this.getRenderer(request);
+						renderer = WebpageScreenshotRenderer.this
+								.getRenderer(request);
 						renderer.setBlockOnOpen(false);
 						renderer.open();
 						renderer.resize(request.getDimensions());
@@ -237,10 +263,8 @@ public class WebpageRenderer implements
 		};
 	}
 
-	@Override
-	public IJQueryEnabledBrowserComposite getBrowser(
-			IWebpageScreenshotRequest request) {
-		for (Entry<Renderer, IWebpageScreenshotRequest> entry : WebpageRenderer.this.renderers
+	protected IJQueryEnabledBrowserComposite getBrowser(WEBPAGE request) {
+		for (Entry<Renderer, WEBPAGE> entry : WebpageScreenshotRenderer.this.renderers
 				.entrySet()) {
 			if (entry.getValue() == request) {
 				return entry.getKey().browser;
@@ -254,16 +278,38 @@ public class WebpageRenderer implements
 		ExecutorUtil.syncExec(new Runnable() {
 			@Override
 			public void run() {
-				for (Iterator<Renderer> iterator = WebpageRenderer.this.renderers
+				for (Iterator<Renderer> iterator = WebpageScreenshotRenderer.this.renderers
 						.keySet().iterator(); iterator.hasNext();) {
 					Renderer renderer = iterator.next();
 					renderer.close();
 					iterator.remove();
-					WebpageRenderer.this.availableRenderers.remove(renderer);
-					WebpageRenderer.this.renderersInUse.remove(renderer);
+					WebpageScreenshotRenderer.this.availableRenderers
+							.remove(renderer);
+					WebpageScreenshotRenderer.this.renderersInUse
+							.remove(renderer);
 				}
 			}
 		});
+	}
+
+	@Override
+	public void preparedWebpageControlFinished(WEBPAGE webpage,
+			IJQueryEnabledBrowserComposite browser) {
+	}
+
+	@Override
+	public void loadingWebpageFinished(WEBPAGE webpage,
+			IJQueryEnabledBrowserComposite browser) {
+	}
+
+	@Override
+	public void scrollingWebpageFinished(WEBPAGE webpage,
+			IJQueryEnabledBrowserComposite browser) {
+	}
+
+	@Override
+	public void renderingFinished(WEBPAGE subject,
+			IJQueryEnabledBrowserComposite control) {
 	}
 
 }

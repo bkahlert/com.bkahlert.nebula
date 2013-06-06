@@ -23,8 +23,9 @@ import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.gallery.util.deprecated.CompositeUtils;
-import com.bkahlert.nebula.screenshots.IScreenshotRequest.FORMAT;
-import com.bkahlert.nebula.screenshots.impl.webpage.GoogleScreenshotRequest;
+import com.bkahlert.nebula.screenshots.IScreenshotTaker.Format;
+import com.bkahlert.nebula.screenshots.impl.webpage.FormContainingWebpageScreenshotRenderer;
+import com.bkahlert.nebula.screenshots.impl.webpage.GoogleWebpage;
 import com.bkahlert.nebula.screenshots.impl.webpage.WebpageBoundsFactory;
 import com.bkahlert.nebula.screenshots.impl.webpage.WebpageBoundsFactory.Device;
 import com.bkahlert.nebula.screenshots.impl.webpage.WebpageScreenshotTaker;
@@ -59,17 +60,20 @@ public class ScreenshotTakerDemo extends AbstractDemo {
 						@Override
 						public void run() {
 							try {
-								WebpageScreenshotTaker screenshotTaker = new WebpageScreenshotTaker(
+								WebpageScreenshotTaker<GoogleWebpage> screenshotTaker = new WebpageScreenshotTaker<GoogleWebpage>(
 										ScreenshotTakerDemo.this.numThreads,
-										shell);
+										new FormContainingWebpageScreenshotRenderer<GoogleWebpage>(
+												shell));
 
 								final List<Future<File>> screenshots = new ArrayList<Future<File>>();
 								for (String query : ScreenshotTakerDemo.this.queries) {
 									for (Rectangle bounds : ScreenshotTakerDemo.this.bounds) {
 										Future<File> screenshot = screenshotTaker
-												.submitOrder(new GoogleScreenshotRequest(
-														FORMAT.PNG, bounds,
-														query, 3000));
+												.takeScreenshot(
+														new GoogleWebpage(
+																bounds, 3000,
+																query),
+														Format.PNG);
 										log("Submitted: query=" + query
 												+ "; bounds="
 												+ bounds.toString());

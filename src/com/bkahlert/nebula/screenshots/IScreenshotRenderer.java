@@ -5,12 +5,12 @@ import java.util.concurrent.Callable;
 import org.eclipse.swt.graphics.Rectangle;
 
 /**
- * Implementors can render {@link IScreenshotRequest}s.
+ * Implementors can render {@link IGenericScreenshotRequest}s.
  * 
  * @author bkahlert
  * 
  */
-public interface IScreenshotRenderer<REQUEST extends IScreenshotRequest> {
+public interface IScreenshotRenderer<SUBJECT, CONTROL> {
 
 	/**
 	 * Implementors encapsulates all information concerning a
@@ -21,17 +21,10 @@ public interface IScreenshotRenderer<REQUEST extends IScreenshotRequest> {
 	 */
 	public interface IScreenshotRendererSession {
 		/**
-		 * Brings the renderer to the front.
+		 * Brings the renderer to the front and returns the boundaries of the
+		 * content area.
 		 */
-		public void bringToFront();
-
-		/**
-		 * Returns the {@link Rectangle} that describes the area that shows the
-		 * rendered content.
-		 * 
-		 * @return
-		 */
-		public Rectangle getBounds();
+		public Rectangle display();
 
 		/**
 		 * Disposes this {@link IScreenshotRendererSession}. You have to call
@@ -42,12 +35,21 @@ public interface IScreenshotRenderer<REQUEST extends IScreenshotRequest> {
 
 	/**
 	 * Returns a {@link Callable} that renders the given
-	 * {@link IScreenshotRequest} on request.
+	 * {@link IGenericScreenshotRequest} on request.
 	 * 
 	 * @param request
 	 * @return
 	 */
-	public Callable<IScreenshotRendererSession> render(REQUEST request);
+	public Callable<IScreenshotRendererSession> render(SUBJECT subject);
+
+	/**
+	 * This method is called when the subject is fully rendered and displayed in
+	 * the given control.
+	 * 
+	 * @param subject
+	 * @param control
+	 */
+	public void renderingFinished(SUBJECT subject, CONTROL control);
 
 	/**
 	 * Disposes all resources this {@link IScreenshotRenderer} occupies.

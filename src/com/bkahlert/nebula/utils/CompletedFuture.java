@@ -8,9 +8,11 @@ import java.util.concurrent.TimeoutException;
 public class CompletedFuture<V> implements Future<V> {
 
 	private V value;
+	private Exception exception;
 
-	public CompletedFuture(V value) {
+	public CompletedFuture(V value, Exception exception) {
 		this.value = value;
+		this.exception = exception;
 	}
 
 	@Override
@@ -30,13 +32,16 @@ public class CompletedFuture<V> implements Future<V> {
 
 	@Override
 	public V get() throws InterruptedException, ExecutionException {
+		if (this.exception != null) {
+			throw new ExecutionException(this.exception);
+		}
 		return this.value;
 	}
 
 	@Override
 	public V get(long timeout, TimeUnit unit) throws InterruptedException,
 			ExecutionException, TimeoutException {
-		return this.value;
+		return this.get();
 	}
 
 }

@@ -25,20 +25,31 @@ import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.gallery.util.deprecated.CompositeUtils;
-import com.bkahlert.nebula.screenshots.IScreenshotRequest.FORMAT;
+import com.bkahlert.nebula.screenshots.IScreenshotTaker.Format;
+import com.bkahlert.nebula.screenshots.impl.webpage.FormContainingWebpageScreenshotRenderer;
+import com.bkahlert.nebula.screenshots.impl.webpage.SingleFieldWebpage;
 import com.bkahlert.nebula.screenshots.impl.webpage.WebpageBoundsFactory;
 import com.bkahlert.nebula.screenshots.impl.webpage.WebpageBoundsFactory.Device;
-import com.bkahlert.nebula.screenshots.impl.webpage.WebpageScreenshotRequest;
 import com.bkahlert.nebula.screenshots.impl.webpage.WebpageScreenshotTaker;
-import com.bkahlert.nebula.screenshots.impl.webpage.customizer.FormFieldFiller;
 import com.bkahlert.nebula.widgets.image.Image;
 
 @Demo
 public class ScreenshotTakerSeqanDemo extends AbstractDemo {
 
-	public List<String> queries = Arrays.asList("iter");
+	public List<String> uris = Arrays
+			.asList("http://docs.seqan.de/seqan/dev/INDEX_Page.html",
+					"http://docs.seqan.de/seqan/dev2/panel/index.html",
+					"http://trac.seqan.de/wiki/Tutorial/GettingStarted/WindowsVisualStudio",
+					"http://trac.seqan.de/wiki/Tutorial");
+	public List<String> queries = Arrays.asList("iter", "xyz");
 	public List<Rectangle> bounds = Arrays.asList(WebpageBoundsFactory
-			.getBounds(Device.IPHONE4, 0, 50));
+			.getBounds(Device.IPHONE4, 0, 4965));
+
+	// public List<String> uris = Arrays
+	// .asList("http://docs.seqan.de/seqan/dev/INDEX_Page.html");
+	// public List<String> queries = Arrays.asList("iter");
+	// public List<Rectangle> bounds = Arrays.asList(WebpageBoundsFactory
+	// .getBounds(Device.IPHONE4, 0, 50));
 
 	private int numThreads = 4;
 	private Composite parent;
@@ -56,28 +67,30 @@ public class ScreenshotTakerSeqanDemo extends AbstractDemo {
 						@Override
 						public void run() {
 							try {
-								WebpageScreenshotTaker screenshotTaker = new WebpageScreenshotTaker(
+								WebpageScreenshotTaker<SingleFieldWebpage> screenshotTaker = new WebpageScreenshotTaker<SingleFieldWebpage>(
 										ScreenshotTakerSeqanDemo.this.numThreads,
-										shell);
+										new FormContainingWebpageScreenshotRenderer<SingleFieldWebpage>(
+												shell));
 
 								final List<Future<File>> screenshots = new ArrayList<Future<File>>();
-								for (String query : ScreenshotTakerSeqanDemo.this.queries) {
-									for (Rectangle bounds : ScreenshotTakerSeqanDemo.this.bounds) {
-										Future<File> screenshot = screenshotTaker
-												.submitOrder(
-														new WebpageScreenshotRequest(
-																FORMAT.PNG,
-																new URI(
-																		"http://docs.seqan.de/seqan/dev2/panel/index.html"),
-																bounds, 3000),
-														new FormFieldFiller(
-																new ISelector.FieldSelector(
-																		"search"),
-																query, 5000));
-										log("Submitted: query=" + query
-												+ "; bounds="
-												+ bounds.toString());
-										screenshots.add(screenshot);
+								for (String uri : ScreenshotTakerSeqanDemo.this.uris) {
+									for (String query : ScreenshotTakerSeqanDemo.this.queries) {
+										for (Rectangle bounds : ScreenshotTakerSeqanDemo.this.bounds) {
+											Future<File> screenshot = screenshotTaker
+													.takeScreenshot(
+															new SingleFieldWebpage(
+																	new URI(uri),
+																	bounds,
+																	3000,
+																	new ISelector.FieldSelector(
+																			"search"),
+																	query, 500),
+															Format.PNG);
+											log("Submitted: query=" + query
+													+ "; bounds="
+													+ bounds.toString());
+											screenshots.add(screenshot);
+										}
 									}
 								}
 
@@ -94,25 +107,29 @@ public class ScreenshotTakerSeqanDemo extends AbstractDemo {
 								});
 
 								for (Future<File> screenshot : screenshots) {
-									final File file = screenshot.get();
-									ExecutorUtil.asyncExec(new Runnable() {
-										@Override
-										public void run() {
-											Image image = new Image(
-													ScreenshotTakerSeqanDemo.this.parent,
-													SWT.BORDER);
-											image.setLayoutData(new GridData(
-													SWT.CENTER, SWT.CENTER,
-													true, true));
-											image.load(
-													"file://"
-															+ file.getAbsolutePath(),
-													null);
-											composite.layout();
-										}
-									});
+									try {
+										final File file = screenshot.get();
+										ExecutorUtil.asyncExec(new Runnable() {
+											@Override
+											public void run() {
+												Image image = new Image(
+														ScreenshotTakerSeqanDemo.this.parent,
+														SWT.BORDER);
+												image.setLayoutData(new GridData(
+														SWT.CENTER, SWT.CENTER,
+														true, true));
+												image.load(
+														"file://"
+																+ file.getAbsolutePath(),
+														null);
+												composite.layout();
+											}
+										});
 
-									log("Screenshot created: " + file);
+										log("Screenshot created: " + file);
+									} catch (Exception e) {
+										log("Screenshot failed");
+									}
 								}
 
 								screenshotTaker.dispose();

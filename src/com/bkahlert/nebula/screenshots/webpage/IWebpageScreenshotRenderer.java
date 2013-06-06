@@ -3,16 +3,33 @@ package com.bkahlert.nebula.screenshots.webpage;
 import com.bkahlert.devel.nebula.widgets.browser.extended.IJQueryEnabledBrowserComposite;
 import com.bkahlert.nebula.screenshots.IScreenshotRenderer;
 
-public interface IWebpageScreenshotRenderer<REQUEST extends IWebpageScreenshotRequest>
-		extends IScreenshotRenderer<REQUEST> {
+public interface IWebpageScreenshotRenderer<WEBPAGE extends IWebpage, BROWSER extends IJQueryEnabledBrowserComposite>
+		extends IScreenshotRenderer<WEBPAGE, BROWSER> {
 
 	/**
-	 * Returns the {@link IJQueryEnabledBrowserComposite} used to render the
-	 * given request.
+	 * This method is called when the browser is ready to load the web page.
+	 * This means the browser is opened to correctly resized.
 	 * 
-	 * @param request
-	 * @return null if no renderer is ready yet.
+	 * @param webpage
+	 * @param browser
 	 */
-	public IJQueryEnabledBrowserComposite getBrowser(REQUEST request);
+	public void preparedWebpageControlFinished(WEBPAGE webpage, BROWSER browser);
+
+	/**
+	 * This method is called when the browser finished loading the web page.
+	 * 
+	 * @param webpage
+	 * @param browser
+	 */
+	public void loadingWebpageFinished(WEBPAGE webpage, BROWSER browser);
+
+	/**
+	 * This method is called when the browser scrolled to the defined position
+	 * within the loaded web page.
+	 * 
+	 * @param webpage
+	 * @param browser
+	 */
+	public void scrollingWebpageFinished(WEBPAGE webpage, BROWSER browser);
 
 }

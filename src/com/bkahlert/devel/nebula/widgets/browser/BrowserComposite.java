@@ -79,6 +79,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 
 				JavaScriptException javaScriptException = new JavaScriptException(
 						filename, lineNumber, detail);
+				LOGGER.error(javaScriptException);
 				return this.fire(javaScriptException);
 			}
 
@@ -240,7 +241,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 								+ uri + "\nThread = " + Thread.currentThread()
 								+ "\nLOADING COMPLETED = "
 								+ BrowserComposite.this.loadingCompleted
-								+ "\nTIMEOUT CANCELLED: " + isCancelled.get());
+								+ "\nTIMEOUT CANCELLED = " + isCancelled.get());
 						BrowserComposite.this.monitor.wait();
 						// notified by progresslistener or by timeout
 					}
@@ -435,12 +436,13 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		};
 		if (BrowserComposite.this.loadingCompleted) {
 			final AtomicReference<T> converted = new AtomicReference<T>();
+			Exception exception = null;
 			try {
 				converted.set(ExecutorUtil.syncExec(callable));
 			} catch (Exception e) {
-				LOGGER.fatal(e);
+				exception = e;
 			}
-			return new CompletedFuture<T>(converted.get());
+			return new CompletedFuture<T>(converted.get(), exception);
 		} else {
 			return ExecutorUtil.nonUIAsyncExec(new Callable<T>() {
 				@Override

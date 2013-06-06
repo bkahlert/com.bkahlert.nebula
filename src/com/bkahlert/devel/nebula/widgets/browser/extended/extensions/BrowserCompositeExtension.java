@@ -63,9 +63,7 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 			return browserComposite.run(this.verificationScript,
 					IBrowserComposite.CONVERTER_BOOLEAN);
 		} catch (Exception e) {
-			LOGGER.error("Could not verify the existence of the extension \""
-					+ this.name + "\".", e);
-			return new CompletedFuture<Boolean>(false);
+			return new CompletedFuture<Boolean>(false, e);
 		}
 	}
 

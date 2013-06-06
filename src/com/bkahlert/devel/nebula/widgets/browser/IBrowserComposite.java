@@ -5,6 +5,7 @@ import java.net.URI;
 import java.util.concurrent.Future;
 
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.devel.nebula.widgets.IWidget;
@@ -30,6 +31,21 @@ public interface IBrowserComposite extends IWidget {
 				return false;
 			}
 			return (Boolean) returnValue;
+		}
+	};
+
+	public static final IConverter<Point> CONVERTER_POINT = new IConverter<Point>() {
+		@Override
+		public Point convert(Object returnValue) {
+			if (returnValue == null || !Object[].class.isInstance(returnValue)
+					|| ((Object[]) returnValue).length != 2
+					|| !Double.class.isInstance(((Object[]) returnValue)[0])
+					|| !Double.class.isInstance(((Object[]) returnValue)[1])) {
+				return null;
+			}
+			Object[] pos = (Object[]) returnValue;
+			return new Point((int) Math.round((Double) pos[0]),
+					(int) Math.round((Double) pos[1]));
 		}
 	};
 
