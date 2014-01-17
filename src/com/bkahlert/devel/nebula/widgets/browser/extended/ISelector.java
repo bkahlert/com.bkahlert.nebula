@@ -30,8 +30,15 @@ public interface ISelector {
 	 * 
 	 */
 	public static class IdSelector extends CssSelector {
+		private String id;
+
 		public IdSelector(String id) {
 			super("#" + id);
+			this.id = id;
+		}
+
+		public String getId() {
+			return id;
 		}
 	}
 
@@ -42,8 +49,15 @@ public interface ISelector {
 	 * 
 	 */
 	public static class NameSelector extends CssSelector {
+		private String name;
+
 		public NameSelector(String name) {
 			super("*[name=" + name + "]");
+			this.name = name;
+		}
+
+		public String getName() {
+			return name;
 		}
 	}
 

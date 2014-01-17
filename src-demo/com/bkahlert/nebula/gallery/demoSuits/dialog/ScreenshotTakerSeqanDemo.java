@@ -32,6 +32,7 @@ import com.bkahlert.nebula.screenshots.impl.webpage.WebpageBoundsFactory;
 import com.bkahlert.nebula.screenshots.impl.webpage.WebpageBoundsFactory.Device;
 import com.bkahlert.nebula.screenshots.impl.webpage.WebpageScreenshotTaker;
 import com.bkahlert.nebula.widgets.image.Image;
+import com.bkahlert.nebula.widgets.image.Image.FILL_MODE;
 
 @Demo
 public class ScreenshotTakerSeqanDemo extends AbstractDemo {
@@ -40,15 +41,16 @@ public class ScreenshotTakerSeqanDemo extends AbstractDemo {
 			.asList("http://docs.seqan.de/seqan/dev/INDEX_Page.html",
 					"http://docs.seqan.de/seqan/dev2/panel/index.html",
 					"http://trac.seqan.de/wiki/Tutorial/GettingStarted/WindowsVisualStudio",
-					"http://trac.seqan.de/wiki/Tutorial");
+					"https://trac.seqan.de/wiki/Tutorial");
 	public List<String> queries = Arrays.asList("iter", "xyz");
 	public List<Rectangle> bounds = Arrays.asList(WebpageBoundsFactory
 			.getBounds(Device.IPHONE4, 0, 4965));
 
-	// public List<String> uris = Arrays
+	// public BootstrapBrowser<String> uris = Arrays
 	// .asList("http://docs.seqan.de/seqan/dev/INDEX_Page.html");
-	// public List<String> queries = Arrays.asList("iter");
-	// public List<Rectangle> bounds = Arrays.asList(WebpageBoundsFactory
+	// public BootstrapBrowser<String> queries = Arrays.asList("iter");
+	// public BootstrapBrowser<Rectangle> bounds =
+	// Arrays.asList(WebpageBoundsFactory
 	// .getBounds(Device.IPHONE4, 0, 50));
 
 	private int numThreads = 4;
@@ -114,7 +116,8 @@ public class ScreenshotTakerSeqanDemo extends AbstractDemo {
 											public void run() {
 												Image image = new Image(
 														ScreenshotTakerSeqanDemo.this.parent,
-														SWT.BORDER);
+														SWT.BORDER,
+														FILL_MODE.INNER_FILL);
 												image.setLayoutData(new GridData(
 														SWT.CENTER, SWT.CENTER,
 														true, true));

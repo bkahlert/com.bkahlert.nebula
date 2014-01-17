@@ -30,6 +30,7 @@ import com.bkahlert.nebula.screenshots.impl.webpage.WebpageBoundsFactory;
 import com.bkahlert.nebula.screenshots.impl.webpage.WebpageBoundsFactory.Device;
 import com.bkahlert.nebula.screenshots.impl.webpage.WebpageScreenshotTaker;
 import com.bkahlert.nebula.widgets.image.Image;
+import com.bkahlert.nebula.widgets.image.Image.FILL_MODE;
 
 @Demo
 public class ScreenshotTakerDemo extends AbstractDemo {
@@ -100,7 +101,8 @@ public class ScreenshotTakerDemo extends AbstractDemo {
 										public void run() {
 											Image image = new Image(
 													ScreenshotTakerDemo.this.parent,
-													SWT.BORDER);
+													SWT.BORDER,
+													FILL_MODE.INNER_FILL);
 											image.setLayoutData(new GridData(
 													SWT.CENTER, SWT.CENTER,
 													true, true));

@@ -6,7 +6,7 @@ import java.net.URISyntaxException;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 
-import com.bkahlert.devel.nebula.widgets.browser.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 
 /**
  * Instances of this class adapt {@link IURIListener}s so they can be used as

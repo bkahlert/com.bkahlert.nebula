@@ -29,6 +29,30 @@ import com.bkahlert.nebula.utils.ImageUtils;
  */
 public class Image extends BrowserComposite {
 
+	/**
+	 * Specifies the way the image should fill the canvas if the latter does not
+	 * have the same proportions as the provided image.
+	 * 
+	 */
+	public static enum FILL_MODE {
+		/**
+		 * Width or height does always match the corresponding width or height
+		 * of the canvas. The other dimensions is at most as large the the
+		 * canvas's one.
+		 */
+		INNER_FILL,
+
+		/**
+		 * The width of the image is always as big as the one of the canvas.
+		 */
+		HORIZONTAL,
+
+		/**
+		 * The height of the image is always as big as the one of the canvas.
+		 */
+		VERTICAL;
+	}
+
 	private static final Logger LOGGER = Logger.getLogger(Image.class);
 
 	public static Point extractSize(Object size) {
@@ -49,16 +73,22 @@ public class Image extends BrowserComposite {
 
 	private List<IImageListener> imageListeners = new ArrayList<IImageListener>();
 	private final Object imageLoadMonitor = new Object();
+
+	private FILL_MODE fillMode;
+
 	private Point cachedOriginalSize;
 	private Point cachedCurrentSize;
 
-	public Image(Composite parent, int style) {
-		this(parent, style, new Point(100, 100));
+	public Image(Composite parent, int style, FILL_MODE fillMode) {
+		this(parent, style, new Point(100, 100), fillMode);
 	}
 
-	public Image(Composite parent, int style, Point defaultSize) {
+	public Image(Composite parent, int style, Point defaultSize,
+			FILL_MODE fillMode) {
 		super(parent, style);
 		this.deactivateNativeMenu();
+
+		this.fillMode = fillMode;
 
 		this.cachedOriginalSize = defaultSize;
 		this.cachedCurrentSize = defaultSize;
@@ -142,7 +172,8 @@ public class Image extends BrowserComposite {
 			@Override
 			public Void call() throws Exception {
 				String script = "com.bkahlert.nebula.image.load("
-						+ TimelineJsonGenerator.enquote(src) + ");";
+						+ TimelineJsonGenerator.enquote(src) + ", '"
+						+ Image.this.fillMode.toString().toLowerCase() + "');";
 				Future<Object> future = Image.this.run(script);
 				Image.this.waitUntilImageLoaded();
 				future.get();

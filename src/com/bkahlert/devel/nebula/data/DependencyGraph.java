@@ -46,11 +46,11 @@ public class DependencyGraph<T> implements Iterable<List<T>> {
 	}
 
 	/**
-	 * Returns a {@link List} of values in the way that all dependencies can be
+	 * Returns a {@link BootstrapBrowser} of values in the way that all dependencies can be
 	 * satisfied.
 	 * <p>
 	 * A dependency is satisfied is all elements the current one relies on are
-	 * already part of the {@link List}.
+	 * already part of the {@link BootstrapBrowser}.
 	 * 
 	 * @return
 	 */

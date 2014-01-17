@@ -26,7 +26,7 @@ import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
 
 /**
- * Instances of this class wrap a {@link Composer} and add load and save
+ * Instances of this class wrap a {@link BootstrapBrowser} and add load and save
  * functionality.
  * <p>
  * If multiple {@link Editor}s loaded the same information, only the one in

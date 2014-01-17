@@ -28,7 +28,7 @@ public class ItemsOnlyListExplanatoryCompositeDemo extends AbstractDemo {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				ListExplanation expl = new ListExplanation((String) null,
-						"List item #1", "List item #2", "List item #3");
+						"BootstrapBrowser item #1", "BootstrapBrowser item #2", "BootstrapBrowser item #3");
 				explanatoryComposite.showExplanation(expl);
 
 				Display.getCurrent().timerExec(5000, new Runnable() {

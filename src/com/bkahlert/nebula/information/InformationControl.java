@@ -158,7 +158,7 @@ public abstract class InformationControl<INFORMATION> extends
 		Composite extensionComposite = this.create(parent);
 		if (extensionComposite != null) {
 			for (IInformationControlExtender<INFORMATION> extender : this.extenders) {
-				extender.extend(this, parent);
+				extender.extend(this, extensionComposite);
 			}
 		}
 	}

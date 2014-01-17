@@ -45,7 +45,7 @@ public interface IScreenshotTaker<SUBJECT> {
 	public Future<File> takeScreenshot(SUBJECT subject, Format format);
 
 	/**
-	 * Submit the given subjects and immediately returns a {@link List} of
+	 * Submit the given subjects and immediately returns a {@link BootstrapBrowser} of
 	 * {@link Future} containing the locations of the generated screenshots.
 	 * <p>
 	 * <strong>WARNING!<br>

@@ -28,11 +28,11 @@ import org.jsoup.nodes.Element;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
-import com.bkahlert.devel.nebula.widgets.browser.Anker;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
-import com.bkahlert.devel.nebula.widgets.browser.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
 import com.bkahlert.devel.nebula.widgets.browser.JavaScriptException;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.Anker;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineJsonGenerator;
 
 /**

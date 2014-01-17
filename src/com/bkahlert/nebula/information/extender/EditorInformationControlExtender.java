@@ -93,6 +93,8 @@ public abstract class EditorInformationControlExtender<INFORMATION> implements
 	@Override
 	public void extend(InformationControl<INFORMATION> informationControl,
 			INFORMATION information) {
+		System.out.println("num composers: " + this.composers.size());
+		System.out.println("num editors: " + this.editors.size());
 		ComposerReadOnly composer = this.composers.get(informationControl);
 		if (composer != null) {
 			composer.setSource(this.getHtml(information, null));

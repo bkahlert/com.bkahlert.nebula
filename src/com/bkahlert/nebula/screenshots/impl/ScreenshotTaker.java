@@ -1,6 +1,5 @@
 package com.bkahlert.nebula.screenshots.impl;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +10,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
 import org.apache.log4j.Logger;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.nebula.screenshots.IScreenshotRenderer;
@@ -51,15 +51,18 @@ public class ScreenshotTaker<SUBJECT> implements IScreenshotTaker<SUBJECT> {
 				final IScreenshotRendererSession session = ScreenshotTaker.this.renderer
 						.render(subject).call();
 
-				BufferedImage image;
+				Image image;
 				synchronized (Display.getDefault()) {
-					Rectangle bounds = session.display();
-					LOGGER.info("Capturing " + bounds);
-					image = ShellUtils.captureScreen(bounds);
+					Control control = session.display();
+					LOGGER.info("Capturing rendered " + subject);
+					image = ShellUtils.captureScreen(control);
 					session.dispose();
 				}
 
-				return ImageUtils.saveImageToTempFile(image, format.getName());
+				File file = ImageUtils.saveImageToTempFile(image,
+						format.getName());
+				image.dispose();
+				return file;
 			}
 		});
 	}

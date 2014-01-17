@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.Display;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.widgets.image.Image;
+import com.bkahlert.nebula.widgets.image.Image.FILL_MODE;
 import com.bkahlert.nebula.widgets.image.Image.IImageListener;
 
 @Demo
@@ -20,7 +21,7 @@ public class ImageDemo extends AbstractDemo {
 
 	@Override
 	public void createDemo(Composite composite) {
-		this.image = new Image(composite, SWT.NONE);
+		this.image = new Image(composite, SWT.NONE, FILL_MODE.INNER_FILL);
 		// this.image.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true,
 		// false, 1, 1));
 		this.image.addImageListener(new IImageListener() {

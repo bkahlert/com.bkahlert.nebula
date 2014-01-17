@@ -24,6 +24,13 @@ public interface IBrowserComposite extends IWidget {
 		public T convert(Object returnValue);
 	}
 
+	public static final IConverter<Void> CONVERTER_VOID = new IConverter<Void>() {
+		@Override
+		public Void convert(Object returnValue) {
+			return null;
+		}
+	};
+
 	public static final IConverter<Boolean> CONVERTER_BOOLEAN = new IConverter<Boolean>() {
 		@Override
 		public Boolean convert(Object returnValue) {
@@ -31,6 +38,16 @@ public interface IBrowserComposite extends IWidget {
 				return false;
 			}
 			return (Boolean) returnValue;
+		}
+	};
+
+	public static final IConverter<String> CONVERTER_STRING = new IConverter<String>() {
+		@Override
+		public String convert(Object returnValue) {
+			if (returnValue == null || !String.class.isInstance(returnValue)) {
+				return null;
+			}
+			return (String) returnValue;
 		}
 	};
 
@@ -67,11 +84,15 @@ public interface IBrowserComposite extends IWidget {
 	 *            throws an exception.
 	 * @return
 	 */
+	public Future<Boolean> open(String uri, Integer timeout);
+
 	public Future<Boolean> open(URI uri, Integer timeout);
+
+	public Future<Boolean> openAboutBlank();
 
 	/**
 	 * Sets if {@link IBrowserComposite} may change its location by actions now
-	 * invoked by {@link #open(URI, Integer)}.
+	 * invoked by {@link #open(String, Integer)}.
 	 * 
 	 * @param allow
 	 */
@@ -83,7 +104,7 @@ public interface IBrowserComposite extends IWidget {
 	 * 
 	 * @param uri
 	 */
-	public void beforeLoad(URI uri);
+	public void beforeLoad(String uri);
 
 	/**
 	 * This method is called from a non-UI thread after the
@@ -91,7 +112,7 @@ public interface IBrowserComposite extends IWidget {
 	 * 
 	 * @param uri
 	 */
-	public void afterLoad(URI uri);
+	public void afterLoad(String uri);
 
 	/**
 	 * This method is called from the-UI thread after the
@@ -100,7 +121,7 @@ public interface IBrowserComposite extends IWidget {
 	 * @param uri
 	 * @return
 	 */
-	public Future<Void> afterCompletion(URI uri);
+	public Future<Void> afterCompletion(String uri);
 
 	/**
 	 * Injects the given script and returns a {@link Future} that blocks until
@@ -218,5 +239,20 @@ public interface IBrowserComposite extends IWidget {
 	public void addAnkerListener(IAnkerListener ankerListener);
 
 	public void removeAnkerListener(IAnkerListener ankerListener);
+
+	/**
+	 * Sets the body's inner HTML.
+	 * 
+	 * @param html
+	 * @return
+	 */
+	public Future<Void> setBodyHtml(String html);
+
+	/**
+	 * Returns the body's inner HTML.
+	 * 
+	 * @return
+	 */
+	public Future<String> getBodyHtml();
 
 }

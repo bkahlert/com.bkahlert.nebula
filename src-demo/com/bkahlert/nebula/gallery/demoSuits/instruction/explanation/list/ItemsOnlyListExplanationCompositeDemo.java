@@ -16,8 +16,8 @@ public class ItemsOnlyListExplanationCompositeDemo extends AbstractDemo {
 		ListExplanationComposite listExplanationComposite = new ListExplanationComposite(
 				parent, SWT.NONE);
 		ListExplanation listItemExplanation = new ListExplanation(
-				SWT.ICON_INFORMATION, null, "List item 1", "List item 2",
-				"List item 3");
+				SWT.ICON_INFORMATION, null, "BootstrapBrowser item 1", "BootstrapBrowser item 2",
+				"BootstrapBrowser item 3");
 		listExplanationComposite.setExplanation(listItemExplanation);
 	}
 }

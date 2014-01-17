@@ -3,7 +3,17 @@ package com.bkahlert.devel.nebula.widgets.browser.extended.extensions;
 import java.util.concurrent.Future;
 
 import com.bkahlert.devel.nebula.widgets.browser.IBrowserComposite;
+import com.bkahlert.devel.nebula.widgets.browser.extended.ExtendedBrowserComposite;
 
+/**
+ * Interface for extension that can be used with
+ * {@link ExtendedBrowserComposite}s.
+ * <p>
+ * Examples are jQuery and Bootstrap.
+ * 
+ * @author bkahlert
+ * 
+ */
 public interface IBrowserCompositeExtension {
 
 	/**

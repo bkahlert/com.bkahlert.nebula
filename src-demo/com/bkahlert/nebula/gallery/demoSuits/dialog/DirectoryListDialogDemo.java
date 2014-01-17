@@ -22,7 +22,7 @@ public class DirectoryListDialogDemo extends AbstractDemo {
 	@Override
 	public void createControls(Composite composite) {
 		Button openFileListDialog = new Button(composite, SWT.PUSH);
-		openFileListDialog.setText("Open File List Dialog");
+		openFileListDialog.setText("Open File BootstrapBrowser Dialog");
 		openFileListDialog.addSelectionListener(new SelectionAdapter() {
 
 			@Override

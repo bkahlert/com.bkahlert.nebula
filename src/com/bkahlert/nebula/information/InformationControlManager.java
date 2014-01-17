@@ -202,9 +202,13 @@ public class InformationControlManager<CONTROL extends Control, INFORMATION>
 			hoverArea = new Point(10, 10);
 		}
 		Point mouseLocation = Display.getCurrent().getCursorLocation();
-		return Geometry.toControl(this.getSubjectControl(), new Rectangle(
-				mouseLocation.x - hoverArea.x / 2, mouseLocation.y
-						- hoverArea.y / 2, hoverArea.x, hoverArea.y));
+		Rectangle bounds = Geometry.toControl(this.getSubjectControl(),
+				new Rectangle(mouseLocation.x - hoverArea.x / 2,
+						mouseLocation.y - hoverArea.y / 2, hoverArea.x,
+						hoverArea.y));
+		System.err.println(bounds);
+		bounds = new Rectangle(-2000, -1000, 20000, 10000);
+		return bounds;
 	}
 
 	@SuppressWarnings("deprecation")

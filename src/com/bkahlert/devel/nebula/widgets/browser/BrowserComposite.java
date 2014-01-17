@@ -34,6 +34,8 @@ import org.jsoup.select.Elements;
 
 import com.bkahlert.devel.nebula.utils.EventDelegator;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.Anker;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.utils.CompletedFuture;
 
@@ -134,12 +136,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				} else {
 					BrowserComposite.this.loadingCompleted = true;
 
-					URI uri = null;
-					try {
-						uri = new URI(BrowserComposite.this.browser.getUrl());
-					} catch (URISyntaxException e) {
-						LOGGER.error(e);
-					}
+					String uri = BrowserComposite.this.browser.getUrl();
 					final Future<Void> finished = BrowserComposite.this
 							.afterCompletion(uri);
 					ExecutorUtil.nonUIAsyncExec(new Runnable() {
@@ -166,18 +163,19 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		this.browser.addLocationListener(new LocationAdapter() {
 			@Override
 			public void changing(LocationEvent event) {
-				IAnker anker = new Anker(event.location, null, null);
-				for (IAnkerListener ankerListener : BrowserComposite.this.ankerListeners) {
-					ankerListener.ankerClicked(anker);
+				if (!BrowserComposite.this.settingUri) {
+					IAnker anker = new Anker(event.location, null, null);
+					for (IAnkerListener ankerListener : BrowserComposite.this.ankerListeners) {
+						ankerListener.ankerClicked(anker);
+					}
+					event.doit = BrowserComposite.this.allowLocationChange;
 				}
-				event.doit = BrowserComposite.this.allowLocationChange
-						|| BrowserComposite.this.settingUri;
 			}
 		});
 	}
 
 	@Override
-	public Future<Boolean> open(final URI uri, final Integer timeout) {
+	public Future<Boolean> open(final String uri, final Integer timeout) {
 		this.loadingCompleted = false;
 		return ExecutorUtil.nonUIAsyncExec(new Callable<Boolean>() {
 			@Override
@@ -257,20 +255,34 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	}
 
 	@Override
+	public Future<Boolean> open(URI uri, Integer timeout) {
+		return this.open(uri.toString(), timeout);
+	}
+
+	@Override
+	public Future<Boolean> openAboutBlank() {
+		try {
+			return this.open(new URI("about:blank"), 50);
+		} catch (URISyntaxException e) {
+			return new CompletedFuture<Boolean>(false, e);
+		}
+	}
+
+	@Override
 	public void setAllowLocationChange(boolean allow) {
 		this.allowLocationChange = allow;
 	}
 
 	@Override
-	public void beforeLoad(URI uri) {
+	public void beforeLoad(String uri) {
 	}
 
 	@Override
-	public void afterLoad(URI uri) {
+	public void afterLoad(String uri) {
 	}
 
 	@Override
-	public Future<Void> afterCompletion(URI uri) {
+	public Future<Void> afterCompletion(String uri) {
 		return null;
 	}
 
@@ -383,7 +395,6 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 								.getBrowser(), callbackFunctionName) {
 							@Override
 							public Object function(Object[] arguments) {
-								System.err.println("Finished");
 								callback.get().dispose();
 								mutex.release();
 								return super.function(arguments);
@@ -515,6 +526,20 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	public Future<Boolean> containsElementsWithName(String name) {
 		return this.run("return document.getElementsByName('" + name
 				+ "').length > 0", IBrowserComposite.CONVERTER_BOOLEAN);
+	}
+
+	@Override
+	public Future<Void> setBodyHtml(String html) {
+		String escapedHtml = html.replace("\n", "<br>").replace("&#xD;", "")
+				.replace("\r", "").replace("\"", "\\\"").replace("'", "\\'");
+		return this.run("document.body.innerHTML = ('" + escapedHtml + "');",
+				IBrowserComposite.CONVERTER_VOID);
+	}
+
+	@Override
+	public Future<String> getBodyHtml() {
+		return this.run("return document.body.innerHTML",
+				IBrowserComposite.CONVERTER_STRING);
 	}
 
 }

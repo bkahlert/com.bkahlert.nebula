@@ -17,10 +17,10 @@ public class ListExplanationCompositeDemo extends AbstractDemo {
 				parent, SWT.NONE);
 		ListExplanation listItemExplanation = new ListExplanation(
 				SWT.ICON_INFORMATION, "I'm the introductory text...",
-				"List item 1", "List item 2", "List item 3", "List item 4",
-				"List item 5", "List item 6", "List item 7", "List item 8",
-				"List item 9", "List item 10", "List item 11", "List item 12",
-				"List item 13", "List item 14", "List item 15");
+				"BootstrapBrowser item 1", "BootstrapBrowser item 2", "BootstrapBrowser item 3", "BootstrapBrowser item 4",
+				"BootstrapBrowser item 5", "BootstrapBrowser item 6", "BootstrapBrowser item 7", "BootstrapBrowser item 8",
+				"BootstrapBrowser item 9", "BootstrapBrowser item 10", "BootstrapBrowser item 11", "BootstrapBrowser item 12",
+				"BootstrapBrowser item 13", "BootstrapBrowser item 14", "BootstrapBrowser item 15");
 		listExplanationComposite.setExplanation(listItemExplanation);
 	}
 }

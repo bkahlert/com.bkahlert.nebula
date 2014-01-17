@@ -7,10 +7,10 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
-import com.bkahlert.devel.nebula.widgets.browser.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 
 /**
- * Instances of this class handle {@link IAnker} based on their schema (e.g.
+ * Instances of this class handle {@link IElement} based on their schema (e.g.
  * http, file).
  * <p>
  * Furthermore independently of which thread calls the listener the provided

@@ -29,14 +29,11 @@ import com.bkahlert.devel.nebula.widgets.browser.extended.JQueryEnabledBrowserCo
 import com.bkahlert.nebula.screenshots.webpage.IWebpage;
 import com.bkahlert.nebula.screenshots.webpage.IWebpageScreenshotRenderer;
 import com.bkahlert.nebula.utils.HttpUtils;
-import com.bkahlert.nebula.utils.ShellUtils;
 
+// TODO render in hidden composite
+// TODO render area should not get focus so everything can be done in the background
 public class WebpageScreenshotRenderer<WEBPAGE extends IWebpage> implements
 		IWebpageScreenshotRenderer<WEBPAGE, IJQueryEnabledBrowserComposite> {
-
-	public static final Point SCREENSHOOTING_POSITION = new Point(10, 10);
-	public static final Point NON_SCREENSHOTED_RENDERERS_SHIFT = new Point(30,
-			30);
 
 	public static class WebpageRendererException extends Exception {
 
@@ -166,42 +163,8 @@ public class WebpageScreenshotRenderer<WEBPAGE extends IWebpage> implements
 
 					return new IScreenshotRendererSession() {
 						@Override
-						public Rectangle display() {
-							try {
-								return ExecutorUtil
-										.syncExec(new Callable<Rectangle>() {
-											@Override
-											public Rectangle call()
-													throws Exception {
-												renderer.getShell()
-														.setLocation(
-																SCREENSHOOTING_POSITION);
-												Point otherLocation = new Point(
-														renderer.getShell()
-																.getLocation().x
-																+ renderer
-																		.getShell()
-																		.getSize().x
-																+ 300,
-														SCREENSHOOTING_POSITION.y);
-												for (Renderer other : WebpageScreenshotRenderer.this.renderers
-														.keySet()) {
-													if (other != renderer) {
-														other.getShell()
-																.setLocation(
-																		otherLocation);
-														otherLocation.x += NON_SCREENSHOTED_RENDERERS_SHIFT.x;
-														otherLocation.y += NON_SCREENSHOTED_RENDERERS_SHIFT.y;
-													}
-												}
-												return ShellUtils
-														.getInnerArea(renderer
-																.getShell());
-											}
-										});
-							} catch (Exception e) {
-								throw new RuntimeException(e);
-							}
+						public Control display() {
+							return renderer.browser;
 						}
 
 						@Override
@@ -223,6 +186,9 @@ public class WebpageScreenshotRenderer<WEBPAGE extends IWebpage> implements
 				try {
 					int responseCode = HttpUtils.getResponseCode(request
 							.getUri());
+					if (responseCode == 401) {
+						return;
+					}
 					if (responseCode < 200 || responseCode >= 300) {
 						throw new WebpageRendererException(
 								"Unsupported response code " + responseCode

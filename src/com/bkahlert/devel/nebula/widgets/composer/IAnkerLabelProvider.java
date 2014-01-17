@@ -1,6 +1,6 @@
 package com.bkahlert.devel.nebula.widgets.composer;
 
-import com.bkahlert.devel.nebula.widgets.browser.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 
 /**
  * Instances of this class provide labels for existing anker tags (e.g. &lt;a
@@ -12,12 +12,12 @@ import com.bkahlert.devel.nebula.widgets.browser.IAnker;
 public interface IAnkerLabelProvider {
 	/**
 	 * Returns true if this {@link IAnkerLabelProvider} is responsible for the
-	 * given {@link IAnker}.
+	 * given {@link IElement}.
 	 * <p>
 	 * Please note that only up to one {@link IAnkerLabelProvider} can be
 	 * responsible. As soon as one {@link IAnkerLabelProvider} return
 	 * responsibility the other registered {@link IAnkerLabelProvider}s are
-	 * skipped for the given {@link IAnker}.
+	 * skipped for the given {@link IElement}.
 	 * 
 	 * @param uri
 	 * @return

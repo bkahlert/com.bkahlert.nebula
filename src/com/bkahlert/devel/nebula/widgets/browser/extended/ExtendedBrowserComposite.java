@@ -35,7 +35,7 @@ public class ExtendedBrowserComposite extends BrowserComposite implements
 	}
 
 	@Override
-	public Future<Void> afterCompletion(URI uri) {
+	public Future<Void> afterCompletion(String uri) {
 		return ExecutorUtil.nonUIAsyncExec(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {

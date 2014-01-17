@@ -141,8 +141,8 @@ public class ShellUtils {
 	/**
 	 * Captures the given {@link Control} without its trim.
 	 * <p>
-	 * <strong>Important:</strong> The caller has to make sure the {@link Shell}
-	 * in question is actually visible and not overlapped.
+	 * <strong>Important:</strong> Remember to dispose the newly created
+	 * {@link Image}.
 	 * 
 	 * @param dialog
 	 * @return
@@ -157,7 +157,7 @@ public class ShellUtils {
 				Point size = control.getSize();
 				GC gc = new GC(control);
 				Image image = new Image(Display.getCurrent(), size.x, size.y);
-				gc.copyArea(image, size.x, size.y);
+				gc.copyArea(image, 0, 0);
 				gc.dispose();
 				return image;
 			}

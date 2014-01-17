@@ -5,6 +5,7 @@ import java.util.concurrent.Future;
 import org.eclipse.swt.graphics.Point;
 
 import com.bkahlert.devel.nebula.widgets.browser.IBrowserComposite;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IElement;
 
 public interface IJQueryEnabledBrowserComposite extends IBrowserComposite {
 
@@ -19,7 +20,9 @@ public interface IJQueryEnabledBrowserComposite extends IBrowserComposite {
 
 	public Future<Point> getRelativePosition(ISelector selector);
 
-	Future<Point> getScrollPosition();
+	public Future<Point> getScrollPosition();
+
+	public Future<Point> getScrollPosition(ISelector selector);
 
 	/**
 	 * Scrolls to the given position.
@@ -39,6 +42,18 @@ public interface IJQueryEnabledBrowserComposite extends IBrowserComposite {
 	public Future<Boolean> scrollTo(Point pos);
 
 	/**
+	 * Scrolls to the given element.
+	 * 
+	 * @param selector
+	 * @return false if no scroll action was necessary
+	 */
+	public Future<Boolean> scrollTo(ISelector selector);
+
+	public void addFocusListener(IFocusListener focusListener);
+
+	public void removeFocusListener(IFocusListener focusListener);
+
+	/**
 	 * Given the first element specified by the given selector the focus.
 	 * 
 	 * @param selector
@@ -46,6 +61,8 @@ public interface IJQueryEnabledBrowserComposite extends IBrowserComposite {
 	 * @see <a href="http://api.jquery.com/focus/">api.jquery.com/focus/</a>
 	 */
 	public Future<Object> focus(ISelector selector);
+
+	Future<IElement> getFocusedElement();
 
 	/**
 	 * Removes the focus from the first element specified by the given selector.
@@ -130,5 +147,11 @@ public interface IJQueryEnabledBrowserComposite extends IBrowserComposite {
 	 * @return
 	 */
 	public Future<Object> submit(ISelector selector);
+
+	public static interface IFocusListener {
+		public void focusGained(IElement element);
+
+		public void focusLost(IElement element);
+	}
 
 }

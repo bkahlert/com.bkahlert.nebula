@@ -29,6 +29,7 @@ import com.bkahlert.nebula.information.InformationControlCreator;
 import com.bkahlert.nebula.information.InformationControlManager;
 import com.bkahlert.nebula.information.InformationControlManagerUtils;
 import com.bkahlert.nebula.widgets.image.Image;
+import com.bkahlert.nebula.widgets.image.Image.FILL_MODE;
 
 @Demo(title = "Press F3 to replace the contents of an information control")
 public class InformationControlManagerDemo extends AbstractDemo {
@@ -102,7 +103,8 @@ public class InformationControlManagerDemo extends AbstractDemo {
 								public Composite build(Composite parent) {
 									parent.setLayout(GridLayoutFactory
 											.fillDefaults().create());
-									this.image = new Image(parent, SWT.NONE);
+									this.image = new Image(parent, SWT.NONE,
+											FILL_MODE.INNER_FILL);
 									this.image
 											.load("http://www.fantom-xp.com/wallpapers/23/Butterfly_abstract_wallpaper.jpg",
 													null);

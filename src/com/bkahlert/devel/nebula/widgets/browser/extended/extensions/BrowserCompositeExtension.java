@@ -1,10 +1,12 @@
 package com.bkahlert.devel.nebula.widgets.browser.extended.extensions;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.commons.io.FileUtils;
@@ -20,8 +22,8 @@ import com.bkahlert.nebula.utils.CompletedFuture;
  * This standard implementation of the {@link IBrowserCompositeExtension} can
  * extend {@link IBrowserComposite}s with JavaScript.
  * <p>
- * The loading process depends on where the extension (.js) is located. If the
- * file is on the local machine it is loaded inline. Otherwise a
+ * The loading process depends on where the jsExtensions (.js) is located. If
+ * the file is on the local machine it is loaded inline. Otherwise a
  * <code>script</code> tag is generated.
  * <p>
  * TODO Currently the loading of external ressources does not work reliably.
@@ -37,24 +39,69 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 
 	private String name;
 	private String verificationScript;
-	private URI extension;
+	private URI[] jsExtensions;
+	private URI[] cssExtensions;
 
 	private List<Class<? extends IBrowserCompositeExtension>> dependencies;
 
+	/**
+	 * This constructor allows adding a single JS file.
+	 * 
+	 * @param name
+	 * @param verificationScript
+	 * @param jsExtensions
+	 * @param arrayList
+	 */
 	public BrowserCompositeExtension(String name, String verificationScript,
-			URI extension,
-			ArrayList<Class<? extends IBrowserCompositeExtension>> arrayList) {
+			URI jsExtension,
+			ArrayList<Class<? extends IBrowserCompositeExtension>> dependencies) {
 		Assert.isLegal(name != null && verificationScript != null
-				&& extension != null);
+				&& jsExtension != null);
 		this.name = name;
 		this.verificationScript = verificationScript;
-		this.extension = extension;
-		this.dependencies = arrayList;
+		this.jsExtensions = new URI[] { jsExtension };
+		this.cssExtensions = new URI[0];
+		this.dependencies = dependencies;
 	}
 
+	/**
+	 * This constructor allows adding a single JS and a single CSS file.
+	 * 
+	 * @param name
+	 * @param verificationScript
+	 * @param jsExtensions
+	 * @param arrayList
+	 */
 	public BrowserCompositeExtension(String name, String verificationScript,
-			URI extension) {
-		this(name, verificationScript, extension, null);
+			URI jsExtension, URI cssExtension,
+			ArrayList<Class<? extends IBrowserCompositeExtension>> dependencies) {
+		Assert.isLegal(name != null && verificationScript != null
+				&& jsExtension != null && cssExtension != null);
+		this.name = name;
+		this.verificationScript = verificationScript;
+		this.jsExtensions = new URI[] { jsExtension };
+		this.cssExtensions = new URI[] { cssExtension };
+		this.dependencies = dependencies;
+	}
+
+	/**
+	 * This constructor allows adding a multiple JS and CSS files.
+	 * 
+	 * @param name
+	 * @param verificationScript
+	 * @param jsExtensions
+	 * @param arrayList
+	 */
+	public BrowserCompositeExtension(String name, String verificationScript,
+			URI[] jsExtensions, URI[] cssExtensions,
+			ArrayList<Class<? extends IBrowserCompositeExtension>> dependencies) {
+		Assert.isLegal(name != null && verificationScript != null
+				&& jsExtensions != null && cssExtensions != null);
+		this.name = name;
+		this.verificationScript = verificationScript;
+		this.jsExtensions = jsExtensions;
+		this.cssExtensions = cssExtensions;
+		this.dependencies = dependencies;
 	}
 
 	@Override
@@ -86,31 +133,19 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 					}
 				}
 
-				if ("file"
-						.equalsIgnoreCase(BrowserCompositeExtension.this.extension
-								.getScheme())) {
-					File file = new File(
-							BrowserCompositeExtension.this.extension.toString()
-									.substring("file://".length()));
-					String script = FileUtils.readFileToString(file);
-					return browserComposite.run(script,
-							new IConverter<Boolean>() {
-								@Override
-								public Boolean convert(Object returnValue) {
-									return true;
-								}
-							}).get();
-				} else {
-					try {
-						return browserComposite.run(
-								BrowserCompositeExtension.this.extension).get();
-					} catch (Exception e) {
-						LOGGER.error("Could not load the extension \""
-								+ BrowserCompositeExtension.this.name + "\".",
-								e);
-						return null;
+				boolean success = true;
+				for (URI jsExtension : BrowserCompositeExtension.this.jsExtensions) {
+					if (!inject(browserComposite, jsExtension,
+							BrowserCompositeExtension.this.name)) {
+						success = false;
 					}
 				}
+
+				for (URI cssExtension : BrowserCompositeExtension.this.cssExtensions) {
+					browserComposite.injectCssFile(cssExtension);
+				}
+
+				return success;
 			}
 		});
 	}
@@ -129,6 +164,34 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 				return null;
 			}
 		});
+	}
+
+	/*
+	 * TODO merge with BrowserComposite inject (only difference here: directly
+	 * injects if local file)
+	 */
+	private static Boolean inject(IBrowserComposite browserComposite,
+			URI jsExtension, String name) throws IOException,
+			InterruptedException, ExecutionException {
+		if ("file".equalsIgnoreCase(jsExtension.getScheme())) {
+			File file = new File(jsExtension.toString().substring(
+					"file://".length()));
+			String script = FileUtils.readFileToString(file);
+			return browserComposite.run(script, new IConverter<Boolean>() {
+				@Override
+				public Boolean convert(Object returnValue) {
+					return true;
+				}
+			}).get();
+		} else {
+			try {
+				return browserComposite.inject(jsExtension).get();
+			} catch (Exception e) {
+				LOGGER.error("Could not load the JS extension \"" + name
+						+ "\".", e);
+				return false;
+			}
+		}
 	}
 
 }

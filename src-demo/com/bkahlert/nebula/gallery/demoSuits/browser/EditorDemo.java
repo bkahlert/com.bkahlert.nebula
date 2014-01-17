@@ -16,7 +16,7 @@ import org.eclipse.ui.internal.about.AboutAction;
 
 import com.bkahlert.devel.nebula.dialogs.PopupDialog;
 import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
-import com.bkahlert.devel.nebula.widgets.browser.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.listener.AnkerAdapter;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;

@@ -18,9 +18,10 @@ com.bkahlert.nebula.image = com.bkahlert.nebula.image || {};
             }
         },
         
-        load : function(image) {
+        load : function(image, fillMode) {
             $image = $("#image");
             $image.attr("src", image);
+            if(fillMode != 'inner_fill') console.log('A fill mode other than "inner_fill" is currently not supported.');
         },
         
         getOriginalSize : function() {
@@ -58,7 +59,8 @@ com.bkahlert.nebula.image = com.bkahlert.nebula.image || {};
         },
 
         openDemo : function() {
-            com.bkahlert.nebula.image.load("http://www.w3.org/html/logo/downloads/HTML5_Logo_512.png");
+            //com.bkahlert.nebula.image.load("http://www.w3.org/html/logo/downloads/HTML5_Logo_512.png", 'inner_fill');
+            com.bkahlert.nebula.image.load("no_image.png", 'inner_fill');
             com.bkahlert.nebula.image.limitToOriginalSize();
         }
     });

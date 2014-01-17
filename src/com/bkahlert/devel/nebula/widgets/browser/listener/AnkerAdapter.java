@@ -1,6 +1,6 @@
 package com.bkahlert.devel.nebula.widgets.browser.listener;
 
-import com.bkahlert.devel.nebula.widgets.browser.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 
 public class AnkerAdapter implements IAnkerListener {
 

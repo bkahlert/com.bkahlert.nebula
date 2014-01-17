@@ -123,7 +123,7 @@ public class ListExplanationComposite extends ExplanationComposite {
 			}
 
 			/*
-			 * List items
+			 * BootstrapBrowser items
 			 */
 			if (listExplanation.listItems != null) {
 				for (int i = 0; i < listExplanation.listItems.length; i++) {

@@ -2,7 +2,7 @@ package com.bkahlert.nebula.screenshots;
 
 import java.util.concurrent.Callable;
 
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Control;
 
 /**
  * Implementors can render {@link IGenericScreenshotRequest}s.
@@ -21,10 +21,10 @@ public interface IScreenshotRenderer<SUBJECT, CONTROL> {
 	 */
 	public interface IScreenshotRendererSession {
 		/**
-		 * Brings the renderer to the front and returns the boundaries of the
-		 * content area.
+		 * Makes sure the content is currently displayed in the returned
+		 * Control.
 		 */
-		public Rectangle display();
+		public Control display();
 
 		/**
 		 * Disposes this {@link IScreenshotRendererSession}. You have to call
