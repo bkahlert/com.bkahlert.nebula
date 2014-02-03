@@ -36,6 +36,7 @@ public class InformationControlManager<CONTROL extends Control, INFORMATION>
 			return;
 		}
 		f2Filter = new Listener() {
+			@SuppressWarnings("restriction")
 			@Override
 			public void handleEvent(Event event) {
 				if (event.keyCode != SWT.F2) {
@@ -55,11 +56,12 @@ public class InformationControlManager<CONTROL extends Control, INFORMATION>
 	}
 
 	private ISubjectInformationProvider<CONTROL, INFORMATION> subjectInformationProvider;
-	private Class<INFORMATION> informationClass;
+	private final Class<INFORMATION> informationClass;
 
-	private StickyHoverManager<INFORMATION> replacer;
+	private final StickyHoverManager<INFORMATION> replacer;
 	private Rectangle lastSubjectArea;
 
+	@SuppressWarnings("restriction")
 	public InformationControlManager(
 			Class<INFORMATION> informationClass,
 			InformationControlCreator<INFORMATION> creator,
@@ -99,6 +101,7 @@ public class InformationControlManager<CONTROL extends Control, INFORMATION>
 	 * @return
 	 */
 	public boolean isShowingEnriched() {
+		@SuppressWarnings("restriction")
 		InformationControl<?> enhancedControl = (InformationControl<?>) this.replacer
 				.getCurrentInformationControl2();
 		return enhancedControl != null && enhancedControl.isVisible();
@@ -110,12 +113,13 @@ public class InformationControlManager<CONTROL extends Control, INFORMATION>
 	 * 
 	 * @param information
 	 */
+	@SuppressWarnings("restriction")
 	public void setInformation(INFORMATION information) {
 		Rectangle subjectArea = new Rectangle(this.lastSubjectArea.x,
 				this.lastSubjectArea.y, this.lastSubjectArea.width,
 				this.lastSubjectArea.height);
 		if (this.isShowingEnriched()) {
-			@SuppressWarnings("unchecked")
+			@SuppressWarnings({ "unchecked" })
 			InformationControl<CONTROL> informationControl = (InformationControl<CONTROL>) this.replacer
 					.getCurrentInformationControl2();
 			informationControl.setInput(information);
@@ -206,8 +210,6 @@ public class InformationControlManager<CONTROL extends Control, INFORMATION>
 				new Rectangle(mouseLocation.x - hoverArea.x / 2,
 						mouseLocation.y - hoverArea.y / 2, hoverArea.x,
 						hoverArea.y));
-		System.err.println(bounds);
-		bounds = new Rectangle(-2000, -1000, 20000, 10000);
 		return bounds;
 	}
 

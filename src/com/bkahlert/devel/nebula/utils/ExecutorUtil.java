@@ -14,6 +14,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.nebula.utils.CompletedFuture;
@@ -185,7 +186,11 @@ public class ExecutorUtil {
 	 * @return
 	 */
 	public static boolean isUIThread() {
-		return Display.getDefault() == Display.getCurrent();
+		try {
+			return Display.getDefault() == Display.getCurrent();
+		} catch (SWTException e) {
+			return false;
+		}
 	}
 
 	/**

@@ -191,8 +191,8 @@ public class TimelineProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupV
 		return timelineEvent;
 	}
 
-	private ITimelineLabelProvider<TIMELINE> timelineLabelProvider;
-	private List<IBandGroupProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT>> bandGroupProviders;
+	private final ITimelineLabelProvider<TIMELINE> timelineLabelProvider;
+	private final List<IBandGroupProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT>> bandGroupProviders;
 
 	public TimelineProvider(
 			ITimelineLabelProvider<TIMELINE> timelineLabelProvider,
