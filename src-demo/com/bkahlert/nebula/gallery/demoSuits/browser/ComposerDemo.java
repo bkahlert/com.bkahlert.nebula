@@ -68,8 +68,8 @@ public class ComposerDemo extends AbstractDemo {
 
 			@Override
 			public void ankerHovered(final IAnker anker, boolean entered) {
-				ComposerDemo.log((entered ? "entered " : "left")
-						+ ": " + anker.getHref());
+				ComposerDemo.log((entered ? "entered " : "left") + ": "
+						+ anker.getHref());
 				if (this.popup != null) {
 					this.popup.close();
 					this.popup = null;
@@ -119,8 +119,7 @@ public class ComposerDemo extends AbstractDemo {
 		composerGetSource.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ComposerDemo.log(ComposerDemo.this.composer
-						.getSource());
+				ComposerDemo.log(ComposerDemo.this.composer.getSource());
 			}
 		});
 		composerSetSource.addSelectionListener(new SelectionAdapter() {

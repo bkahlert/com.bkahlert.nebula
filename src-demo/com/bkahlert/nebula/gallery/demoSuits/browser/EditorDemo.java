@@ -32,6 +32,7 @@ import com.bkahlert.nebula.information.InformationControl;
 import com.bkahlert.nebula.information.InformationControlCreator;
 import com.bkahlert.nebula.information.InformationControlManager;
 
+@SuppressWarnings("restriction")
 @Demo
 public class EditorDemo extends AbstractDemo {
 
@@ -134,7 +135,7 @@ public class EditorDemo extends AbstractDemo {
 					}
 				}, new ISubjectInformationProvider<Editor<?>, IAnker>() {
 					private IAnker hoveredAnker = null;
-					private IAnkerListener ankerListener = new AnkerAdapter() {
+					private final IAnkerListener ankerListener = new AnkerAdapter() {
 						@Override
 						public void ankerHovered(IAnker anker, boolean entered) {
 							hoveredAnker = entered ? anker : null;
@@ -163,12 +164,7 @@ public class EditorDemo extends AbstractDemo {
 				});
 		editorInformationControlManager.install(this.editor);
 
-		try {
-			this.editor.load("This is an auto-saving editor");
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
-		this.editor.load("Hello CKEditor - Editor!");
+		this.editor.load("This is an auto-saving editor");
 	}
 
 	@Override
