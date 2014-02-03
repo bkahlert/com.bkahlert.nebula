@@ -65,6 +65,12 @@ public abstract class InformationControl<INFORMATION> extends
 						.loadClass(informationClassName) : Class
 						.forName(informationClassName);
 				if (targetInformationClass != informationClass) {
+					LOGGER.warn(IInformationControlExtender.class
+							.getSimpleName()
+							+ " for type "
+							+ informationClass.getSimpleName()
+							+ " is not compatible with "
+							+ targetInformationClass.getSimpleName());
 					continue;
 				}
 			} catch (ClassNotFoundException e) {
