@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.browser.LocationAdapter;
@@ -67,9 +68,6 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	private boolean loadingCompleted = false;
 	private final List<IJavaScriptExceptionListener> javaScriptExceptionListeners = new ArrayList<IJavaScriptExceptionListener>();
 	private final List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
-
-	protected final ExecutorUtil executorUtil = new ExecutorUtil(
-			this.getClass());
 
 	public BrowserComposite(Composite parent, int style) {
 		super(parent, style);
@@ -143,23 +141,26 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 					String uri = BrowserComposite.this.browser.getUrl();
 					final Future<Void> finished = BrowserComposite.this
 							.afterCompletion(uri);
-					executorUtil.nonUIAsyncExec(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								if (finished != null) {
-									finished.get();
-								}
-							} catch (Exception e) {
-								LOGGER.error(e);
-							}
+					ExecutorUtil.nonUISyncExec(BrowserComposite.class,
+							"Progress Check for " + uri, new Runnable() {
+								@Override
+								public void run() {
+									try {
+										if (finished != null) {
+											finished.get();
+										}
+									} catch (Exception e) {
+										LOGGER.error(e);
+									}
 
-							// notify threads that want to run javascripts
-							synchronized (BrowserComposite.this.monitor) {
-								BrowserComposite.this.monitor.notifyAll();
-							}
-						}
-					});
+									// notify threads that want to run
+									// javascripts
+									synchronized (BrowserComposite.this.monitor) {
+										BrowserComposite.this.monitor
+												.notifyAll();
+									}
+								}
+							});
 				}
 			}
 		});
@@ -181,7 +182,8 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	@Override
 	public Future<Boolean> open(final String uri, final Integer timeout) {
 		this.loadingCompleted = false;
-		return executorUtil.nonUIAsyncExec(new Callable<Boolean>() {
+		return ExecutorUtil.nonUISyncExec(BrowserComposite.class, "Opening "
+				+ uri, new Callable<Boolean>() {
 			@Override
 			public Boolean call() throws Exception {
 				final AtomicReference<Boolean> isCancelled = new AtomicReference<Boolean>(
@@ -190,8 +192,9 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				// stops waiting after timeout
 				Future<?> timeoutMonitor = null;
 				if (timeout != null && timeout > 0) {
-					timeoutMonitor = executorUtil.nonUIAsyncExec(
-							new Runnable() {
+					timeoutMonitor = ExecutorUtil.nonUISyncExec(
+							BrowserComposite.class, "Timeout Watcher for "
+									+ uri, new Runnable() {
 								@Override
 								public void run() {
 									synchronized (BrowserComposite.this.monitor) {
@@ -241,17 +244,29 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				synchronized (BrowserComposite.this.monitor) {
 					while (!BrowserComposite.this.loadingCompleted
 							&& !isCancelled.get()) {
-						LOGGER.debug("WAITING FOR LOADING COMPLETED:\nURI = "
-								+ uri + "\nThread = " + Thread.currentThread()
-								+ "\nLOADING COMPLETED = "
+						LOGGER.debug("Waiting for " + uri
+								+ " to be loaded (Thread: "
+								+ Thread.currentThread() + "; completed: "
 								+ BrowserComposite.this.loadingCompleted
-								+ "\nTIMEOUT CANCELLED = " + isCancelled.get());
+								+ "; timed out: " + isCancelled.get() + ")");
 						BrowserComposite.this.monitor.wait();
 						// notified by progresslistener or by timeout
 					}
 
 					if (timeoutMonitor != null) {
 						timeoutMonitor.cancel(true);
+					}
+
+					if (BrowserComposite.this.loadingCompleted == isCancelled
+							.get()) {
+						throw new RuntimeException("Implementation error");
+					}
+
+					if (BrowserComposite.this.loadingCompleted) {
+						LOGGER.debug("Successfully loaded " + uri);
+					} else {
+						LOGGER.debug("Aborted loading " + uri
+								+ " due to timeout");
 					}
 
 					return BrowserComposite.this.loadingCompleted;
@@ -386,46 +401,50 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	private Future<Boolean> run(final URI script,
 			final boolean removeAfterExecution) {
 		Assert.isLegal(script != null);
-		return executorUtil.nonUIAsyncExec(new Callable<Boolean>() {
-			@Override
-			public Boolean call() {
-				final String callbackFunctionName = new BigInteger(130,
-						new SecureRandom()).toString(32);
-
-				final Semaphore mutex = new Semaphore(0);
-				ExecutorUtil.syncExec(new Runnable() {
+		return ExecutorUtil.nonUISyncExec(BrowserComposite.class,
+				"Script Runner for: " + script, new Callable<Boolean>() {
 					@Override
-					public void run() {
-						final AtomicReference<BrowserFunction> callback = new AtomicReference<BrowserFunction>();
-						callback.set(new BrowserFunction(BrowserComposite.this
-								.getBrowser(), callbackFunctionName) {
+					public Boolean call() {
+						final String callbackFunctionName = "_"
+								+ new BigInteger(130, new SecureRandom())
+										.toString(32);
+
+						final Semaphore mutex = new Semaphore(0);
+						ExecutorUtil.syncExec(new Runnable() {
 							@Override
-							public Object function(Object[] arguments) {
-								callback.get().dispose();
-								mutex.release();
-								return super.function(arguments);
+							public void run() {
+								final AtomicReference<BrowserFunction> callback = new AtomicReference<BrowserFunction>();
+								callback.set(new BrowserFunction(
+										BrowserComposite.this.getBrowser(),
+										callbackFunctionName) {
+									@Override
+									public Object function(Object[] arguments) {
+										callback.get().dispose();
+										mutex.release();
+										return null;
+									}
+								});
 							}
 						});
+
+						String js = "var h = document.getElementsByTagName(\"head\")[0]; var s = document.createElement(\"script\");s.type = \"text/javascript\";s.src = \""
+								+ script.toString()
+								+ "\"; s.onload=function(e){";
+						if (removeAfterExecution) {
+							js += "h.removeChild(s);";
+						}
+						js += callbackFunctionName + "();";
+						js += "};h.appendChild(s);";
+
+						BrowserComposite.this.run(js);
+						try {
+							mutex.acquire();
+						} catch (InterruptedException e) {
+							LOGGER.error(e);
+						}
+						return null;
 					}
 				});
-
-				String js = "var h = document.getElementsByTagName(\"head\")[0]; var s = document.createElement(\"script\");s.type = \"text/javascript\";s.src = \""
-						+ script.toString() + "\"; s.onload=function(e){";
-				if (removeAfterExecution) {
-					js += "h.removeChild(s);";
-				}
-				js += "window['" + callbackFunctionName + "']();";
-				js += "};h.appendChild(s);";
-
-				BrowserComposite.this.run(js);
-				try {
-					mutex.acquire();
-				} catch (InterruptedException e) {
-					LOGGER.error(e);
-				}
-				return null;
-			}
-		});
 	}
 
 	@Override
@@ -435,21 +454,27 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		if (this.getBrowser() == null || this.getBrowser().isDisposed()) {
 			return null;
 		}
+		final String[] logScript = new String[] { script.length() > 100 ? script
+				.substring(0, 100) + "..."
+				: script };
+		logScript[0] = logScript[0].replace("\n", " ").replace("\r", " ")
+				.replace("\t", " ");
 		final Callable<DEST> callable = new Callable<DEST>() {
 			@Override
 			public DEST call() throws Exception {
-				String logScript = script.length() > 100 ? script.substring(0,
-						100) + "..." : script;
-				logScript = logScript.replace("\n", " ").replace("\r", " ")
-						.replace("\t", " ");
-				LOGGER.info("Running " + logScript);
+				LOGGER.info("Running " + logScript[0]);
 				Browser browser = BrowserComposite.this.getBrowser();
 				if (browser == null || browser.isDisposed()) {
 					return null;
 				}
-				Object returnValue = browser.evaluate(script);
-				LOGGER.info("Returned " + returnValue);
-				return converter.convert(returnValue);
+				try {
+					Object returnValue = browser.evaluate(script);
+					LOGGER.info("Returned " + returnValue);
+					return converter.convert(returnValue);
+				} catch (SWTException e) {
+					LOGGER.error("Script error: " + e);
+					throw e;
+				}
 			}
 		};
 		if (BrowserComposite.this.loadingCompleted) {
@@ -462,21 +487,29 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 			}
 			return new CompletedFuture<DEST>(converted.get(), exception);
 		} else {
-			return executorUtil.nonUIAsyncExec(new Callable<DEST>() {
-				@Override
-				public DEST call() throws Exception {
-					if (!BrowserComposite.this.loadingCompleted) {
-						synchronized (BrowserComposite.this.monitor) {
-							BrowserComposite.this.monitor.wait();
+			return ExecutorUtil.nonUISyncExec(BrowserComposite.class,
+					"Delaying Script till Page Load: " + logScript[0],
+					new Callable<DEST>() {
+						@Override
+						public DEST call() throws Exception {
+							if (!BrowserComposite.this.loadingCompleted) {
+								synchronized (BrowserComposite.this.monitor) {
+									BrowserComposite.this.monitor.wait();
+								}
+							}
+							if (BrowserComposite.this.isDisposed()) {
+								return null;
+							}
+							// TODO possibly check if page was really loaded
+							if (BrowserComposite.this.loadingCompleted) {
+								return ExecutorUtil.syncExec(callable);
+							} else {
+								throw new SWTException(
+										"Could not run script because the page did not correctly load; "
+												+ logScript[0]);
+							}
 						}
-					}
-					if (BrowserComposite.this.isDisposed()) {
-						return null;
-					}
-					// TODO possibly check if page was really loaded
-					return ExecutorUtil.syncExec(callable);
-				}
-			});
+					});
 		}
 	}
 

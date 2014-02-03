@@ -11,6 +11,7 @@ import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.nebula.widgets.browser.IJavaScript;
 import com.bkahlert.devel.nebula.widgets.browser.JavaScript;
@@ -87,23 +88,27 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 
 	@Override
 	public Future<Void> afterCompletion(final String uri) {
-		return executorUtil.nonUIAsyncExec(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				JQueryEnabledBrowserComposite.super.afterCompletion(uri).get();
+		return ExecutorUtil.nonUISyncExec(JQueryEnabledBrowserComposite.class,
+				"Active Listeners", new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+						JQueryEnabledBrowserComposite.super
+								.afterCompletion(uri).get();
 
-				// FIXME: already called in BrowserComposite. But if page has no
-				// jQuery included the code does not work. Here we run it again
-				// since we know jQuery is included. Code should be made
-				// independent from jQuery.
-				String js = "window[\"hoveredAnker\"]=null;$(\"body\").bind(\"DOMSubtreeModified beforeunload\",function(){if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](window[\"hoveredAnker\"])}});$(\"body\").on({mouseenter:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();window[\"hoveredAnker\"]=e;if(window[\"mouseenter\"]&&typeof window[\"mouseenter\"]){window[\"mouseenter\"](e)}},mouseleave:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](e)}}},\"a\")";
-				JQueryEnabledBrowserComposite.this.run(js);
+						// FIXME: already called in BrowserComposite. But if
+						// page has no
+						// jQuery included the code does not work. Here we run
+						// it again
+						// since we know jQuery is included. Code should be made
+						// independent from jQuery.
+						String js = "window[\"hoveredAnker\"]=null;$(\"body\").bind(\"DOMSubtreeModified beforeunload\",function(){if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](window[\"hoveredAnker\"])}});$(\"body\").on({mouseenter:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();window[\"hoveredAnker\"]=e;if(window[\"mouseenter\"]&&typeof window[\"mouseenter\"]){window[\"mouseenter\"](e)}},mouseleave:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](e)}}},\"a\")";
+						JQueryEnabledBrowserComposite.this.run(js);
 
-				js = "(function(e){e(document).ready(function(){e(\"body\").on(\"focus\",\"*\",function(t){if(t.target!=this)return;var n=e(document.activeElement).clone().wrap(\"<p>\").parent().html();if(window[\"__focus\"]&&typeof window[\"__focus\"]==\"function\"){window[\"__focus\"](n)}})})})(jQuery)";
-				JQueryEnabledBrowserComposite.this.run(js);
-				return null;
-			}
-		});
+						js = "(function(e){e(document).ready(function(){e(\"body\").on(\"focus\",\"*\",function(t){if(t.target!=this)return;var n=e(document.activeElement).clone().wrap(\"<p>\").parent().html();if(window[\"__focus\"]&&typeof window[\"__focus\"]==\"function\"){window[\"__focus\"](n)}})})})(jQuery)";
+						JQueryEnabledBrowserComposite.this.run(js);
+						return null;
+					}
+				});
 	}
 
 	private IJavaScript getFocusStmt(ISelector selector) {
@@ -170,88 +175,93 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 
 	@Override
 	public Future<Point> getScrollPosition() {
-		return executorUtil.nonUIAsyncExec(new Callable<Point>() {
-			@Override
-			public Point call() throws Exception {
-				try {
-					return JQueryEnabledBrowserComposite.this
-							.run("return [jQuery(document).scrollLeft(),jQuery(document).scrollTop()];",
-									IConverter.CONVERTER_POINT).get();
-				} catch (Exception e) {
-					LOGGER.error("Error getting scroll position", e);
-				}
-				return null;
-			}
-		});
+		return ExecutorUtil.nonUISyncExec(JQueryEnabledBrowserComposite.class,
+				"Get Scroll Position", new Callable<Point>() {
+					@Override
+					public Point call() throws Exception {
+						try {
+							return JQueryEnabledBrowserComposite.this
+									.run("return [jQuery(document).scrollLeft(),jQuery(document).scrollTop()];",
+											IConverter.CONVERTER_POINT).get();
+						} catch (Exception e) {
+							LOGGER.error("Error getting scroll position", e);
+						}
+						return null;
+					}
+				});
 	}
 
 	@Override
 	public Future<Point> getScrollPosition(final ISelector selector) {
-		return executorUtil.nonUIAsyncExec(new Callable<Point>() {
-			@Override
-			public Point call() throws Exception {
-				try {
-					String jQuery = "jQuery('" + selector + "')";
-					if (selector instanceof IdSelector) {
-						// preferred if id contains special characters
-						jQuery = "jQuery(document.getElementById(\""
-								+ ((IdSelector) selector).getId() + "\"))";
+		return ExecutorUtil.nonUISyncExec(JQueryEnabledBrowserComposite.class,
+				"Get Scroll Position", new Callable<Point>() {
+					@Override
+					public Point call() throws Exception {
+						try {
+							String jQuery = "jQuery('" + selector + "')";
+							if (selector instanceof IdSelector) {
+								// preferred if id contains special characters
+								jQuery = "jQuery(document.getElementById(\""
+										+ ((IdSelector) selector).getId()
+										+ "\"))";
+							}
+							if (selector instanceof NameSelector) {
+								// preferred if name contains special characters
+								jQuery = "jQuery(document.getElementsByName(\""
+										+ ((NameSelector) selector).getName()
+										+ "\")[0])";
+							}
+							return JQueryEnabledBrowserComposite.this
+									.run("var offset = "
+											+ jQuery
+											+ ".offset(); return offset ? [offset.left, offset.top] : null;",
+											IConverter.CONVERTER_POINT).get();
+						} catch (Exception e) {
+							LOGGER.error("Error getting scroll position", e);
+						}
+						return null;
 					}
-					if (selector instanceof NameSelector) {
-						// preferred if name contains special characters
-						jQuery = "jQuery(document.getElementsByName(\""
-								+ ((NameSelector) selector).getName()
-								+ "\")[0])";
-					}
-					return JQueryEnabledBrowserComposite.this
-							.run("var offset = "
-									+ jQuery
-									+ ".offset(); return offset ? [offset.left, offset.top] : null;",
-									IConverter.CONVERTER_POINT).get();
-				} catch (Exception e) {
-					LOGGER.error("Error getting scroll position", e);
-				}
-				return null;
-			}
-		});
+				});
 	}
 
 	@Override
 	public Future<Point> getRelativePosition(final ISelector selector) {
-		return executorUtil.nonUIAsyncExec(new Callable<Point>() {
-			@Override
-			public Point call() throws Exception {
-				try {
-					return JQueryEnabledBrowserComposite.this
-							.run("var offset = jQuery('"
-									+ selector
-									+ "').offset();return [offset.left-jQuery(document).scrollLeft(),offset.top-jQuery(document).scrollTop()];",
-									IConverter.CONVERTER_POINT).get();
-				} catch (Exception e) {
-					LOGGER.error("Error scrolling", e);
-				}
-				return null;
-			}
-		});
+		return ExecutorUtil.nonUISyncExec(JQueryEnabledBrowserComposite.class,
+				"Get Relative Position", new Callable<Point>() {
+					@Override
+					public Point call() throws Exception {
+						try {
+							return JQueryEnabledBrowserComposite.this
+									.run("var offset = jQuery('"
+											+ selector
+											+ "').offset();return [offset.left-jQuery(document).scrollLeft(),offset.top-jQuery(document).scrollTop()];",
+											IConverter.CONVERTER_POINT).get();
+						} catch (Exception e) {
+							LOGGER.error("Error scrolling", e);
+						}
+						return null;
+					}
+				});
 	}
 
 	@Override
 	public Future<Boolean> scrollTo(final int x, final int y) {
-		return executorUtil.nonUIAsyncExec(new Callable<Boolean>() {
-			@Override
-			public Boolean call() throws Exception {
-				try {
-					String script = String
-							.format("if(jQuery(document).scrollLeft()!=%d||jQuery(document).scrollTop()!=%d){jQuery.scrollTo({left:'%dpx',top:'%dpx'}, 0);return true;}else{return false;}",
-									x, y, x, y);
-					return JQueryEnabledBrowserComposite.this.run(script,
-							IConverter.CONVERTER_BOOLEAN).get();
-				} catch (Exception e) {
-					LOGGER.error("Error scrolling", e);
-				}
-				return null;
-			}
-		});
+		return ExecutorUtil.nonUISyncExec(JQueryEnabledBrowserComposite.class,
+				"Scroll To", new Callable<Boolean>() {
+					@Override
+					public Boolean call() throws Exception {
+						try {
+							String script = String
+									.format("if(jQuery(document).scrollLeft()!=%d||jQuery(document).scrollTop()!=%d){jQuery.scrollTo({left:'%dpx',top:'%dpx'}, 0);return true;}else{return false;}",
+											x, y, x, y);
+							return JQueryEnabledBrowserComposite.this.run(
+									script, IConverter.CONVERTER_BOOLEAN).get();
+						} catch (Exception e) {
+							LOGGER.error("Error scrolling", e);
+						}
+						return null;
+					}
+				});
 	}
 
 	@Override
@@ -261,14 +271,16 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 
 	@Override
 	public Future<Boolean> scrollTo(final ISelector selector) {
-		return executorUtil.nonUIAsyncExec(new Callable<Boolean>() {
-			@Override
-			public Boolean call() throws Exception {
-				Point pos = JQueryEnabledBrowserComposite.this
-						.getScrollPosition(selector).get();
-				return JQueryEnabledBrowserComposite.this.scrollTo(pos).get();
-			}
-		});
+		return ExecutorUtil.nonUISyncExec(JQueryEnabledBrowserComposite.class,
+				"Scroll To", new Callable<Boolean>() {
+					@Override
+					public Boolean call() throws Exception {
+						Point pos = JQueryEnabledBrowserComposite.this
+								.getScrollPosition(selector).get();
+						return JQueryEnabledBrowserComposite.this.scrollTo(pos)
+								.get();
+					}
+				});
 	}
 
 	@Override
@@ -278,20 +290,21 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 
 	@Override
 	public Future<IElement> getFocusedElement() {
-		return executorUtil.nonUIAsyncExec(new Callable<IElement>() {
-			@Override
-			public IElement call() throws Exception {
-				try {
-					String html = JQueryEnabledBrowserComposite.this
-							.run("return jQuery(document.activeElement).clone().wrap(\"<p>\").parent().html();",
-									IConverter.CONVERTER_STRING).get();
-					return new Element(html);
-				} catch (Exception e) {
-					LOGGER.error("Error getting scroll position", e);
-				}
-				return null;
-			}
-		});
+		return ExecutorUtil.nonUISyncExec(JQueryEnabledBrowserComposite.class,
+				"Get Focused Element", new Callable<IElement>() {
+					@Override
+					public IElement call() throws Exception {
+						try {
+							String html = JQueryEnabledBrowserComposite.this
+									.run("return jQuery(document.activeElement).clone().wrap(\"<p>\").parent().html();",
+											IConverter.CONVERTER_STRING).get();
+							return new Element(html);
+						} catch (Exception e) {
+							LOGGER.error("Error getting scroll position", e);
+						}
+						return null;
+					}
+				});
 	}
 
 	@Override

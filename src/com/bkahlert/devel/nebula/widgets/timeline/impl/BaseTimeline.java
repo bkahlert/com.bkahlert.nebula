@@ -115,21 +115,22 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 					+ ");";
 		}
 		final Future<Object> rt = this.run(js);
-		executorUtil.nonUIAsyncExec(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					rt.get();
-				} catch (Exception e) {
-				}
-				ExecutorUtil.asyncExec(new Runnable() {
+		ExecutorUtil.nonUISyncExec(BaseTimeline.class, "Refresh",
+				new Runnable() {
 					@Override
 					public void run() {
-						BaseTimeline.this.layout();
+						try {
+							rt.get();
+						} catch (Exception e) {
+						}
+						ExecutorUtil.asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								BaseTimeline.this.layout();
+							}
+						});
 					}
 				});
-			}
-		});
 	}
 
 	@Override

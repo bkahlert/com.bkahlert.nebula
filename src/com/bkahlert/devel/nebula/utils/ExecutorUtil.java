@@ -193,6 +193,43 @@ public class ExecutorUtil {
 		}
 	}
 
+	private static <V> Callable<V> createThreadLabelingCode(
+			final Callable<V> callable, final Class<?> clazz,
+			final String purpose) {
+		return new Callable<V>() {
+			@Override
+			public V call() throws Exception {
+				String oldName = Thread.currentThread().getName();
+				try {
+					Thread.currentThread().setName(
+							oldName + " :: " + clazz.getSimpleName() + " - "
+									+ purpose);
+					return callable.call();
+				} finally {
+					Thread.currentThread().setName(oldName);
+				}
+			}
+		};
+	}
+
+	private static Runnable createThreadLabelingCode(final Runnable runnable,
+			final Class<?> clazz, final String purpose) {
+		return new Runnable() {
+			@Override
+			public void run() {
+				String oldName = Thread.currentThread().getName();
+				try {
+					Thread.currentThread().setName(
+							oldName + " :: " + clazz.getSimpleName() + " - "
+									+ purpose);
+					runnable.run();
+				} finally {
+					Thread.currentThread().setName(oldName);
+				}
+			}
+		};
+	}
+
 	/**
 	 * Executes the given {@link Callable}.
 	 * <p>
@@ -338,18 +375,138 @@ public class ExecutorUtil {
 	}
 
 	/**
-	 * Runs the given {@link Runnable} in a non-UI thread. If the caller already
-	 * runs in such one the {@link Runnable} is simply executed. Otherwise a new
-	 * thread is started.
+	 * Runs the given {@link Runnable} immediately in a non-UI thread. If the
+	 * caller already runs in such one the {@link Runnable} is simply executed.
+	 * Otherwise a new thread is started.
 	 * 
 	 * @param runnable
 	 */
-	public static void nonUISyncExec(Runnable runnable) {
+	public static Future<?> nonUISyncExec(Runnable runnable) {
 		if (ExecutorUtil.isUIThread()) {
-			SYNC_POOL.execute(runnable);
+			return SYNC_POOL.submit(runnable);
 		} else {
 			runnable.run();
+			return new CompletedFuture<Object>(null, null);
 		}
+	}
+
+	/**
+	 * Runs the given {@link Callable} immediately in a non-UI thread. If the
+	 * caller already runs in such one the {@link Callable} is simply executed.
+	 * Otherwise a new thread is started.
+	 * <p>
+	 * The given {@link Class} and purpose are used to give the thread a
+	 * reasonable name.
+	 * 
+	 * @param clazz
+	 *            that invokes this call
+	 * @param purpose
+	 *            of the callable
+	 * @param callable
+	 * 
+	 * @return
+	 */
+	public static <V> Future<V> nonUISyncExec(final Class<?> clazz,
+			final String purpose, Callable<V> callable) {
+		return nonUISyncExec(createThreadLabelingCode(callable, clazz, purpose));
+	}
+
+	/**
+	 * Runs the given {@link Runnable} immediately in a non-UI thread. If the
+	 * caller already runs in such one the {@link Runnable} is simply executed.
+	 * Otherwise a new thread is started.
+	 * <p>
+	 * The given {@link Class} and purpose are used to give the thread a
+	 * reasonable name.
+	 * 
+	 * @param clazz
+	 *            that invokes this call
+	 * @param purpose
+	 *            of the runnable
+	 * @param runnable
+	 * @return
+	 * 
+	 * @return
+	 */
+	public static Future<?> nonUISyncExec(final Class<?> clazz,
+			final String purpose, Runnable runnable) {
+		return nonUISyncExec(createThreadLabelingCode(runnable, clazz, purpose));
+	}
+
+	/**
+	 * Executes the given {@link Callable} synchronously with a delay.
+	 * <p>
+	 * The return value is returned in the calling thread.
+	 * 
+	 * @param executorService
+	 *            to be used to get the {@link Thread} in which to run the code
+	 * @param callable
+	 * @param delay
+	 * @return
+	 */
+	public static <V> Future<V> nonUISyncExec(final Callable<V> callable,
+			final int delay) {
+		return nonUIAsyncExec(SYNC_POOL, callable, delay);
+	}
+
+	/**
+	 * Executes the given {@link Runnable} synchronously with a delay.
+	 * <p>
+	 * The return value is returned in the calling thread.
+	 * 
+	 * @param callable
+	 * @param delay
+	 * @return
+	 */
+	public static Future<?> nonUISyncExec(final Runnable runnable,
+			final int delay) {
+		return nonUIAsyncExec(SYNC_POOL, runnable, delay);
+	}
+
+	/**
+	 * Runs the given {@link Callable} with a delay in a non-UI thread. If the
+	 * caller already runs in such one the {@link Callable} is simply executed.
+	 * Otherwise a new thread is started.
+	 * <p>
+	 * The given {@link Class} and purpose are used to give the thread a
+	 * reasonable name.
+	 * 
+	 * @param clazz
+	 *            that invokes this call
+	 * @param purpose
+	 *            of the callable
+	 * @param callable
+	 * @param delay
+	 * 
+	 * @return
+	 */
+	public static <V> Future<V> nonUISyncExec(final Class<?> clazz,
+			final String purpose, Callable<V> callable, int delay) {
+		return nonUISyncExec(
+				createThreadLabelingCode(callable, clazz, purpose), delay);
+	}
+
+	/**
+	 * Runs the given {@link Runnable} with a delay in a non-UI thread. If the
+	 * caller already runs in such one the {@link Runnable} is simply executed.
+	 * Otherwise a new thread is started.
+	 * <p>
+	 * The given {@link Class} and purpose are used to give the thread a
+	 * reasonable name.
+	 * 
+	 * @param clazz
+	 *            that invokes this call
+	 * @param purpose
+	 *            of the runnable
+	 * @param runnable
+	 * @param delay
+	 * 
+	 * @return
+	 */
+	public static Future<?> nonUISyncExec(final Class<?> clazz,
+			final String purpose, Runnable runnable, int delay) {
+		return nonUISyncExec(
+				createThreadLabelingCode(runnable, clazz, purpose), delay);
 	}
 
 	/**

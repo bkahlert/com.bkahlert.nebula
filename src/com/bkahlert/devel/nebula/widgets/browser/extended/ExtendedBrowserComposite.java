@@ -7,6 +7,7 @@ import java.util.concurrent.Future;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.widgets.Composite;
 
+import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.IBrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.extended.extensions.IBrowserCompositeExtension;
@@ -35,20 +36,21 @@ public class ExtendedBrowserComposite extends BrowserComposite implements
 
 	@Override
 	public Future<Void> afterCompletion(String uri) {
-		return executorUtil.nonUIAsyncExec(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				for (IBrowserCompositeExtension extension : ExtendedBrowserComposite.this.extensions) {
-					try {
-						extension.addExtensionOnce(
-								ExtendedBrowserComposite.this).get();
-					} catch (Exception e) {
-						LOGGER.error(e);
+		return ExecutorUtil.nonUISyncExec(ExtendedBrowserComposite.class,
+				"After Completion Extensions", new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+						for (IBrowserCompositeExtension extension : ExtendedBrowserComposite.this.extensions) {
+							try {
+								extension.addExtensionOnce(
+										ExtendedBrowserComposite.this).get();
+							} catch (Exception e) {
+								LOGGER.error(e);
+							}
+						}
+						return null;
 					}
-				}
-				return null;
-			}
-		});
+				});
 	}
 
 }
