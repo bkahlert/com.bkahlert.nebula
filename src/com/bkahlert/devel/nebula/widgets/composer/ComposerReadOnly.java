@@ -4,10 +4,12 @@ import org.eclipse.swt.widgets.Composite;
 
 public class ComposerReadOnly extends Composer {
 
+	private Composite composite = null;
+
 	public ComposerReadOnly(Composite parent, int style) {
 		super(parent, style, 50, ToolbarSet.NONE);
-		this.setBackground(parent.getBackground());
-		// also stuff done in config.js
+		this.composite = parent;
+		this.setBackground(composite.getBackground());
 		this.setEnabled(false);
 	}
 

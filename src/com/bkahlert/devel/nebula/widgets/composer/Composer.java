@@ -21,7 +21,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Widget;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -56,10 +55,10 @@ public class Composer extends BrowserComposite {
 		DEFAULT, TERMINAL, NONE;
 	}
 
-	private List<IAnkerLabelProvider> ankerLabelProviders = new ArrayList<IAnkerLabelProvider>();
-	private List<ModifyListener> modifyListeners = new ArrayList<ModifyListener>();
+	private final List<IAnkerLabelProvider> ankerLabelProviders = new ArrayList<IAnkerLabelProvider>();
+	private final List<ModifyListener> modifyListeners = new ArrayList<ModifyListener>();
 	private String oldHtml = "";
-	private Timer delayChangeTimer = new Timer();
+	private final Timer delayChangeTimer = new Timer();
 	private TimerTask delayChangeTimerTask = null;
 
 	public Composer(Composite parent, int style) {
@@ -96,7 +95,7 @@ public class Composer extends BrowserComposite {
 		this.open(
 				getFileUrl(Composer.class, "html/index.html",
 						"?internal=true&toolbarSet="
-								+ toolbarSet.toString().toLowerCase()), 10000);
+								+ toolbarSet.toString().toLowerCase()), 1000);
 	}
 
 	public void fixShortcuts(final long delayChangeEventUpTo) {
@@ -201,7 +200,7 @@ public class Composer extends BrowserComposite {
 			public void run() {
 				Event event = new Event();
 				event.display = Display.getCurrent();
-				event.widget = (Widget) Composer.this;
+				event.widget = Composer.this;
 				event.text = tmp;
 				event.data = tmp;
 				ModifyEvent modifyEvent = new ModifyEvent(event);
