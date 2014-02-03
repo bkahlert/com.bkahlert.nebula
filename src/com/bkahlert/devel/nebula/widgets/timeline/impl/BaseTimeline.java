@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
 import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineJsonGenerator;
@@ -114,7 +115,7 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 					+ ");";
 		}
 		final Future<Object> rt = this.run(js);
-		ExecutorUtil.nonUIAsyncExec(new Runnable() {
+		executorUtil.nonUIAsyncExec(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -172,7 +173,7 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 	public Future<Calendar> getCenterVisibleDate() {
 		return this
 				.run("return com.bkahlert.devel.nebula.timeline.getCenterVisibleDate();",
-						new IConverter<Calendar>() {
+						new IConverter<Object, Calendar>() {
 							@Override
 							public Calendar convert(Object returnValue) {
 								String centerVisibleDate = (String) returnValue;
@@ -202,7 +203,7 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 	public Future<Integer> getZoomIndex() {
 		return this.run(
 				"return com.bkahlert.devel.nebula.timeline.getZoomIndex();",
-				new IConverter<Integer>() {
+				new IConverter<Object, Integer>() {
 					@Override
 					public Integer convert(Object returnValue) {
 						Double zoomIndex = (Double) returnValue;

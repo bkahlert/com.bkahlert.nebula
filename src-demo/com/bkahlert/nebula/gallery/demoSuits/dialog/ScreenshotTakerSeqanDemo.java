@@ -65,7 +65,7 @@ public class ScreenshotTakerSeqanDemo extends AbstractDemo {
 			public void widgetSelected(SelectionEvent e) {
 				final Shell shell = composite.getShell();
 				try {
-					ExecutorUtil.nonUIAsyncExec(new Runnable() {
+					ExecutorUtil.nonUISyncExec(new Runnable() {
 						@Override
 						public void run() {
 							try {

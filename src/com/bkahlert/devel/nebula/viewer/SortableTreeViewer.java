@@ -14,7 +14,7 @@ import org.eclipse.swt.widgets.TreeColumn;
 
 public class SortableTreeViewer extends TreeViewer {
 
-	private GenericColumnViewerComparator genericColumnViewerComparator = new GenericColumnViewerComparator();
+	private final GenericColumnViewerComparator genericColumnViewerComparator = new GenericColumnViewerComparator();
 
 	public SortableTreeViewer(Composite parent, int style) {
 		super(parent, style);
@@ -28,7 +28,7 @@ public class SortableTreeViewer extends TreeViewer {
 
 	@Override
 	public void setComparator(ViewerComparator comparator) {
-		// we manage the comparator on our owns
+		// we manage the comparator on our own
 	}
 
 	public TreeViewerColumn createColumn(String title, int width,
@@ -48,9 +48,10 @@ public class SortableTreeViewer extends TreeViewer {
 			}
 		});
 
-		if (comparator != null)
+		if (comparator != null && this.genericColumnViewerComparator != null) {
 			this.genericColumnViewerComparator.setComparator(
 					getColumnNumber(column), comparator, comparatorClasses);
+		}
 
 		return viewerColumn;
 	}
@@ -72,13 +73,17 @@ public class SortableTreeViewer extends TreeViewer {
 
 	public int getColumnNumber(TreeColumn treeColumn) {
 		for (int i = 0; i < this.getTree().getColumnCount(); i++) {
-			if (this.getTree().getColumn(i) == treeColumn)
+			if (this.getTree().getColumn(i) == treeColumn) {
 				return i;
+			}
 		}
 		return -1;
 	}
 
 	public void sort(TreeColumn column) {
+		if (this.genericColumnViewerComparator == null) {
+			return;
+		}
 		this.genericColumnViewerComparator.setColumn(getColumnNumber(column));
 		int dir = this.genericColumnViewerComparator.getDirection();
 		SortableTreeViewer.this.getTree().setSortDirection(dir);

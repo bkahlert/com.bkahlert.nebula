@@ -8,6 +8,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.hamcrest.Description;
+import org.hamcrest.core.AnyOf;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.api.Action;
@@ -59,7 +60,7 @@ public class CellLabelClient {
 					}
 				});
 
-				allowing(viewerCell).setText(with(any(String.class)));
+				allowing(viewerCell).setText(with(AnyOf.anyOf(any(String.class), aNull(String.class))));
 				will(new Action() {
 					@Override
 					public Object invoke(Invocation invocation)
@@ -88,7 +89,7 @@ public class CellLabelClient {
 					}
 				});
 
-				allowing(viewerCell).setImage(with(any(Image.class)));
+				allowing(viewerCell).setImage(with(AnyOf.anyOf(any(Image.class), aNull(Image.class))));
 				will(new Action() {
 					@Override
 					public Object invoke(Invocation invocation)
@@ -117,11 +118,11 @@ public class CellLabelClient {
 					}
 				});
 
-				allowing(viewerCell).setBackground(with(any(Color.class)));
-				allowing(viewerCell).setForeground(with(any(Color.class)));
-				allowing(viewerCell).setFont(with(any(Font.class)));
+				allowing(viewerCell).setBackground(with(AnyOf.anyOf(any(Color.class), aNull(Color.class))));
+				allowing(viewerCell).setForeground(with(AnyOf.anyOf(any(Color.class), aNull(Color.class))));
+				allowing(viewerCell).setFont(with(AnyOf.anyOf(any(Font.class), aNull(Font.class))));
 				allowing(viewerCell).setStyleRanges(
-						with(any(StyleRange[].class)));
+						with(AnyOf.anyOf(any(StyleRange[].class), aNull(StyleRange[].class))));
 
 				allowing(viewerCell).getBackground();
 				will(returnValue(null));

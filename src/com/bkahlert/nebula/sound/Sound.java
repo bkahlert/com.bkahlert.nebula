@@ -65,9 +65,9 @@ public class Sound {
 		}
 	}
 
-	private File file;
-	private InputStream inputStream;
-	private URL url;
+	private final File file;
+	private final InputStream inputStream;
+	private final URL url;
 
 	public Sound(File file) {
 		this.file = file;
@@ -125,7 +125,7 @@ public class Sound {
 	}
 
 	public Future<Void> playAsync() {
-		return ExecutorUtil.nonUIAsyncExec(this.getCallable());
+		return ExecutorUtil.nonUISyncExec(this.getCallable());
 	}
 
 	public static void main(String[] args) throws SoundException,

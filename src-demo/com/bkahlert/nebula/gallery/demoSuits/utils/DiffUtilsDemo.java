@@ -80,7 +80,7 @@ public class DiffUtilsDemo extends AbstractDemo {
 				final String source = DiffUtilsDemo.this.source.getText();
 				final String patch = DiffUtilsDemo.this.patch.getText();
 				Future<String> output = ExecutorUtil
-						.nonUIAsyncExec(new Callable<String>() {
+						.nonUISyncExec(new Callable<String>() {
 							@Override
 							public String call() throws Exception {
 								return DiffUtils.patch(source, patch);

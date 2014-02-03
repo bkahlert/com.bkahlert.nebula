@@ -3,8 +3,6 @@ package com.bkahlert.devel.nebula.widgets.timeline.model;
 import java.net.URI;
 import java.util.Calendar;
 
-import org.eclipse.core.runtime.IAdaptable;
-
 import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 
@@ -22,7 +20,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
  * @author bkahlert
  * 
  */
-public interface ITimelineEvent extends IAdaptable {
+public interface ITimelineEvent {
 	public String getTitle();
 
 	public String getTooltip();

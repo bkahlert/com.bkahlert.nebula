@@ -27,7 +27,7 @@ public class BootstrapBrowserDemo extends AbstractDemo {
 		setBodyHtml.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ExecutorUtil.nonUIAsyncExec(new Runnable() {
+				ExecutorUtil.nonUISyncExec(new Runnable() {
 					@Override
 					public void run() {
 						log("setting body html to "

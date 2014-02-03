@@ -1,13 +1,22 @@
 package com.bkahlert.devel.nebula.utils;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.Test;
 
-import com.bkahlert.devel.nebula.utils.ExecutorService.DelayableThread;
+import com.bkahlert.devel.nebula.utils.ExecutorUtil.DelayableThread;
 
 public class ExecutorUtilTest {
 
@@ -101,4 +110,39 @@ public class ExecutorUtilTest {
 		assertTrue(this.testDelayableThreadComplex(2000, 1000, 2000, 10));
 	}
 
+	@Test
+	public void testAsyncExec() throws InterruptedException,
+			ExecutionException, TimeoutException {
+		String rt = ExecutorUtil.asyncExec(new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				return "Hello World!";
+			}
+		}).get(50, TimeUnit.MILLISECONDS);
+		assertEquals("Hello World!", rt);
+	}
+
+	@Test
+	public void testNonUIAsyncExecMerged() throws InterruptedException,
+			ExecutionException, TimeoutException {
+		Iterable<String> rt = ExecutorUtil.nonUIAsyncExecMerged(
+				Executors.newCachedThreadPool(),
+				new LinkedList<Integer>(Arrays.asList(15000, 50, 500)),
+				new ExecutorUtil.ParametrizedCallable<Integer, String>() {
+					@Override
+					public String call(Integer sleepTime) throws Exception {
+						Thread.sleep(sleepTime);
+						return "--" + sleepTime + "--";
+					}
+				});
+		Iterator<String> iterator = rt.iterator();
+		assertEquals(true, iterator.hasNext());
+		assertEquals("--50--", iterator.next());
+		assertEquals(true, iterator.hasNext());
+		assertEquals("--500--", iterator.next());
+		assertEquals(true, iterator.hasNext());
+		assertEquals("--15000--", iterator.next());
+		assertEquals(false, iterator.hasNext());
+		assertEquals(null, iterator.next());
+	}
 }

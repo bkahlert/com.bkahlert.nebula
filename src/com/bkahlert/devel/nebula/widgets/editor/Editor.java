@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -32,12 +33,14 @@ import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
  * If multiple {@link Editor}s loaded the same information, only the one in
  * focus saved its changed whereas the other reflect them.
  * 
+ * @param <T>
+ *            type of the objects that can be loaded in this {@link Editor}
+ * 
  * @author bkahlert
  * 
  */
 public abstract class Editor<T> extends Composite {
 
-	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(Editor.class);
 
 	/**
@@ -195,26 +198,36 @@ public abstract class Editor<T> extends Composite {
 						return Status.CANCEL_STATUS;
 					}
 					SubMonitor monitor = SubMonitor.convert(progressMonitor, 3);
-					final String html = Editor.this.getHtml(objectToLoad,
-							monitor.newChild(1));
-					// refreshHeader();
-					monitor.worked(1);
-					ExecutorUtil.syncExec(new Runnable() {
-						@Override
-						public void run() {
-							Editor.this.composer.setSource(html);
-							Editor.this.composer.setEnabled(true);
+					final AtomicReference<String> html = new AtomicReference<String>();
+					try {
+						html.set(Editor.this.getHtml(objectToLoad,
+								monitor.newChild(1)));
+
+						// refreshHeader();
+						monitor.worked(1);
+						ExecutorUtil.syncExec(new Runnable() {
+							@Override
+							public void run() {
+								Editor.this.composer.setSource(html.get());
+								Editor.this.composer.setEnabled(true);
+							}
+						});
+						monitor.worked(1);
+						monitor.done();
+						Editor.this.loadedObject = objectToLoad;
+						if (responsibleEditors.get(objectToLoad) == null) {
+							responsibleEditors.put(objectToLoad,
+									new ArrayList<Editor<Object>>());
 						}
-					});
-					monitor.worked(1);
-					monitor.done();
-					Editor.this.loadedObject = objectToLoad;
-					if (responsibleEditors.get(objectToLoad) == null) {
-						responsibleEditors.put(objectToLoad,
-								new ArrayList<Editor<Object>>());
+						responsibleEditors.get(objectToLoad).add(
+								(Editor<Object>) Editor.this);
+
+					} catch (Exception e) {
+						LOGGER.error("Error while loading content of "
+								+ objectToLoad, e);
+						Editor.this.loadedObject = null;
 					}
-					responsibleEditors.get(objectToLoad).add(
-							(Editor<Object>) Editor.this);
+
 					return Status.OK_STATUS;
 				}
 			};
@@ -294,8 +307,13 @@ public abstract class Editor<T> extends Composite {
 				}
 				SubMonitor monitor = SubMonitor.convert(progressMonitor, 2);
 				monitor.worked(1);
-				Editor.this.setHtml(savedLoadedObject, html,
-						monitor.newChild(1));
+				try {
+					Editor.this.setHtml(savedLoadedObject, html,
+							monitor.newChild(1));
+				} catch (Exception e) {
+					LOGGER.error("Error while saving content of "
+							+ savedLoadedObject, e);
+				}
 				monitor.done();
 				return Status.OK_STATUS;
 			}
@@ -312,7 +330,8 @@ public abstract class Editor<T> extends Composite {
 	 * @param monitor
 	 * @return
 	 */
-	public abstract String getHtml(T objectToLoad, IProgressMonitor monitor);
+	public abstract String getHtml(T objectToLoad, IProgressMonitor monitor)
+			throws Exception;
 
 	/**
 	 * Sets the given html to the loaded object.
@@ -322,6 +341,6 @@ public abstract class Editor<T> extends Composite {
 	 * @param monitor
 	 */
 	public abstract void setHtml(T loadedObject, String html,
-			IProgressMonitor monitor);
+			IProgressMonitor monitor) throws Exception;
 
 }

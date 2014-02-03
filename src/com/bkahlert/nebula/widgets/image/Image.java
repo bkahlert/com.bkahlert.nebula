@@ -71,7 +71,7 @@ public class Image extends BrowserComposite {
 		public void imageResized(Point size);
 	}
 
-	private List<IImageListener> imageListeners = new ArrayList<IImageListener>();
+	private final List<IImageListener> imageListeners = new ArrayList<IImageListener>();
 	private final Object imageLoadMonitor = new Object();
 
 	private FILL_MODE fillMode;
@@ -168,7 +168,7 @@ public class Image extends BrowserComposite {
 	 *            is called in the UI thread when the source has been loaded.
 	 */
 	public void load(final String src, final Runnable callback) {
-		ExecutorUtil.nonUIAsyncExec(new Callable<Void>() {
+		ExecutorUtil.nonUISyncExec(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
 				String script = "com.bkahlert.nebula.image.load("

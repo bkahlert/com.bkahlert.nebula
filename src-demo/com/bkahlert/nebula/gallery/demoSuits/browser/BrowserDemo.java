@@ -109,7 +109,7 @@ public class BrowserDemo extends AbstractDemo {
 			final Future<Boolean> success = this.browserComposite.open(new URI(
 					"http://www.google.de"), Integer
 					.parseInt(BrowserDemo.timeoutString));
-			ExecutorUtil.nonUIAsyncExec(new Runnable() {
+			ExecutorUtil.nonUISyncExec(new Runnable() {
 				@Override
 				public void run() {
 					try {

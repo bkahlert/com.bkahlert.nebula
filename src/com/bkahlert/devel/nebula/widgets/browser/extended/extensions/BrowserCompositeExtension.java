@@ -14,8 +14,8 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.nebula.widgets.browser.IBrowserComposite;
-import com.bkahlert.devel.nebula.widgets.browser.IBrowserComposite.IConverter;
 import com.bkahlert.nebula.utils.CompletedFuture;
 
 /**
@@ -37,12 +37,15 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 	private static final Logger LOGGER = Logger
 			.getLogger(BrowserCompositeExtension.class);
 
-	private String name;
-	private String verificationScript;
-	private URI[] jsExtensions;
-	private URI[] cssExtensions;
+	private final ExecutorUtil executorUtil = new ExecutorUtil(
+			BrowserCompositeExtension.class);
 
-	private List<Class<? extends IBrowserCompositeExtension>> dependencies;
+	private final String name;
+	private final String verificationScript;
+	private final URI[] jsExtensions;
+	private final URI[] cssExtensions;
+
+	private final List<Class<? extends IBrowserCompositeExtension>> dependencies;
 
 	/**
 	 * This constructor allows adding a single JS file.
@@ -108,7 +111,7 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 	public Future<Boolean> hasExtension(IBrowserComposite browserComposite) {
 		try {
 			return browserComposite.run(this.verificationScript,
-					IBrowserComposite.CONVERTER_BOOLEAN);
+					IConverter.CONVERTER_BOOLEAN);
 		} catch (Exception e) {
 			return new CompletedFuture<Boolean>(false, e);
 		}
@@ -116,7 +119,7 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 
 	@Override
 	public Future<Boolean> addExtension(final IBrowserComposite browserComposite) {
-		return ExecutorUtil.nonUIAsyncExec(new Callable<Boolean>() {
+		return executorUtil.nonUIAsyncExec(new Callable<Boolean>() {
 			@Override
 			public Boolean call() throws Exception {
 				if (BrowserCompositeExtension.this.dependencies != null) {
@@ -153,7 +156,7 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 	@Override
 	public Future<Boolean> addExtensionOnce(
 			final IBrowserComposite browserComposite) {
-		return ExecutorUtil.nonUIAsyncExec(new Callable<Boolean>() {
+		return executorUtil.nonUIAsyncExec(new Callable<Boolean>() {
 			@Override
 			public Boolean call() throws Exception {
 				if (!BrowserCompositeExtension.this.hasExtension(
@@ -177,12 +180,13 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 			File file = new File(jsExtension.toString().substring(
 					"file://".length()));
 			String script = FileUtils.readFileToString(file);
-			return browserComposite.run(script, new IConverter<Boolean>() {
-				@Override
-				public Boolean convert(Object returnValue) {
-					return true;
-				}
-			}).get();
+			return browserComposite.run(script,
+					new IConverter<Object, Boolean>() {
+						@Override
+						public Boolean convert(Object returnValue) {
+							return true;
+						}
+					}).get();
 		} else {
 			try {
 				return browserComposite.inject(jsExtension).get();

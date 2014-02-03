@@ -34,6 +34,7 @@ import org.jsoup.select.Elements;
 
 import com.bkahlert.devel.nebula.utils.EventDelegator;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.Anker;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
@@ -64,8 +65,11 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	private boolean settingUri = false;
 	private boolean allowLocationChange = false;
 	private boolean loadingCompleted = false;
-	private List<IJavaScriptExceptionListener> javaScriptExceptionListeners = new ArrayList<IJavaScriptExceptionListener>();
-	private List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
+	private final List<IJavaScriptExceptionListener> javaScriptExceptionListeners = new ArrayList<IJavaScriptExceptionListener>();
+	private final List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
+
+	protected final ExecutorUtil executorUtil = new ExecutorUtil(
+			this.getClass());
 
 	public BrowserComposite(Composite parent, int style) {
 		super(parent, style);
@@ -139,7 +143,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 					String uri = BrowserComposite.this.browser.getUrl();
 					final Future<Void> finished = BrowserComposite.this
 							.afterCompletion(uri);
-					ExecutorUtil.nonUIAsyncExec(new Runnable() {
+					executorUtil.nonUIAsyncExec(new Runnable() {
 						@Override
 						public void run() {
 							try {
@@ -177,7 +181,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	@Override
 	public Future<Boolean> open(final String uri, final Integer timeout) {
 		this.loadingCompleted = false;
-		return ExecutorUtil.nonUIAsyncExec(new Callable<Boolean>() {
+		return executorUtil.nonUIAsyncExec(new Callable<Boolean>() {
 			@Override
 			public Boolean call() throws Exception {
 				final AtomicReference<Boolean> isCancelled = new AtomicReference<Boolean>(
@@ -186,17 +190,19 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				// stops waiting after timeout
 				Future<?> timeoutMonitor = null;
 				if (timeout != null && timeout > 0) {
-					timeoutMonitor = ExecutorUtil.nonUIAsyncRun(new Runnable() {
-						@Override
-						public void run() {
-							synchronized (BrowserComposite.this.monitor) {
-								if (!BrowserComposite.this.loadingCompleted) {
-									isCancelled.set(true);
-									BrowserComposite.this.monitor.notifyAll();
+					timeoutMonitor = executorUtil.nonUIAsyncExec(
+							new Runnable() {
+								@Override
+								public void run() {
+									synchronized (BrowserComposite.this.monitor) {
+										if (!BrowserComposite.this.loadingCompleted) {
+											isCancelled.set(true);
+											BrowserComposite.this.monitor
+													.notifyAll();
+										}
+									}
 								}
-							}
-						}
-					}, timeout);
+							}, timeout);
 				} else {
 					LOGGER.warn("timeout must be greater or equal 0. Ignoring timeout.");
 				}
@@ -360,7 +366,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		return this.loadingCompleted;
 	}
 
-	private Object monitor = new Object();
+	private final Object monitor = new Object();
 
 	@Override
 	public void run(final File script) {
@@ -380,7 +386,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	private Future<Boolean> run(final URI script,
 			final boolean removeAfterExecution) {
 		Assert.isLegal(script != null);
-		return ExecutorUtil.nonUIAsyncExec(new Callable<Boolean>() {
+		return executorUtil.nonUIAsyncExec(new Callable<Boolean>() {
 			@Override
 			public Boolean call() {
 				final String callbackFunctionName = new BigInteger(130,
@@ -423,14 +429,15 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	}
 
 	@Override
-	public <T> Future<T> run(final String script, final IConverter<T> converter) {
+	public <DEST> Future<DEST> run(final String script,
+			final IConverter<Object, DEST> converter) {
 		Assert.isLegal(converter != null);
 		if (this.getBrowser() == null || this.getBrowser().isDisposed()) {
 			return null;
 		}
-		final Callable<T> callable = new Callable<T>() {
+		final Callable<DEST> callable = new Callable<DEST>() {
 			@Override
-			public T call() throws Exception {
+			public DEST call() throws Exception {
 				String logScript = script.length() > 100 ? script.substring(0,
 						100) + "..." : script;
 				logScript = logScript.replace("\n", " ").replace("\r", " ")
@@ -446,18 +453,18 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 			}
 		};
 		if (BrowserComposite.this.loadingCompleted) {
-			final AtomicReference<T> converted = new AtomicReference<T>();
+			final AtomicReference<DEST> converted = new AtomicReference<DEST>();
 			Exception exception = null;
 			try {
 				converted.set(ExecutorUtil.syncExec(callable));
 			} catch (Exception e) {
 				exception = e;
 			}
-			return new CompletedFuture<T>(converted.get(), exception);
+			return new CompletedFuture<DEST>(converted.get(), exception);
 		} else {
-			return ExecutorUtil.nonUIAsyncExec(new Callable<T>() {
+			return executorUtil.nonUIAsyncExec(new Callable<DEST>() {
 				@Override
-				public T call() throws Exception {
+				public DEST call() throws Exception {
 					if (!BrowserComposite.this.loadingCompleted) {
 						synchronized (BrowserComposite.this.monitor) {
 							BrowserComposite.this.monitor.wait();
@@ -475,7 +482,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 
 	@Override
 	public Future<Object> run(final String script) {
-		return this.run(script, new IConverter<Object>() {
+		return this.run(script, new IConverter<Object, Object>() {
 			@Override
 			public Object convert(Object object) {
 				return object;
@@ -519,13 +526,13 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	@Override
 	public Future<Boolean> containsElementWithID(String id) {
 		return this.run("return document.getElementById('" + id + "') != null",
-				IBrowserComposite.CONVERTER_BOOLEAN);
+				IConverter.CONVERTER_BOOLEAN);
 	}
 
 	@Override
 	public Future<Boolean> containsElementsWithName(String name) {
 		return this.run("return document.getElementsByName('" + name
-				+ "').length > 0", IBrowserComposite.CONVERTER_BOOLEAN);
+				+ "').length > 0", IConverter.CONVERTER_BOOLEAN);
 	}
 
 	@Override
@@ -533,13 +540,13 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		String escapedHtml = html.replace("\n", "<br>").replace("&#xD;", "")
 				.replace("\r", "").replace("\"", "\\\"").replace("'", "\\'");
 		return this.run("document.body.innerHTML = ('" + escapedHtml + "');",
-				IBrowserComposite.CONVERTER_VOID);
+				IConverter.CONVERTER_VOID);
 	}
 
 	@Override
 	public Future<String> getBodyHtml() {
 		return this.run("return document.body.innerHTML",
-				IBrowserComposite.CONVERTER_STRING);
+				IConverter.CONVERTER_STRING);
 	}
 
 }

@@ -5,9 +5,9 @@ import java.net.URI;
 import java.util.concurrent.Future;
 
 import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
+import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.nebula.widgets.IWidget;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 
@@ -19,52 +19,6 @@ import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
  * 
  */
 public interface IBrowserComposite extends IWidget {
-
-	public static interface IConverter<T> {
-		public T convert(Object returnValue);
-	}
-
-	public static final IConverter<Void> CONVERTER_VOID = new IConverter<Void>() {
-		@Override
-		public Void convert(Object returnValue) {
-			return null;
-		}
-	};
-
-	public static final IConverter<Boolean> CONVERTER_BOOLEAN = new IConverter<Boolean>() {
-		@Override
-		public Boolean convert(Object returnValue) {
-			if (returnValue == null || !Boolean.class.isInstance(returnValue)) {
-				return false;
-			}
-			return (Boolean) returnValue;
-		}
-	};
-
-	public static final IConverter<String> CONVERTER_STRING = new IConverter<String>() {
-		@Override
-		public String convert(Object returnValue) {
-			if (returnValue == null || !String.class.isInstance(returnValue)) {
-				return null;
-			}
-			return (String) returnValue;
-		}
-	};
-
-	public static final IConverter<Point> CONVERTER_POINT = new IConverter<Point>() {
-		@Override
-		public Point convert(Object returnValue) {
-			if (returnValue == null || !Object[].class.isInstance(returnValue)
-					|| ((Object[]) returnValue).length != 2
-					|| !Double.class.isInstance(((Object[]) returnValue)[0])
-					|| !Double.class.isInstance(((Object[]) returnValue)[1])) {
-				return null;
-			}
-			Object[] pos = (Object[]) returnValue;
-			return new Point((int) Math.round((Double) pos[0]),
-					(int) Math.round((Double) pos[1]));
-		}
-	};
 
 	/**
 	 * Return the {@link Browser} used by this timeline.
@@ -216,7 +170,8 @@ public interface IBrowserComposite extends IWidget {
 	 * 
 	 * @ArbitraryThread may be called from whatever thread.
 	 */
-	public <T> Future<T> run(String script, IConverter<T> converter);
+	public <DEST> Future<DEST> run(String script,
+			IConverter<Object, DEST> converter);
 
 	/**
 	 * Returns a {@link Future} that tells you if an element with the given id

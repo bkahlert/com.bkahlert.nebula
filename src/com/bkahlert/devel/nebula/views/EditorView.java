@@ -1,5 +1,7 @@
 package com.bkahlert.devel.nebula.views;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -13,7 +15,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
@@ -24,11 +28,14 @@ import com.bkahlert.devel.nebula.widgets.editor.Editor;
 /**
  * Instances of this class are {@link ViewPart}s that wrap a {@link Editor}.
  * 
+ * @param <T>
+ *            type of the objects that can be loaded in the wrapped
+ *            {@link Editor}
+ * 
  * @author bkahlert
  */
 public abstract class EditorView<T> extends ViewPart {
 
-	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(EditorView.class);
 
 	public static class PartInfo {
@@ -83,22 +90,30 @@ public abstract class EditorView<T> extends ViewPart {
 	}
 
 	protected void refreshHeader() {
-		final PartInfo partInfo;
+		final AtomicReference<PartInfo> partInfo = new AtomicReference<PartInfo>();
 		if (this.getEditor().getLoadedObject() != null) {
-			partInfo = this.getPartInfo(this.getEditor().getLoadedObject());
+			try {
+				partInfo.set(this.getPartInfo(this.getEditor()
+						.getLoadedObject()));
+			} catch (Exception e) {
+				LOGGER.error("Error while refreshing header", e);
+				partInfo.set(new PartInfo("ERROR", PlatformUI.getWorkbench()
+						.getSharedImages()
+						.getImage(ISharedImages.IMG_OBJS_ERROR_TSK)));
+			}
 		} else {
-			partInfo = this.getDefaultPartInfo();
+			partInfo.set(this.getDefaultPartInfo());
 		}
 
 		ExecutorUtil.syncExec(new Runnable() {
 			@Override
 			public void run() {
 				EditorView.this.setPartName(partInfo != null
-						&& partInfo.getTitle() != null ? partInfo.getTitle()
-						: "Editor");
+						&& partInfo.get().getTitle() != null ? partInfo.get()
+						.getTitle() : "Editor");
 				EditorView.this.setTitleImage(partInfo != null
-						&& partInfo.getImage() != null ? partInfo.getImage()
-						: null);
+						&& partInfo.get().getImage() != null ? partInfo.get()
+						.getImage() : null);
 			}
 		});
 	}
@@ -116,7 +131,7 @@ public abstract class EditorView<T> extends ViewPart {
 	 * @param loadedObject
 	 * @return
 	 */
-	public abstract PartInfo getPartInfo(T loadedObject);
+	public abstract PartInfo getPartInfo(T loadedObject) throws Exception;
 
 	@Override
 	public final void createPartControl(Composite parent) {
@@ -126,13 +141,14 @@ public abstract class EditorView<T> extends ViewPart {
 			this.editor = new AutosaveEditor<T>(parent, SWT.NONE,
 					this.delayChangeEventUpTo, this.toolbarSet) {
 				@Override
-				public String getHtml(T loadedObject, IProgressMonitor monitor) {
+				public String getHtml(T loadedObject, IProgressMonitor monitor)
+						throws Exception {
 					return EditorView.this.getHtml(loadedObject, monitor);
 				}
 
 				@Override
 				public void setHtml(T loadedObject, String html,
-						IProgressMonitor monitor) {
+						IProgressMonitor monitor) throws Exception {
 					EditorView.this.setHtml(loadedObject, html, monitor);
 				}
 			};
@@ -140,13 +156,14 @@ public abstract class EditorView<T> extends ViewPart {
 			this.editor = new Editor<T>(parent, SWT.NONE,
 					this.delayChangeEventUpTo, this.toolbarSet) {
 				@Override
-				public String getHtml(T loadedObject, IProgressMonitor monitor) {
+				public String getHtml(T loadedObject, IProgressMonitor monitor)
+						throws Exception {
 					return EditorView.this.getHtml(loadedObject, monitor);
 				}
 
 				@Override
 				public void setHtml(T loadedObject, String html,
-						IProgressMonitor monitor) {
+						IProgressMonitor monitor) throws Exception {
 					EditorView.this.setHtml(loadedObject, html, monitor);
 				}
 			};
@@ -217,8 +234,10 @@ public abstract class EditorView<T> extends ViewPart {
 	 * @param objectToLoad
 	 * @param monitor
 	 * @return
+	 * @throws Exception
 	 */
-	public abstract String getHtml(T objectToLoad, IProgressMonitor monitor);
+	public abstract String getHtml(T objectToLoad, IProgressMonitor monitor)
+			throws Exception;
 
 	/**
 	 * Sets the given html to the loaded object.
@@ -228,7 +247,7 @@ public abstract class EditorView<T> extends ViewPart {
 	 * @param monitor
 	 */
 	public abstract void setHtml(T loadedObject, String html,
-			IProgressMonitor monitor);
+			IProgressMonitor monitor) throws Exception;
 
 	@Override
 	public void setFocus() {

@@ -31,7 +31,7 @@ public class ExtendedBrowserDemo extends AbstractDemo {
 		scrollTo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ExecutorUtil.nonUIAsyncExec(new Runnable() {
+				ExecutorUtil.nonUISyncExec(new Runnable() {
 					@Override
 					public void run() {
 						log("scrolling to " + ExtendedBrowserDemo.this.x + ", "

@@ -6,8 +6,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-import org.eclipse.core.internal.runtime.AdapterManager;
-
 import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
@@ -43,16 +41,16 @@ public class TimelineEvent implements ITimelineEvent {
 		return new Calendar[] { start, end };
 	}
 
-	private String title;
-	private String tooltip;
-	private URI icon;
-	private URI image;
-	private Calendar start;
-	private Calendar end;
-	private RGB[] colors;
-	private boolean resizable;
+	private final String title;
+	private final String tooltip;
+	private final URI icon;
+	private final URI image;
+	private final Calendar start;
+	private final Calendar end;
+	private final RGB[] colors;
+	private final boolean resizable;
 	private String[] classNames;
-	private Object payload;
+	private final Object payload;
 
 	public TimelineEvent(String title, String tooltip, URI icon, URI image,
 			Calendar start, Calendar end, RGB[] colors, boolean resizable,
@@ -79,6 +77,7 @@ public class TimelineEvent implements ITimelineEvent {
 		return this.title;
 	}
 
+	@Override
 	public String getTooltip() {
 		return this.tooltip;
 	}
@@ -130,12 +129,6 @@ public class TimelineEvent implements ITimelineEvent {
 	@Override
 	public Object getPayload() {
 		return this.payload;
-	}
-
-	@Override
-	@SuppressWarnings("rawtypes")
-	public Object getAdapter(Class adapter) {
-		return AdapterManager.getDefault().getAdapter(this, adapter);
 	}
 
 }

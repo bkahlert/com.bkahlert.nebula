@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Table;
 
 import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 
+
 /**
  * This {@link Composite} extends {@link ProjectDisplayComposite} and allows to
  * check (via check boxes) {@link IProject}s.

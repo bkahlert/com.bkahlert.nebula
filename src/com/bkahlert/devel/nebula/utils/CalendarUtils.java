@@ -9,7 +9,26 @@ import java.util.TimeZone;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
+import org.apache.log4j.Logger;
+
 public class CalendarUtils {
+
+	private static final Logger LOGGER = Logger.getLogger(CalendarUtils.class);
+
+	private static DatatypeFactory datatypeFactory = null;
+
+	private static DatatypeFactory getDatatypeFactory() {
+		if (datatypeFactory == null) {
+			try {
+				datatypeFactory = DatatypeFactory.newInstance();
+			} catch (DatatypeConfigurationException e) {
+				LOGGER.fatal(
+						"Error creating "
+								+ DatatypeFactory.class.getSimpleName(), e);
+			}
+		}
+		return datatypeFactory;
+	}
 
 	private static Calendar[] getSortedCalendars(List<Calendar> calendars) {
 		Calendar[] calendarArray = calendars.toArray(new Calendar[0]);
@@ -74,26 +93,21 @@ public class CalendarUtils {
 
 	public static Calendar fromISO8601(String lexicalRepresentation)
 			throws IllegalArgumentException {
-		try {
-			String[] tries = new String[] { lexicalRepresentation,
-					cleanISO8601(lexicalRepresentation) };
+		String[] tries = new String[] { lexicalRepresentation,
+				cleanISO8601(lexicalRepresentation) };
 
-			IllegalArgumentException ex = null;
-			for (String trie : tries) {
-				try {
-					return DatatypeFactory.newInstance()
-							.newXMLGregorianCalendar(trie)
-							.toGregorianCalendar();
-				} catch (IllegalArgumentException e) {
-					if (ex == null) {
-						ex = e;
-					}
+		IllegalArgumentException ex = null;
+		for (String trie : tries) {
+			try {
+				return getDatatypeFactory().newXMLGregorianCalendar(trie)
+						.toGregorianCalendar();
+			} catch (IllegalArgumentException e) {
+				if (ex == null) {
+					ex = e;
 				}
 			}
-			throw ex;
-		} catch (DatatypeConfigurationException e) {
-			return null;
 		}
+		throw ex;
 	}
 
 	public static String cleanISO8601(String lexical) {
