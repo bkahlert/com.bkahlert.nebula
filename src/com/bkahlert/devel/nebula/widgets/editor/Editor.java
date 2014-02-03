@@ -14,6 +14,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -50,12 +54,13 @@ public abstract class Editor<T> extends Composite {
 	 * which need to reload their contents if they loaded the same object.
 	 */
 	private static Map<Object, List<Editor<Object>>> responsibleEditors = new HashMap<Object, List<Editor<Object>>>();
+	private static Editor<?> lastFocussedEditor = null;
 
 	private T loadedObject = null;
 	private Job loadJob = null;
-	private Map<T, Job> saveJobs = new HashMap<T, Job>();
+	private final Map<T, Job> saveJobs = new HashMap<T, Job>();
 
-	protected Composer composer;
+	protected Composer composer = null;
 
 	/**
 	 * 
@@ -74,7 +79,24 @@ public abstract class Editor<T> extends Composite {
 		this.setLayout(new FillLayout());
 		this.composer = new Composer(this, style & SWT.BORDER,
 				delayChangeEventUpTo, toolbarSet);
-		this.composer.setEnabled(false);
+		this.composer.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				lastFocussedEditor = Editor.this;
+			}
+		});
+		this.composer.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				try {
+					save();
+				} catch (Exception e1) {
+					LOGGER.error(
+							"Error saving content of " + Editor.this.getClass(),
+							e1);
+				}
+			}
+		});
 	}
 
 	@Override
@@ -141,6 +163,7 @@ public abstract class Editor<T> extends Composite {
 
 	@Override
 	public boolean setFocus() {
+		lastFocussedEditor = this;
 		return this.composer.setFocus();
 	}
 
@@ -247,7 +270,7 @@ public abstract class Editor<T> extends Composite {
 	public final Job save() throws Exception {
 		String html = ExecutorUtil.syncExec(new Callable<String>() {
 			@Override
-			public String call() {
+			public String call() throws Exception {
 				return Editor.this.composer.getSource();
 			}
 		});
@@ -267,19 +290,8 @@ public abstract class Editor<T> extends Composite {
 	 * @return the {@link Job} used to save the object.
 	 */
 	synchronized Job save(final String html) {
-		try {
-			if (!ExecutorUtil.syncExec(new Callable<Boolean>() {
-				@Override
-				public Boolean call() throws Exception {
-					return Editor.this.composer.getBrowser().isFocusControl();
-				}
-			})) {
-				return null;
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(
-					"Error saving memo because current control in focus not found.",
-					e);
+		if (lastFocussedEditor != this) {
+			return null;
 		}
 
 		if (responsibleEditors.get(this.loadedObject) != null) {
