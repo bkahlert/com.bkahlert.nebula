@@ -46,6 +46,7 @@ public class InformationControlDemo extends AbstractDemo {
 			protected InformationControl<String> doCreateInformationControl(
 					Shell parent) {
 				return new EnhanceableInformationControl<String, Delegate<String>>(
+						InformationControlDemo.class.getClassLoader(),
 						String.class, parent,
 						new DelegateFactory<Delegate<String>>() {
 							@Override

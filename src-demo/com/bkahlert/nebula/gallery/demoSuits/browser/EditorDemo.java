@@ -89,6 +89,7 @@ public class EditorDemo extends AbstractDemo {
 					protected InformationControl<IAnker> doCreateInformationControl(
 							Shell parent) {
 						return new EnhanceableInformationControl<IAnker, Delegate<IAnker>>(
+								EditorDemo.class.getClassLoader(),
 								IAnker.class, parent,
 								new DelegateFactory<Delegate<IAnker>>() {
 									@Override

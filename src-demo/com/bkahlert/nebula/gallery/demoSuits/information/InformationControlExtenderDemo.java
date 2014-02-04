@@ -87,6 +87,7 @@ public class InformationControlExtenderDemo extends AbstractDemo {
 			protected InformationControl<InformationControlDemoInput> doCreateInformationControl(
 					Shell parent) {
 				return new EnhanceableInformationControl<InformationControlDemoInput, Delegate<InformationControlDemoInput>>(
+						InformationControlExtender.class.getClassLoader(),
 						InformationControlDemoInput.class,
 						parent,
 						new DelegateFactory<Delegate<InformationControlDemoInput>>() {

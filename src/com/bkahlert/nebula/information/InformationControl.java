@@ -48,7 +48,7 @@ public abstract class InformationControl<INFORMATION> extends
 
 	@SuppressWarnings("unchecked")
 	protected static <INFORMATION> List<IInformationControlExtender<INFORMATION>> getExtenders(
-			Class<INFORMATION> targetInformationClass) {
+			ClassLoader classLoader, Class<INFORMATION> targetInformationClass) {
 		IConfigurationElement[] config = Platform.getExtensionRegistry()
 				.getConfigurationElementsFor("com.bkahlert.nebula.information");
 		final List<IInformationControlExtender<INFORMATION>> extenders = new ArrayList<IInformationControlExtender<INFORMATION>>();
@@ -59,9 +59,7 @@ public abstract class InformationControl<INFORMATION> extends
 			String informationClassName = configElement
 					.getAttribute("informationClass");
 			try {
-				ClassLoader targetClassLoader = targetInformationClass
-						.getClassLoader();
-				Class<?> informationClass = targetClassLoader != null ? targetClassLoader
+				Class<?> informationClass = classLoader != null ? classLoader
 						.loadClass(informationClassName) : Class
 						.forName(informationClassName);
 				if (targetInformationClass != informationClass) {
@@ -103,19 +101,23 @@ public abstract class InformationControl<INFORMATION> extends
 		return extenders;
 	}
 
+	private ClassLoader extenderInformationClassLoader;
 	private List<IInformationControlExtender<INFORMATION>> extenders = null;
 	private Class<INFORMATION> informationClass = null;
 	private boolean hasContents = false;
 	private Composite parent = null;
 
-	protected InformationControl(Class<INFORMATION> informationClass,
-			Shell parentShell, String statusFieldText, Object noCreate) {
+	protected InformationControl(ClassLoader extenderInformationClassLoader,
+			Class<INFORMATION> informationClass, Shell parentShell,
+			String statusFieldText, Object noCreate) {
 		super(parentShell, statusFieldText);
+		this.extenderInformationClassLoader = extenderInformationClassLoader;
 		this.informationClass = informationClass;
 	}
 
-	protected InformationControl(Class<INFORMATION> informationClass,
-			Shell parentShell, ToolBarManager toolBarManager, Object noCreate) {
+	protected InformationControl(ClassLoader extenderInformationClassLoader,
+			Class<INFORMATION> informationClass, Shell parentShell,
+			ToolBarManager toolBarManager, Object noCreate) {
 		super(parentShell, toolBarManager);
 		this.informationClass = informationClass;
 		toolBarManager.add(new GroupMarker(
@@ -123,9 +125,11 @@ public abstract class InformationControl<INFORMATION> extends
 		this.addMenuServiceContributions(toolBarManager);
 	}
 
-	public InformationControl(Class<INFORMATION> informationClass,
-			Shell parentShell, String statusFieldText) {
-		this(informationClass, parentShell, statusFieldText, null);
+	public InformationControl(ClassLoader extenderInformationClassLoader,
+			Class<INFORMATION> informationClass, Shell parentShell,
+			String statusFieldText) {
+		this(extenderInformationClassLoader, informationClass, parentShell,
+				statusFieldText, null);
 		this.create();
 	}
 
@@ -143,9 +147,11 @@ public abstract class InformationControl<INFORMATION> extends
 	 * @param parentShell
 	 * @param toolBarManager
 	 */
-	public InformationControl(Class<INFORMATION> informationClass,
-			Shell parentShell, ToolBarManager toolBarManager) {
-		this(informationClass, parentShell, toolBarManager, null);
+	public InformationControl(ClassLoader extenderInformationClassLoader,
+			Class<INFORMATION> informationClass, Shell parentShell,
+			ToolBarManager toolBarManager) {
+		this(extenderInformationClassLoader, informationClass, parentShell,
+				toolBarManager, null);
 		this.create();
 	}
 
@@ -159,8 +165,8 @@ public abstract class InformationControl<INFORMATION> extends
 	@Override
 	protected final void createContent(final Composite parent) {
 		this.parent = parent;
-		this.extenders = InformationControl
-				.<INFORMATION> getExtenders(this.informationClass);
+		this.extenders = InformationControl.<INFORMATION> getExtenders(
+				this.extenderInformationClassLoader, this.informationClass);
 		Composite extensionComposite = this.create(parent);
 		if (extensionComposite != null) {
 			for (IInformationControlExtender<INFORMATION> extender : this.extenders) {
