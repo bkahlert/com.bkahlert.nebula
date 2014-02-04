@@ -27,8 +27,9 @@ public class Timeline extends BaseTimeline implements ITimeline {
 	 * @param input
 	 */
 	private static void addIdentifiers(ITimelineInput input) {
-		if (input == null)
+		if (input == null) {
 			return;
+		}
 		for (int i = 0, m = input.getBandCount(); i < m; i++) {
 			ITimelineBand band = input.getBands().get(i);
 			for (int j = 0, n = band.getEventCount(); j < n; j++) {
@@ -71,12 +72,14 @@ public class Timeline extends BaseTimeline implements ITimeline {
 		public Object function(Object[] arguments) {
 			int[] id = fromArguments(arguments);
 			Object[] custom;
-			if (arguments.length > 1 && arguments[1] instanceof Object[])
+			if (arguments.length > 1 && arguments[1] instanceof Object[]) {
 				custom = (Object[]) arguments[1];
-			else
+			} else {
 				custom = new Object[0];
-			if (id != null)
+			}
+			if (id != null) {
 				call(id[0], id[1], custom);
+			}
 			return null;
 		}
 
@@ -84,7 +87,7 @@ public class Timeline extends BaseTimeline implements ITimeline {
 				Object[] custom);
 	}
 
-	private ListenerList timelineListeners = new ListenerList();
+	private final ListenerList timelineListeners = new ListenerList();
 
 	private ITimelineInput input;
 
@@ -99,8 +102,9 @@ public class Timeline extends BaseTimeline implements ITimeline {
 				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
 						Timeline.this, input.getBand(bandNumber).getEvent(
 								eventNumber), null, null);
-				for (int i = 0, m = listeners.length; i < m; ++i)
+				for (int i = 0, m = listeners.length; i < m; ++i) {
 					((ITimelineListener) listeners[i]).clicked(event);
+				}
 			}
 		};
 		new TimelineListenerBrowserFunction(this.getBrowser(),
@@ -111,8 +115,9 @@ public class Timeline extends BaseTimeline implements ITimeline {
 				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
 						Timeline.this, input.getBand(bandNumber).getEvent(
 								eventNumber), null, null);
-				for (int i = 0, m = listeners.length; i < m; ++i)
+				for (int i = 0, m = listeners.length; i < m; ++i) {
 					((ITimelineListener) listeners[i]).middleClicked(event);
+				}
 			}
 		};
 		new TimelineListenerBrowserFunction(this.getBrowser(),
@@ -123,8 +128,9 @@ public class Timeline extends BaseTimeline implements ITimeline {
 				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
 						Timeline.this, input.getBand(bandNumber).getEvent(
 								eventNumber), null, null);
-				for (int i = 0, m = listeners.length; i < m; ++i)
+				for (int i = 0, m = listeners.length; i < m; ++i) {
 					((ITimelineListener) listeners[i]).rightClicked(event);
+				}
 			}
 		};
 		new TimelineListenerBrowserFunction(this.getBrowser(),
@@ -135,8 +141,9 @@ public class Timeline extends BaseTimeline implements ITimeline {
 				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
 						Timeline.this, input.getBand(bandNumber).getEvent(
 								eventNumber), null, null);
-				for (int i = 0, m = listeners.length; i < m; ++i)
+				for (int i = 0, m = listeners.length; i < m; ++i) {
 					((ITimelineListener) listeners[i]).doubleClicked(event);
+				}
 			}
 		};
 		new TimelineListenerBrowserFunction(this.getBrowser(),
@@ -152,8 +159,9 @@ public class Timeline extends BaseTimeline implements ITimeline {
 								eventNumber), startDate, endDate);
 
 				Object[] listeners = timelineListeners.getListeners();
-				for (int i = 0, m = listeners.length; i < m; ++i)
+				for (int i = 0, m = listeners.length; i < m; ++i) {
 					((ITimelineListener) listeners[i]).resizeStarted(event);
+				}
 			}
 		};
 		new TimelineListenerBrowserFunction(this.getBrowser(),
@@ -169,8 +177,9 @@ public class Timeline extends BaseTimeline implements ITimeline {
 								eventNumber), startDate, endDate);
 
 				Object[] listeners = timelineListeners.getListeners();
-				for (int i = 0, m = listeners.length; i < m; ++i)
+				for (int i = 0, m = listeners.length; i < m; ++i) {
 					((ITimelineListener) listeners[i]).resizing(event);
+				}
 			}
 		};
 		new TimelineListenerBrowserFunction(this.getBrowser(),
@@ -186,8 +195,9 @@ public class Timeline extends BaseTimeline implements ITimeline {
 								eventNumber), startDate, endDate);
 
 				Object[] listeners = timelineListeners.getListeners();
-				for (int i = 0, m = listeners.length; i < m; ++i)
+				for (int i = 0, m = listeners.length; i < m; ++i) {
 					((ITimelineListener) listeners[i]).resized(event);
+				}
 			}
 		};
 		new TimelineListenerBrowserFunction(this.getBrowser(),
@@ -198,8 +208,9 @@ public class Timeline extends BaseTimeline implements ITimeline {
 				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
 						Timeline.this, input.getBand(bandNumber).getEvent(
 								eventNumber), null, null);
-				for (int i = 0, m = listeners.length; i < m; ++i)
+				for (int i = 0, m = listeners.length; i < m; ++i) {
 					((ITimelineListener) listeners[i]).hoveredIn(event);
+				}
 			}
 		};
 		new TimelineListenerBrowserFunction(this.getBrowser(),
@@ -210,12 +221,14 @@ public class Timeline extends BaseTimeline implements ITimeline {
 				TimelineEvent event = new TimelineEvent(Display.getCurrent(),
 						Timeline.this, input.getBand(bandNumber).getEvent(
 								eventNumber), null, null);
-				for (int i = 0, m = listeners.length; i < m; ++i)
+				for (int i = 0, m = listeners.length; i < m; ++i) {
 					((ITimelineListener) listeners[i]).hoveredOut(event);
+				}
 			}
 		};
 	}
 
+	@Override
 	public void show(ITimelineInput input, IProgressMonitor monitor) {
 		addIdentifiers(input);
 		this.input = input;

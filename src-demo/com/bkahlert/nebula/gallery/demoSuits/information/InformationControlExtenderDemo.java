@@ -26,6 +26,7 @@ import com.bkahlert.nebula.information.InformationControlCreator;
 import com.bkahlert.nebula.information.InformationControlManager;
 import com.bkahlert.nebula.information.extender.EditorInformationControlExtender;
 
+@SuppressWarnings("restriction")
 @Demo
 public class InformationControlExtenderDemo extends AbstractDemo {
 
@@ -56,7 +57,7 @@ public class InformationControlExtenderDemo extends AbstractDemo {
 	}
 
 	public static class InformationControlDemoInput {
-		private String value;
+		private final String value;
 
 		public InformationControlDemoInput(String value) {
 			this.value = value;

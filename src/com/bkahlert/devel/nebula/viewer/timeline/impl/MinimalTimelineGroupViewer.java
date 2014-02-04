@@ -60,8 +60,8 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIME
 	 * @param <INPUT>
 	 */
 	private static class Asset<TIMELINEGROUPVIEWER extends MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT> {
-		private TIMELINE timeline;
-		private ITimelineProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> timelineProvider;
+		private final TIMELINE timeline;
+		private final ITimelineProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> timelineProvider;
 
 		public Asset(
 				TIMELINE timeline,
@@ -119,13 +119,13 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIME
 		}
 	}
 
-	private ITimelineProviderFactory<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> timelineProviderFactory;
+	private final ITimelineProviderFactory<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> timelineProviderFactory;
 	private Object rawInput;
 
 	/**
 	 * Contains completely loaded keys and their {@link Asset}s.
 	 */
-	private Map<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>> loadedKeys = new HashMap<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>>();
+	private final Map<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>> loadedKeys = new HashMap<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>>();
 
 	public MinimalTimelineGroupViewer(
 			TIMELINEGROUP timelineGroup,

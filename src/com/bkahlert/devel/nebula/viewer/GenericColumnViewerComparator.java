@@ -36,16 +36,16 @@ public class GenericColumnViewerComparator extends ViewerComparator {
 	 * <li>class the comparator is responsible for and may expect</li>
 	 * </ol>
 	 */
-	private MultiKeyMap comparators = new MultiKeyMap();
+	private final MultiKeyMap comparators = new MultiKeyMap();
 
 	protected int propertyIndex;
 	protected static final int DESCENDING = 1;
 	protected int direction = DESCENDING;
 
 	// TODO: irgendwann mal caches leeren
-	private MultiKeyMap labelCache = new MultiKeyMap();
-	private MultiKeyMap resultCache = new MultiKeyMap();
-	private Map<Integer, CellLabelClient> cellLabelClients = new HashMap<Integer, CellLabelClient>();
+	private final MultiKeyMap labelCache = new MultiKeyMap();
+	private final MultiKeyMap resultCache = new MultiKeyMap();
+	private final Map<Integer, CellLabelClient> cellLabelClients = new HashMap<Integer, CellLabelClient>();
 
 	public GenericColumnViewerComparator() {
 		this.propertyIndex = -1;
@@ -71,8 +71,9 @@ public class GenericColumnViewerComparator extends ViewerComparator {
 	public int compare(Viewer viewer, final Object e1, Object e2) {
 		int rc = 0;
 
-		if (this.propertyIndex < 0)
+		if (this.propertyIndex < 0) {
 			return rc;
+		}
 
 		if (!resultCache.containsKey(viewer, this.propertyIndex, e1, e2)) {
 			if (e1.getClass().equals(e2.getClass())
@@ -142,12 +143,14 @@ public class GenericColumnViewerComparator extends ViewerComparator {
 			// otherwise try to read the item's text
 			if (columnViewer.getControl() instanceof Table) {
 				TableItem tableItem = getTableItemByElement(columnViewer, e);
-				if (tableItem != null)
+				if (tableItem != null) {
 					label = tableItem.getText(propertyIndex);
+				}
 			} else if (columnViewer.getControl() instanceof Tree) {
 				TreeItem treeItem = getTreeItemByElement(columnViewer, e);
-				if (treeItem != null)
+				if (treeItem != null) {
 					label = treeItem.getText(propertyIndex);
+				}
 			}
 		}
 
@@ -166,8 +169,9 @@ public class GenericColumnViewerComparator extends ViewerComparator {
 		if (columnViewer.getControl() instanceof Table) {
 			Table table = (Table) columnViewer.getControl();
 			for (TableItem item : table.getItems()) {
-				if (dataContainsPayload(e, item))
+				if (dataContainsPayload(e, item)) {
 					return item;
+				}
 			}
 		}
 		return null;
@@ -178,8 +182,9 @@ public class GenericColumnViewerComparator extends ViewerComparator {
 		if (columnViewer.getControl() instanceof Tree) {
 			Tree tree = (Tree) columnViewer.getControl();
 			for (Item item : ViewerUtils.getAllItems(tree.getItems())) {
-				if (dataContainsPayload(e, item))
+				if (dataContainsPayload(e, item)) {
 					return (TreeItem) item;
+				}
 			}
 		}
 		return null;
@@ -187,12 +192,14 @@ public class GenericColumnViewerComparator extends ViewerComparator {
 
 	private static boolean dataContainsPayload(Object payload, Item item) {
 		if (item != null && item.getData() != null) {
-			if (item.getData().equals(payload))
+			if (item.getData().equals(payload)) {
 				return true;
+			}
 			if (item.getData() instanceof Object[]) {
 				for (Object date : (Object[]) item.getData()) {
-					if (date.equals(payload))
+					if (date.equals(payload)) {
 						return true;
+					}
 				}
 			}
 		}

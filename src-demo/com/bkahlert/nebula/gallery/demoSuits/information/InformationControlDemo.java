@@ -24,6 +24,7 @@ import com.bkahlert.nebula.information.InformationControl;
 import com.bkahlert.nebula.information.InformationControlCreator;
 import com.bkahlert.nebula.information.InformationControlManager;
 
+@SuppressWarnings("restriction")
 @Demo
 public class InformationControlDemo extends AbstractDemo {
 

@@ -44,7 +44,7 @@ public class InformationControlManagerDemo extends AbstractDemo {
 								+ "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEND");
 	}
 
-	private Listener listener = new Listener() {
+	private final Listener listener = new Listener() {
 		@Override
 		public void handleEvent(Event event) {
 			if (event.keyCode == SWT.F3) {

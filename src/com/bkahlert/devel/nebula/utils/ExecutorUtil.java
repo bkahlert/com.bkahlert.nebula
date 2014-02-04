@@ -164,7 +164,7 @@ public class ExecutorUtil {
 		public V call(T object) throws Exception;
 	}
 
-	public static final java.util.concurrent.ExecutorService SYNC_POOL = Executors
+	public static final ExecutorService SYNC_POOL = Executors
 			.newCachedThreadPool(new ThreadFactory() {
 				private final ThreadFactory defaultThreadFactory = Executors
 						.defaultThreadFactory();
@@ -173,8 +173,8 @@ public class ExecutorUtil {
 				@Override
 				public Thread newThread(Runnable r) {
 					Thread t = defaultThreadFactory.newThread(r);
-					t.setName(ExecutorService.class.getSimpleName()
-							+ "-POOL: #" + i);
+					t.setName(ExecutorUtil.class.getSimpleName() + "-POOL: #"
+							+ i);
 					i++;
 					return t;
 				}

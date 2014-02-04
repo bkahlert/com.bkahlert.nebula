@@ -21,8 +21,9 @@ public interface IScreenshotTaker<SUBJECT> {
 			switch (this) {
 			case JPEG:
 				return "jpg";
+			default:
+				return this.toString().toLowerCase();
 			}
-			return this.toString().toLowerCase();
 		}
 	}
 
@@ -45,8 +46,9 @@ public interface IScreenshotTaker<SUBJECT> {
 	public Future<File> takeScreenshot(SUBJECT subject, Format format);
 
 	/**
-	 * Submit the given subjects and immediately returns a {@link BootstrapBrowser} of
-	 * {@link Future} containing the locations of the generated screenshots.
+	 * Submit the given subjects and immediately returns a
+	 * {@link BootstrapBrowser} of {@link Future} containing the locations of
+	 * the generated screenshots.
 	 * <p>
 	 * <strong>WARNING!<br>
 	 * The {@link Future#get()} must not be called from the UI thread without
