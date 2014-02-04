@@ -181,13 +181,13 @@ public class ExecutorUtil {
 			});
 
 	/**
-	 * Checks if the current thread is the UI thread.
+	 * Checks if the current thread is the/an UI thread.
 	 * 
 	 * @return
 	 */
 	public static boolean isUIThread() {
 		try {
-			return Display.getDefault() == Display.getCurrent();
+			return Display.getCurrent() != null;
 		} catch (SWTException e) {
 			return false;
 		}

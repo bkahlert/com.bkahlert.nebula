@@ -1,6 +1,7 @@
 package com.bkahlert.devel.nebula.utils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -108,6 +109,26 @@ public class ExecutorUtilTest {
 		assertTrue(this.testDelayableThreadComplex(50, 20, 100, 10));
 		assertTrue(this.testDelayableThreadComplex(100, 90, 30, 120));
 		assertTrue(this.testDelayableThreadComplex(2000, 1000, 2000, 10));
+	}
+
+	@Test
+	public void testIsUIThread() throws InterruptedException,
+			ExecutionException {
+		assertFalse(ExecutorUtil.isUIThread());
+
+		ExecutorUtil.syncExec(new Runnable() {
+			@Override
+			public void run() {
+				assertTrue(ExecutorUtil.isUIThread());
+			}
+		});
+
+		ExecutorUtil.nonUISyncExec(new Runnable() {
+			@Override
+			public void run() {
+				assertFalse(ExecutorUtil.isUIThread());
+			}
+		}).get();
 	}
 
 	@Test
