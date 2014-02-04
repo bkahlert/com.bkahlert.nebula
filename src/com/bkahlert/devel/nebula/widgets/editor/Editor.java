@@ -290,6 +290,10 @@ public abstract class Editor<T> extends Composite {
 	 * @return the {@link Job} used to save the object.
 	 */
 	synchronized Job save(final String html) {
+		if (this.loadedObject == null) {
+			return null;
+		}
+
 		if (lastFocussedEditor != this) {
 			return null;
 		}
