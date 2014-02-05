@@ -6,6 +6,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -40,6 +41,8 @@ public class EditorDemo extends AbstractDemo {
 
 	@Override
 	public void createDemo(Composite composite) {
+		composite.setLayout(new FillLayout());
+
 		this.editor = new AutosaveEditor<String>(composite, SWT.NONE, 5000,
 				ToolbarSet.DEFAULT) {
 			@Override
@@ -50,7 +53,7 @@ public class EditorDemo extends AbstractDemo {
 			@Override
 			public void setHtml(String objectToLoad, String html,
 					IProgressMonitor monitor) {
-				EditorDemo.log("saved: " + html);
+				AbstractDemo.log("saved: " + html);
 			}
 		};
 		this.editor.addAnkerListener(new IAnkerListener() {
@@ -113,7 +116,7 @@ public class EditorDemo extends AbstractDemo {
 													return false;
 												}
 
-												EditorDemo.log(this.label
+												AbstractDemo.log(this.label
 														.hashCode() + "");
 
 												if (toolBarManager != null) {
@@ -126,7 +129,7 @@ public class EditorDemo extends AbstractDemo {
 												String content = toolBarManager != null ? anker
 														.toHtml() : anker
 														.getContent();
-												EditorDemo.log(content);
+												AbstractDemo.log(content);
 												this.label.setText(content);
 												return true;
 											}
@@ -174,6 +177,8 @@ public class EditorDemo extends AbstractDemo {
 		composerSetSource.setText("Set Source 1");
 		Button composerSetSource2 = new Button(composite, SWT.PUSH);
 		composerSetSource2.setText("Set Source 2");
+		Button composerSetNoSource = new Button(composite, SWT.PUSH);
+		composerSetNoSource.setText("Set No Source");
 
 		composerSetSource.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -187,6 +192,12 @@ public class EditorDemo extends AbstractDemo {
 			public void widgetSelected(SelectionEvent e) {
 				EditorDemo.this.editor
 						.load("<p title='test'><b>Hallo</b><i>Welt 2!</i></p>");
+			}
+		});
+		composerSetNoSource.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				EditorDemo.this.editor.load(null);
 			}
 		});
 	}

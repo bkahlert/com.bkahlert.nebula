@@ -28,16 +28,16 @@ CKEDITOR.editorConfig = function(config) {
 
     config.format_tags = 'h1;h2;h3;h4;h5;h6;p;pre';
     config.startupFocus = true;
+    config.resize_enabled = false;
 
     var toolbarSet = getQueryVariable("toolbarSet");
     if (!toolbarSet)
         toolbarSet = "default";
 
     if (toolbarSet == "none") {
-        config.startupFocus = false;
-        config.readOnly = true;
+ //       config.startupFocus = false;
+ //       config.readOnly = true;
         config.removePlugins = 'toolbar,elementspath';
-        config.resize_enabled = false;
     } else if (toolbarSet == "terminal") {
         config.toolbar = [{
             name : 'terminal',

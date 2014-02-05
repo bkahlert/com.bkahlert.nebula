@@ -9,8 +9,8 @@ public class ComposerReadOnly extends Composer {
 	public ComposerReadOnly(Composite parent, int style) {
 		super(parent, style, 50, ToolbarSet.NONE);
 		this.composite = parent;
-		this.setBackground(composite.getBackground());
 		this.setEnabled(false);
+		this.setBackground(this.composite.getBackground());
 	}
 
 	@Override

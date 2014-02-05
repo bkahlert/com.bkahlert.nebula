@@ -79,6 +79,7 @@ public abstract class Editor<T> extends Composite {
 		this.setLayout(new FillLayout());
 		this.composer = new Composer(this, style & SWT.BORDER,
 				delayChangeEventUpTo, toolbarSet);
+		this.composer.setEnabled(false);
 		this.composer.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -89,7 +90,7 @@ public abstract class Editor<T> extends Composite {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				try {
-					save();
+					Editor.this.save();
 				} catch (Exception e1) {
 					LOGGER.error(
 							"Error saving content of " + Editor.this.getClass(),

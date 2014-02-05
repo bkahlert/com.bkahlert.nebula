@@ -9,18 +9,25 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
      */
     $.extend(com.bkahlert.devel.nebula.editor, {
 
-        initEnabled : true,
+        config: {
+        	on: {
+		        'instanceReady' : function(evt) {
+		            com.bkahlert.devel.nebula.editor.onready(evt);
+		        }
+		    },
+		    startupFocus: true,
+        	readOnly: false
+        },
 
         onready : function(e) {
-            com.bkahlert.devel.nebula.editor.setEnabled(com.bkahlert.devel.nebula.editor.initEnabled);
-            
+                        
             $(window).resize(function() {
             	e.editor.resize($(window).width(), $(window).height());
             });
             $(window).resize();
-            
 
             $("html").addClass("ready");
+            com.bkahlert.devel.nebula.editor.setEnabled(!com.bkahlert.devel.nebula.editor.config.readOnly);
 
             e.editor.on('change', function(e) {
                 com.bkahlert.devel.nebula.editor.onchange();
@@ -132,9 +139,11 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
         },
 
         setEnabled : function(isEnabled) {
+        	com.bkahlert.devel.nebula.editor.config.readOnly = !isEnabled;
+        	com.bkahlert.devel.nebula.editor.config.startupFocus = isEnabled;
             if ($("html").hasClass("ready")) {
                 var editor = CKEDITOR.instances.editor1;
-                editor.setReadOnly(!isEnabled);
+                editor.setReadOnly(com.bkahlert.devel.nebula.editor.config.readOnly);
                 if(isEnabled) {
                 	$(".cke_top, .cke_bottom").show();
                 	$(window).resize();
@@ -142,8 +151,6 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
                 	$(".cke_top, .cke_bottom").hide();
                 	$(window).resize();
                 }
-            } else {
-                com.bkahlert.devel.nebula.editor.initEnabled = isEnabled;
             }
         },
 
@@ -186,17 +193,10 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
     });
 })(jQuery);
 
-CKEDITOR.replace('editor1', {
-    on : {
-        'instanceReady' : function(evt) {
-            com.bkahlert.devel.nebula.editor.onready(evt);
-        }
-    }
-});
+CKEDITOR.replace('editor1', com.bkahlert.devel.nebula.editor.config);
 
 function testFunction() {
-	com.bkahlert.devel.nebula.editor.initEnabled = !com.bkahlert.devel.nebula.editor.initEnabled;
-	com.bkahlert.devel.nebula.editor.setEnabled(com.bkahlert.devel.nebula.editor.initEnabled);
+	com.bkahlert.devel.nebula.editor.setEnabled(com.bkahlert.devel.nebula.editor.config.readOnly);
 
 /*
     var test = true;
