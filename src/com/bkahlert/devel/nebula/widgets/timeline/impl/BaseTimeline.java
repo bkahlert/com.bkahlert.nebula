@@ -26,7 +26,8 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 
 /**
- * This is a very basic timeline implementation.
+ * This is a very basic timeline implementation that does not handle any
+ * timeline events such as clicking or resizing.
  * 
  * @author bkahlert
  * 

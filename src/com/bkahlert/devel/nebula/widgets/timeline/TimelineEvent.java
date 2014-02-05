@@ -51,4 +51,9 @@ public class TimelineEvent extends TypedEvent {
 	public Object getSource() {
 		return super.getSource();
 	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + " on " + timelineEvent;
+	}
 }

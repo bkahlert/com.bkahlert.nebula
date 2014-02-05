@@ -9,9 +9,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.impl.BaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineInput;
@@ -22,12 +21,12 @@ import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 
 @Demo
-public class TimelineDemo extends AbstractDemo {
+public class BaseTimelineDemo extends AbstractDemo {
 
 	@SuppressWarnings("serial")
 	@Override
 	public void createDemo(Composite composite) {
-		ITimeline timeline = new Timeline(composite, SWT.BORDER);
+		BaseTimeline timeline = new BaseTimeline(composite, SWT.BORDER);
 
 		final Calendar start = Calendar.getInstance();
 		final Calendar end = Calendar.getInstance();
@@ -52,7 +51,7 @@ public class TimelineDemo extends AbstractDemo {
 													"http://www.w3.org/html/logo/downloads/HTML5_Badge_512.png"),
 											start, end, new RGB[] { new RGB(
 													0.259, 0.706, 0.902) },
-											true, null, "Event Number #1"));
+											true, null, new Object()));
 								}
 							}));
 				}
