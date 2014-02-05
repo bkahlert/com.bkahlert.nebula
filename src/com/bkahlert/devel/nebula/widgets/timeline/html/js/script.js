@@ -235,10 +235,10 @@ function startObservation() {
     $(document).click(function(e, data) {
         switch (e.which) {
             case 1:
-                return handler(e, data, timeline_plugin_click_callback);
+                return window['timeline_plugin_click_callback'] ? handler(e, data, timeline_plugin_click_callback) : false;
                 break;
             case 2:
-                return handler(e, data, timeline_plugin_mclick_callback);
+                return window['timeline_plugin_mclick_callback'] ? handler(e, data, timeline_plugin_mclick_callback) : false;
                 break;
             case 3:
                 // handled by contextmenu handler
@@ -250,24 +250,24 @@ function startObservation() {
     });
 
     $(document).bind("contextmenu", function(e, data) {
-        return handler(e, data, timeline_plugin_rclick_callback);
+        return window['timeline_plugin_rclick_callback'] ? handler(e, data, timeline_plugin_rclick_callback) : false;
     });
 
     $(document).dblclick(function(e, data) {
         e.stopPropagation();
-        return handler(e, data, timeline_plugin_dblclick_callback);
+        return window['timeline_plugin_dblclick_callback'] ? handler(e, data, timeline_plugin_dblclick_callback) : false;
     });
 
     $(document).bind("resizestart", function(e, data) {
-        return handler(e, data, timeline_plugin_resizestart_callback);
+        return window['timeline_plugin_resizestart_callback'] ? handler(e, data, timeline_plugin_resizestart_callback) : false;
     });
 
     $(document).bind("resize", function(e, data) {
-        return handler(e, data, timeline_plugin_resizing_callback);
+        return window['timeline_plugin_resizing_callback'] ? handler(e, data, timeline_plugin_resizing_callback) : false;
     });
 
     $(document).bind("resizestop", function(e, data) {
-        return handler(e, data, timeline_plugin_resizestop_callback);
+        return window['timeline_plugin_resizestop_callback'] ? handler(e, data, timeline_plugin_resizestop_callback) : false;
     });
 
     var hoveredId = null;
@@ -275,9 +275,9 @@ function startObservation() {
         return handler(e, data, function(id) {
             if (hoveredId == id)
                 return;
-            if (hoveredId != null)
+            if (hoveredId != null && window['timeline_plugin_mouseOut_callback'])
                 timeline_plugin_mouseOut_callback(hoveredId);
-            if (id != null)
+            if (id != null && window['timeline_plugin_mouseIn_callback'])
                 timeline_plugin_mouseIn_callback(id);
             hoveredId = id;
         });
