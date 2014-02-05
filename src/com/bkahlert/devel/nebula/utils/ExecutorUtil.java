@@ -164,7 +164,7 @@ public class ExecutorUtil {
 		public V call(T object) throws Exception;
 	}
 
-	public static final ExecutorService SYNC_POOL = Executors
+	private static final ExecutorService SYNC_POOL = Executors
 			.newCachedThreadPool(new ThreadFactory() {
 				private final ThreadFactory defaultThreadFactory = Executors
 						.defaultThreadFactory();
