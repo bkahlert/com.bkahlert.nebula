@@ -18,6 +18,8 @@ import org.eclipse.swt.widgets.Text;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.decoration.EmptyText;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
@@ -112,6 +114,17 @@ public class BrowserCompositeDemo extends AbstractDemo {
 	public void createDemo(Composite parent) {
 		this.browserComposite = new BrowserComposite(parent, SWT.BORDER);
 		this.browserComposite.setAllowLocationChange(true);
+		this.browserComposite.addAnkerListener(new IAnkerListener() {
+			@Override
+			public void ankerHovered(IAnker anker, boolean entered) {
+				log("hovered " + (entered ? "over" : "out") + " " + anker);
+			}
+
+			@Override
+			public void ankerClicked(IAnker anker) {
+				log("clicked on " + anker);
+			}
+		});
 		try {
 			final Future<Boolean> success = this.browserComposite.open(new URI(
 					"http://www.bkahlert.com"), Integer
