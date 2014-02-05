@@ -179,7 +179,8 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 					for (IAnkerListener ankerListener : BrowserComposite.this.ankerListeners) {
 						ankerListener.ankerClicked(anker);
 					}
-					event.doit = BrowserComposite.this.allowLocationChange;
+					event.doit = BrowserComposite.this.allowLocationChange
+							|| !BrowserComposite.this.loadingCompleted;
 				}
 			}
 
@@ -490,8 +491,11 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 						js += callbackFunctionName + "();";
 						js += "};h.appendChild(s);";
 
+						// runs the scripts that ends by calling the callback
+						// ...
 						BrowserComposite.this.run(js);
 						try {
+							// ... which destroys itself and releases this lock
 							mutex.acquire();
 						} catch (InterruptedException e) {
 							LOGGER.error(e);
@@ -521,6 +525,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				if (browser == null || browser.isDisposed()) {
 					return null;
 				}
+				BrowserComposite.this.scriptAboutToBeSentToBrowser(script);
 				try {
 					Object returnValue = browser.evaluate(script);
 					LOGGER.info("Returned " + returnValue);
@@ -581,6 +586,15 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	public Future<Object> run(IJavaScript script) {
 		return this.run(script.toString());
 	};
+
+	/**
+	 * Testers can override this method to see what's executed.
+	 * 
+	 * @param script
+	 */
+	void scriptAboutToBeSentToBrowser(String script) {
+
+	}
 
 	@Override
 	public void injectCssFile(URI uri) {

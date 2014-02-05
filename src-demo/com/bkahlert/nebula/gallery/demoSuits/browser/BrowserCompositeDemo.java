@@ -113,7 +113,6 @@ public class BrowserCompositeDemo extends AbstractDemo {
 	@Override
 	public void createDemo(Composite parent) {
 		this.browserComposite = new BrowserComposite(parent, SWT.BORDER);
-		this.browserComposite.setAllowLocationChange(true);
 		this.browserComposite.addAnkerListener(new IAnkerListener() {
 			@Override
 			public void ankerHovered(IAnker anker, boolean entered) {

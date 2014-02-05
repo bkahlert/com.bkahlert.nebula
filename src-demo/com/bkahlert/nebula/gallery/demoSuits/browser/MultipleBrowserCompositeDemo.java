@@ -42,7 +42,7 @@ public class MultipleBrowserCompositeDemo extends AbstractDemo {
 					@Override
 					public void run() {
 						log("alerting");
-						for (BrowserComposite browserComposite : browserComposites) {
+						for (BrowserComposite browserComposite : MultipleBrowserCompositeDemo.this.browserComposites) {
 							try {
 								browserComposite
 										.run("alert(\""
@@ -76,7 +76,7 @@ public class MultipleBrowserCompositeDemo extends AbstractDemo {
 											"alert(\""
 													+ MultipleBrowserCompositeDemo.this.alertString
 													+ "\");");
-							for (BrowserComposite browserComposite : browserComposites) {
+							for (BrowserComposite browserComposite : MultipleBrowserCompositeDemo.this.browserComposites) {
 								browserComposite.run(jsFile);
 							}
 						} catch (Exception e) {
@@ -118,7 +118,6 @@ public class MultipleBrowserCompositeDemo extends AbstractDemo {
 		this.browserComposites = new BrowserComposite[URLS.length];
 		for (int i = 0; i < this.browserComposites.length; i++) {
 			this.browserComposites[i] = new BrowserComposite(parent, SWT.BORDER);
-			this.browserComposites[i].setAllowLocationChange(true);
 			try {
 				final Future<Boolean> success = this.browserComposites[i]
 						.open(new URI(URLS[i]),
