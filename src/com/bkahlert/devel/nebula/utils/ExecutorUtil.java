@@ -172,10 +172,10 @@ public class ExecutorUtil {
 
 				@Override
 				public Thread newThread(Runnable r) {
-					Thread t = defaultThreadFactory.newThread(r);
+					Thread t = this.defaultThreadFactory.newThread(r);
 					t.setName(ExecutorUtil.class.getSimpleName() + "-POOL: #"
-							+ i);
-					i++;
+							+ this.i);
+					this.i++;
 					return t;
 				}
 			});
@@ -340,8 +340,8 @@ public class ExecutorUtil {
 	}
 
 	/**
-	 * Executes the given {@link Runnable} delayedly and asynchronously in the
-	 * UI thread.
+	 * Executes the given {@link Runnable} with a delay and asynchronously in
+	 * the UI thread.
 	 * 
 	 * @param runnable
 	 * @param delay
@@ -664,11 +664,11 @@ public class ExecutorUtil {
 
 					@Override
 					public OUTPUT next() {
-						if (!hasNext()) {
+						if (!this.hasNext()) {
 							return null;
 						}
 
-						return next(0);
+						return this.next(0);
 					}
 
 					public OUTPUT next(int numCalls) {
@@ -699,7 +699,7 @@ public class ExecutorUtil {
 							} catch (InterruptedException e) {
 								throw new RuntimeException(e);
 							}
-							return next(numCalls + 1);
+							return this.next(numCalls + 1);
 						}
 					}
 
@@ -783,10 +783,10 @@ public class ExecutorUtil {
 
 			@Override
 			public Thread newThread(Runnable r) {
-				Thread t = defaultThreadFactory.newThread(r);
-				t.setName(name.replace("@{i}", i + "").replace("@{max}",
+				Thread t = this.defaultThreadFactory.newThread(r);
+				t.setName(name.replace("@{i}", this.i + "").replace("@{max}",
 						nThreads + ""));
-				i++;
+				this.i++;
 				return t;
 			}
 		}));
@@ -796,28 +796,28 @@ public class ExecutorUtil {
 	 * @see #nonUIAsyncExec(java.util.concurrent.ExecutorService, Callable)
 	 */
 	public <V> Future<V> nonUIAsyncExec(final Callable<V> callable) {
-		return nonUIAsyncExec(asyncPool, callable);
+		return nonUIAsyncExec(this.asyncPool, callable);
 	}
 
 	/**
 	 * @see #nonUIAsyncExec(java.util.concurrent.ExecutorService, Callable, int)
 	 */
 	public <V> Future<V> nonUIAsyncExec(final Callable<V> callable, int delay) {
-		return nonUIAsyncExec(asyncPool, callable, delay);
+		return nonUIAsyncExec(this.asyncPool, callable, delay);
 	}
 
 	/**
 	 * @see #nonUIAsyncExec(java.util.concurrent.ExecutorService, Runnable)
 	 */
 	public Future<?> nonUIAsyncExec(final Runnable runnable) {
-		return nonUIAsyncExec(asyncPool, runnable);
+		return nonUIAsyncExec(this.asyncPool, runnable);
 	}
 
 	/**
 	 * @see #nonUIAsyncExec(java.util.concurrent.ExecutorService, Runnable, int)
 	 */
 	public Future<?> nonUIAsyncExec(final Runnable runnable, int delay) {
-		return nonUIAsyncExec(asyncPool, runnable, delay);
+		return nonUIAsyncExec(this.asyncPool, runnable, delay);
 	}
 
 	/**
@@ -827,7 +827,7 @@ public class ExecutorUtil {
 	public <INPUT, OUTPUT> List<Future<OUTPUT>> nonUIAsyncExec(
 			Collection<INPUT> input,
 			final ExecutorUtil.ParametrizedCallable<INPUT, OUTPUT> parametrizedCallable) {
-		return nonUIAsyncExec(asyncPool, input, parametrizedCallable);
+		return nonUIAsyncExec(this.asyncPool, input, parametrizedCallable);
 	}
 
 	/**
@@ -837,6 +837,6 @@ public class ExecutorUtil {
 	public <INPUT, OUTPUT> Iterable<OUTPUT> nonUIAsyncExecMerged(
 			Collection<INPUT> input,
 			final ExecutorUtil.ParametrizedCallable<INPUT, OUTPUT> parametrizedCallable) {
-		return nonUIAsyncExecMerged(asyncPool, input, parametrizedCallable);
+		return nonUIAsyncExecMerged(this.asyncPool, input, parametrizedCallable);
 	}
 }
