@@ -95,16 +95,7 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 						JQueryEnabledBrowserComposite.super
 								.afterCompletion(uri).get();
 
-						// FIXME: already called in BrowserComposite. But if
-						// page has no
-						// jQuery included the code does not work. Here we run
-						// it again
-						// since we know jQuery is included. Code should be made
-						// independent from jQuery.
-						String js = "window[\"hoveredAnker\"]=null;$(\"body\").bind(\"DOMSubtreeModified beforeunload\",function(){if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](window[\"hoveredAnker\"])}});$(\"body\").on({mouseenter:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();window[\"hoveredAnker\"]=e;if(window[\"mouseenter\"]&&typeof window[\"mouseenter\"]){window[\"mouseenter\"](e)}},mouseleave:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](e)}}},\"a\")";
-						JQueryEnabledBrowserComposite.this.run(js);
-
-						js = "(function(e){e(document).ready(function(){e(\"body\").on(\"focus\",\"*\",function(t){if(t.target!=this)return;var n=e(document.activeElement).clone().wrap(\"<p>\").parent().html();if(window[\"__focus\"]&&typeof window[\"__focus\"]==\"function\"){window[\"__focus\"](n)}})})})(jQuery)";
+						String js = "(function(e){e(document).ready(function(){e(\"body\").on(\"focus\",\"*\",function(t){if(t.target!=this)return;var n=e(document.activeElement).clone().wrap(\"<p>\").parent().html();if(window[\"__focus\"]&&typeof window[\"__focus\"]==\"function\"){window[\"__focus\"](n)}})})})(jQuery)";
 						JQueryEnabledBrowserComposite.this.run(js);
 						return null;
 					}

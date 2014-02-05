@@ -176,12 +176,75 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 					event.doit = BrowserComposite.this.allowLocationChange;
 				}
 			}
+
+			// TODO call injectAnkerCode after a page has loaded a user clicked
+			// on
+		});
+	}
+
+	private boolean successfullyInjectedAnkerHoverCallback = false;
+
+	/**
+	 * Injects the code needed for {@link #addAnkerListener(IAnkerListener)} and
+	 * {@link #removeAnkerListener(IAnkerListener)} to work.
+	 * <p>
+	 * The JavaScript remembers a successful injection in case to consecutive
+	 * calls are made.
+	 * <p>
+	 * As soon as a successful injection has been registered,
+	 * {@link #successfullyInjectedAnkerHoverCallback} is set so no unnecessary
+	 * further injection is made.
+	 * <p>
+	 * This method should be called after every attempt to register an
+	 * {@link IAnkerListener}.
+	 */
+	private void injectAnkerHoverCallback() {
+		/*
+		 * return(function($){if(!$ ||
+		 * window[\"successfullyInjectedAnkerHoverCallback\"])return false;window["
+		 * hoveredAnker"] = null; $("body").bind("DOMSubtreeModified"
+		 * "beforeunload", function () { if (window["mouseleave"] && typeof
+		 * window["mouseleave"]) { window["mouseleave"](window["hoveredAnker"])
+		 * } }); $("body").on({ mouseenter: function () { var e =
+		 * $(this).clone().wrap(" <p> ").parent().html(); window["hoveredAnker"]
+		 * = e; if (window["mouseenter"] && typeof window["mouseenter"]) {
+		 * window["mouseenter"](e) } }, mouseleave: function () { var e =
+		 * $(this).clone().wrap(" <p>
+		 * ").parent().html(); if (window["mouseleave"] && typeof
+		 * window["mouseleave"]) { window["mouseleave"](e) } } },
+		 * "a");window["successfullyInjectedAnkerHoverCallback"]=true;return
+		 * true;})(typeof(jQuery)!=='undefined'?jQuery:null)
+		 */
+		if (successfullyInjectedAnkerHoverCallback) {
+			return;
+		}
+
+		String js = "return(function($){if(!$ || window[\"successfullyInjectedAnkerHoverCallback\"])return false;window[\"hoveredAnker\"]=null;$(\"body\").bind(\"DOMSubtreeModified beforeunload\",function(){if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](window[\"hoveredAnker\"])}});$(\"body\").on({mouseenter:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();window[\"hoveredAnker\"]=e;if(window[\"mouseenter\"]&&typeof window[\"mouseenter\"]){window[\"mouseenter\"](e)}},mouseleave:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](e)}}},\"a\");window[\"successfullyInjectedAnkerHoverCallback\"]=true;return true;})(typeof(jQuery)!=='undefined'?jQuery:null)";
+		final Future<Boolean> success = BrowserComposite.this.run(js,
+				IConverter.CONVERTER_BOOLEAN);
+		ExecutorUtil.nonUISyncExec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if (success.get()) {
+						successfullyInjectedAnkerHoverCallback = true;
+					}
+				} catch (Exception e) {
+					LOGGER.error(
+							"Could not inject anker hover callback code in "
+									+ BrowserComposite.this.getClass()
+											.getSimpleName(), e);
+				}
+			}
 		});
 	}
 
 	@Override
 	public Future<Boolean> open(final String uri, final Integer timeout) {
 		this.loadingCompleted = false;
+		this.successfullyInjectedAnkerHoverCallback = false;
+		browser.setUrl(uri.toString());
+
 		return ExecutorUtil.nonUISyncExec(BrowserComposite.class, "Opening "
 				+ uri, new Callable<Boolean>() {
 			@Override
@@ -210,23 +273,9 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 					LOGGER.warn("timeout must be greater or equal 0. Ignoring timeout.");
 				}
 
-				/*
-				 * window["hoveredAnker"] = null;
-				 * $("body").bind("DOMSubtreeModified" "beforeunload", function
-				 * () { if (window["mouseleave"] && typeof window["mouseleave"])
-				 * { window["mouseleave"](window["hoveredAnker"]) } });
-				 * $("body").on({ mouseenter: function () { var e =
-				 * $(this).clone().wrap(" <p> ").parent().html();
-				 * window["hoveredAnker"] = e; if (window["mouseenter"] &&
-				 * typeof window["mouseenter"]) { window["mouseenter"](e) } },
-				 * mouseleave: function () { var e = $(this).clone().wrap(" <p>
-				 * ").parent().html(); if (window["mouseleave"] && typeof
-				 * window["mouseleave"]) { window["mouseleave"](e) } } }, "a")
-				 */
-
 				BrowserComposite.this.beforeLoad(uri);
 
-				ExecutorUtil.syncExec(new Runnable() {
+				ExecutorUtil.asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						BrowserComposite.this.settingUri = true;
@@ -236,8 +285,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 					}
 				});
 
-				String js = "window[\"hoveredAnker\"]=null;$(\"body\").bind(\"DOMSubtreeModified beforeunload\",function(){if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](window[\"hoveredAnker\"])}});$(\"body\").on({mouseenter:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();window[\"hoveredAnker\"]=e;if(window[\"mouseenter\"]&&typeof window[\"mouseenter\"]){window[\"mouseenter\"](e)}},mouseleave:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](e)}}},\"a\")";
-				BrowserComposite.this.run(js);
+				injectAnkerHoverCallback();
 
 				BrowserComposite.this.afterLoad(uri);
 
@@ -548,6 +596,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 
 	@Override
 	public void addAnkerListener(IAnkerListener ankerListener) {
+		this.injectAnkerHoverCallback();
 		this.ankerListeners.add(ankerListener);
 	}
 
