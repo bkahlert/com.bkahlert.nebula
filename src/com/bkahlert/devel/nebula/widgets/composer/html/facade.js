@@ -13,7 +13,12 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
 
         onready : function(e) {
             com.bkahlert.devel.nebula.editor.setEnabled(com.bkahlert.devel.nebula.editor.initEnabled);
-            e.editor.execCommand('maximize');
+            
+            $(window).resize(function() {
+            	e.editor.resize($(window).width(), $(window).height());
+            });
+            $(window).resize();
+            
 
             $("html").addClass("ready");
 
@@ -127,12 +132,16 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
         },
 
         setEnabled : function(isEnabled) {
-            // TODO disabling and then enabling does not enable
-            return;
-
             if ($("html").hasClass("ready")) {
                 var editor = CKEDITOR.instances.editor1;
                 editor.setReadOnly(!isEnabled);
+                if(isEnabled) {
+                	$(".cke_top, .cke_bottom").show();
+                	$(window).resize();
+                } else {
+                	$(".cke_top, .cke_bottom").hide();
+                	$(window).resize();
+                }
             } else {
                 com.bkahlert.devel.nebula.editor.initEnabled = isEnabled;
             }
@@ -158,7 +167,7 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
         },
 
         openDemo : function(editor) {
-            $("body").append($('<div style="position: absolute; top: 10px; right: 50px; z-index: 200001;"><input type="button" class="testFunction" value="Custom Function" onClick="testFunction();"/></div>'));
+            $(".cke_inner").append($('<div style="position: absolute; top: 10px; right: 50px; z-index: 9999999;"><input type="button" class="testFunction" value="Custom Function" onClick="testFunction();"/></div>'));
 
             $.get('test.html', function(data) {
                 com.bkahlert.devel.nebula.editor.setSource(data, false, function() {
@@ -186,6 +195,10 @@ CKEDITOR.replace('editor1', {
 });
 
 function testFunction() {
+	com.bkahlert.devel.nebula.editor.initEnabled = !com.bkahlert.devel.nebula.editor.initEnabled;
+	com.bkahlert.devel.nebula.editor.setEnabled(com.bkahlert.devel.nebula.editor.initEnabled);
+
+/*
     var test = true;
     var offset = null;
     editor.addCommand("test", {
@@ -200,4 +213,5 @@ function testFunction() {
             test = !test;
         }
     });
+    /**/
 }

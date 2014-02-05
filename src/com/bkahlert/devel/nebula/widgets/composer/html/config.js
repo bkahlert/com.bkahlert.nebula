@@ -27,7 +27,6 @@ CKEDITOR.editorConfig = function(config) {
     config.minimumChangeMilliseconds = 50;
 
     config.format_tags = 'h1;h2;h3;h4;h5;h6;p;pre';
-
     config.startupFocus = true;
 
     var toolbarSet = getQueryVariable("toolbarSet");
@@ -37,7 +36,8 @@ CKEDITOR.editorConfig = function(config) {
     if (toolbarSet == "none") {
         config.startupFocus = false;
         config.readOnly = true;
-        config.removePlugins = 'toolbar';
+        config.removePlugins = 'toolbar,elementspath';
+        config.resize_enabled = false;
     } else if (toolbarSet == "terminal") {
         config.toolbar = [{
             name : 'terminal',
