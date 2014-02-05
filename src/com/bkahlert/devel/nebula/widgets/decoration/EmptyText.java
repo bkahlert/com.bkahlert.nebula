@@ -136,6 +136,9 @@ public class EmptyText {
 	 * @see Text#setText(String)
 	 */
 	public void setText(final String string) {
+		if (this.control == null || this.control.isDisposed()) {
+			return;
+		}
 		this.control.setText(string);
 		this.update();
 	}
@@ -144,6 +147,9 @@ public class EmptyText {
 	 * @see Text#setEnabled(boolean)
 	 */
 	public void setEnabled(boolean enabled) {
+		if (this.control == null || this.control.isDisposed()) {
+			return;
+		}
 		this.control.setEnabled(enabled);
 	}
 
@@ -151,6 +157,9 @@ public class EmptyText {
 	 * @see Text#setFocus()
 	 */
 	public boolean setFocus() {
+		if (this.control == null || this.control.isDisposed()) {
+			return false;
+		}
 		return this.control.setFocus();
 	}
 }
