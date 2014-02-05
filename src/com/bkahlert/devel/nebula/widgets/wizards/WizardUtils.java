@@ -86,7 +86,7 @@ public class WizardUtils {
 	 * new project wizard.
 	 */
 	public static void openNewProjectWizard() {
-		ExecutorUtil.syncExec(new Runnable() {
+		ExecutorUtil.asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				IWorkbenchWindow window = PlatformUI.getWorkbench()

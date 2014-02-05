@@ -3,9 +3,12 @@ package com.bkahlert.nebula.gallery.demoSuits.browser;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
+import com.bkahlert.devel.nebula.colors.ColorUtils;
 import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
 import com.bkahlert.devel.nebula.widgets.browser.JavaScriptException;
 import com.bkahlert.devel.nebula.widgets.composer.ComposerReadOnly;
@@ -19,7 +22,7 @@ public class ComposerReadOnlyDemo extends AbstractDemo {
 
 	@Override
 	public void createDemo(Composite composite) {
-		this.composer = new ComposerReadOnly(composite, SWT.BORDER);
+		this.composer = new ComposerReadOnly(composite, SWT.NONE);
 		this.composer.setSource("Hello CKEditor - Image");
 		this.composer
 				.addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {
@@ -41,6 +44,8 @@ public class ComposerReadOnlyDemo extends AbstractDemo {
 		composerShowSource.setText("Show Source");
 		Button composerHideSource = new Button(composite, SWT.PUSH);
 		composerHideSource.setText("Hide Source");
+		Button composerRandomBackgroundColor = new Button(composite, SWT.PUSH);
+		composerRandomBackgroundColor.setText("Random Background Color");
 
 		composerGetSource.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -68,6 +73,17 @@ public class ComposerReadOnlyDemo extends AbstractDemo {
 				ComposerReadOnlyDemo.this.composer.hideSource();
 			}
 		});
+		composerRandomBackgroundColor
+				.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						ComposerReadOnlyDemo.this.composer
+								.setBackground(new Color(Display.getCurrent(),
+										ColorUtils.getRandomRGB()
+												.toClassicRGB()));
+					}
+				});
+
 	}
 
 }

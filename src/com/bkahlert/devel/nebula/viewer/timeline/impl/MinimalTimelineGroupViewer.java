@@ -185,7 +185,7 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIME
 			final Entry<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>> loaded = iterator
 					.next();
 			if (!neededKeys.contains(loaded.getKey())) {
-				ExecutorUtil.syncExec(new Runnable() {
+				ExecutorUtil.asyncExec(new Runnable() {
 					@SuppressWarnings("unchecked")
 					@Override
 					public void run() {

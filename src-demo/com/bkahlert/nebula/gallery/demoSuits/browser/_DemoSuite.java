@@ -6,12 +6,14 @@ import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoExplorer.DemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 
-@DemoSuite(value = { BrowserDemo.class, ComposerDemo.class,
+@DemoSuite(value = { BrowserCompositeDemo.class,
+		MultipleBrowserCompositeDemo.class, ComposerDemo.class,
 		ComposerReadOnlyDemo.class, EditorDemo.class,
 		MultipleEditorsDemo.class, ImageDemo.class, TimelineDemo.class,
-		ExtendedBrowserDemo.class, BootstrapBrowserDemo.class })
+		TimelineAndComposerReadOnlyDemo.class, ExtendedBrowserDemo.class,
+		BootstrapBrowserDemo.class })
 @Demo
-public class BrowserDemoSuite extends AbstractDemo {
+public class _DemoSuite extends AbstractDemo {
 
 	@Override
 	public void createDemo(Composite parent) {

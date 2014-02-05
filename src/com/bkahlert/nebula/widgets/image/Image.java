@@ -178,7 +178,7 @@ public class Image extends BrowserComposite {
 				Image.this.waitUntilImageLoaded();
 				future.get();
 				if (callback != null) {
-					ExecutorUtil.syncExec(new Runnable() {
+					ExecutorUtil.asyncExec(new Runnable() {
 						@Override
 						public void run() {
 							callback.run();

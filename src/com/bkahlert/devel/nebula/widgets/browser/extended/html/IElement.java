@@ -32,8 +32,8 @@ public interface IElement {
 	public String[] getClasses();
 
 	/**
-	 * Returns the {@link IElement}'s demoAreaContent, which is the portion
-	 * between the opening and closing tag.
+	 * Returns the {@link IElement}'s content, which is the portion between the
+	 * opening and closing tag.
 	 * 
 	 * @return
 	 */

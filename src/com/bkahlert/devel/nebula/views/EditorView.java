@@ -39,8 +39,8 @@ public abstract class EditorView<T> extends ViewPart {
 	private static final Logger LOGGER = Logger.getLogger(EditorView.class);
 
 	public static class PartInfo {
-		private String title;
-		private Image image;
+		private final String title;
+		private final Image image;
 
 		public PartInfo(String title, Image image) {
 			super();
@@ -63,9 +63,9 @@ public abstract class EditorView<T> extends ViewPart {
 		}
 	}
 
-	private long delayChangeEventUpTo;
-	private ToolbarSet toolbarSet;
-	private boolean autosave;
+	private final long delayChangeEventUpTo;
+	private final ToolbarSet toolbarSet;
+	private final boolean autosave;
 	private Editor<T> editor;
 
 	/**
@@ -105,7 +105,7 @@ public abstract class EditorView<T> extends ViewPart {
 			partInfo.set(this.getDefaultPartInfo());
 		}
 
-		ExecutorUtil.syncExec(new Runnable() {
+		ExecutorUtil.asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				EditorView.this.setPartName(partInfo != null

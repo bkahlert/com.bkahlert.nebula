@@ -3,7 +3,6 @@ package com.bkahlert.nebula.gallery.demoSuits.browser;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.commons.io.FileUtils;
@@ -12,6 +11,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
@@ -23,11 +23,13 @@ import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 
 @Demo
-public class BrowserDemo extends AbstractDemo {
+public class MultipleBrowserCompositeDemo extends AbstractDemo {
 
-	private BrowserComposite browserComposite;
+	private BrowserComposite[] browserComposites;
 	private String alertString = "Hello World!";
-	private static String timeoutString = "1000";
+	private static String timeoutString = "10000";
+	private static String[] URLS = new String[] { "http://www.google.de",
+			"http://www.bkahlert.com", "http://google.com" };
 
 	@Override
 	public void createControls(Composite composite) {
@@ -40,16 +42,15 @@ public class BrowserDemo extends AbstractDemo {
 					@Override
 					public void run() {
 						log("alerting");
-						try {
-							BrowserDemo.this.browserComposite.run(
-									"alert(\"" + BrowserDemo.this.alertString
-											+ "\");").get();
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (ExecutionException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+						for (BrowserComposite browserComposite : browserComposites) {
+							try {
+								browserComposite
+										.run("alert(\""
+												+ MultipleBrowserCompositeDemo.this.alertString
+												+ "\");").get();
+							} catch (Exception e) {
+								log(e.toString());
+							}
 						}
 						log("alerted");
 					}
@@ -68,10 +69,16 @@ public class BrowserDemo extends AbstractDemo {
 						log("alerting using external file");
 						try {
 							File jsFile = File.createTempFile(
-									BrowserDemo.class.getSimpleName(), ".js");
-							FileUtils.write(jsFile, "alert(\""
-									+ BrowserDemo.this.alertString + "\");");
-							BrowserDemo.this.browserComposite.run(jsFile);
+									MultipleBrowserCompositeDemo.class
+											.getSimpleName(), ".js");
+							FileUtils
+									.write(jsFile,
+											"alert(\""
+													+ MultipleBrowserCompositeDemo.this.alertString
+													+ "\");");
+							for (BrowserComposite browserComposite : browserComposites) {
+								browserComposite.run(jsFile);
+							}
 						} catch (Exception e) {
 							log(e.toString());
 						}
@@ -86,16 +93,18 @@ public class BrowserDemo extends AbstractDemo {
 		text.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
-				BrowserDemo.this.alertString = ((Text) e.getSource()).getText();
+				MultipleBrowserCompositeDemo.this.alertString = ((Text) e
+						.getSource()).getText();
 			}
 		});
 
 		Text timeout = new Text(composite, SWT.BORDER);
-		timeout.setText(BrowserDemo.timeoutString);
+		timeout.setText(MultipleBrowserCompositeDemo.timeoutString);
 		timeout.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
-				BrowserDemo.timeoutString = ((Text) e.getSource()).getText();
+				MultipleBrowserCompositeDemo.timeoutString = ((Text) e
+						.getSource()).getText();
 			}
 		});
 
@@ -104,28 +113,37 @@ public class BrowserDemo extends AbstractDemo {
 
 	@Override
 	public void createDemo(Composite parent) {
-		this.browserComposite = new BrowserComposite(parent, SWT.BORDER);
-		try {
-			final Future<Boolean> success = this.browserComposite.open(new URI(
-					"http://www.google.de"), Integer
-					.parseInt(BrowserDemo.timeoutString));
-			ExecutorUtil.nonUISyncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						if (success.get()) {
-							log("Page loaded successfully");
-						} else {
-							log("Page load timeout out");
+		parent.setLayout(new FillLayout());
+
+		this.browserComposites = new BrowserComposite[URLS.length];
+		for (int i = 0; i < this.browserComposites.length; i++) {
+			this.browserComposites[i] = new BrowserComposite(parent, SWT.BORDER);
+			this.browserComposites[i].setAllowLocationChange(true);
+			try {
+				final Future<Boolean> success = this.browserComposites[i]
+						.open(new URI(URLS[i]),
+								Integer.parseInt(MultipleBrowserCompositeDemo.timeoutString));
+				ExecutorUtil.nonUISyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							if (success.get()) {
+								log("Page loaded successfully");
+							} else {
+								log("Page load timed out");
+							}
+						} catch (Exception e) {
+							log("An error occured while loading: "
+									+ e.getMessage());
 						}
-					} catch (Exception e) {
-						log("An error occured while loading: " + e.getMessage());
 					}
-				}
-			});
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
+				});
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+			log(this.browserComposites[i].getBrowser().getUrl());
 		}
-		log(this.browserComposite.getBrowser().getUrl());
+
+		parent.layout();
 	}
 }

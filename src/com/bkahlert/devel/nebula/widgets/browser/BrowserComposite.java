@@ -52,9 +52,9 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	public static URI getFileUrl(Class<?> clazz, String clazzRelativePath,
 			String suffix) {
 		try {
-			URL timelineUrl = FileLocator.toFileURL(clazz
+			URL url = FileLocator.toFileURL(clazz
 					.getResource(clazzRelativePath));
-			String timelineUrlString = timelineUrl.toString().replace("file:",
+			String timelineUrlString = url.toString().replace("file:",
 					"file://");
 			return new URI(timelineUrlString + suffix);
 		} catch (Exception e) {

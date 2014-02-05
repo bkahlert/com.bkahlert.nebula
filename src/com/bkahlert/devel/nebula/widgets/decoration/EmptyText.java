@@ -125,6 +125,9 @@ public class EmptyText {
 	 * @see Text#getText()
 	 */
 	public String getText() {
+		if (this.control == null || this.control.isDisposed()) {
+			return "";
+		}
 		return (this.control.getText().equals(this.emptyText)) ? ""
 				: this.control.getText();
 	}

@@ -203,7 +203,7 @@ public abstract class Editor<T> extends Composite {
 		if (objectToLoad == null) {
 			// refreshHeader();
 			this.loadedObject = null;
-			ExecutorUtil.syncExec(new Runnable() {
+			ExecutorUtil.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					Editor.this.composer.setSource("");
@@ -228,7 +228,7 @@ public abstract class Editor<T> extends Composite {
 
 						// refreshHeader();
 						monitor.worked(1);
-						ExecutorUtil.syncExec(new Runnable() {
+						ExecutorUtil.asyncExec(new Runnable() {
 							@Override
 							public void run() {
 								Editor.this.composer.setSource(html.get());

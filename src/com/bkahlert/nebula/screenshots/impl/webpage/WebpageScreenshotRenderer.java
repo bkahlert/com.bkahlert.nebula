@@ -92,10 +92,10 @@ public class WebpageScreenshotRenderer<WEBPAGE extends IWebpage> implements
 
 	}
 
-	private Shell parentShell;
-	private Map<Renderer, WEBPAGE> renderers;
-	private List<Renderer> renderersInUse;
-	private List<Renderer> availableRenderers;
+	private final Shell parentShell;
+	private final Map<Renderer, WEBPAGE> renderers;
+	private final List<Renderer> renderersInUse;
+	private final List<Renderer> availableRenderers;
 
 	public WebpageScreenshotRenderer(Shell parentShell) {
 		this.parentShell = parentShell;
@@ -145,7 +145,7 @@ public class WebpageScreenshotRenderer<WEBPAGE extends IWebpage> implements
 
 					if (!this.loadUri()) {
 						throw new WebpageRendererException("Opening "
-								+ request.getUri() + " timeout out");
+								+ request.getUri() + " timed out");
 					}
 
 					WebpageScreenshotRenderer.this.loadingWebpageFinished(
