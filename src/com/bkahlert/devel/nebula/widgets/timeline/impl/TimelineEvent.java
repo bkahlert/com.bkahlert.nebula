@@ -60,6 +60,10 @@ public class TimelineEvent implements ITimelineEvent {
 			throw new IllegalArgumentException(
 					"Event must have at least a start or an end date");
 		}
+		if (payload == null) {
+			throw new IllegalArgumentException(
+					"Event must have a payload != null");
+		}
 		this.title = title;
 		this.tooltip = tooltip;
 		this.icon = icon;
@@ -129,6 +133,12 @@ public class TimelineEvent implements ITimelineEvent {
 	@Override
 	public Object getPayload() {
 		return this.payload;
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + ": " + this.getTitle()
+				+ " - (" + this.getPayload() + ")";
 	}
 
 }
