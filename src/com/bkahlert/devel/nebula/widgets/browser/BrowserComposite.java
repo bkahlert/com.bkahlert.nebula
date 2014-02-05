@@ -120,8 +120,13 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		};
 
 		this.browser.addProgressListener(new ProgressAdapter() {
+			private int numCompletionChecks = 0;
+
 			@Override
 			public void completed(ProgressEvent event) {
+				if (this.numCompletionChecks > 10) {
+					LOGGER.fatal("Check if there is an implementation problem!");
+				}
 				// WORKAROUND: If multiple browsers are instantiated it can
 				// occur
 				// that some have not loaded, yet! Therefore we poll the page
@@ -132,6 +137,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 					ExecutorUtil.asyncExec(new Runnable() {
 						@Override
 						public void run() {
+							numCompletionChecks++;
 							completed(null);
 						}
 					}, 50);
@@ -215,7 +221,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		 * "a");window["successfullyInjectedAnkerHoverCallback"]=true;return
 		 * true;})(typeof(jQuery)!=='undefined'?jQuery:null)
 		 */
-		if (successfullyInjectedAnkerHoverCallback) {
+		if (this.successfullyInjectedAnkerHoverCallback) {
 			return;
 		}
 
@@ -227,7 +233,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 			public void run() {
 				try {
 					if (success.get()) {
-						successfullyInjectedAnkerHoverCallback = true;
+						BrowserComposite.this.successfullyInjectedAnkerHoverCallback = true;
 					}
 				} catch (Exception e) {
 					LOGGER.error(
@@ -243,7 +249,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	public Future<Boolean> open(final String uri, final Integer timeout) {
 		this.loadingCompleted = false;
 		this.successfullyInjectedAnkerHoverCallback = false;
-		browser.setUrl(uri.toString());
+		this.browser.setUrl(uri.toString());
 
 		return ExecutorUtil.nonUISyncExec(BrowserComposite.class, "Opening "
 				+ uri, new Callable<Boolean>() {
@@ -285,7 +291,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 					}
 				});
 
-				injectAnkerHoverCallback();
+				BrowserComposite.this.injectAnkerHoverCallback();
 
 				BrowserComposite.this.afterLoad(uri);
 
@@ -458,7 +464,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 										.toString(32);
 
 						final Semaphore mutex = new Semaphore(0);
-						ExecutorUtil.syncExec(new Runnable() {
+						ExecutorUtil.asyncExec(new Runnable() {
 							@Override
 							public void run() {
 								final AtomicReference<BrowserFunction> callback = new AtomicReference<BrowserFunction>();
