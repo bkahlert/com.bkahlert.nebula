@@ -1,5 +1,6 @@
 package com.bkahlert.nebula.utils;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -13,6 +14,16 @@ public class CompletedFuture<V> implements Future<V> {
 	public CompletedFuture(V value, Exception exception) {
 		this.value = value;
 		this.exception = exception;
+	}
+
+	public CompletedFuture(Callable<V> callable) {
+		this.value = null;
+		this.exception = null;
+		try {
+			this.value = callable.call();
+		} catch (Exception e) {
+			this.exception = e;
+		}
 	}
 
 	@Override
