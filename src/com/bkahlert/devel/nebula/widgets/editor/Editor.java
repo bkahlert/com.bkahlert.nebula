@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
@@ -24,7 +25,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Listener;
 
 import com.bkahlert.devel.nebula.utils.EventDelegator;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.composer.Composer;
 import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
@@ -204,7 +205,7 @@ public abstract class Editor<T> extends Composite {
 		if (objectToLoad == null) {
 			// refreshHeader();
 			this.loadedObject = null;
-			ExecutorUtil.asyncExec(new Runnable() {
+			ExecUtils.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					Editor.this.composer.setSource("");
@@ -229,13 +230,12 @@ public abstract class Editor<T> extends Composite {
 
 						// refreshHeader();
 						monitor.worked(1);
-						ExecutorUtil.asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								Editor.this.composer.setSource(html.get());
-								Editor.this.composer.setEnabled(true);
-							}
-						});
+						Future<Boolean> success = Editor.this.composer
+								.setSource(html.get());
+						if (!success.get()) {
+							throw new Exception(
+									"Could not set source's content");
+						}
 						monitor.worked(1);
 						monitor.done();
 						Editor.this.loadedObject = objectToLoad;
@@ -246,6 +246,12 @@ public abstract class Editor<T> extends Composite {
 						responsibleEditors.get(objectToLoad).add(
 								(Editor<Object>) Editor.this);
 
+						ExecUtils.syncExec(new Runnable() {
+							@Override
+							public void run() {
+								Editor.this.composer.setEnabled(true);
+							}
+						});
 					} catch (Exception e) {
 						LOGGER.error("Error while loading content of "
 								+ objectToLoad, e);
@@ -269,7 +275,7 @@ public abstract class Editor<T> extends Composite {
 	 * @throws Exception
 	 */
 	public final Job save() throws Exception {
-		String html = ExecutorUtil.syncExec(new Callable<String>() {
+		String html = ExecUtils.syncExec(new Callable<String>() {
 			@Override
 			public String call() throws Exception {
 				return Editor.this.composer.getSource();

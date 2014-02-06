@@ -36,6 +36,7 @@ import org.jsoup.select.Elements;
 import com.bkahlert.devel.nebula.utils.EventDelegator;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.utils.IConverter;
+import com.bkahlert.devel.nebula.utils.OffWorker;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.Anker;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
@@ -68,6 +69,8 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	private boolean loadingCompleted = false;
 	private final List<IJavaScriptExceptionListener> javaScriptExceptionListeners = new ArrayList<IJavaScriptExceptionListener>();
 	private final List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
+
+	private final OffWorker delayedScriptsWorker = new OffWorker(200);
 
 	public BrowserComposite(Composite parent, int style) {
 		super(parent, style);
@@ -159,8 +162,6 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 										LOGGER.error(e);
 									}
 
-									// notify threads that want to run
-									// javascripts
 									synchronized (BrowserComposite.this.monitor) {
 										BrowserComposite.this.monitor
 												.notifyAll();
@@ -185,7 +186,8 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 			}
 
 			// TODO call injectAnkerCode after a page has loaded a user clicked
-			// on
+			// on (or do all the same steps on first page load on all
+			// consecutive loads)
 		});
 	}
 
@@ -292,7 +294,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 					}
 				});
 
-				BrowserComposite.this.injectAnkerHoverCallback();
+				// BrowserComposite.this.injectAnkerHoverCallback();
 
 				BrowserComposite.this.afterLoad(uri);
 
@@ -319,6 +321,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 
 					if (BrowserComposite.this.loadingCompleted) {
 						LOGGER.debug("Successfully loaded " + uri);
+						BrowserComposite.this.delayedScriptsWorker.start();
 					} else {
 						LOGGER.debug("Aborted loading " + uri
 								+ " due to timeout");
@@ -456,6 +459,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	private Future<Boolean> run(final URI script,
 			final boolean removeAfterExecution) {
 		Assert.isLegal(script != null);
+		// HIER KÖNNTE DER PERFORMANCE FEHLER LIEGEN
 		return ExecutorUtil.nonUISyncExec(BrowserComposite.class,
 				"Script Runner for: " + script, new Callable<Boolean>() {
 					@Override
@@ -512,6 +516,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		if (this.getBrowser() == null || this.getBrowser().isDisposed()) {
 			return null;
 		}
+		this.scriptEnqueued(script);
 		final String[] logScript = new String[] { script.length() > 100 ? script
 				.substring(0, 100) + "..."
 				: script };
@@ -528,6 +533,8 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				BrowserComposite.this.scriptAboutToBeSentToBrowser(script);
 				try {
 					Object returnValue = browser.evaluate(script);
+					BrowserComposite.this
+							.scriptReturnValueReceived(returnValue);
 					LOGGER.info("Returned " + returnValue);
 					return converter.convert(returnValue);
 				} catch (SWTException e) {
@@ -546,29 +553,21 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 			}
 			return new CompletedFuture<DEST>(converted.get(), exception);
 		} else {
-			return ExecutorUtil.nonUISyncExec(BrowserComposite.class,
-					"Delaying Script till Page Load: " + logScript[0],
-					new Callable<DEST>() {
-						@Override
-						public DEST call() throws Exception {
-							if (!BrowserComposite.this.loadingCompleted) {
-								synchronized (BrowserComposite.this.monitor) {
-									BrowserComposite.this.monitor.wait();
-								}
-							}
-							if (BrowserComposite.this.isDisposed()) {
-								return null;
-							}
-							// TODO possibly check if page was really loaded
-							if (BrowserComposite.this.loadingCompleted) {
-								return ExecutorUtil.syncExec(callable);
-							} else {
-								throw new SWTException(
-										"Could not run script because the page did not correctly load; "
-												+ logScript[0]);
-							}
-						}
-					});
+			return this.delayedScriptsWorker.submit(new Callable<DEST>() {
+				@Override
+				public DEST call() throws Exception {
+					if (BrowserComposite.this.isDisposed()) {
+						return null;
+					}
+					if (BrowserComposite.this.loadingCompleted) {
+						return ExecutorUtil.syncExec(callable);
+					} else {
+						throw new SWTException(
+								"Could not run script because the page did not correctly load; "
+										+ logScript[0]);
+					}
+				}
+			});
 		}
 	}
 
@@ -588,11 +587,28 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	};
 
 	/**
+	 * Testers can override this method to see what goint to be executed.
+	 * 
+	 * @param script
+	 */
+	public void scriptEnqueued(String script) {
+	}
+
+	/**
 	 * Testers can override this method to see what's executed.
 	 * 
 	 * @param script
 	 */
-	void scriptAboutToBeSentToBrowser(String script) {
+	public void scriptAboutToBeSentToBrowser(String script) {
+
+	}
+
+	/**
+	 * Testers can override this method to chec the script execution results.
+	 * 
+	 * @param returnValue
+	 */
+	public void scriptReturnValueReceived(Object returnValue) {
 
 	}
 
@@ -602,6 +618,14 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				+ uri.toString()
 				+ "\")}else{$(\"head\").append($(\"<link rel=\\\"stylesheet\\\" href=\\\""
 				+ uri.toString() + "\\\" type=\\\"text/css\\\" />\"))}");
+	}
+
+	@Override
+	public void injectCss(String css) {
+		String script = "(function(){var style=document.createElement(\"style\");style.appendChild(document.createTextNode(\""
+				+ css
+				+ "\"));(document.getElementsByTagName(\"head\")[0]||document.documentElement).appendChild(style)})()";
+		this.run(script);
 	}
 
 	public void addJavaScriptExceptionListener(

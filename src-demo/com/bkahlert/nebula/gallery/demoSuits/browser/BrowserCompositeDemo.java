@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
+import com.bkahlert.devel.nebula.colors.ColorUtils;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
@@ -108,6 +109,29 @@ public class BrowserCompositeDemo extends AbstractDemo {
 		});
 
 		new EmptyText(timeout, "Timeout for page load");
+
+		Button changeBackground = new Button(composite, SWT.PUSH);
+		changeBackground.setText("change background color using CSS injection");
+		changeBackground.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						log("changing background");
+						try {
+							BrowserCompositeDemo.this.browserComposite
+									.injectCss("html, body { background-color: "
+											+ ColorUtils.getRandomRGB()
+													.toHexString() + "; }");
+						} catch (Exception e) {
+							log(e.toString());
+						}
+						log("changed background");
+					}
+				}).start();
+			}
+		});
 	}
 
 	@Override
@@ -126,7 +150,7 @@ public class BrowserCompositeDemo extends AbstractDemo {
 		});
 		try {
 			final Future<Boolean> success = this.browserComposite.open(new URI(
-					"http://www.bkahlert.com"), Integer
+					"http://wikipedia.com"), Integer
 					.parseInt(BrowserCompositeDemo.timeoutString));
 			ExecutorUtil.nonUISyncExec(new Runnable() {
 				@Override

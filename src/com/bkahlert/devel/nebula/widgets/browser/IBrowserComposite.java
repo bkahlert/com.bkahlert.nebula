@@ -96,6 +96,11 @@ public interface IBrowserComposite extends IWidget {
 	public void injectCssFile(URI uri);
 
 	/**
+	 * Adds the given CSS code to the head.
+	 */
+	public void injectCss(String css);
+
+	/**
 	 * Runs the script included in the given {@link File} in the
 	 * {@link IBrowserComposite} as soon as its content is loaded.
 	 * 

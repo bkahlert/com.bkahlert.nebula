@@ -99,7 +99,7 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
             $('textarea').val(html);
             var editor = CKEDITOR.instances.editor1;
             if (!editor)
-                return;
+                return false;
 
             // Set editor contents (replace current contents).
             // http://docs.ckeditor.com/#!/api/CKEDITOR.editor-method-setData
@@ -118,6 +118,7 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
                 if ( typeof callback == "function")
                     callback();
             }
+            return true;
         },
 
         getSource : function() {
@@ -152,6 +153,7 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
                 	$(window).resize();
                 }
             }
+            return true;
         },
 
         getPrevCaretCharacter : function() {

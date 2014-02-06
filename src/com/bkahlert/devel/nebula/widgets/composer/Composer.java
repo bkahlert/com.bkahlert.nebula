@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +28,7 @@ import org.jsoup.nodes.Element;
 
 import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
 import com.bkahlert.devel.nebula.widgets.browser.JavaScriptException;
@@ -302,11 +304,11 @@ public class Composer extends BrowserComposite {
 		this.run("com.bkahlert.devel.nebula.editor.selectAll();");
 	}
 
-	public void setSource(String html) {
-		this.setSource(html, false);
+	public Future<Boolean> setSource(String html) {
+		return this.setSource(html, false);
 	}
 
-	public void setSource(String html, boolean restoreSelection) {
+	public Future<Boolean> setSource(String html, boolean restoreSelection) {
 		/*
 		 * do not wait for the delay to pass but invoke the task immediately
 		 */
@@ -315,11 +317,17 @@ public class Composer extends BrowserComposite {
 			this.delayChangeTimerTask.run();
 			this.delayChangeTimerTask = null;
 		}
-		this.run("com.bkahlert.devel.nebula.editor.setSource("
+		return this.run("return com.bkahlert.devel.nebula.editor.setSource("
 				+ TimelineJsonGenerator.enquote(html) + ", "
-				+ (restoreSelection ? "true" : "false") + ");");
+				+ (restoreSelection ? "true" : "false") + ");",
+				IConverter.CONVERTER_BOOLEAN);
 	}
 
+	/**
+	 * TODO use this.run
+	 * 
+	 * @return
+	 */
 	public String getSource() {
 		if (!this.isLoadingCompleted()) {
 			return null;
@@ -362,17 +370,16 @@ public class Composer extends BrowserComposite {
 
 	@Override
 	public void setEnabled(boolean isEnabled) {
-		this.run("com.bkahlert.devel.nebula.editor.setEnabled("
-				+ (isEnabled ? "true" : "false") + ");");
+		this.run("return com.bkahlert.devel.nebula.editor.setEnabled("
+				+ (isEnabled ? "true" : "false") + ");",
+				IConverter.CONVERTER_BOOLEAN);
 		super.setEnabled(isEnabled);
 	}
 
 	@Override
 	public void setBackground(Color color) {
-		// TODO get rid of window.setTimeout
 		String hex = new RGB(color.getRGB()).toHexString();
-		this.run("window.setTimeout(function() {$('.cke_reset').css('background-color', '"
-				+ hex + "');},100);");
+		this.injectCss("html .cke_reset { background-color: " + hex + "; }");
 	}
 
 	public void addAnkerLabelProvider(IAnkerLabelProvider ankerLabelProvider) {
