@@ -27,7 +27,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
@@ -118,7 +118,7 @@ public class Composer extends BrowserComposite {
 					if (e.keyCode == 120) {
 						// x - cut
 						// wait for the ui thread to apply the operation
-						ExecutorUtil.asyncExec(new Runnable() {
+						ExecUtils.asyncExec(new Runnable() {
 							@Override
 							public void run() {
 								Composer.this.modifiedCallback(
@@ -134,7 +134,7 @@ public class Composer extends BrowserComposite {
 					if (e.keyCode == 118) {
 						// v - paste
 						// wait for the ui thread to apply the operation
-						ExecutorUtil.asyncExec(new Runnable() {
+						ExecUtils.asyncExec(new Runnable() {
 							@Override
 							public void run() {
 								Composer.this.modifiedCallback(

@@ -11,7 +11,7 @@ import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.nebula.widgets.browser.IJavaScript;
 import com.bkahlert.devel.nebula.widgets.browser.JavaScript;
@@ -88,7 +88,7 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 
 	@Override
 	public Future<Void> afterCompletion(final String uri) {
-		return ExecutorUtil.nonUISyncExec(JQueryEnabledBrowserComposite.class,
+		return ExecUtils.nonUIAsyncExec(JQueryEnabledBrowserComposite.class,
 				"Active Listeners", new Callable<Void>() {
 					@Override
 					public Void call() throws Exception {
@@ -166,7 +166,7 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 
 	@Override
 	public Future<Point> getScrollPosition() {
-		return ExecutorUtil.nonUISyncExec(JQueryEnabledBrowserComposite.class,
+		return ExecUtils.nonUIAsyncExec(JQueryEnabledBrowserComposite.class,
 				"Get Scroll Position", new Callable<Point>() {
 					@Override
 					public Point call() throws Exception {
@@ -184,7 +184,7 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 
 	@Override
 	public Future<Point> getScrollPosition(final ISelector selector) {
-		return ExecutorUtil.nonUISyncExec(JQueryEnabledBrowserComposite.class,
+		return ExecUtils.nonUIAsyncExec(JQueryEnabledBrowserComposite.class,
 				"Get Scroll Position", new Callable<Point>() {
 					@Override
 					public Point call() throws Exception {
@@ -217,7 +217,7 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 
 	@Override
 	public Future<Point> getRelativePosition(final ISelector selector) {
-		return ExecutorUtil.nonUISyncExec(JQueryEnabledBrowserComposite.class,
+		return ExecUtils.nonUIAsyncExec(JQueryEnabledBrowserComposite.class,
 				"Get Relative Position", new Callable<Point>() {
 					@Override
 					public Point call() throws Exception {
@@ -237,7 +237,7 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 
 	@Override
 	public Future<Boolean> scrollTo(final int x, final int y) {
-		return ExecutorUtil.nonUISyncExec(JQueryEnabledBrowserComposite.class,
+		return ExecUtils.nonUIAsyncExec(JQueryEnabledBrowserComposite.class,
 				"Scroll To", new Callable<Boolean>() {
 					@Override
 					public Boolean call() throws Exception {
@@ -262,7 +262,7 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 
 	@Override
 	public Future<Boolean> scrollTo(final ISelector selector) {
-		return ExecutorUtil.nonUISyncExec(JQueryEnabledBrowserComposite.class,
+		return ExecUtils.nonUIAsyncExec(JQueryEnabledBrowserComposite.class,
 				"Scroll To", new Callable<Boolean>() {
 					@Override
 					public Boolean call() throws Exception {
@@ -281,7 +281,7 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 
 	@Override
 	public Future<IElement> getFocusedElement() {
-		return ExecutorUtil.nonUISyncExec(JQueryEnabledBrowserComposite.class,
+		return ExecUtils.nonUIAsyncExec(JQueryEnabledBrowserComposite.class,
 				"Get Focused Element", new Callable<IElement>() {
 					@Override
 					public IElement call() throws Exception {

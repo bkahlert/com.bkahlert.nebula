@@ -39,7 +39,7 @@ public interface IBaseTimeline extends IBrowserComposite, IDisposable {
 	 * @param input
 	 * @param monitor
 	 */
-	public void show(ITimelineInput input, IProgressMonitor monitor);
+	public Future<Void> show(ITimelineInput input, IProgressMonitor monitor);
 
 	/**
 	 * Displays the given {@link ITimelineInput} on the {@link IBaseTimeline} by
@@ -56,7 +56,7 @@ public interface IBaseTimeline extends IBrowserComposite, IDisposable {
 	 *            occur
 	 * @param monitor
 	 */
-	public void show(ITimelineInput input, int startAnimationDuration,
+	public Future<Void> show(ITimelineInput input, int startAnimationDuration,
 			int endAnimationDuration, IProgressMonitor monitor);
 
 	/**

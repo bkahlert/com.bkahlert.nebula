@@ -1,12 +1,12 @@
 package com.bkahlert.devel.nebula.widgets.timeline.impl;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
 import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
@@ -75,6 +75,7 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 		return events;
 	}
 
+	@SuppressWarnings("unused")
 	private static Logger LOGGER = Logger.getLogger(BaseTimeline.class);
 
 	private IDecorator[] decorators = null;
@@ -97,9 +98,10 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 	 * May be called from whatever thread.
 	 * 
 	 * @param json
+	 * @throws Exception
 	 */
 	private void show(final File json, final int startAnimationDuration,
-			final int endAnimationDuration) {
+			final int endAnimationDuration) throws Exception {
 		// System.err.println(jsonTimeline);
 		// final String escapedJson = TimelineJsonGenerator.enquote(json);
 		final String js;
@@ -115,48 +117,42 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 					+ endAnimationDuration
 					+ ");";
 		}
-		final Future<Object> rt = this.run(js);
-		ExecutorUtil.nonUISyncExec(BaseTimeline.class, "Refresh",
-				new Runnable() {
+		this.run(js).get();
+		ExecUtils.syncExec(new Runnable() {
+			@Override
+			public void run() {
+				BaseTimeline.this.layout();
+			}
+		});
+	}
+
+	@Override
+	public Future<Void> show(ITimelineInput input, IProgressMonitor monitor) {
+		return this.show(input, -1, -1, monitor);
+	}
+
+	@Override
+	public Future<Void> show(final ITimelineInput input,
+			final int startAnimationDuration, final int endAnimationDuration,
+			final IProgressMonitor monitor) {
+
+		return ExecUtils.nonUIAsyncExec(BaseTimeline.class, "Showing timeline",
+				new Callable<Void>() {
 					@Override
-					public void run() {
-						try {
-							rt.get();
-						} catch (Exception e) {
-						}
-						ExecutorUtil.asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								BaseTimeline.this.layout();
-							}
-						});
+					public Void call() throws Exception {
+						SubMonitor subMonitor = SubMonitor.convert(monitor,
+								1 + 10);
+
+						BaseTimeline.this.sortedEvents = getSortedEvents(input);
+						subMonitor.worked(1);
+
+						File json = TimelineJsonGenerator.toJson(input, false,
+								subMonitor.newChild(10));
+						BaseTimeline.this.show(json, startAnimationDuration,
+								endAnimationDuration);
+						return null;
 					}
 				});
-	}
-
-	@Override
-	public void show(ITimelineInput input, IProgressMonitor monitor) {
-		this.show(input, -1, -1, monitor);
-	}
-
-	@Override
-	public void show(ITimelineInput input, int startAnimationDuration,
-			int endAnimationDuration, IProgressMonitor monitor) {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 1 + 10);
-
-		this.sortedEvents = getSortedEvents(input);
-		subMonitor.worked(1);
-
-		try {
-			File json = TimelineJsonGenerator.toJson(input, false,
-					subMonitor.newChild(10));
-			this.show(json, startAnimationDuration, endAnimationDuration);
-		} catch (IOException e) {
-			LOGGER.error(
-					"Error serializing JSON for "
-							+ BaseTimeline.class.getSimpleName(), e);
-		}
-
 	}
 
 	@Override

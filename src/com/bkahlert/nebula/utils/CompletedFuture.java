@@ -26,6 +26,16 @@ public class CompletedFuture<V> implements Future<V> {
 		}
 	}
 
+	public CompletedFuture(Runnable runnable) {
+		this.value = null;
+		this.exception = null;
+		try {
+			runnable.run();
+		} catch (Exception e) {
+			this.exception = e;
+		}
+	}
+
 	@Override
 	public boolean cancel(boolean mayInterruptIfRunning) {
 		return false;

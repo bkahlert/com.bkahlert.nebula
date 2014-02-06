@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -118,8 +117,7 @@ public class ExecUtilsTest {
 	}
 
 	@Test
-	public void testIsUIThread() throws InterruptedException,
-			ExecutionException {
+	public void testIsUIThread() throws Exception {
 		assertFalse(ExecUtils.isUIThread());
 
 		ExecUtils.syncExec(new Runnable() {

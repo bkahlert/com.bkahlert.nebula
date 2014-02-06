@@ -13,7 +13,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
 import com.bkahlert.devel.nebula.widgets.browser.JavaScriptException;
@@ -167,8 +167,8 @@ public class Image extends BrowserComposite {
 	 * @param callback
 	 *            is called in the UI thread when the source has been loaded.
 	 */
-	public void load(final String src, final Runnable callback) {
-		ExecutorUtil.nonUISyncExec(new Callable<Void>() {
+	public Future<Void> load(final String src, final Runnable callback) {
+		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
 				String script = "com.bkahlert.nebula.image.load("
@@ -178,7 +178,7 @@ public class Image extends BrowserComposite {
 				Image.this.waitUntilImageLoaded();
 				future.get();
 				if (callback != null) {
-					ExecutorUtil.asyncExec(new Runnable() {
+					ExecUtils.asyncExec(new Runnable() {
 						@Override
 						public void run() {
 							callback.run();

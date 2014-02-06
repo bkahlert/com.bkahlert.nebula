@@ -34,7 +34,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.bkahlert.devel.nebula.utils.EventDelegator;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.nebula.utils.OffWorker;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.Anker;
@@ -137,7 +137,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				String readyState = (String) BrowserComposite.this.browser
 						.evaluate("return document.readyState;");
 				if (!readyState.equals("complete")) {
-					ExecutorUtil.asyncExec(new Runnable() {
+					ExecUtils.asyncExec(new Runnable() {
 						@Override
 						public void run() {
 							numCompletionChecks++;
@@ -150,7 +150,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 					String uri = BrowserComposite.this.browser.getUrl();
 					final Future<Void> finished = BrowserComposite.this
 							.afterCompletion(uri);
-					ExecutorUtil.nonUISyncExec(BrowserComposite.class,
+					ExecUtils.nonUISyncExec(BrowserComposite.class,
 							"Progress Check for " + uri, new Runnable() {
 								@Override
 								public void run() {
@@ -231,7 +231,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		String js = "return(function($){if(!$ || window[\"successfullyInjectedAnkerHoverCallback\"])return false;window[\"hoveredAnker\"]=null;$(\"body\").bind(\"DOMSubtreeModified beforeunload\",function(){if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](window[\"hoveredAnker\"])}});$(\"body\").on({mouseenter:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();window[\"hoveredAnker\"]=e;if(window[\"mouseenter\"]&&typeof window[\"mouseenter\"]){window[\"mouseenter\"](e)}},mouseleave:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](e)}}},\"a\");window[\"successfullyInjectedAnkerHoverCallback\"]=true;return true;})(typeof(jQuery)!=='undefined'?jQuery:null)";
 		final Future<Boolean> success = BrowserComposite.this.run(js,
 				IConverter.CONVERTER_BOOLEAN);
-		ExecutorUtil.nonUISyncExec(new Runnable() {
+		ExecUtils.nonUISyncExec(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -254,7 +254,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		this.successfullyInjectedAnkerHoverCallback = false;
 		this.browser.setUrl(uri.toString());
 
-		return ExecutorUtil.nonUISyncExec(BrowserComposite.class, "Opening "
+		return ExecUtils.nonUIAsyncExec(BrowserComposite.class, "Opening "
 				+ uri, new Callable<Boolean>() {
 			@Override
 			public Boolean call() throws Exception {
@@ -264,7 +264,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				// stops waiting after timeout
 				Future<?> timeoutMonitor = null;
 				if (timeout != null && timeout > 0) {
-					timeoutMonitor = ExecutorUtil.nonUISyncExec(
+					timeoutMonitor = ExecUtils.nonUIAsyncExec(
 							BrowserComposite.class, "Timeout Watcher for "
 									+ uri, new Runnable() {
 								@Override
@@ -284,7 +284,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 
 				BrowserComposite.this.beforeLoad(uri);
 
-				ExecutorUtil.asyncExec(new Runnable() {
+				ExecUtils.syncExec(new Runnable() {
 					@Override
 					public void run() {
 						BrowserComposite.this.settingUri = true;
@@ -293,8 +293,6 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 						BrowserComposite.this.settingUri = false;
 					}
 				});
-
-				// BrowserComposite.this.injectAnkerHoverCallback();
 
 				BrowserComposite.this.afterLoad(uri);
 
@@ -459,17 +457,16 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	private Future<Boolean> run(final URI script,
 			final boolean removeAfterExecution) {
 		Assert.isLegal(script != null);
-		// HIER KÖNNTE DER PERFORMANCE FEHLER LIEGEN
-		return ExecutorUtil.nonUISyncExec(BrowserComposite.class,
+		return ExecUtils.nonUIAsyncExec(BrowserComposite.class,
 				"Script Runner for: " + script, new Callable<Boolean>() {
 					@Override
-					public Boolean call() {
+					public Boolean call() throws Exception {
 						final String callbackFunctionName = "_"
 								+ new BigInteger(130, new SecureRandom())
 										.toString(32);
 
 						final Semaphore mutex = new Semaphore(0);
-						ExecutorUtil.asyncExec(new Runnable() {
+						ExecUtils.syncExec(new Runnable() {
 							@Override
 							public void run() {
 								final AtomicReference<BrowserFunction> callback = new AtomicReference<BrowserFunction>();
@@ -547,7 +544,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 			final AtomicReference<DEST> converted = new AtomicReference<DEST>();
 			Exception exception = null;
 			try {
-				converted.set(ExecutorUtil.syncExec(callable));
+				converted.set(ExecUtils.syncExec(callable));
 			} catch (Exception e) {
 				exception = e;
 			}
@@ -560,7 +557,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 						return null;
 					}
 					if (BrowserComposite.this.loadingCompleted) {
-						return ExecutorUtil.syncExec(callable);
+						return ExecUtils.syncExec(callable);
 					} else {
 						throw new SWTException(
 								"Could not run script because the page did not correctly load; "
