@@ -43,29 +43,27 @@ import com.bkahlert.nebula.utils.CompletedFuture;
  * <td>{@link #asyncExec(Callable)}<br>
  * {@link #asyncExec(Runnable)}</td>
  * <td>
- * {@link #nonUIAsyncExec(ExecutorService,Callable)}<br>
- * {@link #nonUIAsyncExec(ExecutorService,Runnable)}<br>
- * non-static {@link #nonUIAsyncExec(Callable)}<br>
- * non-static {@link #nonUIAsyncExec(Runnable)}</td>
+ * {@link #nonUIAsyncExec(Callable)}<br>
+ * {@link #nonUIAsyncExec(Runnable)}</td>
  * </tr>
  * </table>
  * <p>
- * Synchronous non-UI thread code is executed by reusing an unused
- * {@link Thread} or if none are available, creating a new one.
+ * Synchronous non-UI thread code is executed immediately. They still return a
+ * {@link Future} instead of the value itself. Should the call have been made
+ * from an UI thread the code must be executed in a separate thread.
  * <p>
- * Asynchronous non-UI thread code cannot freely create new {@link Thread}s.
- * This may run the code with a delay.
+ * Asynchronous non-UI thread naturally always returns a {@link Future}.
  * <p>
- * So, synchronous non-UI thread does <b>not mean</b> that the result is
- * synchronously calculated but as soon as possible whereas asynchronous
- * instances rely on the {@link ExecutorService}'s thread disposition policy.
+ * To allow asynchronous non-UI thread methods to work with a custom
+ * {@link ExecutorService}, just instantiate {@link ExecUtils}. This is especially
+ * practical if you want to limit the number of maximum threads.
  * 
  * @author bkahlert
  * 
  */
-public class ExecutorUtil {
+public class ExecUtils {
 
-	private static final Logger LOGGER = Logger.getLogger(ExecutorUtil.class);
+	private static final Logger LOGGER = Logger.getLogger(ExecUtils.class);
 
 	/**
 	 * Threads whose execution is delayed relating to the moment
@@ -168,7 +166,7 @@ public class ExecutorUtil {
 		public V call(T object) throws Exception;
 	}
 
-	private static final ExecutorService SYNC_POOL = Executors
+	private static final ExecutorService EXECUTOR_SERVICE = Executors
 			.newCachedThreadPool(new ThreadFactory() {
 				private final ThreadFactory defaultThreadFactory = Executors
 						.defaultThreadFactory();
@@ -177,8 +175,7 @@ public class ExecutorUtil {
 				@Override
 				public Thread newThread(Runnable r) {
 					Thread t = this.defaultThreadFactory.newThread(r);
-					t.setName(ExecutorUtil.class.getSimpleName() + "-POOL: #"
-							+ this.i);
+					t.setName(ExecUtils.class.getSimpleName() + "-POOL: #" + this.i);
 					this.i++;
 					return t;
 				}
@@ -237,13 +234,13 @@ public class ExecutorUtil {
 	/**
 	 * Executes the given {@link Callable}.
 	 * <p>
-	 * Checks if the caller is already in the UI-thread and if so runs the
+	 * Checks if the caller is already in the UI thread and if so runs the
 	 * runnable directly in order to avoid deadlocks.
 	 * 
 	 * @param runnable
 	 */
 	public static <V> V syncExec(final Callable<V> callable) throws Exception {
-		if (ExecutorUtil.isUIThread()) {
+		if (ExecUtils.isUIThread()) {
 			return callable.call();
 		}
 
@@ -275,13 +272,16 @@ public class ExecutorUtil {
 	/**
 	 * Executes the given {@link Runnable}.
 	 * <p>
-	 * Checks if the caller is already in the ui thread and if so runs the
+	 * Checks if the caller is already in the UI thread and if so runs the
 	 * runnable directly in order to avoid deadlocks.
 	 * 
 	 * @param runnable
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
 	public static void syncExec(Runnable runnable) {
-		if (ExecutorUtil.isUIThread()) {
+		if (ExecUtils.isUIThread()) {
 			runnable.run();
 		} else {
 			Display.getDefault().syncExec(runnable);
@@ -295,41 +295,19 @@ public class ExecutorUtil {
 	 * 
 	 * @param callable
 	 * @return
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
 	public static <V> Future<V> asyncExec(final Callable<V> callable) {
-		if (ExecutorUtil.isUIThread()) {
-			V value = null;
-			Exception exception = null;
-			try {
-				value = callable.call();
-			} catch (Exception e) {
-				exception = e;
-			}
-			return new CompletedFuture<V>(value, exception);
+		if (ExecUtils.isUIThread()) {
+			return new CompletedFuture<V>(callable);
 		}
 
-		return SYNC_POOL.submit(new Callable<V>() {
+		return EXECUTOR_SERVICE.submit(new Callable<V>() {
 			@Override
 			public V call() throws Exception {
-				final AtomicReference<V> r = new AtomicReference<V>();
-				final AtomicReference<Exception> exception = new AtomicReference<Exception>();
-				final Semaphore mutex = new Semaphore(0);
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							r.set(callable.call());
-						} catch (Exception e) {
-							exception.set(e);
-						}
-						mutex.release();
-					}
-				});
-				mutex.acquire();
-				if (exception.get() != null) {
-					throw exception.get();
-				}
-				return r.get();
+				return syncExec(callable);
 			}
 		});
 	}
@@ -338,9 +316,55 @@ public class ExecutorUtil {
 	 * Executes the given {@link Runnable} asynchronously in the UI thread.
 	 * 
 	 * @param runnable
+	 * @return can be used to check when the code has been executed
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
-	public static void asyncExec(Runnable runnable) {
-		Display.getDefault().asyncExec(runnable);
+	public static Future<Void> asyncExec(final Runnable runnable) {
+		if (ExecUtils.isUIThread()) {
+			runnable.run();
+			return new CompletedFuture<Void>(null, null);
+		}
+
+		return EXECUTOR_SERVICE.submit(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				Display.getDefault().syncExec(runnable);
+				return null;
+			}
+		});
+	}
+
+	/**
+	 * Executes the given {@link Callable} with a delay and asynchronously in
+	 * the UI thread.
+	 * 
+	 * @param callable
+	 * @param delay
+	 * @return
+	 * 
+	 * @UIThread <b><span style="color: #f00;">WARNING: </span>Do not use the
+	 *           returned {@link Future} to check the finished execution. This
+	 *           results in a deadlock if the delay has not been passed but the
+	 *           checking UI thread block the execution.</b>
+	 * @NonUIThread
+	 */
+	public static <V> Future<V> asyncExec(final Callable<V> callable,
+			final long delay) {
+		return EXECUTOR_SERVICE.submit(new Callable<V>() {
+			@Override
+			public V call() throws Exception {
+				try {
+					Thread.sleep(delay);
+				} catch (InterruptedException e) {
+					LOGGER.error("Could not execute with a delay callable "
+							+ callable);
+				}
+
+				return syncExec(callable);
+			}
+		});
 	}
 
 	/**
@@ -349,11 +373,18 @@ public class ExecutorUtil {
 	 * 
 	 * @param runnable
 	 * @param delay
+	 * 
+	 * @UIThread <b><span style="color: #f00;">WARNING: </span>Do not use the
+	 *           returned {@link Future} to check the finished execution. This
+	 *           results in a deadlock if the delay has not been passed but the
+	 *           checking UI thread block the execution.</b>
+	 * @NonUIThread
 	 */
-	public static void asyncExec(final Runnable runnable, final long delay) {
-		SYNC_POOL.execute(new Runnable() {
+	public static Future<Void> asyncExec(final Runnable runnable,
+			final long delay) {
+		return EXECUTOR_SERVICE.submit(new Callable<Void>() {
 			@Override
-			public void run() {
+			public Void call() throws Exception {
 				try {
 					Thread.sleep(delay);
 				} catch (InterruptedException e) {
@@ -361,7 +392,8 @@ public class ExecutorUtil {
 							+ runnable);
 				}
 
-				Display.getDefault().asyncExec(runnable);
+				syncExec(runnable);
+				return null;
 			}
 		});
 	}
@@ -373,19 +405,15 @@ public class ExecutorUtil {
 	 * 
 	 * @param callable
 	 * @return
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
 	public static <V> Future<V> nonUISyncExec(Callable<V> callable) {
-		if (ExecutorUtil.isUIThread()) {
-			return SYNC_POOL.submit(callable);
+		if (ExecUtils.isUIThread()) {
+			return EXECUTOR_SERVICE.submit(callable);
 		} else {
-			V returnValue = null;
-			Exception exception = null;
-			try {
-				returnValue = callable.call();
-			} catch (Exception e) {
-				exception = e;
-			}
-			return new CompletedFuture<V>(returnValue, exception);
+			return new CompletedFuture<V>(callable);
 		}
 	}
 
@@ -395,10 +423,13 @@ public class ExecutorUtil {
 	 * Otherwise a new thread is started.
 	 * 
 	 * @param runnable
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
 	public static Future<?> nonUISyncExec(Runnable runnable) {
-		if (ExecutorUtil.isUIThread()) {
-			return SYNC_POOL.submit(runnable);
+		if (ExecUtils.isUIThread()) {
+			return EXECUTOR_SERVICE.submit(runnable);
 		} else {
 			runnable.run();
 			return new CompletedFuture<Object>(null, null);
@@ -420,6 +451,9 @@ public class ExecutorUtil {
 	 * @param callable
 	 * 
 	 * @return
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
 	public static <V> Future<V> nonUISyncExec(final Class<?> clazz,
 			final String purpose, Callable<V> callable) {
@@ -441,7 +475,8 @@ public class ExecutorUtil {
 	 * @param runnable
 	 * @return
 	 * 
-	 * @return
+	 * @UIThread
+	 * @NonUIThread
 	 */
 	public static Future<?> nonUISyncExec(final Class<?> clazz,
 			final String purpose, Runnable runnable) {
@@ -458,10 +493,13 @@ public class ExecutorUtil {
 	 * @param callable
 	 * @param delay
 	 * @return
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
 	public static <V> Future<V> nonUISyncExec(final Callable<V> callable,
 			final int delay) {
-		return nonUIAsyncExec(SYNC_POOL, callable, delay);
+		return nonUIAsyncExec(callable, delay);
 	}
 
 	/**
@@ -472,10 +510,13 @@ public class ExecutorUtil {
 	 * @param callable
 	 * @param delay
 	 * @return
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
-	public static Future<?> nonUISyncExec(final Runnable runnable,
+	public static Future<Void> nonUISyncExec(final Runnable runnable,
 			final int delay) {
-		return nonUIAsyncExec(SYNC_POOL, runnable, delay);
+		return nonUIAsyncExec(runnable, delay);
 	}
 
 	/**
@@ -494,6 +535,9 @@ public class ExecutorUtil {
 	 * @param delay
 	 * 
 	 * @return
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
 	public static <V> Future<V> nonUISyncExec(final Class<?> clazz,
 			final String purpose, Callable<V> callable, int delay) {
@@ -517,6 +561,9 @@ public class ExecutorUtil {
 	 * @param delay
 	 * 
 	 * @return
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
 	public static Future<?> nonUISyncExec(final Class<?> clazz,
 			final String purpose, Runnable runnable, int delay) {
@@ -525,23 +572,58 @@ public class ExecutorUtil {
 	}
 
 	/**
-	 * Executes the given {@link Callable} asynchronously.
+	 * Executes the given {@link Callable} asynchronously, meaning always in a
+	 * new thread.
 	 * <p>
 	 * The return value is returned in the calling thread.
 	 * 
-	 * @param executorService
-	 *            to be used to get the {@link Thread} in which to run the code
 	 * @param callable
 	 * @return
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
-	public static <V> Future<V> nonUIAsyncExec(
-			java.util.concurrent.ExecutorService executorService,
-			final Callable<V> callable) {
-		return executorService.submit(callable);
+	public static <V> Future<V> nonUIAsyncExec(final Callable<V> callable) {
+		return nonUIAsyncExec(EXECUTOR_SERVICE, callable);
 	}
 
 	/**
-	 * Executes the given {@link Callable} asynchronously.
+	 * Executes the given {@link Runnable} asynchronously, meaning always in a
+	 * new thread.
+	 * <p>
+	 * The return value is returned in the calling thread.
+	 * 
+	 * @param callable
+	 * @return
+	 * 
+	 * @UIThread
+	 * @NonUIThread
+	 */
+	public static Future<Void> nonUIAsyncExec(final Runnable runnable) {
+		return nonUIAsyncExec(EXECUTOR_SERVICE, runnable);
+	}
+
+	/**
+	 * Executes the given {@link Callable} asynchronously, meaning always in a
+	 * new thread.
+	 * <p>
+	 * The return value is returned in the calling thread.
+	 * 
+	 * @param callable
+	 * @param delay
+	 * @return
+	 * 
+	 * @UIThread
+	 * @NonUIThread
+	 */
+	public static <V> Future<V> nonUIAsyncExec(final Callable<V> callable,
+			final int delay) {
+		return nonUIAsyncExec(EXECUTOR_SERVICE, callable, delay);
+	}
+
+	/**
+	 * Executes the given {@link Runnable} asynchronously, meaning always in a
+	 * new thread.
 	 * <p>
 	 * The return value is returned in the calling thread.
 	 * 
@@ -550,11 +632,76 @@ public class ExecutorUtil {
 	 * @param callable
 	 * @param delay
 	 * @return
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
-	public static <V> Future<V> nonUIAsyncExec(
-			java.util.concurrent.ExecutorService executorService,
-			final Callable<V> callable, final int delay) {
-		return nonUIAsyncExec(executorService, new Callable<V>() {
+	public static Future<Void> nonUIAsyncExec(final Runnable runnable,
+			final int delay) {
+		return nonUIAsyncExec(EXECUTOR_SERVICE, runnable, delay);
+	}
+
+	/**
+	 * Executes the given {@link ExecUtils.ParametrizedCallable} once per element in
+	 * the given input {@link Collection} and each in a new thread.
+	 * 
+	 * @param executorService
+	 * @param input
+	 *            whose elements are used as the parameter for the
+	 *            {@link ExecUtils.ParametrizedCallable}
+	 * @param parametrizedCallable
+	 *            to be called n times
+	 * @return a list of {@link Future}s
+	 * 
+	 * @UIThread
+	 * @NonUIThread
+	 */
+	public static <INPUT, OUTPUT> List<Future<OUTPUT>> nonUIAsyncExec(
+			Collection<INPUT> input,
+			final ExecUtils.ParametrizedCallable<INPUT, OUTPUT> parametrizedCallable) {
+		return nonUIAsyncExec(EXECUTOR_SERVICE, input, parametrizedCallable);
+	}
+
+	/**
+	 * Executes the given {@link ExecUtils.ParametrizedCallable} once per element in
+	 * the given input {@link Collection}.
+	 * <p>
+	 * In contrast to
+	 * {@link #nonUIAsyncExec(java.util.concurrent.ExecutorService, Collection, ParametrizedCallable)}
+	 * this method returns a single {@link Future} containing all results.
+	 * 
+	 * @param input
+	 *            whose elements are used as the parameter for the
+	 *            {@link ExecUtils.ParametrizedCallable}
+	 * @param parametrizedCallable
+	 *            to be called n times
+	 * @return a {@link Future} that contains the results
+	 * 
+	 * @UIThread
+	 * @NonUIThread
+	 */
+	public static <INPUT, OUTPUT> Iterable<OUTPUT> nonUIAsyncExecMerged(
+			Collection<INPUT> input,
+			final ExecUtils.ParametrizedCallable<INPUT, OUTPUT> parametrizedCallable) {
+		return nonUIAsyncExecMerged(EXECUTOR_SERVICE, input,
+				parametrizedCallable);
+	}
+
+	private static <V> Future<V> nonUIAsyncExec(
+			ExecutorService executorService, final Callable<V> callable) {
+		return EXECUTOR_SERVICE.submit(callable);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Future<Void> nonUIAsyncExec(ExecutorService executorService,
+			final Runnable runnable) {
+		return (Future<Void>) EXECUTOR_SERVICE.submit(runnable);
+	}
+
+	private static <V> Future<V> nonUIAsyncExec(
+			ExecutorService executorService, final Callable<V> callable,
+			final int delay) {
+		return nonUIAsyncExec(new Callable<V>() {
 			@Override
 			public V call() throws Exception {
 				synchronized (this) {
@@ -565,37 +712,9 @@ public class ExecutorUtil {
 		});
 	}
 
-	/**
-	 * Executes the given {@link Runnable} asynchronously.
-	 * <p>
-	 * The return value is returned in the calling thread.
-	 * 
-	 * @param executorService
-	 *            to be used to get the {@link Thread} in which to run the code
-	 * @param callable
-	 * @return
-	 */
-	public static Future<?> nonUIAsyncExec(
-			java.util.concurrent.ExecutorService executorService,
-			final Runnable runnable) {
-		return executorService.submit(runnable);
-	}
-
-	/**
-	 * Executes the given {@link Runnable} asynchronously.
-	 * <p>
-	 * The return value is returned in the calling thread.
-	 * 
-	 * @param executorService
-	 *            to be used to get the {@link Thread} in which to run the code
-	 * @param callable
-	 * @param delay
-	 * @return
-	 */
-	public static Future<?> nonUIAsyncExec(
-			java.util.concurrent.ExecutorService executorService,
+	private static Future<Void> nonUIAsyncExec(ExecutorService executorService,
 			final Runnable runnable, final int delay) {
-		return nonUIAsyncExec(executorService, new Runnable() {
+		return nonUIAsyncExec(new Runnable() {
 			@Override
 			public void run() {
 				synchronized (this) {
@@ -609,26 +728,13 @@ public class ExecutorUtil {
 		});
 	}
 
-	/**
-	 * Executes the given {@link ExecutorUtil.ParametrizedCallable} once per
-	 * element in the given input {@link Collection}.
-	 * 
-	 * @param executorService
-	 * @param input
-	 *            whose elements are used as the parameter for the
-	 *            {@link ExecutorUtil.ParametrizedCallable}
-	 * @param parametrizedCallable
-	 *            to be called n times
-	 * @return a list of {@link Future}s
-	 */
-	public static <INPUT, OUTPUT> List<Future<OUTPUT>> nonUIAsyncExec(
-			java.util.concurrent.ExecutorService executorService,
-			Collection<INPUT> input,
-			final ExecutorUtil.ParametrizedCallable<INPUT, OUTPUT> parametrizedCallable) {
+	private static <INPUT, OUTPUT> List<Future<OUTPUT>> nonUIAsyncExec(
+			ExecutorService executorService, Collection<INPUT> input,
+			final ExecUtils.ParametrizedCallable<INPUT, OUTPUT> parametrizedCallable) {
 		List<Future<OUTPUT>> futures = new ArrayList<Future<OUTPUT>>();
 		for (Iterator<INPUT> iterator = input.iterator(); iterator.hasNext();) {
 			final INPUT object = iterator.next();
-			futures.add(executorService.submit(new Callable<OUTPUT>() {
+			futures.add(EXECUTOR_SERVICE.submit(new Callable<OUTPUT>() {
 				@Override
 				public OUTPUT call() throws Exception {
 					return parametrizedCallable.call(object);
@@ -638,30 +744,13 @@ public class ExecutorUtil {
 		return futures;
 	}
 
-	/**
-	 * Executes the given {@link ExecutorUtil.ParametrizedCallable} once per
-	 * element in the given input {@link Collection}.
-	 * <p>
-	 * In contrast to
-	 * {@link #nonUIAsyncExec(java.util.concurrent.ExecutorService, Collection, ParametrizedCallable)}
-	 * this method returns a single {@link Future} containing all results.
-	 * 
-	 * @param executorService
-	 * @param input
-	 *            whose elements are used as the parameter for the
-	 *            {@link ExecutorUtil.ParametrizedCallable}
-	 * @param parametrizedCallable
-	 *            to be called n times
-	 * @return a {@link Future} that contains the results
-	 */
-	public static <INPUT, OUTPUT> Iterable<OUTPUT> nonUIAsyncExecMerged(
-			java.util.concurrent.ExecutorService executorService,
-			Collection<INPUT> input,
-			final ExecutorUtil.ParametrizedCallable<INPUT, OUTPUT> parametrizedCallable) {
+	private static <INPUT, OUTPUT> Iterable<OUTPUT> nonUIAsyncExecMerged(
+			ExecutorService executorService, Collection<INPUT> input,
+			final ExecUtils.ParametrizedCallable<INPUT, OUTPUT> parametrizedCallable) {
 		final List<Future<OUTPUT>> futures = new ArrayList<Future<OUTPUT>>();
 		for (Iterator<INPUT> iterator = input.iterator(); iterator.hasNext();) {
 			final INPUT object = iterator.next();
-			futures.add(executorService.submit(new Callable<OUTPUT>() {
+			futures.add(EXECUTOR_SERVICE.submit(new Callable<OUTPUT>() {
 				@Override
 				public OUTPUT call() throws Exception {
 					return parametrizedCallable.call(object);
@@ -688,7 +777,7 @@ public class ExecutorUtil {
 
 					public OUTPUT next(int numCalls) {
 						if (numCalls == 200) {
-							LOGGER.warn(ExecutorUtil.class
+							LOGGER.warn(ExecUtils.class
 									+ " is busy waiting for the next available result since 10s. There might be a problem.");
 						}
 
@@ -726,33 +815,33 @@ public class ExecutorUtil {
 		};
 	}
 
-	private final java.util.concurrent.ExecutorService asyncPool;
+	private final java.util.concurrent.ExecutorService customExecutorService;
 
 	/**
-	 * Creates an instance of {@link ExecutorUtil} so the asynchronous non UI
-	 * methods can easier be called.
+	 * Creates an instance of {@link ExecUtils} so that the asynchronous non UI
+	 * methods can also use a custom {@link ExecutorService}.
 	 * 
-	 * @param executorService
+	 * @param customExecutorService
 	 *            to be used
 	 */
-	public ExecutorUtil(java.util.concurrent.ExecutorService executorService) {
-		this.asyncPool = executorService;
+	public ExecUtils(java.util.concurrent.ExecutorService customExecutorService) {
+		this.customExecutorService = customExecutorService;
 	}
 
 	/**
-	 * Creates an instance of {@link ExecutorUtil} so the asynchronous non UI
-	 * methods can easier be called.
+	 * Creates an instance of {@link ExecUtils} so that the asynchronous non UI
+	 * methods can also use a custom {@link ExecutorService}.
 	 * 
 	 * @param clazz
-	 *            this {@link ExecutorUtil} belongs to
+	 *            this {@link ExecUtils} belongs to
 	 */
-	public ExecutorUtil(Class<?> clazz) {
+	public ExecUtils(Class<?> clazz) {
 		this(1l, clazz.getSimpleName());
 	}
 
 	/**
-	 * Creates an instance of {@link ExecutorUtil} so the asynchronous non UI
-	 * methods can easier be called.
+	 * Creates an instance of {@link ExecUtils} so that the asynchronous non UI
+	 * methods can also use a custom {@link ExecutorService}.
 	 * 
 	 * @param nThreadsPerCore
 	 *            number of threads per core available;<br>
@@ -768,15 +857,15 @@ public class ExecutorUtil {
 	 *            <dd>max number of threads</dd>
 	 *            </dl>
 	 */
-	public ExecutorUtil(final long nThreadsPerCore, final String name) {
+	public ExecUtils(final long nThreadsPerCore, final String name) {
 		this(
 				(int) nThreadsPerCore
 						* Runtime.getRuntime().availableProcessors(), name);
 	}
 
 	/**
-	 * Creates an instance of {@link ExecutorUtil} so the asynchronous non UI
-	 * methods can easier be called.
+	 * Creates an instance of {@link ExecUtils} so that the asynchronous non UI
+	 * methods can also use a custom {@link ExecutorService}.
 	 * 
 	 * @param nThreads
 	 *            number of threads available
@@ -790,7 +879,7 @@ public class ExecutorUtil {
 	 *            <dd>max number of threads</dd>
 	 *            </dl>
 	 */
-	public ExecutorUtil(final int nThreads, final String name) {
+	public ExecUtils(final int nThreads, final String name) {
 		this(Executors.newFixedThreadPool(nThreads, new ThreadFactory() {
 			private final ThreadFactory defaultThreadFactory = Executors
 					.defaultThreadFactory();
@@ -808,50 +897,120 @@ public class ExecutorUtil {
 	}
 
 	/**
-	 * @see #nonUIAsyncExec(java.util.concurrent.ExecutorService, Callable)
+	 * Executes the given {@link Callable} asynchronously, meaning always in a
+	 * new thread.
+	 * <p>
+	 * The return value is returned in the calling thread.
+	 * 
+	 * @param callable
+	 * @return
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
-	public <V> Future<V> nonUIAsyncExec(final Callable<V> callable) {
-		return nonUIAsyncExec(this.asyncPool, callable);
+	public <V> Future<V> customNonUIAsyncExec(final Callable<V> callable) {
+		return nonUIAsyncExec(this.customExecutorService, callable);
 	}
 
 	/**
-	 * @see #nonUIAsyncExec(java.util.concurrent.ExecutorService, Callable, int)
+	 * Executes the given {@link Runnable} asynchronously, meaning always in a
+	 * new thread.
+	 * <p>
+	 * The return value is returned in the calling thread.
+	 * 
+	 * @param callable
+	 * @return
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
-	public <V> Future<V> nonUIAsyncExec(final Callable<V> callable, int delay) {
-		return nonUIAsyncExec(this.asyncPool, callable, delay);
+	public Future<Void> customNonUIAsyncExec(final Runnable runnable) {
+		return nonUIAsyncExec(this.customExecutorService, runnable);
 	}
 
 	/**
-	 * @see #nonUIAsyncExec(java.util.concurrent.ExecutorService, Runnable)
+	 * Executes the given {@link Callable} asynchronously, meaning always in a
+	 * new thread.
+	 * <p>
+	 * The return value is returned in the calling thread.
+	 * 
+	 * @param callable
+	 * @param delay
+	 * @return
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
-	public Future<?> nonUIAsyncExec(final Runnable runnable) {
-		return nonUIAsyncExec(this.asyncPool, runnable);
+	public <V> Future<V> customNonUIAsyncExec(final Callable<V> callable,
+			final int delay) {
+		return nonUIAsyncExec(this.customExecutorService, callable, delay);
 	}
 
 	/**
-	 * @see #nonUIAsyncExec(java.util.concurrent.ExecutorService, Runnable, int)
+	 * Executes the given {@link Runnable} asynchronously, meaning always in a
+	 * new thread.
+	 * <p>
+	 * The return value is returned in the calling thread.
+	 * 
+	 * @param executorService
+	 *            to be used to get the {@link Thread} in which to run the code
+	 * @param callable
+	 * @param delay
+	 * @return
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
-	public Future<?> nonUIAsyncExec(final Runnable runnable, int delay) {
-		return nonUIAsyncExec(this.asyncPool, runnable, delay);
+	public Future<Void> customNonUIAsyncExec(final Runnable runnable,
+			final int delay) {
+		return nonUIAsyncExec(this.customExecutorService, runnable, delay);
 	}
 
 	/**
-	 * @see #nonUIAsyncExec(java.util.concurrent.ExecutorService, Collection,
-	 *      ParametrizedCallable)
+	 * Executes the given {@link ExecUtils.ParametrizedCallable} once per element in
+	 * the given input {@link Collection} and each in a new thread.
+	 * 
+	 * @param executorService
+	 * @param input
+	 *            whose elements are used as the parameter for the
+	 *            {@link ExecUtils.ParametrizedCallable}
+	 * @param parametrizedCallable
+	 *            to be called n times
+	 * @return a list of {@link Future}s
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
-	public <INPUT, OUTPUT> List<Future<OUTPUT>> nonUIAsyncExec(
+	public <INPUT, OUTPUT> List<Future<OUTPUT>> customNonUIAsyncExec(
 			Collection<INPUT> input,
-			final ExecutorUtil.ParametrizedCallable<INPUT, OUTPUT> parametrizedCallable) {
-		return nonUIAsyncExec(this.asyncPool, input, parametrizedCallable);
+			final ExecUtils.ParametrizedCallable<INPUT, OUTPUT> parametrizedCallable) {
+		return nonUIAsyncExec(this.customExecutorService, input,
+				parametrizedCallable);
 	}
 
 	/**
-	 * @see #nonUIAsyncExecMerged(java.util.concurrent.ExecutorService,
-	 *      Collection, ParametrizedCallable)
+	 * Executes the given {@link ExecUtils.ParametrizedCallable} once per element in
+	 * the given input {@link Collection}.
+	 * <p>
+	 * In contrast to
+	 * {@link #nonUIAsyncExec(java.util.concurrent.ExecutorService, Collection, ParametrizedCallable)}
+	 * this method returns a single {@link Future} containing all results.
+	 * 
+	 * @param input
+	 *            whose elements are used as the parameter for the
+	 *            {@link ExecUtils.ParametrizedCallable}
+	 * @param parametrizedCallable
+	 *            to be called n times
+	 * @return a {@link Future} that contains the results
+	 * 
+	 * @UIThread
+	 * @NonUIThread
 	 */
-	public <INPUT, OUTPUT> Iterable<OUTPUT> nonUIAsyncExecMerged(
+	public <INPUT, OUTPUT> Iterable<OUTPUT> customNonUIAsyncExecMerged(
 			Collection<INPUT> input,
-			final ExecutorUtil.ParametrizedCallable<INPUT, OUTPUT> parametrizedCallable) {
-		return nonUIAsyncExecMerged(this.asyncPool, input, parametrizedCallable);
+			final ExecUtils.ParametrizedCallable<INPUT, OUTPUT> parametrizedCallable) {
+		return nonUIAsyncExecMerged(this.customExecutorService, input,
+				parametrizedCallable);
 	}
+
 }

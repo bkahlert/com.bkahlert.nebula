@@ -12,12 +12,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.Test;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil.DelayableThread;
+import com.bkahlert.devel.nebula.widgets.timeline.impl.TimePassed;
 
 public class ExecutorUtilTest {
 
@@ -132,8 +132,22 @@ public class ExecutorUtilTest {
 	}
 
 	@Test
-	public void testAsyncExec() throws InterruptedException,
-			ExecutionException, TimeoutException {
+	public void testNonUISyncExec() throws Exception {
+		int delay = 1000;
+
+		TimePassed passed = new TimePassed(true);
+		String rt = ExecutorUtil.nonUISyncExec(new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				return "Hello World!";
+			}
+		}, delay).get();
+		assertTrue(passed.getTimePassed() > delay);
+		assertEquals("Hello World!", rt);
+	}
+
+	@Test
+	public void testAsyncExec() throws Exception {
 		String rt = ExecutorUtil.asyncExec(new Callable<String>() {
 			@Override
 			public String call() throws Exception {
@@ -144,8 +158,7 @@ public class ExecutorUtilTest {
 	}
 
 	@Test
-	public void testNonUIAsyncExecMerged() throws InterruptedException,
-			ExecutionException, TimeoutException {
+	public void testNonUIAsyncExecMerged() throws Exception {
 		Iterable<String> rt = ExecutorUtil.nonUIAsyncExecMerged(
 				Executors.newCachedThreadPool(),
 				new LinkedList<Integer>(Arrays.asList(15000, 50, 500)),
