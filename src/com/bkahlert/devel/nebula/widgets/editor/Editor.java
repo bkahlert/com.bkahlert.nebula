@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Listener;
 
 import com.bkahlert.devel.nebula.utils.EventDelegator;
 import com.bkahlert.devel.nebula.utils.ExecUtils;
+import com.bkahlert.devel.nebula.utils.NamedJob;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.composer.Composer;
 import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
@@ -58,7 +59,7 @@ public abstract class Editor<T> extends Composite {
 	private static Editor<?> lastFocussedEditor = null;
 
 	private T loadedObject = null;
-	private Job loadJob = null;
+	private NamedJob loadJob = null;
 	private final Map<T, Job> saveJobs = new HashMap<T, Job>();
 
 	protected Composer composer = null;
@@ -186,7 +187,7 @@ public abstract class Editor<T> extends Composite {
 	 *         loaded.
 	 * @throws Exception
 	 */
-	public final Job load(final T objectToLoad) {
+	public final NamedJob load(final T objectToLoad) {
 		if (responsibleEditors.get(this.loadedObject) != null) {
 			responsibleEditors.get(this.loadedObject).remove(this);
 			if (responsibleEditors.get(this.loadedObject).isEmpty()) {
@@ -214,10 +215,10 @@ public abstract class Editor<T> extends Composite {
 			});
 			return null;
 		} else {
-			this.loadJob = new Job("Loading " + objectToLoad) {
+			this.loadJob = new NamedJob(Editor.class, "Loading " + objectToLoad) {
 				@SuppressWarnings("unchecked")
 				@Override
-				protected IStatus run(IProgressMonitor progressMonitor) {
+				protected IStatus runNamed(IProgressMonitor progressMonitor) {
 					if (progressMonitor.isCanceled()) {
 						Editor.this.loadedObject = null;
 						return Status.CANCEL_STATUS;

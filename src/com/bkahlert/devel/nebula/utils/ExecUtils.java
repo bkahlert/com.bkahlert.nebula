@@ -194,6 +194,36 @@ public class ExecUtils {
 		}
 	}
 
+	private static ThreadLocal<String> threadLabelBackup = new ThreadLocal<String>() {
+		@Override
+		protected String initialValue() {
+			return null;
+		};
+	};
+
+	public static String backupThreadLabel() {
+		String label = Thread.currentThread().getName();
+		threadLabelBackup.set(label);
+		return label;
+	}
+
+	public static void restoreThreadLabel() {
+		String label = threadLabelBackup.get();
+		if (label != null) {
+			Thread.currentThread().setName(label);
+		}
+	}
+
+	public static void setThreadLabel(Class<?> clazz, String purpose) {
+		setThreadLabel("", clazz, purpose);
+	}
+
+	public static void setThreadLabel(String prefix, Class<?> clazz,
+			String purpose) {
+		Thread.currentThread().setName(
+				prefix + clazz.getSimpleName() + " :: " + purpose);
+	}
+
 	public static <V> Callable<V> createThreadLabelingCode(
 			final Callable<V> callable, final Class<?> clazz,
 			final String purpose) {
@@ -201,10 +231,8 @@ public class ExecUtils {
 			@Override
 			public V call() throws Exception {
 				String oldName = Thread.currentThread().getName();
+				setThreadLabel(oldName + " :: ", clazz, purpose);
 				try {
-					Thread.currentThread().setName(
-							oldName + " :: " + clazz.getSimpleName() + " - "
-									+ purpose);
 					return callable.call();
 				} finally {
 					Thread.currentThread().setName(oldName);
@@ -219,10 +247,8 @@ public class ExecUtils {
 			@Override
 			public void run() {
 				String oldName = Thread.currentThread().getName();
+				setThreadLabel(oldName + " :: ", clazz, purpose);
 				try {
-					Thread.currentThread().setName(
-							oldName + " :: " + clazz.getSimpleName() + " - "
-									+ purpose);
 					runnable.run();
 				} finally {
 					Thread.currentThread().setName(oldName);

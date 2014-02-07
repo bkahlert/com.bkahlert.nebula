@@ -23,7 +23,7 @@ public class OffWorker {
 	private final Thread runner;
 	private State state = State.INIT;
 
-	public OffWorker(int capacity) {
+	public OffWorker(Class<?> owner, String purpose, int capacity) {
 		this.queue = new ArrayBlockingQueue<FutureTask<?>>(capacity, true);
 		this.runner = new Thread(new Runnable() {
 			@Override
@@ -55,7 +55,8 @@ public class OffWorker {
 					}
 				}
 			}
-		}, OffWorker.class.getSimpleName());
+		}, owner.getSimpleName() + " :: " + purpose + " :: "
+				+ OffWorker.class.getSimpleName());
 	}
 
 	public void start() {
@@ -131,15 +132,36 @@ public class OffWorker {
 	}
 
 	public synchronized <V> Future<V> submit(final Callable<V> callable,
-			String name) {
+			final String name) {
 		FutureTask<V> task = new FutureTask<V>(
-				name != null ? ExecUtils.createThreadLabelingCode(callable,
-						OffWorker.class, "Running " + name) : callable);
+				name != null ? new Callable<V>() {
+					@Override
+					public V call() throws Exception {
+						String label = ExecUtils.backupThreadLabel();
+						Thread.currentThread().setName(
+								label + " :: Running " + name);
+						try {
+							return callable.call();
+						} finally {
+							ExecUtils.restoreThreadLabel();
+						}
+					}
+				} : callable);
 		if (!this.queue.add(task)) {
 			throw new RuntimeException("Capacity (" + this.queue.size()
 					+ ") of " + this.getClass().getSimpleName() + " exceeded!");
 		}
 		return task;
+	}
+
+	public void finish() {
+		this.submit(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				OffWorker.this.shutdown();
+				return null;
+			}
+		});
 	}
 
 }

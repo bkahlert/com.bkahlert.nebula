@@ -77,7 +77,8 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	private final List<IJavaScriptExceptionListener> javaScriptExceptionListeners = new ArrayList<IJavaScriptExceptionListener>();
 	private final List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
 
-	private final OffWorker delayedScriptsWorker = new OffWorker(200);
+	private final OffWorker delayedScriptsWorker = new OffWorker(
+			this.getClass(), "Script Runner", 200);
 
 	public BrowserComposite(Composite parent, int style) {
 		super(parent, style);
@@ -369,6 +370,8 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 						LOGGER.error("Aborted loading " + uri
 								+ " due to timeout");
 					}
+
+					BrowserComposite.this.delayedScriptsWorker.finish();
 
 					return BrowserComposite.this.loadingCompleted;
 				}

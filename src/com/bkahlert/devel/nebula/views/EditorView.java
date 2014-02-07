@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -21,6 +20,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.NamedJob;
 import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.nebula.widgets.editor.AutosaveEditor;
 import com.bkahlert.devel.nebula.widgets.editor.Editor;
@@ -196,7 +196,7 @@ public abstract class EditorView<T> extends ViewPart {
 	 */
 	public final void load(T objectToLoad) {
 		if (!this.getEditor().isDisposed()) {
-			Job loadJob = this.getEditor().load(objectToLoad);
+			NamedJob loadJob = this.getEditor().load(objectToLoad);
 			if (loadJob != null) {
 				loadJob.addJobChangeListener(new JobChangeAdapter() {
 					@Override

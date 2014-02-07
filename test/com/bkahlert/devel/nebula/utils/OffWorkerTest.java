@@ -30,7 +30,8 @@ public class OffWorkerTest {
 		int numTasks = 1500;
 		// int delay = 2000;
 
-		final OffWorker offWorker = new OffWorker(numTasks);
+		final OffWorker offWorker = new OffWorker(OffWorkerTest.class, "Test",
+				numTasks);
 		List<Future<Long>> futures = new ArrayList<Future<Long>>();
 
 		for (int i = 0; i < numTasks; i++) {
