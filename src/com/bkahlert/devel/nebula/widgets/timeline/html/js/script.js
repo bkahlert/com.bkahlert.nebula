@@ -165,6 +165,8 @@ jQuery(document).ready(function($) {
         window.timeline_plugin_mouseOut_callback = function(id) {
             console.log("mouse out " + id);
         }
+    } else {
+    	
     }
 });
 

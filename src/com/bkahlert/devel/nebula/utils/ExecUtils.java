@@ -175,8 +175,7 @@ public class ExecUtils {
 				@Override
 				public Thread newThread(Runnable r) {
 					Thread t = this.defaultThreadFactory.newThread(r);
-					t.setName(ExecUtils.class.getSimpleName() + "-POOL: #"
-							+ this.i);
+					t.setName(ExecUtils.class.getSimpleName() + " #" + this.i);
 					this.i++;
 					return t;
 				}
@@ -231,6 +230,8 @@ public class ExecUtils {
 			}
 		};
 	}
+
+	// TODO implement Display.timerExec wrappers
 
 	/**
 	 * Executes the given {@link Callable}.

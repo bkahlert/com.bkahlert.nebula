@@ -60,7 +60,8 @@ public class Composer extends BrowserComposite {
 	private final List<IAnkerLabelProvider> ankerLabelProviders = new ArrayList<IAnkerLabelProvider>();
 	private final List<ModifyListener> modifyListeners = new ArrayList<ModifyListener>();
 	private String oldHtml = "";
-	private final Timer delayChangeTimer = new Timer();
+	private final Timer delayChangeTimer = new Timer(this.getClass()
+			.getSimpleName() + " :: Delay Change Timer", false);
 	private TimerTask delayChangeTimerTask = null;
 
 	public Composer(Composite parent, int style) {
@@ -98,6 +99,16 @@ public class Composer extends BrowserComposite {
 				getFileUrl(Composer.class, "html/index.html",
 						"?internal=true&toolbarSet="
 								+ toolbarSet.toString().toLowerCase()), 1000);
+
+		this.addDisposeListener(new DisposeListener() {
+
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				if (Composer.this.delayChangeTimer != null) {
+					Composer.this.delayChangeTimer.cancel();
+				}
+			}
+		});
 	}
 
 	public void fixShortcuts(final long delayChangeEventUpTo) {

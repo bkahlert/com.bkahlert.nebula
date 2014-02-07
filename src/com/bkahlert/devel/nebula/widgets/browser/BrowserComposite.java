@@ -24,6 +24,8 @@ import org.eclipse.swt.browser.LocationAdapter;
 import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
@@ -188,6 +190,17 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 			// TODO call injectAnkerCode after a page has loaded a user clicked
 			// on (or do all the same steps on first page load on all
 			// consecutive loads)
+		});
+
+		this.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				if (BrowserComposite.this.delayedScriptsWorker != null
+						&& !BrowserComposite.this.delayedScriptsWorker
+								.isShutdown()) {
+					BrowserComposite.this.delayedScriptsWorker.shutdown();
+				}
+			}
 		});
 	}
 
@@ -523,12 +536,28 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 			@Override
 			public DEST call() throws Exception {
 				LOGGER.info("Running " + logScript[0]);
-				Browser browser = BrowserComposite.this.getBrowser();
+				final Browser browser = BrowserComposite.this.getBrowser();
 				if (browser == null || browser.isDisposed()) {
 					return null;
 				}
 				BrowserComposite.this.scriptAboutToBeSentToBrowser(script);
 				try {
+					// ExecUtils.nonUIAsyncExec(new Runnable() {
+					// @Override
+					// public void run() {
+					// try {
+					// ExecUtils.syncExec(new Runnable() {
+					// @Override
+					// public void run() {
+					// browser.evaluate(script);
+					// }
+					// });
+					// } catch (Exception e) {
+					// // TODO Auto-generated catch block
+					// e.printStackTrace();
+					// }
+					// }
+					// }, 100);
 					Object returnValue = browser.evaluate(script);
 					BrowserComposite.this
 							.scriptReturnValueReceived(returnValue);
@@ -589,6 +618,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	 * @param script
 	 */
 	public void scriptEnqueued(String script) {
+		System.err.println("EN " + this.loadingCompleted + ": " + script);
 	}
 
 	/**
@@ -597,6 +627,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	 * @param script
 	 */
 	public void scriptAboutToBeSentToBrowser(String script) {
+		System.err.println(this.loadingCompleted + " " + script);
 
 	}
 
@@ -606,7 +637,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	 * @param returnValue
 	 */
 	public void scriptReturnValueReceived(Object returnValue) {
-
+		System.out.println(this.loadingCompleted + " " + returnValue);
 	}
 
 	@Override

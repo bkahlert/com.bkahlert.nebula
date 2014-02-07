@@ -739,8 +739,8 @@
 
                 $this.data('customBandInformations', bandInformation);
             });
-
         },
+        
         /**
          * Replaces a element at pos by the json object
          * and reloads the affected elements.

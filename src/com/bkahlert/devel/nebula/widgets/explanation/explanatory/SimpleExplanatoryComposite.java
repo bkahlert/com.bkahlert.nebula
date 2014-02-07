@@ -7,11 +7,11 @@ import org.eclipse.swt.widgets.Control;
 import com.bkahlert.devel.nebula.widgets.explanation.SimpleExplanationComposite;
 import com.bkahlert.devel.nebula.widgets.explanation.SimpleExplanationComposite.SimpleExplanation;
 
-
 /**
  * Instances of this class are controls which are capable of containing exactly
- * <strong>one</strong> demoAreaContent {@link Control} and an implicitly generated
- * {@link SimpleExplanationComposite} to display explanatory information.<br>
+ * <strong>one</strong> demoAreaContent {@link Control} and an implicitly
+ * generated {@link SimpleExplanationComposite} to display explanatory
+ * information.<br>
  * Although this composite may be subclasses <strong>only the control registered
  * trough {@link SimpleExplanatoryComposite#setContentControl(Control)} can be
  * displayed</strong>.
