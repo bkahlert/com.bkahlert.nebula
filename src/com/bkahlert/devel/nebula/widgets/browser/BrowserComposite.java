@@ -69,6 +69,11 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	private boolean settingUri = false;
 	private boolean allowLocationChange = false;
 	private boolean loadingCompleted = false;
+	final AtomicReference<Boolean> isCancelled = new AtomicReference<Boolean>(
+			false);
+	final AtomicReference<Exception> openException = new AtomicReference<Exception>(
+			null);
+	private String pageLoadCheckScript = null;
 	private final List<IJavaScriptExceptionListener> javaScriptExceptionListeners = new ArrayList<IJavaScriptExceptionListener>();
 	private final List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
 
@@ -125,51 +130,63 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		};
 
 		this.browser.addProgressListener(new ProgressAdapter() {
-			private int numCompletionChecks = 0;
-
 			@Override
 			public void completed(ProgressEvent event) {
-				if (this.numCompletionChecks > 10) {
-					LOGGER.fatal("Check if there is an implementation problem!");
+				if (BrowserComposite.this.isCancelled.get()) {
+					return;
 				}
-				// WORKAROUND: If multiple browsers are instantiated it can
-				// occur
-				// that some have not loaded, yet! Therefore we poll the page
-				// until it is really loaded.
-				String readyState = (String) BrowserComposite.this.browser
-						.evaluate("return document.readyState;");
-				if (!readyState.equals("complete")) {
-					ExecUtils.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							numCompletionChecks++;
-							completed(null);
-						}
-					}, 50);
-				} else {
-					BrowserComposite.this.loadingCompleted = true;
 
-					String uri = BrowserComposite.this.browser.getUrl();
-					final Future<Void> finished = BrowserComposite.this
-							.afterCompletion(uri);
-					ExecUtils.nonUISyncExec(BrowserComposite.class,
-							"Progress Check for " + uri, new Runnable() {
-								@Override
-								public void run() {
-									try {
-										if (finished != null) {
-											finished.get();
+				try {
+					/*
+					 * WORKAROUND: If multiple browsers are instantiated it can
+					 * occur that some have not loaded, yet. Therefore we poll
+					 * the page until it is really loaded. Optionally a user
+					 * provided pageLoadCheckScript is executed.
+					 */
+					String readyState = (String) BrowserComposite.this.browser
+							.evaluate("return document.readyState;");
+					if (readyState.equals("complete")
+							&& (BrowserComposite.this.pageLoadCheckScript == null || IConverter.CONVERTER_BOOLEAN.convert(BrowserComposite.this.browser
+									.evaluate(BrowserComposite.this.pageLoadCheckScript)))) {
+						BrowserComposite.this.loadingCompleted = true;
+
+						String uri = BrowserComposite.this.browser.getUrl();
+						final Future<Void> finished = BrowserComposite.this
+								.afterCompletion(uri);
+						ExecUtils.nonUISyncExec(BrowserComposite.class,
+								"Progress Check for " + uri, new Runnable() {
+									@Override
+									public void run() {
+										try {
+											if (finished != null) {
+												finished.get();
+											}
+										} catch (Exception e) {
+											LOGGER.error(e);
 										}
-									} catch (Exception e) {
-										LOGGER.error(e);
-									}
 
-									synchronized (BrowserComposite.this.monitor) {
-										BrowserComposite.this.monitor
-												.notifyAll();
+										synchronized (BrowserComposite.this.monitor) {
+											BrowserComposite.this.monitor
+													.notifyAll();
+										}
 									}
-								}
-							});
+								});
+					} else {
+						ExecUtils.asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								completed(null);
+							}
+						}, 50);
+					}
+				} catch (Exception e) {
+					LOGGER.error(
+							"An error occurred while checking the page load state",
+							e);
+					BrowserComposite.this.openException.set(e);
+					synchronized (BrowserComposite.this.monitor) {
+						BrowserComposite.this.monitor.notifyAll();
+					}
 				}
 			}
 		});
@@ -262,8 +279,15 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	}
 
 	@Override
-	public Future<Boolean> open(final String uri, final Integer timeout) {
+	public Future<Boolean> open(String address, Integer timeout) {
+		return this.open(address, timeout, null);
+	}
+
+	@Override
+	public Future<Boolean> open(final String uri, final Integer timeout,
+			String pageLoadCheckScript) {
 		this.loadingCompleted = false;
+		this.pageLoadCheckScript = pageLoadCheckScript;
 		this.successfullyInjectedAnkerHoverCallback = false;
 		this.browser.setUrl(uri.toString());
 
@@ -271,8 +295,8 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				+ uri, new Callable<Boolean>() {
 			@Override
 			public Boolean call() throws Exception {
-				final AtomicReference<Boolean> isCancelled = new AtomicReference<Boolean>(
-						false);
+				BrowserComposite.this.isCancelled.set(false);
+				BrowserComposite.this.openException.set(null);
 
 				// stops waiting after timeout
 				Future<?> timeoutMonitor = null;
@@ -284,7 +308,8 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 								public void run() {
 									synchronized (BrowserComposite.this.monitor) {
 										if (!BrowserComposite.this.loadingCompleted) {
-											isCancelled.set(true);
+											BrowserComposite.this.isCancelled
+													.set(true);
 											BrowserComposite.this.monitor
 													.notifyAll();
 										}
@@ -311,21 +336,26 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 
 				synchronized (BrowserComposite.this.monitor) {
 					while (!BrowserComposite.this.loadingCompleted
-							&& !isCancelled.get()) {
+							&& !BrowserComposite.this.isCancelled.get()) {
 						LOGGER.debug("Waiting for " + uri
 								+ " to be loaded (Thread: "
 								+ Thread.currentThread() + "; completed: "
 								+ BrowserComposite.this.loadingCompleted
-								+ "; timed out: " + isCancelled.get() + ")");
+								+ "; timed out: "
+								+ BrowserComposite.this.isCancelled.get() + ")");
 						BrowserComposite.this.monitor.wait();
 						// notified by progresslistener or by timeout
+					}
+
+					if (BrowserComposite.this.openException.get() != null) {
+						throw BrowserComposite.this.openException.get();
 					}
 
 					if (timeoutMonitor != null) {
 						timeoutMonitor.cancel(true);
 					}
 
-					if (BrowserComposite.this.loadingCompleted == isCancelled
+					if (BrowserComposite.this.loadingCompleted == BrowserComposite.this.isCancelled
 							.get()) {
 						throw new RuntimeException("Implementation error");
 					}
@@ -334,7 +364,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 						LOGGER.debug("Successfully loaded " + uri);
 						BrowserComposite.this.delayedScriptsWorker.start();
 					} else {
-						LOGGER.debug("Aborted loading " + uri
+						LOGGER.error("Aborted loading " + uri
 								+ " due to timeout");
 					}
 
@@ -346,7 +376,13 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 
 	@Override
 	public Future<Boolean> open(URI uri, Integer timeout) {
-		return this.open(uri.toString(), timeout);
+		return this.open(uri.toString(), timeout, null);
+	}
+
+	@Override
+	public Future<Boolean> open(URI uri, Integer timeout,
+			String pageLoadCheckScript) {
+		return this.open(uri.toString(), timeout, pageLoadCheckScript);
 	}
 
 	@Override
@@ -542,22 +578,6 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				}
 				BrowserComposite.this.scriptAboutToBeSentToBrowser(script);
 				try {
-					// ExecUtils.nonUIAsyncExec(new Runnable() {
-					// @Override
-					// public void run() {
-					// try {
-					// ExecUtils.syncExec(new Runnable() {
-					// @Override
-					// public void run() {
-					// browser.evaluate(script);
-					// }
-					// });
-					// } catch (Exception e) {
-					// // TODO Auto-generated catch block
-					// e.printStackTrace();
-					// }
-					// }
-					// }, 100);
 					Object returnValue = browser.evaluate(script);
 					BrowserComposite.this
 							.scriptReturnValueReceived(returnValue);
@@ -618,7 +638,6 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	 * @param script
 	 */
 	public void scriptEnqueued(String script) {
-		System.err.println("EN " + this.loadingCompleted + ": " + script);
 	}
 
 	/**
@@ -627,8 +646,6 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	 * @param script
 	 */
 	public void scriptAboutToBeSentToBrowser(String script) {
-		System.err.println(this.loadingCompleted + " " + script);
-
 	}
 
 	/**
@@ -637,7 +654,6 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	 * @param returnValue
 	 */
 	public void scriptReturnValueReceived(Object returnValue) {
-		System.out.println(this.loadingCompleted + " " + returnValue);
 	}
 
 	@Override

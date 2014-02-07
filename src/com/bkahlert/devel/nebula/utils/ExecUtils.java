@@ -231,8 +231,6 @@ public class ExecUtils {
 		};
 	}
 
-	// TODO implement Display.timerExec wrappers
-
 	/**
 	 * Executes the given {@link Callable}.
 	 * <p>
@@ -377,6 +375,8 @@ public class ExecUtils {
 	 *           results in a deadlock if the delay has not been passed but the
 	 *           checking UI thread block the execution.</b>
 	 * @NonUIThread
+	 * 
+	 *              TODO implement using Display.timerExec
 	 */
 	public static <V> Future<V> asyncExec(final Callable<V> callable,
 			final long delay) {
@@ -407,6 +407,8 @@ public class ExecUtils {
 	 *           results in a deadlock if the delay has not been passed but the
 	 *           checking UI thread block the execution.</b>
 	 * @NonUIThread
+	 * 
+	 *              TODO implement using Display.timerExec
 	 */
 	public static Future<Void> asyncExec(final Runnable runnable,
 			final long delay) {

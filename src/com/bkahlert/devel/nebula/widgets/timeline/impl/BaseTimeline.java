@@ -86,7 +86,8 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 		this.deactivateNativeMenu();
 		this.open(
 				getFileUrl(BaseTimeline.class, "../html/timeline.html",
-						"?internal=true"), 1000);
+						"?internal=true"), 5000,
+				"return jQuery && jQuery('html').hasClass('timeline-ready')");
 	}
 
 	/**

@@ -13,7 +13,10 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
         	on: {
 		        'instanceReady' : function(evt) {
 		            com.bkahlert.devel.nebula.editor.onready(evt);
-		        }
+		        },
+		        'change': function(evt) {
+	                com.bkahlert.devel.nebula.editor.onchange(evt);
+	            }
 		    },
 		    startupFocus: true,
         	readOnly: false
@@ -26,12 +29,7 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
             });
             $(window).resize();
 
-            $("html").addClass("ready");
             com.bkahlert.devel.nebula.editor.setEnabled(!com.bkahlert.devel.nebula.editor.config.readOnly);
-
-            e.editor.on('change', function(e) {
-                com.bkahlert.devel.nebula.editor.onchange();
-            });
 
             function turnOffTitle(editor) {
                 var editable = editor.editable();
@@ -41,7 +39,6 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
                 }
             }
 
-
             e.editor.on('mode', function(e) {
                 turnOffTitle(e.editor);
             });
@@ -50,6 +47,8 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
             $(window).on('beforeunload', function() {
                 com.bkahlert.devel.nebula.editor.onchange();
             });
+
+            $("html").addClass("ready");
 
             var internal = /[?&]internal=true/.test(location.href);
 
@@ -142,16 +141,14 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
         setEnabled : function(isEnabled) {
         	com.bkahlert.devel.nebula.editor.config.readOnly = !isEnabled;
         	com.bkahlert.devel.nebula.editor.config.startupFocus = isEnabled;
-            if ($("html").hasClass("ready")) {
-                var editor = CKEDITOR.instances.editor1;
-                editor.setReadOnly(com.bkahlert.devel.nebula.editor.config.readOnly);
-                if(isEnabled) {
-                	$(".cke_top, .cke_bottom").show();
-                	$(window).resize();
-                } else {
-                	$(".cke_top, .cke_bottom").hide();
-                	$(window).resize();
-                }
+            var editor = CKEDITOR.instances.editor1;
+            editor.setReadOnly(com.bkahlert.devel.nebula.editor.config.readOnly);
+            if(isEnabled) {
+            	$(".cke_top, .cke_bottom").show();
+            	$(window).resize();
+            } else {
+            	$(".cke_top, .cke_bottom").hide();
+            	$(window).resize();
             }
             return true;
         },

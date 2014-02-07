@@ -36,6 +36,12 @@ public class ExtendedBrowserComposite extends BrowserComposite implements
 
 	@Override
 	public Future<Void> afterCompletion(String uri) {
+		/*
+		 * TODO FIX BUG: afterCompletion is called after the pageLoadScript. Two
+		 * problems can occur: (1) pageLoadNeeds to access something loaded
+		 * through extensions; (2) queued scripts get executed before extensions
+		 * are loaded
+		 */
 		return ExecUtils.nonUIAsyncExec(ExtendedBrowserComposite.class,
 				"After Completion Extensions", new Callable<Void>() {
 					@Override

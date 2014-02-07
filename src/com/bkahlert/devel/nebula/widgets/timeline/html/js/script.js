@@ -315,5 +315,8 @@ jQuery(document).ready(function($) {
             deselectId = null;
         }
     }
+});
 
+jQuery(document).ready(function($) {
+	$('html').addClass('timeline-ready');
 });

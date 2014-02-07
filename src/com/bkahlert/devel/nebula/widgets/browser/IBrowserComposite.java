@@ -30,18 +30,63 @@ public interface IBrowserComposite extends IWidget {
 	public Browser getBrowser();
 
 	/**
-	 * Opens the given {@link URI}.
+	 * Opens the given address.
 	 * 
-	 * @param uri
+	 * @param address
 	 * @param timeout
-	 *            after which the {@link IBrowserComposite} stops loading and
-	 *            throws an exception.
-	 * @return
+	 *            after which the {@link IBrowserComposite} stops loading
+	 * @return true if page could be successfully loaded; false if the timeout
+	 *         was reached
 	 */
-	public Future<Boolean> open(String uri, Integer timeout);
+	public Future<Boolean> open(String address, Integer timeout);
 
+	/**
+	 * Opens the given address.
+	 * 
+	 * @param address
+	 * @param timeout
+	 *            after which the {@link IBrowserComposite} stops loading
+	 * @pageLoadCheckScript that must return true if the page correctly loaded.
+	 *                      This is especially useful if some inner page setup
+	 *                      takes place.
+	 * @return true if page could be successfully loaded; false if the timeout
+	 *         was reached
+	 */
+	public Future<Boolean> open(String address, Integer timeout,
+			String pageLoadCheckScript);
+
+	/**
+	 * Opens the given address.
+	 * 
+	 * @param address
+	 * @param timeout
+	 *            after which the {@link IBrowserComposite} stops loading
+	 * @return true if page could be successfully loaded; false if the timeout
+	 *         was reached
+	 */
 	public Future<Boolean> open(URI uri, Integer timeout);
 
+	/**
+	 * Opens the given address.
+	 * 
+	 * @param address
+	 * @param timeout
+	 *            after which the {@link IBrowserComposite} stops loading
+	 * @pageLoadCheckScript that must return true if the page correctly loaded.
+	 *                      This is especially useful if some inner page setup
+	 *                      takes place.
+	 * @return true if page could be successfully loaded; false if the timeout
+	 *         was reached
+	 */
+	public Future<Boolean> open(URI uri, Integer timeout,
+			String pageLoadCheckScript);
+
+	/**
+	 * Opens a blank page
+	 * 
+	 * @return true if page could be successfully loaded; false if an error
+	 *         occurred
+	 */
 	public Future<Boolean> openAboutBlank();
 
 	/**
