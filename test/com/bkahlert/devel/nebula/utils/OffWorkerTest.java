@@ -12,6 +12,8 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.Test;
 
+import com.bkahlert.devel.nebula.utils.OffWorker.StateException;
+
 public class OffWorkerTest {
 
 	public static final class Task implements Callable<Long> {
@@ -54,6 +56,28 @@ public class OffWorkerTest {
 			long timestamp = future.get();
 			assertTrue(timestamp > lastTimestamp);
 			lastTimestamp = timestamp;
+		}
+
+		offWorker.shutdown();
+
+		assertTrue(offWorker.isShutdown());
+
+		try {
+			offWorker.start();
+			assertTrue(false);
+		} catch (StateException e) {
+		}
+
+		try {
+			offWorker.pause();
+			assertTrue(false);
+		} catch (StateException e) {
+		}
+
+		try {
+			offWorker.unpause();
+			assertTrue(false);
+		} catch (StateException e) {
 		}
 
 		// assertTrue("Only " + passed.getTimePassed() + "ms instead of " +
