@@ -126,8 +126,15 @@ public class OffWorker {
 		return this.state == State.SHUTDOWN;
 	}
 
-	public <V> Future<V> submit(final Callable<V> callable) {
-		FutureTask<V> task = new FutureTask<V>(callable);
+	public synchronized <V> Future<V> submit(final Callable<V> callable) {
+		return this.submit(callable, null);
+	}
+
+	public synchronized <V> Future<V> submit(final Callable<V> callable,
+			String name) {
+		FutureTask<V> task = new FutureTask<V>(
+				name != null ? ExecUtils.createThreadLabelingCode(callable,
+						OffWorker.class, "Running " + name) : callable);
 		if (!this.queue.add(task)) {
 			throw new RuntimeException("Capacity (" + this.queue.size()
 					+ ") of " + this.getClass().getSimpleName() + " exceeded!");

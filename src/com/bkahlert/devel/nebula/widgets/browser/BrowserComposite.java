@@ -132,7 +132,9 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		this.browser.addProgressListener(new ProgressAdapter() {
 			@Override
 			public void completed(ProgressEvent event) {
-				if (BrowserComposite.this.isCancelled.get()) {
+				if (BrowserComposite.this.isCancelled.get()
+						|| BrowserComposite.this.browser == null
+						|| BrowserComposite.this.browser.isDisposed()) {
 					return;
 				}
 
@@ -568,27 +570,27 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				: script };
 		logScript[0] = logScript[0].replace("\n", " ").replace("\r", " ")
 				.replace("\t", " ");
-		final Callable<DEST> callable = new Callable<DEST>() {
-			@Override
-			public DEST call() throws Exception {
-				LOGGER.info("Running " + logScript[0]);
-				final Browser browser = BrowserComposite.this.getBrowser();
-				if (browser == null || browser.isDisposed()) {
-					return null;
-				}
-				BrowserComposite.this.scriptAboutToBeSentToBrowser(script);
-				try {
-					Object returnValue = browser.evaluate(script);
-					BrowserComposite.this
-							.scriptReturnValueReceived(returnValue);
-					LOGGER.info("Returned " + returnValue);
-					return converter.convert(returnValue);
-				} catch (SWTException e) {
-					LOGGER.error("Script error: " + e);
-					throw e;
-				}
-			}
-		};
+		final Callable<DEST> callable = ExecUtils.createThreadLabelingCode(
+				new Callable<DEST>() {
+					@Override
+					public DEST call() throws Exception {
+						LOGGER.info("Running " + logScript[0]);
+						final Browser browser = BrowserComposite.this
+								.getBrowser();
+						try {
+							BrowserComposite.this
+									.scriptAboutToBeSentToBrowser(script);
+							Object returnValue = browser.evaluate(script);
+							BrowserComposite.this
+									.scriptReturnValueReceived(returnValue);
+							LOGGER.info("Returned " + returnValue);
+							return converter.convert(returnValue);
+						} catch (SWTException e) {
+							LOGGER.error("Script error: " + e);
+							throw e;
+						}
+					}
+				}, BrowserComposite.class, "Running " + logScript[0]);
 		if (BrowserComposite.this.loadingCompleted) {
 			final AtomicReference<DEST> converted = new AtomicReference<DEST>();
 			Exception exception = null;

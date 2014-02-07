@@ -194,7 +194,7 @@ public class ExecUtils {
 		}
 	}
 
-	private static <V> Callable<V> createThreadLabelingCode(
+	public static <V> Callable<V> createThreadLabelingCode(
 			final Callable<V> callable, final Class<?> clazz,
 			final String purpose) {
 		return new Callable<V>() {
@@ -213,7 +213,7 @@ public class ExecUtils {
 		};
 	}
 
-	private static Runnable createThreadLabelingCode(final Runnable runnable,
+	public static Runnable createThreadLabelingCode(final Runnable runnable,
 			final Class<?> clazz, final String purpose) {
 		return new Runnable() {
 			@Override
