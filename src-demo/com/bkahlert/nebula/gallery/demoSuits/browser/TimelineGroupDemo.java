@@ -30,7 +30,7 @@ import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 public class TimelineGroupDemo extends AbstractDemo {
 
 	@SuppressWarnings("serial")
-	private ITimelineInput getInput() {
+	public ITimelineInput getInput() {
 		final Calendar start1 = Calendar.getInstance();
 		final Calendar end1 = Calendar.getInstance();
 		end1.add(Calendar.HOUR, 1);

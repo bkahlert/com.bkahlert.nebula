@@ -17,6 +17,8 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -225,13 +227,16 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite 
 	public TIMELINE createTimeline() {
 		final TIMELINE timeline = TimelineGroup.this.timelineFactory
 				.createTimeline(TimelineGroup.this, SWT.NONE);
-		// timeline.addTimelineListener(this.timelineListenerDelegate);
-		// timeline.addDisposeListener(new DisposeListener() {
-		// @Override
-		// public void widgetDisposed(DisposeEvent e) {
-		// timeline.addTimelineListener(TimelineGroup.this.timelineListenerDelegate);
-		// }
-		// });
+		if (true) {
+			return timeline;
+		}
+		timeline.addTimelineListener(this.timelineListenerDelegate);
+		timeline.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				timeline.addTimelineListener(TimelineGroup.this.timelineListenerDelegate);
+			}
+		});
 		return timeline;
 	}
 
