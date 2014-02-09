@@ -1,5 +1,7 @@
 package com.bkahlert.devel.nebula.viewer.timeline.impl;
 
+import java.util.concurrent.Future;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.content.IContentTypeManager.ISelectionPolicy;
@@ -30,10 +32,10 @@ public abstract class AbstractTimelineGroupViewer<TIMELINEGROUP extends Timeline
 		extends Viewer implements
 		ITimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT> {
 
-	private TIMELINEGROUP timelineGroup;
+	private final TIMELINEGROUP timelineGroup;
 
 	private ISelection selection = null;
-	private ITimelineListener timelineListener = new ITimelineListener() {
+	private final ITimelineListener timelineListener = new ITimelineListener() {
 		@Override
 		public void clicked(TimelineEvent event) {
 			AbstractTimelineGroupViewer.this
@@ -124,7 +126,7 @@ public abstract class AbstractTimelineGroupViewer<TIMELINEGROUP extends Timeline
 	}
 
 	@Override
-	public abstract void refresh(IProgressMonitor monitor);
+	public abstract Future<Void> refresh(IProgressMonitor monitor);
 
 	@Override
 	public void refresh() {

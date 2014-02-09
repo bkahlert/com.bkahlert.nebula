@@ -1,5 +1,7 @@
 package com.bkahlert.devel.nebula.viewer.timeline;
 
+import java.util.concurrent.Future;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.IInputSelectionProvider;
 
@@ -48,6 +50,8 @@ public interface ITimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELI
 
 	/**
 	 * Refreshes the user interface based on a freshly reloaded model.
+	 * 
+	 * @return true if refresh finished successfully
 	 */
-	public void refresh(IProgressMonitor monitor);
+	public Future<Void> refresh(IProgressMonitor monitor);
 }

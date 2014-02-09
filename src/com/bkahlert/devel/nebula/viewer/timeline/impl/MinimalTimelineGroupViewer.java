@@ -5,10 +5,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
@@ -16,7 +19,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.viewer.timeline.ITimelineGroupViewer;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProvider;
@@ -29,6 +32,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.impl.TimePassed;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IOptions;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
+import com.bkahlert.nebula.utils.CompletedFuture;
 
 /**
  * This class implements a minimal implementation of
@@ -90,17 +94,19 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIME
 	 *            rawInput; null if rawInput was null
 	 * @return
 	 */
-	public static Object[] breakUp(Object input) {
+	public static Object[] breakUpAndRemoveDuplicates(Object input) {
 		if (input == null) {
-			return null;
+			return new Object[0];
 		}
+		Set<Object> objects = new LinkedHashSet<Object>(); // keeps order
 		if (input.getClass().isArray()) {
-			return (Object[]) input;
+			objects.addAll(Arrays.asList((Object[]) input));
+		} else if (input instanceof Collection<?>) {
+			objects.addAll((Collection<?>) input);
+		} else {
+			objects.add(input);
 		}
-		if (input instanceof Collection<?>) {
-			return ((Collection<?>) input).toArray();
-		}
-		return new Object[] { input };
+		return objects.toArray();
 	}
 
 	/**
@@ -171,141 +177,189 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIME
 	}
 
 	@Override
-	public void refresh(IProgressMonitor monitor) {
-		final TIMELINEGROUP timelineGroup = this.getControl();
-
-		List<Object> neededKeys = new ArrayList<Object>(
-				Arrays.asList(breakUp(this.rawInput)));
-
-		final SubMonitor subMonitor = SubMonitor.convert(monitor,
-				neededKeys.size());
-
-		final List<TIMELINE> recyclableTimelines = new ArrayList<TIMELINE>();
-		for (Iterator<Entry<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>>> iterator = this.loadedKeys
-				.entrySet().iterator(); iterator.hasNext();) {
-			final Entry<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>> loaded = iterator
-					.next();
-			if (!neededKeys.contains(loaded.getKey())) {
-				ExecutorUtil.asyncExec(new Runnable() {
+	public Future<Void> refresh(final IProgressMonitor monitor) {
+		return ExecUtils.nonUISyncExec(MinimalTimelineGroupViewer.class,
+				"Refresh", new Callable<Void>() {
 					@SuppressWarnings("unchecked")
 					@Override
-					public void run() {
-						TIMELINE timeline = loaded.getValue().getTimeline();
-						ITimelineProvider<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> provider = loaded
-								.getValue().getTimelineProvider();
-						MinimalTimelineGroupViewer.this.notifyInputChanged(
-								provider, (INPUT) timeline.getData(), null);
-						loaded.getValue().getTimeline().setData(null);
-						recyclableTimelines.add(timeline);
-					}
-				});
-				iterator.remove();
-			}
-		}
+					public Void call() throws Exception {
+						final TIMELINEGROUP timelineGroup = MinimalTimelineGroupViewer.this
+								.getControl();
 
-		/*
-		 * Invariant: (1) loadedKeys only contains actually needed and loaded
-		 * key (2) recyclableTimelines contains timelines that can be reused
-		 */
-		@SuppressWarnings("unchecked")
-		List<INPUT> unpreparedKeys = new ArrayList<INPUT>(
-				CollectionUtils.subtract(neededKeys, this.loadedKeys.keySet()));
+						final TimePassed passed = new TimePassed(
+								"TIMELINE REFRESH");
+						List<Object> neededKeys = new ArrayList<Object>(
+								Arrays.asList(breakUpAndRemoveDuplicates(MinimalTimelineGroupViewer.this.rawInput)));
 
-		if (unpreparedKeys.size() > recyclableTimelines.size()) {
-			int missingTimelines = unpreparedKeys.size()
-					- recyclableTimelines.size();
-			for (int i = 0; i < missingTimelines; i++) {
-				try {
-					TIMELINE timeline = ExecutorUtil
-							.syncExec(new Callable<TIMELINE>() {
+						final SubMonitor subMonitor = SubMonitor.convert(
+								monitor, neededKeys.size());
+
+						final List<TIMELINE> recyclableTimelines = new ArrayList<TIMELINE>();
+						for (Iterator<Entry<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>>> iterator = MinimalTimelineGroupViewer.this.loadedKeys
+								.entrySet().iterator(); iterator.hasNext();) {
+							final Entry<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>> loaded = iterator
+									.next();
+							if (!neededKeys.contains(loaded.getKey())) {
+								ITimelineProvider<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> provider = loaded
+										.getValue().getTimelineProvider();
+								final TIMELINE timeline = loaded.getValue()
+										.getTimeline();
+								ExecUtils.syncExec(new Runnable() {
+									@Override
+									public void run() {
+										timeline.setData(null);
+										recyclableTimelines.add(timeline);
+									}
+								});
+								MinimalTimelineGroupViewer.this
+										.notifyInputChanged(provider, null,
+												null);
+								iterator.remove();
+							}
+						}
+
+						passed.tell("calculated recycleable timelines");
+
+						/*
+						 * Invariant: (1) loadedKeys only contains actually
+						 * needed and loaded key (2) recyclableTimelines
+						 * contains timelines that can be reused
+						 */
+						List<INPUT> unpreparedKeys = new ArrayList<INPUT>(
+								CollectionUtils
+										.subtract(
+												neededKeys,
+												MinimalTimelineGroupViewer.this.loadedKeys
+														.keySet()));
+
+						if (unpreparedKeys.size() > recyclableTimelines.size()) {
+							int missingTimelines = unpreparedKeys.size()
+									- recyclableTimelines.size();
+							for (int i = 0; i < missingTimelines; i++) {
+								try {
+									TIMELINE timeline = ExecUtils
+											.syncExec(new Callable<TIMELINE>() {
+												@Override
+												public TIMELINE call()
+														throws Exception {
+													return timelineGroup
+															.createTimeline();
+												}
+											});
+									recyclableTimelines.add(timeline);
+								} catch (Exception e) {
+									LOGGER.fatal(
+											"Error creating timeline. The "
+													+ timelineGroup.getClass()
+															.getSimpleName()
+													+ " is in an inconsistent state.",
+											e);
+								}
+							}
+						} else if (unpreparedKeys.size() < recyclableTimelines
+								.size()) {
+							final int toManyTimelines = recyclableTimelines
+									.size() - unpreparedKeys.size();
+							ExecUtils.syncExec(new Runnable() {
 								@Override
-								public TIMELINE call() throws Exception {
-									return timelineGroup.createTimeline();
+								public void run() {
+									for (int i = 0; i < toManyTimelines; i++) {
+										recyclableTimelines.remove(0).dispose();
+									}
 								}
 							});
-					recyclableTimelines.add(timeline);
-				} catch (Exception e) {
-					LOGGER.fatal("Error creating timeline. The "
-							+ timelineGroup.getClass().getSimpleName()
-							+ " is in an inconsistent state.", e);
-				}
-			}
-		} else if (unpreparedKeys.size() < recyclableTimelines.size()) {
-			final int toManyTimelines = recyclableTimelines.size()
-					- unpreparedKeys.size();
-			ExecutorUtil.syncExec(new Runnable() {
-				@Override
-				public void run() {
-					for (int i = 0; i < toManyTimelines; i++) {
-						recyclableTimelines.remove(0).dispose();
+						}
+
+						passed.tell("timeline created/disposed");
+
+						/*
+						 * Invariant: There are as many recyclableTimelines as
+						 * unpreparedKeys.
+						 */
+						Assert.isTrue(unpreparedKeys.size() == recyclableTimelines
+								.size());
+
+						/*
+						 * Prepare unpreparated keys
+						 */
+						Map<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>> preparedKeys = new HashMap<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>>();
+						for (int i = 0, m = unpreparedKeys.size(); i < m; i++) {
+							final INPUT unpreparedKey = unpreparedKeys
+									.remove(unpreparedKeys.size() - 1);
+							final TIMELINE recyclableTimeline = recyclableTimelines
+									.remove(recyclableTimelines.size() - 1);
+							ExecUtils.syncExec(new Runnable() {
+								@Override
+								public void run() {
+									recyclableTimeline.setData(unpreparedKey);
+								}
+							});
+							ITimelineProvider<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> timelineProvider = MinimalTimelineGroupViewer.this.timelineProviderFactory
+									.createTimelineProvider();
+							MinimalTimelineGroupViewer.this.notifyInputChanged(
+									timelineProvider, null, unpreparedKey);
+							preparedKeys
+									.put(unpreparedKey,
+											new Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>(
+													recyclableTimeline,
+													timelineProvider));
+						}
+
+						passed.tell("keys prepared");
+
+						Assert.isTrue(unpreparedKeys.isEmpty());
+						Assert.isTrue(recyclableTimelines.isEmpty());
+						Assert.isTrue(MinimalTimelineGroupViewer.this.loadedKeys
+								.keySet().size() + preparedKeys.keySet().size() == neededKeys
+								.size());
+						Assert.isTrue(CollectionUtils.isEqualCollection(
+								CollectionUtils
+										.union(MinimalTimelineGroupViewer.this.loadedKeys
+												.keySet(), preparedKeys
+												.keySet()), neededKeys));
+
+						// MinimalTimelineGroupViewer.this.refresh(
+						// MinimalTimelineGroupViewer.this.loadedKeys,
+						// false, subMonitor.newChild(1));
+						// passed.tell("loaded keys refreshed");
+						MinimalTimelineGroupViewer.this.refresh(preparedKeys,
+								true, subMonitor.newChild(1));
+						passed.tell("prepared keys refreshed");
+
+						MinimalTimelineGroupViewer.this.loadedKeys
+								.putAll(preparedKeys);
+
+						return ExecUtils.asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								timelineGroup.layout();
+								passed.tell("layout completed");
+							}
+						}).get();
 					}
-				}
-			});
-		}
+				});
 
-		/*
-		 * Invariant: There are as many recyclableTimelines as unpreparedKeys.
-		 */
-		Assert.isTrue(unpreparedKeys.size() == recyclableTimelines.size());
-
-		/*
-		 * Prepare unpreparated keys
-		 */
-		Map<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>> preparedKeys = new HashMap<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>>();
-		for (int i = 0, m = unpreparedKeys.size(); i < m; i++) {
-			final INPUT unpreparedKey = unpreparedKeys.remove(unpreparedKeys
-					.size() - 1);
-			final TIMELINE recyclableTimeline = recyclableTimelines
-					.remove(recyclableTimelines.size() - 1);
-			ExecutorUtil.syncExec(new Runnable() {
-				@Override
-				public void run() {
-					recyclableTimeline.setData(unpreparedKey);
-				}
-			});
-			ITimelineProvider<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> timelineProvider = this.timelineProviderFactory
-					.createTimelineProvider();
-			this.notifyInputChanged(timelineProvider, null, unpreparedKey);
-			preparedKeys
-					.put(unpreparedKey,
-							new Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>(
-									recyclableTimeline, timelineProvider));
-		}
-
-		Assert.isTrue(unpreparedKeys.isEmpty());
-		Assert.isTrue(recyclableTimelines.isEmpty());
-		Assert.isTrue(this.loadedKeys.keySet().size()
-				+ preparedKeys.keySet().size() == neededKeys.size());
-		Assert.isTrue(CollectionUtils.isEqualCollection(
-				CollectionUtils.union(this.loadedKeys.keySet(),
-						preparedKeys.keySet()), neededKeys));
-
-		this.refresh(this.loadedKeys, false, subMonitor.newChild(1));
-		this.refresh(preparedKeys, true, subMonitor.newChild(1));
-
-		this.loadedKeys.putAll(preparedKeys);
-
-		ExecutorUtil.syncExec(new Runnable() {
-			@Override
-			public void run() {
-				timelineGroup.layout();
-			}
-		});
 	}
 
 	// FIXME: make this function abort itself on consecutive calls
-	// different demoAreaContent providers can make this method be called multiple times
+	// different demoAreaContent providers can make this method be called
+	// multiple times
 	// because of one core event
 	// FIXME: TimelineRefresher no more needed then
-	public void refresh(
+	private Future<Void> refresh(
 			Map<INPUT, Asset<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT>> keys,
 			final boolean keysAreNew, final IProgressMonitor monitor) {
+		final List<Future<Void>> futures = new ArrayList<Future<Void>>();
+
+		final TimePassed passed = new TimePassed("TIMELINE INNER REFRESH");
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 3);
 		for (final Object key : keys.keySet()) {
 			try {
 				TIMELINE timeline = keys.get(key).getTimeline();
+				passed.tell("got timeline");
 				ITimelineProvider<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> timelineProvider = keys
 						.get(key).getTimelineProvider();
+				passed.tell("got timeline provider");
 
 				ITimelineInput timelineInput = timelineProvider
 						.generateTimelineInput(
@@ -321,17 +375,42 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIME
 									}
 								}, subMonitor.newChild(1));
 
+				passed.tell("created input");
+
 				this.postProcess(timeline, timelineInput, keysAreNew);
 
+				passed.tell("post processed");
+
+				Future<Void> future;
 				if (keysAreNew) {
-					timeline.show(timelineInput, 300, 300,
+					future = timeline.show(timelineInput, 300, 300,
 							subMonitor.newChild(2));
 				} else {
-					timeline.show(timelineInput, subMonitor.newChild(2));
+					future = timeline.show(timelineInput,
+							subMonitor.newChild(2));
 				}
+
+				futures.add(future);
 			} catch (Exception e) {
 				LOGGER.error("Error refreshing timeline for key " + key, e);
 			}
+		}
+
+		if (futures.size() > 0) {
+			return ExecUtils.nonUIAsyncExec(MinimalTimelineGroupViewer.class,
+					"Waiting for timeline show to complete",
+					new Callable<Void>() {
+						@Override
+						public Void call() throws Exception {
+							for (Future<Void> future : futures) {
+								future.get();
+							}
+							passed.tell("timelines displayed");
+							return null;
+						}
+					});
+		} else {
+			return new CompletedFuture<Void>(null, null);
 		}
 	}
 

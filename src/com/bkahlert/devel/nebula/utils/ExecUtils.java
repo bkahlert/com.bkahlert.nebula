@@ -483,7 +483,7 @@ public class ExecUtils {
 	 * @UIThread
 	 * @NonUIThread
 	 */
-	public static Future<?> nonUISyncExec(final Runnable runnable) {
+	public static Future<Void> nonUISyncExec(final Runnable runnable) {
 		if (ExecUtils.isUIThread()) {
 			return EXECUTOR_SERVICE.submit(new Callable<Void>() {
 				@Override
@@ -493,7 +493,7 @@ public class ExecUtils {
 				}
 			});
 		} else {
-			return new CompletedFuture<Object>(runnable);
+			return new CompletedFuture<Void>(runnable);
 		}
 	}
 
