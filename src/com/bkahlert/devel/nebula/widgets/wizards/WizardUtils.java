@@ -13,7 +13,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.NewProjectAction;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.wizards.dialogs.CenteredWizardDialog;
 
 /**
@@ -35,7 +35,7 @@ public class WizardUtils {
 	public static Integer openWizard(final Shell parentShell,
 			final Wizard wizard, final Point initialSize) {
 		try {
-			ExecutorUtil.syncExec(new Callable<Integer>() {
+			ExecUtils.syncExec(new Callable<Integer>() {
 				@Override
 				public Integer call() throws Exception {
 					WizardDialog wizardDialog = new CenteredWizardDialog(
@@ -86,7 +86,7 @@ public class WizardUtils {
 	 * new project wizard.
 	 */
 	public static void openNewProjectWizard() {
-		ExecutorUtil.asyncExec(new Runnable() {
+		ExecUtils.asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				IWorkbenchWindow window = PlatformUI.getWorkbench()

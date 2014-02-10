@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.extended.IJQueryEnabledBrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.extended.JQueryEnabledBrowserComposite;
@@ -202,16 +203,20 @@ public class WebpageScreenshotRenderer<WEBPAGE extends IWebpage> implements
 			}
 
 			private void configuredRenderer() {
-				ExecutorUtil.syncExec(new Runnable() {
-					@Override
-					public void run() {
-						renderer = WebpageScreenshotRenderer.this
-								.getRenderer(request);
-						renderer.setBlockOnOpen(false);
-						renderer.open();
-						renderer.resize(request.getDimensions());
-					}
-				});
+				try {
+					ExecUtils.syncExec(new Runnable() {
+						@Override
+						public void run() {
+							renderer = WebpageScreenshotRenderer.this
+									.getRenderer(request);
+							renderer.setBlockOnOpen(false);
+							renderer.open();
+							renderer.resize(request.getDimensions());
+						}
+					});
+				} catch (Exception e) {
+					LOGGER.error("Error configuring renderer", e);
+				}
 			}
 
 			private boolean loadUri() throws InterruptedException,

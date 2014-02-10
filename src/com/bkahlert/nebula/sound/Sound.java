@@ -15,7 +15,7 @@ import javax.sound.sampled.SourceDataLine;
 
 import org.apache.log4j.Logger;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 
 public class Sound {
 
@@ -125,7 +125,7 @@ public class Sound {
 	}
 
 	public Future<Void> playAsync() {
-		return ExecutorUtil.nonUISyncExec(this.getCallable());
+		return ExecUtils.nonUISyncExec(this.getCallable());
 	}
 
 	public static void main(String[] args) throws SoundException,

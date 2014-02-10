@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 
 public class ShellUtils {
 
@@ -32,7 +32,7 @@ public class ShellUtils {
 
 	public static void setVisible(final Shell shell, final boolean visible) {
 		try {
-			ExecutorUtil.syncExec(new Callable<Void>() {
+			ExecUtils.syncExec(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					shell.setVisible(visible);
@@ -47,7 +47,7 @@ public class ShellUtils {
 
 	public static void bringToFront(final Shell shell) {
 		try {
-			ExecutorUtil.syncExec(new Callable<Void>() {
+			ExecUtils.syncExec(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					shell.setActive();
@@ -67,7 +67,7 @@ public class ShellUtils {
 	 */
 	public static Rectangle getTrim(final Shell shell) {
 		try {
-			return ExecutorUtil.syncExec(new Callable<Rectangle>() {
+			return ExecUtils.syncExec(new Callable<Rectangle>() {
 				@Override
 				public Rectangle call() throws Exception {
 					// window bounds
@@ -96,7 +96,7 @@ public class ShellUtils {
 	 */
 	public static Rectangle getInnerArea(final Control control) {
 		try {
-			return ExecutorUtil.syncExec(new Callable<Rectangle>() {
+			return ExecUtils.syncExec(new Callable<Rectangle>() {
 				@Override
 				public Rectangle call() throws Exception {
 					return getInnerArea(control.getShell());
@@ -116,7 +116,7 @@ public class ShellUtils {
 	 */
 	public static Rectangle getInnerArea(final Shell shell) {
 		try {
-			return ExecutorUtil.syncExec(new Callable<Rectangle>() {
+			return ExecUtils.syncExec(new Callable<Rectangle>() {
 				@Override
 				public Rectangle call() throws Exception {
 					// window bounds
@@ -151,7 +151,7 @@ public class ShellUtils {
 	 * @ArbitraryThread
 	 */
 	public static Image captureScreen(final Control control) throws Exception {
-		return ExecutorUtil.syncExec(new Callable<Image>() {
+		return ExecUtils.syncExec(new Callable<Image>() {
 			@Override
 			public Image call() throws Exception {
 				Point size = control.getSize();

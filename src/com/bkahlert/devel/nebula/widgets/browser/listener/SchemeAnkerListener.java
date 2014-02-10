@@ -7,7 +7,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.bkahlert.devel.nebula.utils.ExecUtils;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IElement;
 
@@ -17,7 +16,7 @@ import com.bkahlert.devel.nebula.widgets.browser.extended.html.IElement;
  * <p>
  * Furthermore independently of which thread calls the listener the provided
  * listeners are called from a non-UI thread. If you need to make changes to the
- * GUI you will have to use {@link ExecutorUtil}.
+ * GUI you will have to use {@link ExecUtils}.
  * 
  * @author bkahlert
  * 

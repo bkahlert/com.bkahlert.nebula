@@ -32,6 +32,7 @@ import org.eclipse.swt.widgets.Listener;
  * 
  * @param <INFORMATION>
  */
+@SuppressWarnings("restriction")
 public class StickyHoverManager<INFORMATION> extends InformationControlReplacer {
 
 	/**

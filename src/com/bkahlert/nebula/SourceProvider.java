@@ -6,12 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 
 public class SourceProvider extends AbstractSourceProvider {
+
+	private static final Logger LOGGER = Logger.getLogger(SourceProvider.class);
 
 	public static final Object NULL_MANAGER = new Object();
 	public static final Object NULL_CONTROL = new Object();
@@ -107,34 +110,49 @@ public class SourceProvider extends AbstractSourceProvider {
 
 	private final void fireManagerChanged(final Object manager) {
 		this.manager = manager;
-		ExecutorUtil.syncExec(new Runnable() {
-			@Override
-			public void run() {
-				SourceProvider.this.fireSourceChanged(ISources.WORKBENCH,
-						MANAGER, manager);
-			}
-		});
+		try {
+			ExecUtils.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					SourceProvider.this.fireSourceChanged(ISources.WORKBENCH,
+							MANAGER, manager);
+				}
+			});
+		} catch (Exception e) {
+			LOGGER.fatal("Error firing manager changed event", e);
+			throw (new RuntimeException(e));
+		}
 	}
 
 	private final void fireControlChanged(final Object control) {
 		this.control = control;
-		ExecutorUtil.syncExec(new Runnable() {
-			@Override
-			public void run() {
-				SourceProvider.this.fireSourceChanged(ISources.WORKBENCH,
-						CONTROL, control);
-			}
-		});
+		try {
+			ExecUtils.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					SourceProvider.this.fireSourceChanged(ISources.WORKBENCH,
+							CONTROL, control);
+				}
+			});
+		} catch (Exception e) {
+			LOGGER.fatal("Error firing manager changed event", e);
+			throw (new RuntimeException(e));
+		}
 	}
 
 	private final void fireInputChanged(final Object input) {
 		this.input = input;
-		ExecutorUtil.syncExec(new Runnable() {
-			@Override
-			public void run() {
-				SourceProvider.this.fireSourceChanged(ISources.WORKBENCH,
-						INPUT, input);
-			}
-		});
+		try {
+			ExecUtils.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					SourceProvider.this.fireSourceChanged(ISources.WORKBENCH,
+							INPUT, input);
+				}
+			});
+		} catch (Exception e) {
+			LOGGER.fatal("Error firing manager changed event", e);
+			throw (new RuntimeException(e));
+		}
 	}
 }

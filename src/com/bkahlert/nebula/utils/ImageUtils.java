@@ -34,6 +34,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
+@SuppressWarnings("restriction")
 public class ImageUtils {
 
 	private static Logger LOGGER = Logger.getLogger(ImageUtils.class);
