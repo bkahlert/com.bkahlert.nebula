@@ -1,8 +1,10 @@
 package com.bkahlert.devel.nebula.viewer.timeline.impl;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
@@ -11,14 +13,15 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.junit.Assert;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProviderFactory;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
+import com.bkahlert.devel.nebula.widgets.timeline.impl.Decorator;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
+import com.bkahlert.nebula.datetime.CalendarRange;
 
 /**
  * This implementation supports to set decorators and keeps them, the focused
@@ -48,30 +51,19 @@ public class TimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, I
 	 * @param groupedDecorators
 	 * @param progressMonitor
 	 */
-	public void setCenterVisibleDate(final Map<Object, Calendar> calendars,
+	public void setCenterVisibleDate(final Map<INPUT, Calendar> calendars,
 			IProgressMonitor monitor) {
 		Assert.assertNotNull(calendars);
 
 		SubMonitor subMonitor = SubMonitor.convert(monitor, calendars.keySet()
 				.size());
 
-		for (final Object key : calendars.keySet()) {
+		for (final INPUT key : calendars.keySet()) {
 			if (subMonitor.isCanceled()) {
 				throw new OperationCanceledException();
 			}
 
-			final TIMELINE timeline;
-			try {
-				timeline = ExecutorUtil.asyncExec(new Callable<TIMELINE>() {
-					@Override
-					public TIMELINE call() throws Exception {
-						return TimelineGroupViewer.this.getTimeline(key);
-					}
-				}).get();
-			} catch (Exception e) {
-				LOGGER.error("Error retrieving timeline for " + key);
-				continue;
-			}
+			final TIMELINE timeline = this.getTimeline(key);
 			if (timeline == null) {
 				LOGGER.warn("Timeline does not exist anymore for " + key);
 				continue;
@@ -81,15 +73,10 @@ public class TimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, I
 				throw new OperationCanceledException();
 			}
 
-			ExecutorUtil.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					Calendar calendar = calendars.get(key);
-					if (calendar != null) {
-						timeline.setCenterVisibleDate(calendar);
-					}
-				}
-			});
+			Calendar calendar = calendars.get(key);
+			if (calendar != null) {
+				timeline.setCenterVisibleDate(calendar);
+			}
 
 			if (subMonitor.isCanceled()) {
 				throw new OperationCanceledException();
@@ -105,30 +92,18 @@ public class TimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, I
 	 * @param groupedDecorators
 	 * @param progressMonitor
 	 */
-	public void setDecorators(
-			final Map<Object, IDecorator[]> groupedDecorators,
+	public void setDecorators(final Map<INPUT, IDecorator[]> groupedDecorators,
 			IProgressMonitor monitor) {
 
 		SubMonitor subMonitor = SubMonitor.convert(monitor, groupedDecorators
 				.keySet().size());
 
-		for (final Object key : groupedDecorators.keySet()) {
+		for (final INPUT key : groupedDecorators.keySet()) {
 			if (subMonitor.isCanceled()) {
 				throw new OperationCanceledException();
 			}
 
-			final TIMELINE timeline;
-			try {
-				timeline = ExecutorUtil.asyncExec(new Callable<TIMELINE>() {
-					@Override
-					public TIMELINE call() throws Exception {
-						return TimelineGroupViewer.this.getTimeline(key);
-					}
-				}).get();
-			} catch (Exception e) {
-				LOGGER.error("Error retrieving timeline for " + key);
-				continue;
-			}
+			final TIMELINE timeline = this.getTimeline(key);
 			if (timeline == null) {
 				LOGGER.warn("Timeline does not exist anymore for " + key);
 				continue;
@@ -138,17 +113,12 @@ public class TimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, I
 				throw new OperationCanceledException();
 			}
 
-			ExecutorUtil.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					IDecorator[] decorators = groupedDecorators.get(key);
-					if (decorators == null || decorators.length == 0) {
-						timeline.setDecorators(new IDecorator[0]);
-					} else {
-						timeline.setDecorators(decorators);
-					}
-				}
-			});
+			IDecorator[] decorators = groupedDecorators.get(key);
+			if (decorators == null || decorators.length == 0) {
+				timeline.setDecorators(new IDecorator[0]);
+			} else {
+				timeline.setDecorators(decorators);
+			}
 
 			if (subMonitor.isCanceled()) {
 				throw new OperationCanceledException();
@@ -156,6 +126,39 @@ public class TimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, I
 		}
 
 		subMonitor.done();
+	}
+
+	/**
+	 * Highlights the given date ranges.
+	 * 
+	 * @param groupedRanges
+	 * @param progressMonitor
+	 */
+	public void highlight(Map<INPUT, CalendarRange[]> groupedRanges,
+			IProgressMonitor monitor) {
+	
+		Map<INPUT, IDecorator[]> groupedDecorators = new HashMap<INPUT, IDecorator[]>();
+	
+		for (final INPUT key : groupedRanges.keySet()) {
+	
+			final CalendarRange[] dateRanges = groupedRanges.get(key);
+	
+			List<IDecorator> decorators = new ArrayList<IDecorator>(
+					dateRanges.length);
+			for (CalendarRange dateRange : dateRanges) {
+				if (dateRange.getStartDate() == null
+						&& dateRange.getEndDate() == null) {
+					continue;
+				}
+				decorators.add(new Decorator(
+						dateRange.getStartDate() != null ? dateRange
+								.getStartDate() : null,
+						dateRange.getEndDate() != null ? dateRange.getEndDate()
+								: null));
+			}
+			groupedDecorators.put(key, decorators.toArray(new IDecorator[0]));
+		}
+		this.setDecorators(groupedDecorators, monitor);
 	}
 
 	@Override
@@ -184,42 +187,21 @@ public class TimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, I
 		// TODO implement mememto that saves all information below
 
 		// center data
-		Future<Calendar> centerVisibleDate = null;
-		try {
-			centerVisibleDate = ExecutorUtil
-					.syncExec(new Callable<Future<Calendar>>() {
-						@Override
-						public Future<Calendar> call() throws Exception {
-							return timeline.getCenterVisibleDate();
-						}
-					});
-		} catch (Exception e) {
-			LOGGER.error("Error retrieving the currently centered time", e);
-		}
+		Future<Calendar> centerVisibleDate = timeline.getCenterVisibleDate();
 
 		// zoom index
-		Future<Integer> zoomIndex = null;
-		try {
-			zoomIndex = ExecutorUtil.syncExec(new Callable<Future<Integer>>() {
-				@Override
-				public Future<Integer> call() throws Exception {
-					return timeline.getZoomIndex();
-				}
-			});
-		} catch (Exception e) {
-			LOGGER.error("Error retrieving the current zoom index", e);
-		}
+		Future<Integer> zoomIndex = timeline.getZoomIndex();
 
 		// on first start we don't want to override the original set date
-		if (centerVisibleDate != null) {
-			try {
+		try {
+			if (centerVisibleDate.get() != null) {
 				input.getOptions().setCenterStart(centerVisibleDate.get());
 				input.getOptions().setZoomIndex(zoomIndex.get());
-			} catch (Exception e) {
-				LOGGER.error(
-						"Error restoring center start and zoom index of timeline",
-						e);
 			}
+		} catch (Exception e) {
+			LOGGER.error(
+					"Error restoring center start and zoom index of timeline",
+					e);
 		}
 
 		input.getOptions().setDecorators(timeline.getDecorators());

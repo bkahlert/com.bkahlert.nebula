@@ -8,7 +8,7 @@ import org.eclipse.swt.widgets.Label;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoExplorer.DemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.basic.BasicDemoSuite;
-import com.bkahlert.nebula.gallery.demoSuits.browser._DemoSuite;
+import com.bkahlert.nebula.gallery.demoSuits.browser.BrowserDemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.chat.ChatDemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.decoration.DecorationDemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.dialog.DialogDemoSuite;
@@ -22,7 +22,7 @@ import com.bkahlert.nebula.gallery.demoSuits.wizard.WizardDemoSuite;
 @DemoSuite({ DecorationDemoSuite.class, BasicDemoSuite.class,
 		InstructionDemoSuite.class, ChatDemoSuite.class,
 		ProjectDemoSuite.class, WizardDemoSuite.class,
-		_DemoSuite.class, DialogDemoSuite.class,
+		BrowserDemoSuite.class, DialogDemoSuite.class,
 		InformationDemoSuite.class, SoundDemoSuite.class, UtilsDemoSuite.class })
 @Demo
 public class MainDemo extends AbstractDemo {

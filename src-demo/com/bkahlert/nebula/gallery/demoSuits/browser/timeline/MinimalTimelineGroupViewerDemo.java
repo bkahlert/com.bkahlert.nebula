@@ -1,4 +1,4 @@
-package com.bkahlert.nebula.gallery.demoSuits.browser;
+package com.bkahlert.nebula.gallery.demoSuits.browser.timeline;
 
 import java.math.BigInteger;
 import java.net.URI;

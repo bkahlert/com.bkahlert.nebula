@@ -2,7 +2,7 @@ package com.bkahlert.devel.nebula.widgets.timeline.impl;
 
 import org.apache.log4j.Logger;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 
 public class TimePassed {
 
@@ -39,8 +39,8 @@ public class TimePassed {
 		this.logger = null;
 		this.prefix = prefix;
 		if (!silent) {
-			System.out.println(prefix0 + " :: " + thread() + " :: " + prefix
-					+ " :: started");
+			System.out.println(this.prefix0 + " :: " + this.thread() + " :: "
+					+ prefix + " :: started");
 		}
 	}
 
@@ -53,8 +53,8 @@ public class TimePassed {
 		this.logger = logger;
 		this.prefix = prefix;
 		if (!silent) {
-			logger.debug(prefix0 + " :: " + thread() + " :: " + prefix
-					+ " :: started");
+			logger.debug(this.prefix0 + " :: " + this.thread() + " :: "
+					+ prefix + " :: started");
 		}
 	}
 
@@ -63,20 +63,22 @@ public class TimePassed {
 	}
 
 	private String thread() {
-		return ExecutorUtil.isUIThread() ? "UI thread" : Thread.currentThread()
+		return ExecUtils.isUIThread() ? "UI thread" : Thread.currentThread()
 				.toString();
 	}
 
 	public void tell(String event) {
-		String message = prefix0 + " :: " + thread() + " :: " + prefix + " :: "
-				+ event + " :: " + getTimePassed() + "ms";
-		if (lastTell >= 0) {
-			message += " (+" + (System.currentTimeMillis() - lastTell) + "ms)";
+		String message = this.prefix0 + " :: " + this.thread() + " :: "
+				+ this.prefix + " :: " + event + " :: " + this.getTimePassed()
+				+ "ms";
+		if (this.lastTell >= 0) {
+			message += " (+" + (System.currentTimeMillis() - this.lastTell)
+					+ "ms)";
 		}
-		lastTell = System.currentTimeMillis();
-		if (!silent) {
-			if (logger != null) {
-				logger.debug(message);
+		this.lastTell = System.currentTimeMillis();
+		if (!this.silent) {
+			if (this.logger != null) {
+				this.logger.debug(message);
 			} else {
 				System.out.println(message);
 			}
@@ -84,12 +86,12 @@ public class TimePassed {
 	}
 
 	public long getTimePassed() {
-		return System.currentTimeMillis() - start;
+		return System.currentTimeMillis() - this.start;
 	}
 
 	public void finished() {
-		if (!silent) {
-			tell("finished");
+		if (!this.silent) {
+			this.tell("finished");
 		}
 	}
 

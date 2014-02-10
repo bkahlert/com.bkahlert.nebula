@@ -318,10 +318,10 @@ public class MinimalTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIME
 												.keySet(), preparedKeys
 												.keySet()), neededKeys));
 
-						// MinimalTimelineGroupViewer.this.refresh(
-						// MinimalTimelineGroupViewer.this.loadedKeys,
-						// false, subMonitor.newChild(1));
-						// passed.tell("loaded keys refreshed");
+						MinimalTimelineGroupViewer.this.refresh(
+								MinimalTimelineGroupViewer.this.loadedKeys,
+								false, subMonitor.newChild(1));
+						passed.tell("loaded keys refreshed");
 						MinimalTimelineGroupViewer.this.refresh(preparedKeys,
 								true, subMonitor.newChild(1));
 						passed.tell("prepared keys refreshed");

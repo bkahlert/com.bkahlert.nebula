@@ -19,7 +19,7 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.NamedJob;
 import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.devel.nebula.widgets.editor.AutosaveEditor;
@@ -105,7 +105,7 @@ public abstract class EditorView<T> extends ViewPart {
 			partInfo.set(this.getDefaultPartInfo());
 		}
 
-		ExecutorUtil.asyncExec(new Runnable() {
+		ExecUtils.asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				EditorView.this.setPartName(partInfo != null

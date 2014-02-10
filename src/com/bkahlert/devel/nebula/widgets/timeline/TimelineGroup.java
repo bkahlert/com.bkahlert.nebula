@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Layout;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 
@@ -159,7 +159,7 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite 
 
 			TIMELINE timeline;
 			try {
-				timeline = ExecutorUtil.asyncExec(new Callable<TIMELINE>() {
+				timeline = ExecUtils.asyncExec(new Callable<TIMELINE>() {
 					@Override
 					public TIMELINE call() throws Exception {
 						return TimelineGroup.this.getTimeline(unpreparedKey);
@@ -175,7 +175,7 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite 
 			if (timeline == null) {
 				// timeline was not prepared -> create a new one
 				try {
-					timeline = ExecutorUtil.syncExec(new Callable<TIMELINE>() {
+					timeline = ExecUtils.syncExec(new Callable<TIMELINE>() {
 						@Override
 						public TIMELINE call() throws Exception {
 							TIMELINE timeline = TimelineGroup.this
@@ -207,7 +207,7 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite 
 			}
 		}
 
-		Future<T> rs = ExecutorUtil.asyncExec(new Callable<T>() {
+		Future<T> rs = ExecUtils.asyncExec(new Callable<T>() {
 			@Override
 			public T call() throws Exception {
 				TimelineGroup.this.layout();
@@ -351,7 +351,7 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite 
 	 * @param freeTimelinesKeys
 	 */
 	private void disposeTimelines(final List<INPUT> freeTimelinesKeys) {
-		ExecutorUtil.asyncExec(new Runnable() {
+		ExecUtils.asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				for (INPUT key : freeTimelinesKeys) {

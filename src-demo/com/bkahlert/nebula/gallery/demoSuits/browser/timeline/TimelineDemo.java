@@ -1,4 +1,4 @@
-package com.bkahlert.nebula.gallery.demoSuits.browser;
+package com.bkahlert.nebula.gallery.demoSuits.browser.timeline;
 
 import java.net.URI;
 import java.net.URISyntaxException;

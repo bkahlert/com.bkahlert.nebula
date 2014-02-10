@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.bkahlert.devel.nebula.colors.ColorUtils;
 import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 
 /**
  * Class which displays a default text if the user has not entered own input.
@@ -97,7 +97,7 @@ public class EmptyText {
 				 * Modifying the control's test while the focus out occurs does
 				 * not seem to work. We therefore defer the text change.
 				 */
-				ExecutorUtil.asyncExec(new Runnable() {
+				ExecUtils.asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						EmptyText.this.control

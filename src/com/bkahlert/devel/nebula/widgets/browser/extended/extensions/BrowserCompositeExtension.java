@@ -13,7 +13,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.nebula.widgets.browser.IBrowserComposite;
 import com.bkahlert.nebula.utils.CompletedFuture;
@@ -36,9 +36,6 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(BrowserCompositeExtension.class);
-
-	private final ExecutorUtil executorUtil = new ExecutorUtil(
-			BrowserCompositeExtension.class);
 
 	private final String name;
 	private final String verificationScript;
@@ -119,54 +116,59 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 
 	@Override
 	public Future<Boolean> addExtension(final IBrowserComposite browserComposite) {
-		return executorUtil.nonUIAsyncExec(new Callable<Boolean>() {
-			@Override
-			public Boolean call() throws Exception {
-				if (BrowserCompositeExtension.this.dependencies != null) {
-					for (Class<? extends IBrowserCompositeExtension> dependencyClass : BrowserCompositeExtension.this.dependencies) {
-						try {
-							IBrowserCompositeExtension dependency = dependencyClass
-									.newInstance();
-							dependency.addExtensionOnce(browserComposite).get();
-						} catch (Exception e) {
-							LOGGER.warn("Cannot instantiate dependency "
-									+ dependencyClass.getSimpleName()
-									+ ". Skipping.", e);
+		return ExecUtils.nonUIAsyncExec(BrowserCompositeExtension.class,
+				"Adding Extension", new Callable<Boolean>() {
+					@Override
+					public Boolean call() throws Exception {
+						if (BrowserCompositeExtension.this.dependencies != null) {
+							for (Class<? extends IBrowserCompositeExtension> dependencyClass : BrowserCompositeExtension.this.dependencies) {
+								try {
+									IBrowserCompositeExtension dependency = dependencyClass
+											.newInstance();
+									dependency.addExtensionOnce(
+											browserComposite).get();
+								} catch (Exception e) {
+									LOGGER.warn(
+											"Cannot instantiate dependency "
+													+ dependencyClass
+															.getSimpleName()
+													+ ". Skipping.", e);
+								}
+							}
 						}
+
+						boolean success = true;
+						for (URI jsExtension : BrowserCompositeExtension.this.jsExtensions) {
+							if (!inject(browserComposite, jsExtension,
+									BrowserCompositeExtension.this.name)) {
+								success = false;
+							}
+						}
+
+						for (URI cssExtension : BrowserCompositeExtension.this.cssExtensions) {
+							browserComposite.injectCssFile(cssExtension);
+						}
+
+						return success;
 					}
-				}
-
-				boolean success = true;
-				for (URI jsExtension : BrowserCompositeExtension.this.jsExtensions) {
-					if (!inject(browserComposite, jsExtension,
-							BrowserCompositeExtension.this.name)) {
-						success = false;
-					}
-				}
-
-				for (URI cssExtension : BrowserCompositeExtension.this.cssExtensions) {
-					browserComposite.injectCssFile(cssExtension);
-				}
-
-				return success;
-			}
-		});
+				});
 	}
 
 	@Override
 	public Future<Boolean> addExtensionOnce(
 			final IBrowserComposite browserComposite) {
-		return executorUtil.nonUIAsyncExec(new Callable<Boolean>() {
-			@Override
-			public Boolean call() throws Exception {
-				if (!BrowserCompositeExtension.this.hasExtension(
-						browserComposite).get()) {
-					return BrowserCompositeExtension.this.addExtension(
-							browserComposite).get();
-				}
-				return null;
-			}
-		});
+		return ExecUtils.nonUIAsyncExec(BrowserCompositeExtension.class,
+				"Adding Extension Once", new Callable<Boolean>() {
+					@Override
+					public Boolean call() throws Exception {
+						if (!BrowserCompositeExtension.this.hasExtension(
+								browserComposite).get()) {
+							return BrowserCompositeExtension.this.addExtension(
+									browserComposite).get();
+						}
+						return null;
+					}
+				});
 	}
 
 	/*

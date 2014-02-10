@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IElement;
@@ -25,8 +26,7 @@ public class SchemeAnkerListener implements IAnkerListener {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(SchemeAnkerListener.class);
-	private final ExecutorUtil executorUtil = new ExecutorUtil(
-	SchemeAnkerListener.class);
+	private final ExecUtils execUtils = new ExecUtils(SchemeAnkerListener.class);
 	private Map<String, IAnkerListener> listeners;
 	private IAnkerListener defaultListener;
 
@@ -53,7 +53,7 @@ public class SchemeAnkerListener implements IAnkerListener {
 
 	@Override
 	public void ankerClicked(final IAnker anker) {
-		executorUtil.nonUIAsyncExec(new Runnable() {
+		this.execUtils.customNonUIAsyncExec(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -93,7 +93,7 @@ public class SchemeAnkerListener implements IAnkerListener {
 
 	@Override
 	public void ankerHovered(final IAnker anker, final boolean entered) {
-		executorUtil.nonUIAsyncExec(new Runnable() {
+		this.execUtils.customNonUIAsyncExec(new Runnable() {
 			@Override
 			public void run() {
 				try {

@@ -2,7 +2,7 @@ package com.bkahlert.devel.nebula.views;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
 
 public class SampleEditorView extends EditorView<String> {
@@ -14,7 +14,7 @@ public class SampleEditorView extends EditorView<String> {
 	@Override
 	public void postInit() {
 		this.load("Hello World!");
-		ExecutorUtil.asyncExec(new Runnable() {
+		ExecUtils.asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -25,7 +25,7 @@ public class SampleEditorView extends EditorView<String> {
 				}
 			}
 		}, 4000);
-		ExecutorUtil.asyncExec(new Runnable() {
+		ExecUtils.asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				try {

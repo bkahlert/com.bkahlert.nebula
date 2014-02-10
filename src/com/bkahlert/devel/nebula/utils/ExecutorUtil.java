@@ -264,7 +264,7 @@ public class ExecutorUtil {
 		try {
 			mutex.acquire();
 		} catch (InterruptedException e) {
-			LOGGER.error(e);
+			exception.set(e);
 		}
 		if (exception.get() != null) {
 			throw exception.get();

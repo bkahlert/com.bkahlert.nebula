@@ -99,7 +99,7 @@ public class Composer extends BrowserComposite {
 				getFileUrl(Composer.class, "html/index.html",
 						"?internal=true&toolbarSet="
 								+ toolbarSet.toString().toLowerCase()), 5000,
-				"return jQuery && jQuery(\"html\").hasClass(\"ready\")");
+				"return typeof jQuery != \"undefined\" && jQuery(\"html\").hasClass(\"ready\")");
 
 		this.addDisposeListener(new DisposeListener() {
 
