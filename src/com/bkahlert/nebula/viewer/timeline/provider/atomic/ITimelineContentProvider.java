@@ -2,9 +2,9 @@ package com.bkahlert.nebula.viewer.timeline.provider.atomic;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.nebula.viewer.timeline.impl.AbstractTimelineGroupViewer;
-import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
+import com.bkahlert.nebula.viewer.timeline.ITimelineGroupViewer;
 
 /**
  * Provides the {@link ITimeline} with contents.
@@ -12,8 +12,9 @@ import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
  * @author bkahlert
  * 
  */
-public interface ITimelineContentProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT> {
-	public void inputChanged(TIMELINEGROUPVIEWER timelineGroupViewer,
+public interface ITimelineContentProvider<INPUT> {
+	public <TIMELINE extends IBaseTimeline> void inputChanged(
+			ITimelineGroupViewer<TIMELINE, INPUT> timelineGroupViewer,
 			INPUT oldInput, INPUT newInput);
 
 	/**

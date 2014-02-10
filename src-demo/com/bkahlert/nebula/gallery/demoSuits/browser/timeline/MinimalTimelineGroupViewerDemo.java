@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Composite;
 import com.bkahlert.devel.nebula.colors.ColorUtils;
 import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ExecUtils;
+import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
@@ -39,6 +40,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.IZoomStep;
 import com.bkahlert.devel.nebula.widgets.timeline.model.Unit;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.viewer.timeline.ITimelineGroupViewer;
 import com.bkahlert.nebula.viewer.timeline.impl.MinimalTimelineGroupViewer;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
@@ -105,7 +107,7 @@ public class MinimalTimelineGroupViewerDemo extends AbstractDemo {
 		return input;
 	}
 
-	private MinimalTimelineGroupViewer<TimelineGroup<ITimeline, URI>, ITimeline, URI> viewer = null;
+	private MinimalTimelineGroupViewer<ITimeline, URI> viewer = null;
 	private static List<URI> input = new ArrayList<URI>();
 
 	@Override
@@ -187,12 +189,11 @@ public class MinimalTimelineGroupViewerDemo extends AbstractDemo {
 						return new Timeline(parent, style);
 					}
 				});
-		this.viewer = new MinimalTimelineGroupViewer<TimelineGroup<ITimeline, URI>, ITimeline, URI>(
-				timelineGroup,
-				new ITimelineProviderFactory<MinimalTimelineGroupViewer<TimelineGroup<ITimeline, URI>, ITimeline, URI>, TimelineGroup<ITimeline, URI>, ITimeline, URI>() {
+		this.viewer = new MinimalTimelineGroupViewer<ITimeline, URI>(
+				timelineGroup, new ITimelineProviderFactory<ITimeline, URI>() {
 					@Override
-					public ITimelineProvider<MinimalTimelineGroupViewer<TimelineGroup<ITimeline, URI>, ITimeline, URI>, TimelineGroup<ITimeline, URI>, ITimeline, URI> createTimelineProvider() {
-						return new TimelineProvider<MinimalTimelineGroupViewer<TimelineGroup<ITimeline, URI>, ITimeline, URI>, TimelineGroup<ITimeline, URI>, ITimeline, URI>(
+					public ITimelineProvider<ITimeline, URI> createTimelineProvider() {
+						return new TimelineProvider<ITimeline, URI>(
 								new ITimelineLabelProvider<ITimeline>() {
 
 									@Override
@@ -256,11 +257,11 @@ public class MinimalTimelineGroupViewerDemo extends AbstractDemo {
 										return 0f;
 									}
 								},
-								new ArrayList<IBandGroupProvider<MinimalTimelineGroupViewer<TimelineGroup<ITimeline, URI>, ITimeline, URI>, TimelineGroup<ITimeline, URI>, ITimeline, URI>>(
-										Arrays.asList(new IBandGroupProvider<MinimalTimelineGroupViewer<TimelineGroup<ITimeline, URI>, ITimeline, URI>, TimelineGroup<ITimeline, URI>, ITimeline, URI>() {
+								new ArrayList<IBandGroupProvider<URI>>(Arrays
+										.asList(new IBandGroupProvider<URI>() {
 											@Override
-											public ITimelineContentProvider<MinimalTimelineGroupViewer<TimelineGroup<ITimeline, URI>, ITimeline, URI>, TimelineGroup<ITimeline, URI>, ITimeline, URI> getContentProvider() {
-												return new ITimelineContentProvider<MinimalTimelineGroupViewer<TimelineGroup<ITimeline, URI>, ITimeline, URI>, TimelineGroup<ITimeline, URI>, ITimeline, URI>() {
+											public ITimelineContentProvider<URI> getContentProvider() {
+												return new ITimelineContentProvider<URI>() {
 
 													@Override
 													public boolean isValid(
@@ -269,8 +270,8 @@ public class MinimalTimelineGroupViewerDemo extends AbstractDemo {
 													}
 
 													@Override
-													public void inputChanged(
-															MinimalTimelineGroupViewer<TimelineGroup<ITimeline, URI>, ITimeline, URI> timelineGroupViewer,
+													public <TIMELINE extends IBaseTimeline> void inputChanged(
+															ITimelineGroupViewer<TIMELINE, URI> timelineGroupViewer,
 															URI oldInput,
 															URI newInput) {
 													}

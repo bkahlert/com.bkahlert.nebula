@@ -5,10 +5,11 @@ import java.util.concurrent.Future;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.IInputSelectionProvider;
 
+import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
-import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
+import com.bkahlert.nebula.widgets.timelinegroup.impl.BaseTimelineGroup;
 
 /**
  * Instances of this class can be used to extend {@link ITimeline}s with MVC
@@ -17,7 +18,7 @@ import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
  * @author bkahlert
  * 
  */
-public interface ITimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT>
+public interface ITimelineGroupViewer<TIMELINE extends IBaseTimeline, INPUT>
 		extends IInputSelectionProvider {
 
 	/**
@@ -27,7 +28,7 @@ public interface ITimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELI
 	 * 
 	 * @return
 	 */
-	public TIMELINEGROUP getControl();
+	public BaseTimelineGroup<TIMELINE, INPUT> getControl();
 
 	/**
 	 * Sets the {@link ITimeline}'s input.

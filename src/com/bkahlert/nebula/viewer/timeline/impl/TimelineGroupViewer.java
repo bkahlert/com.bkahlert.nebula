@@ -33,15 +33,14 @@ import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
  * @param <TIMELINEGROUP>
  * @param <TIMELINE>
  */
-public class TimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT>
-		extends MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT> {
+public class TimelineGroupViewer<TIMELINE extends ITimeline, INPUT> extends
+		MinimalTimelineGroupViewer<TIMELINE, INPUT> {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(TimelineGroupViewer.class);
 
-	public TimelineGroupViewer(
-			TIMELINEGROUP timelineGroup,
-			ITimelineProviderFactory<MinimalTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP, TIMELINE, INPUT> timelineProviderFactory) {
+	public TimelineGroupViewer(TimelineGroup<TIMELINE, INPUT> timelineGroup,
+			ITimelineProviderFactory<TIMELINE, INPUT> timelineProviderFactory) {
 		super(timelineGroup, timelineProviderFactory);
 	}
 

@@ -19,28 +19,25 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.IOptions;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
-import com.bkahlert.nebula.viewer.timeline.impl.AbstractTimelineGroupViewer;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.complex.ITimelineProvider;
-import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
-public class TimelineProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT>
-		implements
-		ITimelineProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> {
+public class TimelineProvider<TIMELINE extends IBaseTimeline, INPUT> implements
+		ITimelineProvider<TIMELINE, INPUT> {
 
-	public static <TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT> ITimelineInput getTimelineInput(
+	public static <TIMELINE extends IBaseTimeline, INPUT> ITimelineInput getTimelineInput(
 			ITimelineLabelProvider<TIMELINE> timelineLabelProvider,
-			List<IBandGroupProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT>> bandGroupProviders,
+			List<IBandGroupProvider<INPUT>> bandGroupProviders,
 			TIMELINE timeline,
 			ITimelineProvider.ITimelineLabelProviderCreationInterceptor creationInterceptor,
 			IProgressMonitor monitor) {
 		int numBands = 0;
 		List<Object[]> bandGroups = new ArrayList<Object[]>();
-		for (IBandGroupProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> provider : bandGroupProviders) {
+		for (IBandGroupProvider<INPUT> provider : bandGroupProviders) {
 			// TODO use monitor
 			bandGroups.add(provider.getContentProvider().getBands(null));
 			numBands += bandGroups.get(bandGroups.size() - 1).length;
@@ -53,7 +50,7 @@ public class TimelineProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupV
 		for (int bandGroupNumber = 0, m = bandGroups.size(); bandGroupNumber < m; bandGroupNumber++) {
 			Object[] bandGroup = bandGroups.get(bandGroupNumber);
 
-			ITimelineContentProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> contentProvider = bandGroupProviders
+			ITimelineContentProvider<INPUT> contentProvider = bandGroupProviders
 					.get(bandGroupNumber).getContentProvider();
 			ITimelineBandLabelProvider bandLabelProvider = bandGroupProviders
 					.get(bandGroupNumber).getBandLabelProvider();
@@ -192,11 +189,11 @@ public class TimelineProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupV
 	}
 
 	private final ITimelineLabelProvider<TIMELINE> timelineLabelProvider;
-	private final List<IBandGroupProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT>> bandGroupProviders;
+	private final List<IBandGroupProvider<INPUT>> bandGroupProviders;
 
 	public TimelineProvider(
 			ITimelineLabelProvider<TIMELINE> timelineLabelProvider,
-			List<IBandGroupProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT>> bandGroupProviders) {
+			List<IBandGroupProvider<INPUT>> bandGroupProviders) {
 		super();
 		this.timelineLabelProvider = timelineLabelProvider;
 		this.bandGroupProviders = bandGroupProviders;
@@ -208,7 +205,7 @@ public class TimelineProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupV
 	}
 
 	@Override
-	public List<IBandGroupProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT>> getBandGroupProviders() {
+	public List<IBandGroupProvider<INPUT>> getBandGroupProviders() {
 		return this.bandGroupProviders;
 	}
 

@@ -1,23 +1,17 @@
 package com.bkahlert.nebula.viewer.timeline.provider.complex.impl;
 
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.nebula.viewer.timeline.impl.AbstractTimelineGroupViewer;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
-import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
-public class BandGroupProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT>
-		implements
-		IBandGroupProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> {
+public class BandGroupProvider<INPUT> implements IBandGroupProvider<INPUT> {
 
-	private ITimelineContentProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> contentProvider;
-	private ITimelineBandLabelProvider bandLabelProvider;
-	private ITimelineEventLabelProvider eventLabelProvider;
+	private final ITimelineContentProvider<INPUT> contentProvider;
+	private final ITimelineBandLabelProvider bandLabelProvider;
+	private final ITimelineEventLabelProvider eventLabelProvider;
 
-	public BandGroupProvider(
-			ITimelineContentProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> contentProvider,
+	public BandGroupProvider(ITimelineContentProvider<INPUT> contentProvider,
 			ITimelineBandLabelProvider bandLabelProvider,
 			ITimelineEventLabelProvider eventLabelProvider) {
 		super();
@@ -27,7 +21,7 @@ public class BandGroupProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroup
 	}
 
 	@Override
-	public ITimelineContentProvider<TIMELINEGROUPVIEWER, TIMELINEGROUP, TIMELINE, INPUT> getContentProvider() {
+	public ITimelineContentProvider<INPUT> getContentProvider() {
 		return this.contentProvider;
 	}
 

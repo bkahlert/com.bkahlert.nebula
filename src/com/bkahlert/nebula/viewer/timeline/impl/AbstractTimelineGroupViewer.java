@@ -28,11 +28,10 @@ import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
  * @param <TIMELINEGROUP>
  * @param <INPUT>
  */
-public abstract class AbstractTimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT>
-		extends Viewer implements
-		ITimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT> {
+public abstract class AbstractTimelineGroupViewer<TIMELINE extends ITimeline, INPUT>
+		extends Viewer implements ITimelineGroupViewer<TIMELINE, INPUT> {
 
-	private final TIMELINEGROUP timelineGroup;
+	private final TimelineGroup<TIMELINE, INPUT> timelineGroup;
 
 	private ISelection selection = null;
 	private final ITimelineListener timelineListener = new ITimelineListener() {
@@ -81,7 +80,8 @@ public abstract class AbstractTimelineGroupViewer<TIMELINEGROUP extends Timeline
 		}
 	};
 
-	public AbstractTimelineGroupViewer(TIMELINEGROUP timelineGroup) {
+	public AbstractTimelineGroupViewer(
+			TimelineGroup<TIMELINE, INPUT> timelineGroup) {
 		Assert.isNotNull(timelineGroup);
 		this.timelineGroup = timelineGroup;
 		this.timelineGroup.addTimelineListener(this.timelineListener);
@@ -110,7 +110,7 @@ public abstract class AbstractTimelineGroupViewer<TIMELINEGROUP extends Timeline
 	}
 
 	@Override
-	public TIMELINEGROUP getControl() {
+	public TimelineGroup<TIMELINE, INPUT> getControl() {
 		return this.timelineGroup;
 	}
 
