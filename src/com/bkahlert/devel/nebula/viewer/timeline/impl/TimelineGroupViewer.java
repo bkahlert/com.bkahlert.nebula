@@ -136,13 +136,13 @@ public class TimelineGroupViewer<TIMELINEGROUP extends TimelineGroup<TIMELINE, I
 	 */
 	public void highlight(Map<INPUT, CalendarRange[]> groupedRanges,
 			IProgressMonitor monitor) {
-	
+
 		Map<INPUT, IDecorator[]> groupedDecorators = new HashMap<INPUT, IDecorator[]>();
-	
+
 		for (final INPUT key : groupedRanges.keySet()) {
-	
+
 			final CalendarRange[] dateRanges = groupedRanges.get(key);
-	
+
 			List<IDecorator> decorators = new ArrayList<IDecorator>(
 					dateRanges.length);
 			for (CalendarRange dateRange : dateRanges) {
