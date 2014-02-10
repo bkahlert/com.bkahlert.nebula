@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.viewer.timeline.impl;
+package com.bkahlert.nebula.viewer.timeline.impl;
 
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;

@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl;
+package com.bkahlert.nebula.viewer.timeline.provider.complex.impl;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -9,13 +9,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
 import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.viewer.timeline.impl.AbstractTimelineGroupViewer;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
@@ -26,6 +19,13 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.IOptions;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
+import com.bkahlert.nebula.viewer.timeline.impl.AbstractTimelineGroupViewer;
+import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
+import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
+import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
+import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
+import com.bkahlert.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
+import com.bkahlert.nebula.viewer.timeline.provider.complex.ITimelineProvider;
 import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 public class TimelineProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT>

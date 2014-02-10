@@ -1,7 +1,7 @@
-package com.bkahlert.devel.nebula.viewer.timeline.provider.complex;
+package com.bkahlert.nebula.viewer.timeline.provider.complex;
 
-import com.bkahlert.devel.nebula.viewer.timeline.impl.AbstractTimelineGroupViewer;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.nebula.viewer.timeline.impl.AbstractTimelineGroupViewer;
 import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 /**

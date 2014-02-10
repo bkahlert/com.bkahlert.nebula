@@ -1,15 +1,15 @@
-package com.bkahlert.devel.nebula.viewer.timeline.provider.complex;
+package com.bkahlert.nebula.viewer.timeline.provider.complex;
 
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import com.bkahlert.devel.nebula.viewer.timeline.impl.AbstractTimelineGroupViewer;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
+import com.bkahlert.nebula.viewer.timeline.impl.AbstractTimelineGroupViewer;
+import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
 import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 /**

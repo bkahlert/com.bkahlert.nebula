@@ -1,11 +1,11 @@
-package com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl;
+package com.bkahlert.nebula.viewer.timeline.provider.complex.impl;
 
-import com.bkahlert.devel.nebula.viewer.timeline.impl.AbstractTimelineGroupViewer;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
-import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.nebula.viewer.timeline.impl.AbstractTimelineGroupViewer;
+import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
+import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
+import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
+import com.bkahlert.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
 import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 public class BandGroupProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT>
