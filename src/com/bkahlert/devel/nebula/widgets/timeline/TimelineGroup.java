@@ -227,9 +227,6 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite 
 	public TIMELINE createTimeline() {
 		final TIMELINE timeline = TimelineGroup.this.timelineFactory
 				.createTimeline(TimelineGroup.this, SWT.NONE);
-		if (true) {
-			return timeline;
-		}
 		timeline.addTimelineListener(this.timelineListenerDelegate);
 		timeline.addDisposeListener(new DisposeListener() {
 			@Override

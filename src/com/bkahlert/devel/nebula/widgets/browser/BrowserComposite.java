@@ -78,7 +78,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	private final List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
 
 	private final OffWorker delayedScriptsWorker = new OffWorker(
-			this.getClass(), "Script Runner", 200);
+			this.getClass(), "Script Runner", 2000);
 
 	public BrowserComposite(Composite parent, int style) {
 		super(parent, style);

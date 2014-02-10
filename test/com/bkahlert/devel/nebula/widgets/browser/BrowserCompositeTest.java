@@ -26,10 +26,7 @@ public class BrowserCompositeTest {
 	public void testJavaScriptRunOrder() throws InterruptedException,
 			ExecutionException {
 
-		// TODO: also execute scripts while loading so they get queued
-		// if internally handled with wait/notifyAll the order can be damaged.
-
-		final int numRuns = 20;
+		final int numRuns = 200;
 		final int numThreads = 5;
 
 		Display display = new Display();
@@ -74,16 +71,36 @@ public class BrowserCompositeTest {
 			threads[thread] = new Thread(new Runnable() {
 				@Override
 				public void run() {
+					List<Future<String>> finish = new ArrayList<Future<String>>();
 					for (int run = 0; run < numRuns; run++) {
 						final String random = new BigInteger(130,
 								new SecureRandom()).toString(32);
 						String script = "document.write(\"" + random
 								+ "<br>\");return \"" + random + "\";";
+
+						if (run > numRuns / 2) {
+							// run the other half when browser is loaded
+							while (!browserComposite.isLoadingCompleted()) {
+								try {
+									Thread.sleep(500);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							}
+						}
+
 						synchronized (BrowserCompositeTest.class) {
 							scriptResults.put(random, script);
 							scriptSubmitOrder.add(script);
-							browserComposite.run(script,
-									IConverter.CONVERTER_STRING);
+							finish.add(browserComposite.run(script,
+									IConverter.CONVERTER_STRING));
+						}
+					}
+					for (Future<String> f : finish) {
+						try {
+							f.get();
+						} catch (Exception e) {
+							Assert.assertTrue(false);
 						}
 					}
 				}
