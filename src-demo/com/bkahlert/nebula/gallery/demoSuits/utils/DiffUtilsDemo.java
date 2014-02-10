@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.widgets.decoration.EmptyText;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
@@ -79,7 +79,7 @@ public class DiffUtilsDemo extends AbstractDemo {
 			public void widgetSelected(SelectionEvent e) {
 				final String source = DiffUtilsDemo.this.source.getText();
 				final String patch = DiffUtilsDemo.this.patch.getText();
-				Future<String> output = ExecutorUtil
+				Future<String> output = ExecUtils
 						.nonUISyncExec(new Callable<String>() {
 							@Override
 							public String call() throws Exception {

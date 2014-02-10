@@ -9,7 +9,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.widgets.browser.extended.BootstrapEnabledBrowserComposite;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
@@ -27,7 +27,7 @@ public class BootstrapBrowserDemo extends AbstractDemo {
 		setBodyHtml.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ExecutorUtil.nonUISyncExec(new Runnable() {
+				ExecUtils.nonUISyncExec(new Runnable() {
 					@Override
 					public void run() {
 						log("setting body html to "

@@ -3,6 +3,7 @@ package com.bkahlert.nebula.gallery.demoSuits;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -12,12 +13,13 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.widgets.decoration.EmptyText;
 import com.bkahlert.nebula.gallery.util.deprecated.CompositeUtils;
 
 public abstract class AbstractDemo {
 
+	private static final Logger LOGGER = Logger.getLogger(AbstractDemo.class);
 	private static AbstractDemo currentDemo = null;
 
 	/**
@@ -89,18 +91,24 @@ public abstract class AbstractDemo {
 			return;
 		}
 
-		ExecutorUtil.syncExec(new Runnable() {
-			@Override
-			public void run() {
-				String newLine = consoleDateFormat.format(new Date()) + " "
-						+ message + "\n";
-				String oldText = currentDemo.console.getText();
-				String newText = oldText + newLine;
-				currentDemo.console.setText(newText);
-				currentDemo.console.getControl().setSelection(newText.length());
-				currentDemo.showConsole();
-			}
-		});
+		try {
+			ExecUtils.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					String newLine = consoleDateFormat.format(new Date()) + " "
+							+ message + "\n";
+					String oldText = currentDemo.console.getText();
+					String newText = oldText + newLine;
+					currentDemo.console.setText(newText);
+					currentDemo.console.getControl().setSelection(
+							newText.length());
+					currentDemo.showConsole();
+				}
+			});
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**

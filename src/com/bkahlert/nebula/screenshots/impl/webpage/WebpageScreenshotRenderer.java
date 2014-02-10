@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.bkahlert.devel.nebula.utils.ExecUtils;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
 import com.bkahlert.devel.nebula.widgets.browser.extended.IJQueryEnabledBrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.extended.JQueryEnabledBrowserComposite;
 import com.bkahlert.nebula.screenshots.webpage.IWebpage;
@@ -246,21 +245,25 @@ public class WebpageScreenshotRenderer<WEBPAGE extends IWebpage> implements
 
 	@Override
 	public void dispose() {
-		ExecutorUtil.syncExec(new Runnable() {
-			@Override
-			public void run() {
-				for (Iterator<Renderer> iterator = WebpageScreenshotRenderer.this.renderers
-						.keySet().iterator(); iterator.hasNext();) {
-					Renderer renderer = iterator.next();
-					renderer.close();
-					iterator.remove();
-					WebpageScreenshotRenderer.this.availableRenderers
-							.remove(renderer);
-					WebpageScreenshotRenderer.this.renderersInUse
-							.remove(renderer);
+		try {
+			ExecUtils.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					for (Iterator<Renderer> iterator = WebpageScreenshotRenderer.this.renderers
+							.keySet().iterator(); iterator.hasNext();) {
+						Renderer renderer = iterator.next();
+						renderer.close();
+						iterator.remove();
+						WebpageScreenshotRenderer.this.availableRenderers
+								.remove(renderer);
+						WebpageScreenshotRenderer.this.renderersInUse
+								.remove(renderer);
+					}
 				}
-			}
-		});
+			});
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

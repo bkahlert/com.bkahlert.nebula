@@ -224,6 +224,23 @@ public class ExecUtils {
 				prefix + clazz.getSimpleName() + " :: " + purpose);
 	}
 
+	public static <I, O> ParametrizedCallable<I, O> createThreadLabelingCode(
+			final ParametrizedCallable<I, O> parametrizedCallable,
+			final Class<?> clazz, final String purpose) {
+		return new ParametrizedCallable<I, O>() {
+			@Override
+			public O call(I i) throws Exception {
+				String oldName = Thread.currentThread().getName();
+				setThreadLabel(oldName + " :: ", clazz, purpose);
+				try {
+					return parametrizedCallable.call(i);
+				} finally {
+					Thread.currentThread().setName(oldName);
+				}
+			}
+		};
+	}
+
 	public static <V> Callable<V> createThreadLabelingCode(
 			final Callable<V> callable, final Class<?> clazz,
 			final String purpose) {
@@ -745,6 +762,30 @@ public class ExecUtils {
 
 	/**
 	 * Executes the given {@link ExecUtils.ParametrizedCallable} once per
+	 * element in the given input {@link Collection} and each in a new thread.
+	 * 
+	 * @param executorService
+	 * @param input
+	 *            whose elements are used as the parameter for the
+	 *            {@link ExecUtils.ParametrizedCallable}
+	 * @param parametrizedCallable
+	 *            to be called n times
+	 * @return a list of {@link Future}s
+	 * 
+	 * @UIThread
+	 * @NonUIThread
+	 */
+	public static <INPUT, OUTPUT> List<Future<OUTPUT>> nonUIAsyncExec(
+			Class<?> clazz,
+			String purpose,
+			Collection<INPUT> input,
+			final ExecUtils.ParametrizedCallable<INPUT, OUTPUT> parametrizedCallable) {
+		return nonUIAsyncExec(EXECUTOR_SERVICE, clazz, purpose, input,
+				parametrizedCallable);
+	}
+
+	/**
+	 * Executes the given {@link ExecUtils.ParametrizedCallable} once per
 	 * element in the given input {@link Collection}.
 	 * <p>
 	 * In contrast to
@@ -857,6 +898,16 @@ public class ExecUtils {
 			}));
 		}
 		return futures;
+	}
+
+	private static <INPUT, OUTPUT> List<Future<OUTPUT>> nonUIAsyncExec(
+			ExecutorService executorService,
+			Class<?> clazz,
+			String purpose,
+			Collection<INPUT> input,
+			final ExecUtils.ParametrizedCallable<INPUT, OUTPUT> parametrizedCallable) {
+		return nonUIAsyncExec(executorService, input,
+				createThreadLabelingCode(parametrizedCallable, clazz, purpose));
 	}
 
 	private static <INPUT, OUTPUT> Iterable<OUTPUT> nonUIAsyncExecMerged(
@@ -1125,6 +1176,30 @@ public class ExecUtils {
 			Collection<INPUT> input,
 			final ExecUtils.ParametrizedCallable<INPUT, OUTPUT> parametrizedCallable) {
 		return nonUIAsyncExec(this.customExecutorService, input,
+				parametrizedCallable);
+	}
+
+	/**
+	 * Executes the given {@link ExecUtils.ParametrizedCallable} once per
+	 * element in the given input {@link Collection} and each in a new thread.
+	 * 
+	 * @param executorService
+	 * @param input
+	 *            whose elements are used as the parameter for the
+	 *            {@link ExecUtils.ParametrizedCallable}
+	 * @param parametrizedCallable
+	 *            to be called n times
+	 * @return a list of {@link Future}s
+	 * 
+	 * @UIThread
+	 * @NonUIThread
+	 */
+	public <INPUT, OUTPUT> List<Future<OUTPUT>> customNonUIAsyncExec(
+			Class<?> clazz,
+			String purpose,
+			Collection<INPUT> input,
+			final ExecUtils.ParametrizedCallable<INPUT, OUTPUT> parametrizedCallable) {
+		return nonUIAsyncExec(EXECUTOR_SERVICE, clazz, purpose, input,
 				parametrizedCallable);
 	}
 

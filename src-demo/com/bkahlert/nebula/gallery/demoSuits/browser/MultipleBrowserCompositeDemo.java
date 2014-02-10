@@ -16,7 +16,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
 import com.bkahlert.devel.nebula.widgets.decoration.EmptyText;
 import com.bkahlert.nebula.gallery.annotations.Demo;
@@ -122,7 +122,7 @@ public class MultipleBrowserCompositeDemo extends AbstractDemo {
 				final Future<Boolean> success = this.browserComposites[i]
 						.open(new URI(URLS[i]),
 								Integer.parseInt(MultipleBrowserCompositeDemo.timeoutString));
-				ExecutorUtil.nonUISyncExec(new Runnable() {
+				ExecUtils.nonUISyncExec(new Runnable() {
 					@Override
 					public void run() {
 						try {

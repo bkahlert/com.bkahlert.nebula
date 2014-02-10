@@ -20,7 +20,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
@@ -65,7 +65,7 @@ public class ScreenshotTakerSeqanDemo extends AbstractDemo {
 			public void widgetSelected(SelectionEvent e) {
 				final Shell shell = composite.getShell();
 				try {
-					ExecutorUtil.nonUISyncExec(new Runnable() {
+					ExecUtils.nonUISyncExec(new Runnable() {
 						@Override
 						public void run() {
 							try {
@@ -96,7 +96,7 @@ public class ScreenshotTakerSeqanDemo extends AbstractDemo {
 									}
 								}
 
-								ExecutorUtil.syncExec(new Runnable() {
+								ExecUtils.syncExec(new Runnable() {
 									@Override
 									public void run() {
 										CompositeUtils
@@ -111,7 +111,7 @@ public class ScreenshotTakerSeqanDemo extends AbstractDemo {
 								for (Future<File> screenshot : screenshots) {
 									try {
 										final File file = screenshot.get();
-										ExecutorUtil.asyncExec(new Runnable() {
+										ExecUtils.asyncExec(new Runnable() {
 											@Override
 											public void run() {
 												Image image = new Image(
@@ -136,7 +136,7 @@ public class ScreenshotTakerSeqanDemo extends AbstractDemo {
 								}
 
 								screenshotTaker.dispose();
-								ExecutorUtil.syncExec(new Runnable() {
+								ExecUtils.syncExec(new Runnable() {
 									@Override
 									public void run() {
 										ScreenshotTakerSeqanDemo.this.parent

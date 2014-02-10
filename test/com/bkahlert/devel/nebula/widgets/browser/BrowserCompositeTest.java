@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.IConverter;
 
 public class BrowserCompositeTest {
@@ -109,35 +109,34 @@ public class BrowserCompositeTest {
 			threads[thread].start();
 		}
 
-		final Future<?> assertionJoin = ExecutorUtil
-				.nonUISyncExec(new Runnable() {
-					@Override
-					public void run() {
-						for (Thread thread : threads) {
-							try {
-								thread.join();
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
-
-						for (int i = 0, m = numRuns * numThreads; i < m; i++) {
-							String submitted = scriptSubmitOrder.get(i);
-							String executed = scriptExecutionOrder.get(i);
-
-							Assert.assertEquals(submitted, executed);
-
-							String returnValue = resultFinishedOrder.get(i);
-							String finished = scriptResults.get(returnValue);
-
-							Assert.assertEquals(executed, finished);
-						}
-
-						System.err.println("exit");
+		final Future<?> assertionJoin = ExecUtils.nonUISyncExec(new Runnable() {
+			@Override
+			public void run() {
+				for (Thread thread : threads) {
+					try {
+						thread.join();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
-				});
+				}
 
-		ExecutorUtil.nonUISyncExec(new Runnable() {
+				for (int i = 0, m = numRuns * numThreads; i < m; i++) {
+					String submitted = scriptSubmitOrder.get(i);
+					String executed = scriptExecutionOrder.get(i);
+
+					Assert.assertEquals(submitted, executed);
+
+					String returnValue = resultFinishedOrder.get(i);
+					String finished = scriptResults.get(returnValue);
+
+					Assert.assertEquals(executed, finished);
+				}
+
+				System.err.println("exit");
+			}
+		});
+
+		ExecUtils.nonUISyncExec(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -145,7 +144,7 @@ public class BrowserCompositeTest {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				ExecutorUtil.asyncExec(new Runnable() {
+				ExecUtils.asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						shell.close();

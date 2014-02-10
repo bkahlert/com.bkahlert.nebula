@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 import com.bkahlert.devel.nebula.colors.ColorUtils;
-import com.bkahlert.devel.nebula.utils.ExecutorUtil;
+import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
@@ -152,7 +152,7 @@ public class BrowserCompositeDemo extends AbstractDemo {
 			final Future<Boolean> success = this.browserComposite.open(new URI(
 					"http://wikipedia.com"), Integer
 					.parseInt(BrowserCompositeDemo.timeoutString));
-			ExecutorUtil.nonUISyncExec(new Runnable() {
+			ExecUtils.nonUISyncExec(new Runnable() {
 				@Override
 				public void run() {
 					try {
