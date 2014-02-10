@@ -17,7 +17,7 @@ import com.bkahlert.devel.nebula.viewer.timeline.ITimelineGroupViewer;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
+import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 /**
  * This abstract {@link ITimelineGroupViewer} implements the

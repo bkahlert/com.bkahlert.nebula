@@ -4,7 +4,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.bkahlert.devel.nebula.viewer.timeline.impl.AbstractTimelineGroupViewer;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
+import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 /**
  * Provides the {@link ITimeline} with contents.

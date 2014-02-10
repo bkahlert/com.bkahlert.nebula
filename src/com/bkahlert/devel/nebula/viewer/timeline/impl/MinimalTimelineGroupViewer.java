@@ -27,12 +27,12 @@ import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProvi
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProviderFactory;
 import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimePassed;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IOptions;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.nebula.utils.CompletedFuture;
+import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 /**
  * This class implements a minimal implementation of

@@ -8,7 +8,7 @@ import org.eclipse.jface.viewers.IInputSelectionProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
+import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 /**
  * Instances of this class can be used to extend {@link ITimeline}s with MVC

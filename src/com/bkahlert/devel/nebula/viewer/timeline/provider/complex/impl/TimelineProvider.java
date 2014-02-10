@@ -18,7 +18,6 @@ import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProv
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineEvent;
@@ -27,6 +26,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.IOptions;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
+import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 public class TimelineProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT>
 		implements

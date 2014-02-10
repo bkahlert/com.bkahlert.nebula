@@ -8,9 +8,9 @@ import com.bkahlert.devel.nebula.viewer.timeline.impl.AbstractTimelineGroupViewe
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
+import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 /**
  * Instances of this class encapsulate the providers needed to render one

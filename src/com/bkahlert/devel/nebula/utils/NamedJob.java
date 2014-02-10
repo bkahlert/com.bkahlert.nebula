@@ -30,7 +30,7 @@ public abstract class NamedJob extends Job {
 	@Override
 	final protected IStatus run(final IProgressMonitor monitor) {
 		ExecUtils.backupThreadLabel();
-		ExecUtils.setThreadLabel(this.clazz, this.name);
+		ExecUtils.setThreadLabel("JOB :: ", this.clazz, this.name);
 		try {
 			return NamedJob.this.runNamed(monitor);
 		} finally {

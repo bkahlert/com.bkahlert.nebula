@@ -15,7 +15,6 @@ import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineBand;
@@ -26,6 +25,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 @Demo
 public class TimelineGroupDemo extends AbstractDemo {

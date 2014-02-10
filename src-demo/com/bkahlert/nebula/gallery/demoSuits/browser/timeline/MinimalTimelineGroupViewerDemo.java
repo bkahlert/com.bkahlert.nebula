@@ -32,7 +32,6 @@ import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProvi
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.impl.TimelineProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.TimePassed;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
@@ -49,6 +48,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.IZoomStep;
 import com.bkahlert.devel.nebula.widgets.timeline.model.Unit;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 @Demo
 public class MinimalTimelineGroupViewerDemo extends AbstractDemo {

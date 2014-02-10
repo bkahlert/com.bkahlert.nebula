@@ -1,4 +1,4 @@
-package com.bkahlert.devel.nebula.widgets.timeline;
+package com.bkahlert.nebula.widgets.timelinegroup.impl;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -13,12 +13,9 @@ import org.apache.commons.collections.ListUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -26,106 +23,27 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Layout;
 
 import com.bkahlert.devel.nebula.utils.ExecUtils;
+import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
+import com.bkahlert.nebula.widgets.timelinegroup.IBaseTimelineGroup;
 
 /**
  * This widget display one or more {@code TIMELINE}s.
  * 
  * @author bkahlert
  */
-public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite {
+public class BaseTimelineGroup<TIMELINE extends IBaseTimeline, INPUT> extends
+		Composite implements IBaseTimelineGroup<TIMELINE, INPUT> {
 
-	private static final Logger LOGGER = Logger.getLogger(TimelineGroup.class);
+	private static final Logger LOGGER = Logger
+			.getLogger(BaseTimelineGroup.class);
 
 	private final ITimelineFactory<TIMELINE> timelineFactory;
 
-	private final ListenerList timelineListeners = new ListenerList();
-
-	private final ITimelineListener timelineListenerDelegate = new ITimelineListener() {
-		@Override
-		public void clicked(TimelineEvent event) {
-			Object[] listeners = TimelineGroup.this.timelineListeners
-					.getListeners();
-			for (Object listener : listeners) {
-				((ITimelineListener) listener).clicked(event);
-			}
-		}
-
-		@Override
-		public void middleClicked(TimelineEvent event) {
-			Object[] listeners = TimelineGroup.this.timelineListeners
-					.getListeners();
-			for (Object listener : listeners) {
-				((ITimelineListener) listener).middleClicked(event);
-			}
-		}
-
-		@Override
-		public void rightClicked(TimelineEvent event) {
-			Object[] listeners = TimelineGroup.this.timelineListeners
-					.getListeners();
-			for (Object listener : listeners) {
-				((ITimelineListener) listener).rightClicked(event);
-			}
-		}
-
-		@Override
-		public void doubleClicked(TimelineEvent event) {
-			Object[] listeners = TimelineGroup.this.timelineListeners
-					.getListeners();
-			for (Object listener : listeners) {
-				((ITimelineListener) listener).doubleClicked(event);
-			}
-		}
-
-		@Override
-		public void resizeStarted(TimelineEvent event) {
-			Object[] listeners = TimelineGroup.this.timelineListeners
-					.getListeners();
-			for (Object listener : listeners) {
-				((ITimelineListener) listener).resizeStarted(event);
-			}
-		}
-
-		@Override
-		public void resizing(TimelineEvent event) {
-			Object[] listeners = TimelineGroup.this.timelineListeners
-					.getListeners();
-			for (Object listener : listeners) {
-				((ITimelineListener) listener).resizing(event);
-			}
-		}
-
-		@Override
-		public void resized(TimelineEvent event) {
-			Object[] listeners = TimelineGroup.this.timelineListeners
-					.getListeners();
-			for (Object listener : listeners) {
-				((ITimelineListener) listener).resized(event);
-			}
-		}
-
-		@Override
-		public void hoveredIn(TimelineEvent event) {
-			Object[] listeners = TimelineGroup.this.timelineListeners
-					.getListeners();
-			for (Object listener : listeners) {
-				((ITimelineListener) listener).hoveredIn(event);
-			}
-		}
-
-		@Override
-		public void hoveredOut(TimelineEvent event) {
-			Object[] listeners = TimelineGroup.this.timelineListeners
-					.getListeners();
-			for (Object listener : listeners) {
-				((ITimelineListener) listener).hoveredOut(event);
-			}
-		}
-	};
-
-	public TimelineGroup(Composite parent, int style,
+	public BaseTimelineGroup(Composite parent, int style,
 			ITimelineFactory<TIMELINE> timelineFactory) {
 		super(parent, style);
 		super.setLayout(new FillLayout(SWT.VERTICAL));
@@ -134,6 +52,10 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite 
 		this.timelineFactory = timelineFactory;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.bkahlert.devel.nebula.widgets.timeline.IBaseTimelineGroup#show(java.util.Map, org.eclipse.core.runtime.IProgressMonitor, java.util.concurrent.Callable)
+	 */
+	@Override
 	public <T> Future<T> show(Map<INPUT, ITimelineInput> inputs,
 			IProgressMonitor monitor, final Callable<T> success) {
 
@@ -162,7 +84,8 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite 
 				timeline = ExecUtils.asyncExec(new Callable<TIMELINE>() {
 					@Override
 					public TIMELINE call() throws Exception {
-						return TimelineGroup.this.getTimeline(unpreparedKey);
+						return BaseTimelineGroup.this
+								.getTimeline(unpreparedKey);
 					}
 				}).get();
 			} catch (Exception e) {
@@ -178,7 +101,7 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite 
 					timeline = ExecUtils.syncExec(new Callable<TIMELINE>() {
 						@Override
 						public TIMELINE call() throws Exception {
-							TIMELINE timeline = TimelineGroup.this
+							TIMELINE timeline = BaseTimelineGroup.this
 									.createTimeline();
 							timeline.setData(unpreparedKey);
 							return timeline;
@@ -210,7 +133,7 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite 
 		Future<T> rs = ExecUtils.asyncExec(new Callable<T>() {
 			@Override
 			public T call() throws Exception {
-				TimelineGroup.this.layout();
+				BaseTimelineGroup.this.layout();
 				if (success != null) {
 					return success.call();
 				}
@@ -224,26 +147,26 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite 
 		return rs;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.bkahlert.devel.nebula.widgets.timeline.IBaseTimelineGroup#createTimeline()
+	 */
+	@Override
 	public TIMELINE createTimeline() {
-		final TIMELINE timeline = TimelineGroup.this.timelineFactory
-				.createTimeline(TimelineGroup.this, SWT.NONE);
-		timeline.addTimelineListener(this.timelineListenerDelegate);
-		timeline.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				timeline.addTimelineListener(TimelineGroup.this.timelineListenerDelegate);
-			}
-		});
-		return timeline;
+		return BaseTimelineGroup.this.timelineFactory.createTimeline(
+				BaseTimelineGroup.this, SWT.NONE);
 	}
 
+	/* (non-Javadoc)
+	 * @see com.bkahlert.devel.nebula.widgets.timeline.IBaseTimelineGroup#getTimelineKeys()
+	 */
+	@Override
 	public Set<INPUT> getTimelineKeys() {
 		final Set<INPUT> inputs = new HashSet<INPUT>();
 		Display.getDefault().syncExec(new Runnable() {
 			@SuppressWarnings("unchecked")
 			@Override
 			public void run() {
-				for (Control control : TimelineGroup.this.getChildren()) {
+				for (Control control : BaseTimelineGroup.this.getChildren()) {
 					if (!control.isDisposed() && control instanceof ITimeline) {
 						inputs.add((INPUT) control.getData());
 					}
@@ -253,13 +176,10 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite 
 		return inputs;
 	}
 
-	/**
-	 * Returns the {@code TIMELINE} that is associated with the given key.
-	 * 
-	 * @UI must be called from the UI thread
-	 * @param key
-	 * @return
+	/* (non-Javadoc)
+	 * @see com.bkahlert.devel.nebula.widgets.timeline.IBaseTimelineGroup#getTimeline(INPUT)
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public TIMELINE getTimeline(final INPUT key) {
 		Assert.isNotNull(key);
@@ -321,7 +241,7 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite 
 				while (freeTimelinesKeys.size() > 0
 						&& unpreparedTimelinesKeys.size() > i) {
 					try {
-						TIMELINE timeline = TimelineGroup.this
+						TIMELINE timeline = BaseTimelineGroup.this
 								.getTimeline(freeTimelinesKeys.remove(0));
 						timeline.setData(unpreparedTimelinesKeys.get(i));
 					} catch (Exception e) {
@@ -353,7 +273,8 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite 
 			public void run() {
 				for (INPUT key : freeTimelinesKeys) {
 					try {
-						TIMELINE timeline = TimelineGroup.this.getTimeline(key);
+						TIMELINE timeline = BaseTimelineGroup.this
+								.getTimeline(key);
 						if (timeline != null && !timeline.isDisposed()) {
 							timeline.dispose();
 						}
@@ -366,7 +287,7 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite 
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				TimelineGroup.this.layout();
+				BaseTimelineGroup.this.layout();
 			}
 		});
 	}
@@ -374,14 +295,6 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends Composite 
 	@Override
 	public void setLayout(Layout layout) {
 		return;
-	}
-
-	public void addTimelineListener(ITimelineListener timelineListener) {
-		this.timelineListeners.add(timelineListener);
-	}
-
-	public void removeTimelineListener(ITimelineListener timelineListener) {
-		this.timelineListeners.remove(timelineListener);
 	}
 
 }

@@ -6,7 +6,7 @@ import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineConten
 import com.bkahlert.devel.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
+import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 public class BandGroupProvider<TIMELINEGROUPVIEWER extends AbstractTimelineGroupViewer<TIMELINEGROUP, TIMELINE, INPUT>, TIMELINEGROUP extends TimelineGroup<TIMELINE, INPUT>, TIMELINE extends ITimeline, INPUT>
 		implements

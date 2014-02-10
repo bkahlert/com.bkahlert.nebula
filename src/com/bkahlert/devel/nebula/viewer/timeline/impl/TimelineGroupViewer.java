@@ -15,13 +15,13 @@ import org.junit.Assert;
 
 import com.bkahlert.devel.nebula.viewer.timeline.provider.complex.ITimelineProviderFactory;
 import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineGroup;
 import com.bkahlert.devel.nebula.widgets.timeline.impl.Decorator;
 import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.nebula.datetime.CalendarRange;
+import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 /**
  * This implementation supports to set decorators and keeps them, the focused
