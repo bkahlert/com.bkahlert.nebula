@@ -2,7 +2,7 @@ package com.bkahlert.devel.nebula;
 
 import java.net.URL;
 
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.eclipse.core.runtime.FileLocator;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -26,9 +26,8 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
 
-		URL confURL = bundleContext.getBundle().getEntry("log4j.properties");
-		PropertyConfigurator
-				.configure(FileLocator.toFileURL(confURL).getFile());
+		URL confURL = bundleContext.getBundle().getEntry("log4j.xml");
+		DOMConfigurator.configure(FileLocator.toFileURL(confURL).getFile());
 	}
 
 	/*
