@@ -6,13 +6,15 @@ public class DateUtils {
 
 	public static int getMinutesOfTimeZone(String iso8601) {
 		if (iso8601 == null
-				|| iso8601.length() < "2010-05-10T13:15:23+02:00".length())
+				|| iso8601.length() < "2010-05-10T13:15:23+02:00".length()) {
 			throw new InvalidParameterException();
+		}
 
 		int l = iso8601.length();
 		String sign = iso8601.substring(l - 6, l - 5);
-		if (!sign.equals("+") && !sign.equals("-"))
+		if (!sign.equals("+") && !sign.equals("-")) {
 			throw new InvalidParameterException();
+		}
 
 		int hourPart = Integer.parseInt(iso8601.substring(l - 5, l - 3));
 		int minutesPart = Integer.parseInt(iso8601.substring(l - 2, l));
@@ -21,16 +23,18 @@ public class DateUtils {
 	}
 
 	public static String getTimeZoneStringFromMinutes(int minutes) {
-		String hourPart = ((int) Math.abs(minutes) / 60) + "";
-		String minutesPart = ((int) Math.abs(minutes) % 60) + "";
+		String hourPart = (Math.abs(minutes) / 60) + "";
+		String minutesPart = (Math.abs(minutes) % 60) + "";
 
-		if (hourPart.length() > 2)
+		if (hourPart.length() > 2) {
 			throw new InvalidParameterException();
-		if (hourPart.length() == 1)
+		}
+		if (hourPart.length() == 1) {
 			hourPart = "0" + hourPart;
-		System.err.println(hourPart);
-		if (minutesPart.length() == 1)
+		}
+		if (minutesPart.length() == 1) {
 			minutesPart = "0" + minutesPart;
+		}
 
 		return ((minutes >= 0 ? "+" : "-")) + hourPart + ":" + minutesPart;
 	}

@@ -5,7 +5,6 @@ import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlExtension3;
 import org.eclipse.jface.util.Geometry;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.FocusEvent;
@@ -250,9 +249,6 @@ public class StickyHoverManager<INFORMATION> extends InformationControlReplacer 
 						Geometry.expand(controlBounds, margin, margin, margin,
 								margin);
 						if (!controlBounds.contains(mouseLoc)) {
-							if (event.widget.getClass() == Browser.class) {
-								System.err.println(".");
-							}
 							StickyHoverManager.this.hideInformationControl();
 						}
 					}
