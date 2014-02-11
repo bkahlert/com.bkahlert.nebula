@@ -17,7 +17,6 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.SWTException;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.browser.LocationAdapter;
@@ -42,6 +41,8 @@ import com.bkahlert.devel.nebula.utils.OffWorker;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.Anker;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
+import com.bkahlert.nebula.browser.exception.BrowserTimeoutException;
+import com.bkahlert.nebula.browser.exception.ScriptExecutionException;
 import com.bkahlert.nebula.utils.CompletedFuture;
 
 public class BrowserComposite extends Composite implements IBrowserComposite {
@@ -99,6 +100,9 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 			}
 
 			private boolean fire(JavaScriptException e) {
+				if (!BrowserComposite.this.loadingCompleted) {
+					BrowserComposite.this.openException.set(e);
+				}
 				boolean preventDefault = false;
 				for (IJavaScriptExceptionListener javaScriptExceptionListener : BrowserComposite.this.javaScriptExceptionListeners) {
 					if (javaScriptExceptionListener.thrown(e)) {
@@ -277,6 +281,8 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		this.pageLoadCheckScript = pageLoadCheckScript;
 		this.successfullyInjectedAnkerHoverCallback = false;
 		this.browser.setUrl(uri.toString());
+
+		this.injectAnkerHoverCallback();
 
 		return ExecUtils.nonUIAsyncExec(BrowserComposite.class, "Opening "
 				+ uri, new Callable<Boolean>() {
@@ -572,8 +578,8 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 									.scriptReturnValueReceived(returnValue);
 							LOGGER.info("Returned " + returnValue);
 							return converter.convert(returnValue);
-						} catch (SWTException e) {
-							LOGGER.error("Script error: " + e);
+						} catch (Exception e) {
+							LOGGER.error(e);
 							throw e;
 						}
 					}
@@ -587,6 +593,10 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				exception = e;
 			}
 			return new CompletedFuture<DEST>(converted.get(), exception);
+		} else if (this.isCancelled.get()) {
+			return new CompletedFuture<DEST>(null,
+					new ScriptExecutionException(new JavaScript(script),
+							new BrowserTimeoutException()));
 		} else {
 			return this.delayedScriptsWorker.submit(new Callable<DEST>() {
 				@Override
@@ -597,9 +607,8 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 					if (BrowserComposite.this.loadingCompleted) {
 						return ExecUtils.syncExec(callable);
 					} else {
-						throw new SWTException(
-								"Could not run script because the page did not correctly load; "
-										+ logScript[0]);
+						throw new ScriptExecutionException(new JavaScript(
+								script), new BrowserTimeoutException());
 					}
 				}
 			});
@@ -673,7 +682,6 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 
 	@Override
 	public void addAnkerListener(IAnkerListener ankerListener) {
-		this.injectAnkerHoverCallback();
 		this.ankerListeners.add(ankerListener);
 	}
 

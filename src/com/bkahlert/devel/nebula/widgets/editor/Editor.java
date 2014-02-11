@@ -257,6 +257,7 @@ public abstract class Editor<T> extends Composite {
 						LOGGER.error("Error while loading content of "
 								+ objectToLoad, e);
 						Editor.this.loadedObject = null;
+						return Status.CANCEL_STATUS;
 					}
 
 					return Status.OK_STATUS;
