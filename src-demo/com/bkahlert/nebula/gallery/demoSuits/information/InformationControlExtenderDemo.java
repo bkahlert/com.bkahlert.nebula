@@ -42,6 +42,11 @@ public class InformationControlExtenderDemo extends AbstractDemo {
 		}
 
 		@Override
+		public Class<InformationControlDemoInput> getInformationClass() {
+			return InformationControlDemoInput.class;
+		}
+
+		@Override
 		public String getHtml(InformationControlDemoInput objectToLoad,
 				IProgressMonitor monitor) {
 			log("Loading " + objectToLoad);

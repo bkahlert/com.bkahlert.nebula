@@ -53,38 +53,47 @@ public abstract class InformationControl<INFORMATION> extends
 				.getConfigurationElementsFor("com.bkahlert.nebula.information");
 		final List<IInformationControlExtender<INFORMATION>> extenders = new ArrayList<IInformationControlExtender<INFORMATION>>();
 		for (IConfigurationElement configElement : config) {
-			/*
-			 * filter for extenders that handle the given information class
-			 */
-			String informationClassName = configElement
-					.getAttribute("informationClass");
 			try {
-				Class<?> informationClass = classLoader != null ? classLoader
-						.loadClass(informationClassName) : Class
-						.forName(informationClassName);
-				if (targetInformationClass != informationClass) {
-					LOGGER.warn(IInformationControlExtender.class
-							.getSimpleName()
-							+ " for type "
-							+ informationClass.getSimpleName()
-							+ " is not compatible with "
-							+ targetInformationClass.getSimpleName());
-					continue;
-				}
-			} catch (ClassNotFoundException e) {
-				continue;
-			}
-
-			/*
-			 * invariant: only extenders that handle the given information class
-			 */
-			try {
-				Object o = configElement
+				Object instance = configElement
 						.createExecutableExtension("extenderClass");
-				if (o instanceof IInformationControlExtender) {
+				if (instance instanceof IInformationControlExtender<?>) {
+					IInformationControlExtender<?> extender = (IInformationControlExtender<?>) instance;
+					Class<?> informationClass = extender.getInformationClass();
+
+					boolean sameClass = informationClass == targetInformationClass;
+					if (!sameClass) {
+						boolean sameClassByForeignClassLoader = false;
+						if (classLoader != null) {
+							try {
+								sameClassByForeignClassLoader = classLoader
+										.loadClass(informationClass.getName()) == targetInformationClass;
+							} catch (ClassNotFoundException e) {
+							}
+						}
+						if (!sameClassByForeignClassLoader) {
+							boolean sameClassByOwnClassLoader = false;
+							try {
+								sameClassByOwnClassLoader = Class
+										.forName(informationClass.getName()) == targetInformationClass;
+							} catch (ClassNotFoundException e) {
+							}
+							if (!sameClassByOwnClassLoader) {
+								LOGGER.warn(IInformationControlExtender.class
+										.getSimpleName()
+										+ " for type "
+										+ extender.getInformationClass()
+												.getSimpleName()
+										+ " is not compatible with "
+										+ targetInformationClass
+												.getSimpleName());
+								continue;
+							}
+						}
+					}
+
 					try {
 						extenders
-								.add((IInformationControlExtender<INFORMATION>) o);
+								.add((IInformationControlExtender<INFORMATION>) extender);
 					} catch (ClassCastException ex) {
 						LOGGER.error(
 								IInformationControlExtender.class
@@ -92,10 +101,9 @@ public abstract class InformationControl<INFORMATION> extends
 										+ " could not be cast.", ex);
 					}
 				}
-			} catch (CoreException e1) {
-				LOGGER.error("Error retrieving a currently registered "
-						+ InformationControl.class.getSimpleName(), e1);
-				return null;
+			} catch (CoreException e2) {
+				LOGGER.error("Error instantiating "
+						+ configElement.getAttribute("extenderClass"));
 			}
 		}
 		return extenders;

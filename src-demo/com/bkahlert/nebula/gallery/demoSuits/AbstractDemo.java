@@ -100,8 +100,10 @@ public abstract class AbstractDemo {
 					String oldText = currentDemo.console.getText();
 					String newText = oldText + newLine;
 					currentDemo.console.setText(newText);
-					currentDemo.console.getControl().setSelection(
-							newText.length());
+					Text control = currentDemo.console.getControl();
+					if (control != null && !control.isDisposed()) {
+						control.setSelection(newText.length());
+					}
 					currentDemo.showConsole();
 				}
 			});

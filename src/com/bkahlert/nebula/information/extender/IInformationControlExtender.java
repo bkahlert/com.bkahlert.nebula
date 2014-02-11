@@ -12,6 +12,14 @@ import com.bkahlert.nebula.information.InformationControl;
  * 
  */
 public interface IInformationControlExtender<INFORMATION> {
+	/**
+	 * Returns the class of the type of information this
+	 * {@link IInformationControlExtender} can provide further information.
+	 * 
+	 * @return
+	 */
+	public Class<INFORMATION> getInformationClass();
+
 	public void extend(InformationControl<INFORMATION> informationControl,
 			Composite parent);
 
