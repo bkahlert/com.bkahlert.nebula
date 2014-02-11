@@ -241,22 +241,6 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	 * {@link IAnkerListener}.
 	 */
 	private void injectAnkerHoverCallback() {
-		/*
-		 * return(function($){if(!$ ||
-		 * window[\"successfullyInjectedAnkerHoverCallback\"])return false;window["
-		 * hoveredAnker"] = null; $("body").bind("DOMSubtreeModified"
-		 * "beforeunload", function () { if (window["mouseleave"] && typeof
-		 * window["mouseleave"]) { window["mouseleave"](window["hoveredAnker"])
-		 * } }); $("body").on({ mouseenter: function () { var e =
-		 * $(this).clone().wrap(" <p> ").parent().html(); window["hoveredAnker"]
-		 * = e; if (window["mouseenter"] && typeof window["mouseenter"]) {
-		 * window["mouseenter"](e) } }, mouseleave: function () { var e =
-		 * $(this).clone().wrap(" <p>
-		 * ").parent().html(); if (window["mouseleave"] && typeof
-		 * window["mouseleave"]) { window["mouseleave"](e) } } },
-		 * "a");window["successfullyInjectedAnkerHoverCallback"]=true;return
-		 * true;})(typeof(jQuery)!=='undefined'?jQuery:null)
-		 */
 		if (this.successfullyInjectedAnkerHoverCallback) {
 			return;
 		}
