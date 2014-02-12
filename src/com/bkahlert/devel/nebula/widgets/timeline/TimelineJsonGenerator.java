@@ -332,8 +332,7 @@ public class TimelineJsonGenerator {
 		Calendar c = start != null ? start : end;
 		if (c != null) {
 			int offset = c.getTimeZone().getOffset(new Date().getTime());
-			int globalOffset = (int) Math
-					.round(timeZoneOffset * 60f * 60f * 1000f);
+			int globalOffset = Math.round(timeZoneOffset * 60f * 60f * 1000f);
 			if (offset != globalOffset) {
 				classNames.add("deviant_timezone_offset");
 			}
@@ -411,7 +410,7 @@ public class TimelineJsonGenerator {
 				} else // convert to unicode form
 				{
 					char[] hexdigits = new char[4];
-					for (int x = (int) c, j = hexdigits.length - 1; j >= 0; j--, x /= 16) {
+					for (int x = c, j = hexdigits.length - 1; j >= 0; j--, x /= 16) {
 						hexdigits[j] = Character.forDigit(x % 16, 16);
 					}
 					sb.append("\\u").append(hexdigits);
