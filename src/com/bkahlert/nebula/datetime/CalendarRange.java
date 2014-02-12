@@ -3,6 +3,8 @@ package com.bkahlert.nebula.datetime;
 import java.security.InvalidParameterException;
 import java.util.Calendar;
 
+import org.apache.commons.lang.time.DurationFormatUtils;
+
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
 
 /**
@@ -28,8 +30,8 @@ public class CalendarRange implements Comparable<CalendarRange> {
 				earliestDate = calendarRange.getStartDate();
 			}
 			if (calendarRange.getEndDate() != null
-					&& (latestDate == null || latestDate.compareTo(calendarRange
-							.getEndDate()) < 0)) {
+					&& (latestDate == null || latestDate
+							.compareTo(calendarRange.getEndDate()) < 0)) {
 				latestDate = calendarRange.getEndDate();
 			}
 		}
@@ -114,8 +116,8 @@ public class CalendarRange implements Comparable<CalendarRange> {
 	}
 
 	/**
-	 * Returns true if the given {@link CalendarRange} intersects the
-	 * current {@link CalendarRange}.
+	 * Returns true if the given {@link CalendarRange} intersects the current
+	 * {@link CalendarRange}.
 	 * 
 	 * @param calendarRange
 	 * @return
@@ -126,20 +128,22 @@ public class CalendarRange implements Comparable<CalendarRange> {
 		}
 
 		boolean startAndEndBeforeRange = this.isBeforeRange(calendarRange
-				.getStartDate()) && this.isBeforeRange(calendarRange.getEndDate());
+				.getStartDate())
+				&& this.isBeforeRange(calendarRange.getEndDate());
 		boolean startAndEndAfterRange = this.isAfterRange(calendarRange
-				.getStartDate()) && this.isAfterRange(calendarRange.getEndDate());
+				.getStartDate())
+				&& this.isAfterRange(calendarRange.getEndDate());
 		return !(startAndEndBeforeRange || startAndEndAfterRange);
 	}
 
 	/**
-	 * Returns true if the given {@link CalendarRange} intersects the
-	 * current {@link CalendarRange}.
+	 * Returns true if the given {@link CalendarRange} intersects the current
+	 * {@link CalendarRange}.
 	 * <p>
-	 * In contrast to {@link #isIntersected(CalendarRange)} this method does
-	 * not count exact matches as intersected. This means the the case in which
-	 * one {@link CalendarRange} ends at the very moment the second one
-	 * starts is not considered intersected.
+	 * In contrast to {@link #isIntersected(CalendarRange)} this method does not
+	 * count exact matches as intersected. This means the the case in which one
+	 * {@link CalendarRange} ends at the very moment the second one starts is
+	 * not considered intersected.
 	 * 
 	 * @param calendarRange
 	 * @return
@@ -179,6 +183,15 @@ public class CalendarRange implements Comparable<CalendarRange> {
 			return -1;
 		}
 		return t1.compareTo(t2);
+	}
+
+	public String formatDuration(String durationFormat) {
+		Long milliSecondsPassed = this.getDifference();
+		if (milliSecondsPassed == null) {
+			return "?";
+		}
+		return DurationFormatUtils.formatDuration(milliSecondsPassed,
+				durationFormat, true);
 	}
 
 	@Override
