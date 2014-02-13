@@ -2,9 +2,11 @@ package com.bkahlert.devel.nebula.viewer;
 
 import java.util.Comparator;
 
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -23,6 +25,7 @@ public class SortableTableViewer extends TableViewer {
 		super(table);
 		super.setComparator(this.genericColumnViewerComparator);
 		this.fullWidthResizer = new FullWidthResizer(this);
+		ColumnViewerToolTipSupport.enableFor(this, ToolTip.NO_RECREATE);
 	}
 
 	@Override

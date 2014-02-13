@@ -2,9 +2,11 @@ package com.bkahlert.devel.nebula.viewer;
 
 import java.util.Comparator;
 
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -24,12 +26,14 @@ public class SortableTreeViewer extends TreeViewer {
 		super(parent, style);
 		super.setComparator(this.genericColumnViewerComparator);
 		this.fullWidthResizer = new FullWidthResizer(this);
+		ColumnViewerToolTipSupport.enableFor(this, ToolTip.NO_RECREATE);
 	}
 
 	public SortableTreeViewer(Tree tree) {
 		super(tree);
 		super.setComparator(this.genericColumnViewerComparator);
 		this.fullWidthResizer = new FullWidthResizer(this);
+		ColumnViewerToolTipSupport.enableFor(this, ToolTip.NO_RECREATE);
 	}
 
 	@Override

@@ -15,14 +15,16 @@ public class FontUtils {
 
 	public static void changeFontSizeBy(Control control, int fontSizeInc) {
 		FontData[] fontData = control.getFont().getFontData();
-		for (int i = 0; i < fontData.length; ++i)
+		for (int i = 0; i < fontData.length; ++i) {
 			fontData[i].setHeight(fontData[i].getHeight() + fontSizeInc);
+		}
 
 		final Font newFont = new Font(control.getDisplay(), fontData);
 		control.setFont(newFont);
 
 		// Since you created the font, you must dispose it
 		control.addDisposeListener(new DisposeListener() {
+			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				newFont.dispose();
 			}
@@ -30,26 +32,46 @@ public class FontUtils {
 	}
 
 	public static void makeBold(Control control) {
-		FontData[] boldFontData = modifyFontData(control.getFont()
-				.getFontData(), SWT.BOLD);
+		FontData[] fontData = control.getFont().getFontData();
+		FontData[] styledData = new FontData[fontData.length];
+		for (int i = 0; i < fontData.length; i++) {
+			styledData[i] = new FontData(fontData[i].getName(),
+					fontData[i].getHeight(), fontData[i].getStyle() | SWT.BOLD);
+		}
+		FontData[] boldFontData = styledData;
 
 		final Font newFont = new Font(control.getDisplay(), boldFontData);
 		control.setFont(newFont);
 
 		// Since you created the font, you must dispose it
 		control.addDisposeListener(new DisposeListener() {
+			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				newFont.dispose();
 			}
 		});
 	}
 
-	public static FontData[] modifyFontData(FontData[] fontData, int style) {
-		FontData[] styledData = new FontData[fontData.length];
-		for (int i = 0; i < fontData.length; i++) {
-			styledData[i] = new FontData(fontData[i].getName(),
-					fontData[i].getHeight(), fontData[i].getStyle() | style);
+	public static FontData[] getModifiedFontData(FontData[] originalData,
+			int additionalStyle) {
+		FontData[] styledData = new FontData[originalData.length];
+		for (int i = 0; i < originalData.length; i++) {
+			styledData[i] = new FontData(originalData[i].getName(),
+					originalData[i].getHeight(), originalData[i].getStyle()
+							| additionalStyle);
 		}
 		return styledData;
 	}
+
+	public static FontData[] getResizedFontData(FontData[] originalData,
+			double resizeBy) {
+		FontData[] styledData = new FontData[originalData.length];
+		for (int i = 0; i < originalData.length; i++) {
+			styledData[i] = new FontData(originalData[i].getName(),
+					(int) (originalData[i].getHeight() * resizeBy),
+					originalData[i].getStyle());
+		}
+		return styledData;
+	}
+
 }
