@@ -12,7 +12,7 @@ public class DistributionUtils {
 	 * 
 	 */
 	public static interface Width {
-		public static final double DEFAULT_MIN_WIDTH = 0.0;
+		public static final double DEFAULT_MIN_WIDTH = 1.0;
 	}
 
 	/**
