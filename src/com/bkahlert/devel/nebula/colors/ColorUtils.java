@@ -154,6 +154,32 @@ public class ColorUtils {
 	}
 
 	/**
+	 * Generates a nice color
+	 * 
+	 * @param hue
+	 *            the color's hue (must be between 0 and 1)
+	 * @return
+	 */
+	public static HLS getNiceHLS(double hue) {
+		return new HLS(hue, 0.5, 0.55);
+	}
+
+	/**
+	 * Creates a new nice {@link Color}.
+	 * <p>
+	 * <strong>You have to dispose this {@link Color} if you don't need it
+	 * anymore.
+	 * 
+	 * @param hue
+	 *            the color's hue (must be between 0 and 1)
+	 * @return
+	 */
+	public static Color createNiceColor(double hue) {
+		return new Color(Display.getCurrent(), ColorSpaceConverter.HLStoRGB(
+				getNiceHLS(hue)).toClassicRGB());
+	}
+
+	/**
 	 * This method generates a color with the biggest possible distance to the
 	 * given colors concerning the hue (meaning saturation and lightness are not
 	 * considered).
