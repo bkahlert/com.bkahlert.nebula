@@ -1,24 +1,34 @@
 package com.bkahlert.devel.nebula.utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.viewers.AbstractTreeViewer;
+import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerColumn;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
+
+import com.bkahlert.nebula.utils.DistributionUtils;
+import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
+import com.bkahlert.nebula.utils.DistributionUtils.Width;
 
 /**
  * Utility class for manipulation of {@link Viewer Viewers}.
@@ -40,6 +50,76 @@ import org.eclipse.swt.widgets.TreeItem;
  */
 public class ViewerUtils {
 
+	public static class FullWidthResizer {
+		private final ColumnViewer columnViewer;
+
+		private final Map<Integer, Width> numbers = new HashMap<Integer, Width>();
+
+		private final Listener resizeListener = new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				FullWidthResizer.this.resize();
+			}
+		};
+
+		public FullWidthResizer(ColumnViewer columnViewer) {
+			this.columnViewer = columnViewer;
+			this.columnViewer.getControl().addListener(SWT.Resize,
+					this.resizeListener);
+		}
+
+		public void setWidth(int column, Width width) {
+			this.numbers.put(column, width);
+			this.resize();
+		}
+
+		public void resize() {
+			if (this.columnViewer != null
+					&& this.columnViewer.getControl() != null
+					&& !this.columnViewer.getControl().isDisposed()) {
+				Control control = this.columnViewer.getControl();
+				if (control instanceof Tree) {
+					Tree tree = (Tree) control;
+					Width[] input = new Width[tree.getColumnCount()];
+					for (int i = 0; i < input.length; i++) {
+						input[i] = this.numbers.containsKey(i) ? this.numbers
+								.get(i) : new AbsoluteWidth(
+								Width.DEFAULT_MIN_WIDTH);
+					}
+					double[] distribution = DistributionUtils.distribute(input,
+							tree.getClientArea().width);
+					for (int i = 0; i < distribution.length; i++) {
+						tree.getColumn(i).setWidth(
+								(int) Math.round(distribution[i]));
+					}
+				} else if (control instanceof Table) {
+					Table table = (Table) control;
+					Width[] input = new Width[table.getColumnCount()];
+					for (int i = 0; i < input.length; i++) {
+						input[i] = this.numbers.containsKey(i) ? this.numbers
+								.get(i) : new AbsoluteWidth(
+								Width.DEFAULT_MIN_WIDTH);
+					}
+					double[] distribution = DistributionUtils.distribute(input,
+							table.getClientArea().width);
+					for (int i = 0; i < distribution.length; i++) {
+						table.getColumn(i).setWidth(
+								(int) Math.round(distribution[i]));
+					}
+				}
+			}
+		}
+
+		public void dispose() {
+			if (this.columnViewer != null
+					&& this.columnViewer.getControl() != null
+					&& !this.columnViewer.getControl().isDisposed()) {
+				this.columnViewer.getControl().removeListener(SWT.Resize,
+						this.resizeListener);
+			}
+		}
+	}
+
 	private ViewerUtils() {
 		// no instantiation allowed
 	}
@@ -54,9 +134,11 @@ public class ViewerUtils {
 	 */
 	public static void setInput(final Viewer viewer, final Object input) {
 		Display.getDefault().syncExec(new Runnable() {
+			@Override
 			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed())
+				if (viewer == null || viewer.getControl().isDisposed()) {
 					return;
+				}
 
 				viewer.setInput(input);
 			}
@@ -77,9 +159,11 @@ public class ViewerUtils {
 	public static void add(final Viewer viewer,
 			final Object parentElementOrTreePath, final Object childElement) {
 		Display.getDefault().syncExec(new Runnable() {
+			@Override
 			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed())
+				if (viewer == null || viewer.getControl().isDisposed()) {
 					return;
+				}
 
 				if (viewer instanceof AbstractTreeViewer) {
 					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
@@ -105,9 +189,11 @@ public class ViewerUtils {
 	public static void add(final Viewer viewer,
 			final Object parentElementOrTreePath, final Object[] childElements) {
 		Display.getDefault().syncExec(new Runnable() {
+			@Override
 			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed())
+				if (viewer == null || viewer.getControl().isDisposed()) {
 					return;
+				}
 
 				if (viewer instanceof AbstractTreeViewer) {
 					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
@@ -131,9 +217,11 @@ public class ViewerUtils {
 	public static void remove(final Viewer viewer,
 			final Object elementsOrTreePaths) {
 		Display.getDefault().syncExec(new Runnable() {
+			@Override
 			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed())
+				if (viewer == null || viewer.getControl().isDisposed()) {
 					return;
+				}
 
 				if (viewer instanceof AbstractTreeViewer) {
 					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
@@ -157,9 +245,11 @@ public class ViewerUtils {
 	public static void remove(final Viewer viewer,
 			final Object[] elementsOrTreePaths) {
 		Display.getDefault().syncExec(new Runnable() {
+			@Override
 			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed())
+				if (viewer == null || viewer.getControl().isDisposed()) {
 					return;
+				}
 
 				if (viewer instanceof AbstractTreeViewer) {
 					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
@@ -184,9 +274,11 @@ public class ViewerUtils {
 	public static void update(final Viewer viewer, final Object element,
 			final String[] properties) {
 		Display.getDefault().syncExec(new Runnable() {
+			@Override
 			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed())
+				if (viewer == null || viewer.getControl().isDisposed()) {
 					return;
+				}
 
 				if (viewer instanceof StructuredViewer) {
 					StructuredViewer structuredViewer = (StructuredViewer) viewer;
@@ -211,9 +303,11 @@ public class ViewerUtils {
 	public static void update(final Viewer viewer, final Object[] elements,
 			final String[] properties) {
 		Display.getDefault().syncExec(new Runnable() {
+			@Override
 			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed())
+				if (viewer == null || viewer.getControl().isDisposed()) {
 					return;
+				}
 
 				if (viewer instanceof StructuredViewer) {
 					StructuredViewer structuredViewer = (StructuredViewer) viewer;
@@ -236,9 +330,11 @@ public class ViewerUtils {
 	 */
 	public static void refresh(final Viewer viewer, final boolean updateLabels) {
 		Display.getDefault().syncExec(new Runnable() {
+			@Override
 			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed())
+				if (viewer == null || viewer.getControl().isDisposed()) {
 					return;
+				}
 
 				if (viewer instanceof StructuredViewer) {
 					StructuredViewer structuredViewer = (StructuredViewer) viewer;
@@ -263,9 +359,11 @@ public class ViewerUtils {
 	public static void refresh(final Viewer viewer, final Object element,
 			final boolean updateLabels) {
 		Display.getDefault().syncExec(new Runnable() {
+			@Override
 			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed())
+				if (viewer == null || viewer.getControl().isDisposed()) {
 					return;
+				}
 
 				if (viewer instanceof StructuredViewer) {
 					StructuredViewer structuredViewer = (StructuredViewer) viewer;
@@ -282,9 +380,11 @@ public class ViewerUtils {
 	 */
 	public static void expandToLevel(final Viewer viewer, final int level) {
 		Display.getDefault().syncExec(new Runnable() {
+			@Override
 			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed())
+				if (viewer == null || viewer.getControl().isDisposed()) {
 					return;
+				}
 
 				if (viewer instanceof AbstractTreeViewer) {
 					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
@@ -300,9 +400,11 @@ public class ViewerUtils {
 	public static void expandToLevel(final Viewer viewer,
 			final Object elementOrTreePath, final int level) {
 		Display.getDefault().syncExec(new Runnable() {
+			@Override
 			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed())
+				if (viewer == null || viewer.getControl().isDisposed()) {
 					return;
+				}
 
 				if (viewer instanceof AbstractTreeViewer) {
 					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
@@ -322,9 +424,11 @@ public class ViewerUtils {
 	 */
 	public static void expandAll(final Viewer viewer) {
 		Display.getDefault().syncExec(new Runnable() {
+			@Override
 			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed())
+				if (viewer == null || viewer.getControl().isDisposed()) {
 					return;
+				}
 
 				if (viewer instanceof AbstractTreeViewer) {
 					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
@@ -340,9 +444,11 @@ public class ViewerUtils {
 	public static void expandAll(final Viewer viewer,
 			final Object elementOrTreePath) {
 		Display.getDefault().syncExec(new Runnable() {
+			@Override
 			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed())
+				if (viewer == null || viewer.getControl().isDisposed()) {
 					return;
+				}
 
 				if (viewer instanceof AbstractTreeViewer) {
 					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
@@ -362,8 +468,9 @@ public class ViewerUtils {
 	 * @return
 	 */
 	public static List<Item> getItemWithDataType(Item[] items, Class<?> clazz) {
-		if (items == null)
+		if (items == null) {
 			return null;
+		}
 
 		List<Item> itemsWithDataType = new ArrayList<Item>();
 		for (Item item : ViewerUtils.getAllItems(items)) {
@@ -501,8 +608,9 @@ public class ViewerUtils {
 				int[] order = control instanceof Table ? ((Table) control)
 						.getColumnOrder() : ((Tree) control).getColumnOrder();
 				for (int j = 0, n = order.length; j < n; j++) {
-					if (order[j] == i)
+					if (order[j] == i) {
 						return j;
+					}
 				}
 			}
 		}

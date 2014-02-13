@@ -12,18 +12,24 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 
+import com.bkahlert.devel.nebula.utils.ViewerUtils.FullWidthResizer;
+import com.bkahlert.nebula.utils.DistributionUtils.Width;
+
 public class SortableTreeViewer extends TreeViewer {
 
 	private final GenericColumnViewerComparator genericColumnViewerComparator = new GenericColumnViewerComparator();
+	private final FullWidthResizer fullWidthResizer;
 
 	public SortableTreeViewer(Composite parent, int style) {
 		super(parent, style);
 		super.setComparator(this.genericColumnViewerComparator);
+		this.fullWidthResizer = new FullWidthResizer(this);
 	}
 
 	public SortableTreeViewer(Tree tree) {
 		super(tree);
 		super.setComparator(this.genericColumnViewerComparator);
+		this.fullWidthResizer = new FullWidthResizer(this);
 	}
 
 	@Override
@@ -31,39 +37,41 @@ public class SortableTreeViewer extends TreeViewer {
 		// we manage the comparator on our own
 	}
 
-	public TreeViewerColumn createColumn(String title, int width,
+	public TreeViewerColumn createColumn(String title, Width width,
 			boolean isResizable, boolean isMoveable,
 			Comparator<Object> comparator, Class<?>[] comparatorClasses) {
 		final TreeViewerColumn viewerColumn = new TreeViewerColumn(this,
 				SWT.NONE);
 		final TreeColumn column = viewerColumn.getColumn();
 		column.setText(title);
-		column.setWidth(width);
+		this.fullWidthResizer.setWidth(this.getTree().getColumnCount() - 1,
+				width);
 		column.setResizable(isResizable);
 		column.setMoveable(isMoveable);
 		column.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				sort(column);
+				SortableTreeViewer.this.sort(column);
 			}
 		});
 
 		if (comparator != null && this.genericColumnViewerComparator != null) {
-			this.genericColumnViewerComparator.setComparator(
-					getColumnNumber(column), comparator, comparatorClasses);
+			this.genericColumnViewerComparator
+					.setComparator(this.getColumnNumber(column), comparator,
+							comparatorClasses);
 		}
 
 		return viewerColumn;
 	}
 
-	public TreeViewerColumn createColumn(String title, int width,
+	public TreeViewerColumn createColumn(String title, Width width,
 			boolean isResizableAndMovable, Comparator<Object> comparator,
 			Class<?>[] comparatorClasses) {
 		return this.createColumn(title, width, isResizableAndMovable,
 				isResizableAndMovable, comparator, comparatorClasses);
 	}
 
-	public TreeViewerColumn createColumn(String title, int width) {
+	public TreeViewerColumn createColumn(String title, Width width) {
 		return this.createColumn(title, width, true, true, null, null);
 	}
 
@@ -84,7 +92,8 @@ public class SortableTreeViewer extends TreeViewer {
 		if (this.genericColumnViewerComparator == null) {
 			return;
 		}
-		this.genericColumnViewerComparator.setColumn(getColumnNumber(column));
+		this.genericColumnViewerComparator.setColumn(this
+				.getColumnNumber(column));
 		int dir = this.genericColumnViewerComparator.getDirection();
 		SortableTreeViewer.this.getTree().setSortDirection(dir);
 		SortableTreeViewer.this.getTree().setSortColumn(column);
