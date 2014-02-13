@@ -95,9 +95,9 @@ public class TrackCalculator {
 
 	private static class TrackCalculation<T> implements ITrackCalculation<T> {
 
-		private Map<T, Integer> tracks;
-		private Map<T, Integer> numTracks;
-		private int itemCount;
+		private final Map<T, Integer> tracks;
+		private final Map<T, Integer> numTracks;
+		private final int itemCount;
 		private int maxTrackNumber;
 
 		public TrackCalculation(Map<T, Integer> tracks,
@@ -107,8 +107,9 @@ public class TrackCalculator {
 			this.itemCount = tracks.keySet().size();
 			this.maxTrackNumber = 0;
 			for (int trackNumber : tracks.values()) {
-				if (trackNumber > this.maxTrackNumber)
+				if (trackNumber > this.maxTrackNumber) {
 					this.maxTrackNumber = trackNumber;
+				}
 			}
 		}
 
@@ -117,6 +118,7 @@ public class TrackCalculator {
 			return this.tracks.get(item);
 		}
 
+		@Override
 		public Integer getNumTracks(T item) {
 			return this.numTracks.get(item);
 		};
@@ -149,17 +151,19 @@ public class TrackCalculator {
 		assert converter != null;
 		Map<T, Integer> tracks = new HashMap<T, Integer>();
 		Map<T, Integer> numTracks = new HashMap<T, Integer>();
-		if (items == null)
+		if (items == null) {
 			return new TrackCalculation<T>(tracks, numTracks);
+		}
 		Collections.sort(items, new Comparator<T>() {
 			@Override
 			public int compare(T item1, T item2) {
 				int rt = 0;
 				if (converter.getStart(item1) == null) {
-					if (converter.getStart(item2) == null)
+					if (converter.getStart(item2) == null) {
 						rt = 0;
-					else
+					} else {
 						rt = 1;
+					}
 				} else {
 					rt = converter.getStart(item1).compareTo(
 							converter.getStart(item2));
@@ -169,16 +173,18 @@ public class TrackCalculator {
 			}
 		});
 		for (T item : items) {
-			if (converter.getStart(item) > converter.getEnd(item))
+			if (converter.getStart(item) > converter.getEnd(item)) {
 				throw new IllegalArgumentException(
 						"Item's start must be before its end");
+			}
 
 			numTracks.put(item, 1);
 			List<Integer> blockedTracks = new LinkedList<Integer>();
 			for (T processedItem : tracks.keySet()) {
 				int track = tracks.get(processedItem);
-				if (blockedTracks.contains(track))
+				if (blockedTracks.contains(track)) {
 					continue;
+				}
 				if (collide(converter.getStart(item), converter.getEnd(item),
 						converter.getStart(processedItem),
 						converter.getEnd(processedItem))) {
@@ -190,9 +196,11 @@ public class TrackCalculator {
 			}
 
 			int i = 0;
-			for (; i < Integer.MAX_VALUE; i++)
-				if (!blockedTracks.contains(i))
+			for (; i < Integer.MAX_VALUE; i++) {
+				if (!blockedTracks.contains(i)) {
 					break;
+				}
+			}
 			tracks.put(item, i);
 		}
 
@@ -201,10 +209,12 @@ public class TrackCalculator {
 
 	public static boolean collide(Long item1Start, Long item1End,
 			Long item2Start, Long item2End) {
-		if (item1End.compareTo(item2Start) <= 0)
+		if (item1End.compareTo(item2Start) <= 0) {
 			return false;
-		if (item1Start.compareTo(item2End) >= 0)
+		}
+		if (item1Start.compareTo(item2End) >= 0) {
 			return false;
+		}
 		return true;
 	}
 }
