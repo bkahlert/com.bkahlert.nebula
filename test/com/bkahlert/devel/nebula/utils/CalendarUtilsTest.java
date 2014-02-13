@@ -12,6 +12,8 @@ import java.util.TimeZone;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.bkahlert.nebula.datetime.CalendarRange;
+
 public class CalendarUtilsTest {
 
 	private final Calendar cal1;
@@ -137,8 +139,8 @@ public class CalendarUtilsTest {
 				.fromISO8601("2011-11-18T15:38:28+09:00").getTimeZone());
 		Assert.assertEquals(TimeZone.getTimeZone("GMT-05:00"), CalendarUtils
 				.fromISO8601("2011-11-18T15:38:28-05:00").getTimeZone());
-		Assert.assertEquals(TimeZone.getDefault(),
-				CalendarUtils.fromISO8601("2011-11-18T15:38:28").getTimeZone());
+		Assert.assertEquals(TimeZone.getTimeZone("GMT+00:00"), CalendarUtils
+				.fromISO8601("2011-11-18T15:38:28").getTimeZone());
 	}
 
 	@Test
@@ -175,15 +177,15 @@ public class CalendarUtilsTest {
 
 	@Test
 	public void testEquals() throws ParseException {
-		Assert.assertTrue(CalendarUtils
-				.fromISO8601("2011-11-18T15:38:28+09:00").equals(
-						CalendarUtils.fromISO8601("2011-11-18T15:38:28+09:00")));
-		Assert.assertTrue(CalendarUtils
-				.fromISO8601("2011-11-18T15:38:28+09:00").equals(
-						CalendarUtils.fromISO8601("2011-11-18T14:38:28+08:00")));
-		Assert.assertFalse(CalendarUtils.fromISO8601(
-				"2011-11-19T15:38:28+09:00").equals(
-				CalendarUtils.fromISO8601("2011-11-18T15:38:28+09:00")));
+		Assert.assertEquals(
+				CalendarUtils.fromISO8601("2011-11-18T15:38:28.000+09:00"),
+				CalendarUtils.fromISO8601("2011-11-18T15:38:28+09:00"));
+		Assert.assertEquals(
+				CalendarUtils.fromISO8601("2011-11-18T15:38:28.100+09:00"),
+				CalendarUtils.fromISO8601("2011-11-18T15:38:28.1+09:00"));
+		Assert.assertEquals(
+				CalendarUtils.fromISO8601("2011-11-19T15:38:28.599+09:00"),
+				CalendarUtils.fromISO8601("2011-11-19T15:38:28.5991+09:00"));
 	}
 
 	@Test
@@ -207,12 +209,12 @@ public class CalendarUtilsTest {
 								.fromISO8601("2011-11-18T15:38:28+09:00"),
 								5000l)) == 0);
 		Assert.assertTrue(CalendarUtils
-				.fromISO8601("2011-11-18T15:38:20+09:00").compareTo(
+				.fromISO8601("2011-11-18T15:38:20+08:00").compareTo(
 						CalendarUtils.addMilliseconds(CalendarUtils
 								.fromISO8601("2011-11-18T15:38:28+08:00"),
 								-8000l)) == 0);
 		Assert.assertTrue(CalendarUtils
-				.fromISO8601("2011-11-18T15:38:20+09:00").compareTo(
+				.fromISO8601("2011-11-18T15:38:20+08:00").compareTo(
 						CalendarUtils.addMilliseconds(CalendarUtils
 								.fromISO8601("2011-11-18T15:38:28+08:00"),
 								-8000l)) == 0);
@@ -259,6 +261,49 @@ public class CalendarUtilsTest {
 				this.cal2, this.cal3, this.cal1)));
 		assertEquals(this.cal3, CalendarUtils.getLatestCalendar(Arrays.asList(
 				this.cal3, this.cal1, this.cal2)));
+	}
+
+	@Test
+	public void testShortener() {
+		assertEquals(true, CalendarRange.DURATION_SHORTENER.matcher("00 h")
+				.matches());
+		assertEquals(true, CalendarRange.DURATION_SHORTENER.matcher("00h")
+				.matches());
+		assertEquals(true, CalendarRange.DURATION_SHORTENER.matcher("0s")
+				.matches());
+		assertEquals(true, CalendarRange.DURATION_SHORTENER.matcher("0000")
+				.matches());
+		assertEquals(false, CalendarRange.DURATION_SHORTENER.matcher("01 h")
+				.matches());
+		assertEquals(false, CalendarRange.DURATION_SHORTENER.matcher("1")
+				.matches());
+		assertEquals(false, CalendarRange.DURATION_SHORTENER.matcher("abc")
+				.matches());
+	}
+
+	@Test
+	public void testFormatDuration() {
+		final String format = "MM'm' ddddd'd' HH'h'";
+		assertEquals("00m 03042d 23h",
+				new CalendarRange(this.cal1, this.cal2).formatDuration(format));
+		assertEquals("00m 06227d 00h",
+				new CalendarRange(this.cal1, this.cal3).formatDuration(format));
+		assertEquals("00m 03184d 01h",
+				new CalendarRange(this.cal2, this.cal3).formatDuration(format));
+	}
+
+	@Test
+	public void testFormatDurationNicely() {
+		final String format = "MM'm' ddddd'd' HH'h'";
+		assertEquals("3042d 23h",
+				new CalendarRange(this.cal1, this.cal2)
+						.formatDurationNicely(format));
+		assertEquals("6227d 00h",
+				new CalendarRange(this.cal1, this.cal3)
+						.formatDurationNicely(format));
+		assertEquals("3184d 01h",
+				new CalendarRange(this.cal2, this.cal3)
+						.formatDurationNicely(format));
 	}
 
 }

@@ -1,8 +1,14 @@
 package com.bkahlert.nebula.datetime;
 
 import java.security.InvalidParameterException;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 
 import com.bkahlert.devel.nebula.utils.CalendarUtils;
@@ -14,6 +20,9 @@ import com.bkahlert.devel.nebula.utils.CalendarUtils;
  * @author bkahlert
  */
 public class CalendarRange implements Comparable<CalendarRange> {
+
+	public static Pattern DURATION_SHORTENER = Pattern
+			.compile("0+\\s*[A-Za-z]*");
 
 	public static CalendarRange calculateOuterDateRange(
 			CalendarRange... dateRanges) {
@@ -185,6 +194,13 @@ public class CalendarRange implements Comparable<CalendarRange> {
 		return t1.compareTo(t2);
 	}
 
+	/**
+	 * Formats this {@link CalendarRange}'s time difference / duration according
+	 * to the given duration format.
+	 * 
+	 * @param durationFormat
+	 * @return
+	 */
 	public String formatDuration(String durationFormat) {
 		Long milliSecondsPassed = this.getDifference();
 		if (milliSecondsPassed == null) {
@@ -192,6 +208,42 @@ public class CalendarRange implements Comparable<CalendarRange> {
 		}
 		return DurationFormatUtils.formatDuration(milliSecondsPassed,
 				durationFormat, true);
+	}
+
+	/**
+	 * Formats this {@link CalendarRange}'s time difference / duration according
+	 * to the given duration format nicely.
+	 * <p>
+	 * That means leading zeros are removed. E.g. the normally formated duration
+	 * <code>00d 05h 30m</code> would result in <code>5h 30m</code>.
+	 * 
+	 * @param durationFormat
+	 * @return
+	 */
+	public String formatDurationNicely(String durationFormat) {
+		String duration = this.formatDuration(durationFormat);
+		List<String> parts = new LinkedList<String>(Arrays.asList(duration
+				.split(" ")));
+		for (Iterator<String> it = parts.iterator(); it.hasNext();) {
+			String part = it.next();
+			// remove parts only consisting of zeros
+			if (it.hasNext() && DURATION_SHORTENER.matcher(part).matches()) {
+				it.remove();
+			} else {
+				break;
+			}
+		}
+		// invariant: no leading parts that are only zero
+		if (parts.size() > 0) {
+			// remove leading zeros
+			parts.set(0, parts.get(0).replaceAll("^0+", ""));
+
+			// make sure at least one digit stays
+			if (!Character.isDigit(parts.get(0).charAt(0))) {
+				parts.set(0, "0" + parts.get(0));
+			}
+		}
+		return StringUtils.join(parts, " ");
 	}
 
 	@Override
