@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
@@ -136,9 +137,14 @@ public class TimelineGroupViewer<TIMELINE extends ITimeline, INPUT> extends
 	public void highlight(Map<INPUT, CalendarRange[]> groupedRanges,
 			IProgressMonitor monitor) {
 
+		Set<INPUT> loadedKeys = this.getLoadedKeys();
 		Map<INPUT, IDecorator[]> groupedDecorators = new HashMap<INPUT, IDecorator[]>();
 
 		for (final INPUT key : groupedRanges.keySet()) {
+
+			if (!loadedKeys.contains(key)) {
+				continue;
+			}
 
 			final CalendarRange[] dateRanges = groupedRanges.get(key);
 

@@ -153,6 +153,10 @@ public class MinimalTimelineGroupViewer<TIMELINE extends ITimeline, INPUT>
 		return this.rawInput;
 	}
 
+	public Set<INPUT> getLoadedKeys() {
+		return this.loadedKeys.keySet();
+	}
+
 	/**
 	 * Notifies a {@link ITimelineProvider} about a changed input
 	 * 
