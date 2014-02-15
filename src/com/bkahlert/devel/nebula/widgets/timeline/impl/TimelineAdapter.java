@@ -41,4 +41,8 @@ public class TimelineAdapter implements ITimelineListener {
 	public void hoveredOut(TimelineEvent event) {
 	}
 
+	@Override
+	public void selected(TimelineEvent event) {
+	}
+
 }

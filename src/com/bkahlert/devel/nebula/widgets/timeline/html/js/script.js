@@ -130,40 +130,44 @@ jQuery(document).ready(function($) {
 
     startObservation();
     if (!internal) {
-        window.timeline_plugin_click_callback = function(id) {
-            console.log("click " + id);
+        window.timeline_plugin_click_callback = function(ids) {
+            console.log("click " + ids);
         }
 
-        window.timeline_plugin_mclick_callback = function(id) {
-            console.log("middle click " + id);
+        window.timeline_plugin_mclick_callback = function(ids) {
+            console.log("middle click " + ids);
         }
 
-        window.timeline_plugin_rclick_callback = function(id) {
-            console.log("right click " + id);
+        window.timeline_plugin_rclick_callback = function(ids) {
+            console.log("right click " + ids);
         }
 
-        window.timeline_plugin_dblclick_callback = function(id) {
-            console.log("dblclick " + id);
+        window.timeline_plugin_dblclick_callback = function(ids) {
+            console.log("dblclick " + ids);
         }
 
-        window.timeline_plugin_resizestart_callback = function(id, custom) {
-            console.log("resizestart " + id + "; " + custom[0] + " - " + custom[1]);
+        window.timeline_plugin_resizestart_callback = function(ids, custom) {
+            console.log("resizestart " + ids + "; " + custom[0] + " - " + custom[1]);
         }
 
-        window.timeline_plugin_resizing_callback = function(id, custom) {
-            console.log("resizing " + id + "; " + custom[0] + " - " + custom[1]);
+        window.timeline_plugin_resizing_callback = function(ids, custom) {
+            console.log("resizing " + ids + "; " + custom[0] + " - " + custom[1]);
         }
 
-        window.timeline_plugin_resizestop_callback = function(id, custom) {
-            console.log("resizestop " + id + "; " + custom[0] + " - " + custom[1]);
+        window.timeline_plugin_resizestop_callback = function(ids, custom) {
+            console.log("resizestop " + ids + "; " + custom[0] + " - " + custom[1]);
         }
 
-        window.timeline_plugin_mouseIn_callback = function(id) {
-            console.log("mouse in " + id);
+        window.timeline_plugin_mouseIn_callback = function(ids) {
+            console.log("mouse in " + ids);
         }
 
-        window.timeline_plugin_mouseOut_callback = function(id) {
-            console.log("mouse out " + id);
+        window.timeline_plugin_mouseOut_callback = function(ids) {
+            console.log("mouse out " + ids);
+        }
+        
+        window.timeline_plugin_select_callback = function(ids) {
+        	console.log("selected " + ids);
         }
     } else {
     	
@@ -176,9 +180,57 @@ jQuery(document).ready(function($) {
  * Overriding those listeners can be used to forward the events to Eclipse.
  */
 function startObservation() {
+	/**
+	 * Returns the elements ID in the form of [numBand],[numEvent], e.g. 2,3
+	 */
+	function getID(element) {
+		var $element = $(element);
+		
+		if ($element.parent().hasClass('timeline-event-icon')) {
+            $element = $element.parent().prev();
+            if (!$element) {
+                alert('No previous element found. This is unexpected since icons should always be preceeded by a tape div.');
+            }
+        }
+        if ($element.hasClass('timeline-event-tape')) {
+            $element = $element.prev();
+            if (!$element) {
+                alert('No previous element found. This is unexpected since tapes should always be preceeded by a label div.');
+            }
+        }
+        
+        var id = null;
+        if ($element.attr('class')) {
+            $.each($element.attr('class').split(/\s+/), function(i, className) {
+                if (className.length > '_-_'.length * 3) {
+                    var parts = className.split('_-_');
+                    if (parts.length == 4) {
+                        id = parts[2];
+                        return false;
+                    }
+                }
+            });
+        }
+        return id;
+	}
+	
+	/**
+	 * Returns the elements's IDs in an array where each element is of the form [numBand],[numEvent], e.g. 2,3
+	 */
+	function getIDs(elements) {
+		var ids = new Array();
+		
+		$(elements).each(function() {
+			var id = getID(this);
+			for(var i=0;i<ids.length;i++) if(ids[i] == id) return true; // continue;
+			if(id != null) ids.push(id);
+		});
+		
+        return ids;
+	}
+	
     function handler(e, data, callback) {
         var $element;
-
         var custom = [];
         if (e.type == "resizestart" || e.type == "resize" || e.type == "resizestop") {
             // tape
@@ -201,40 +253,16 @@ function startObservation() {
             $element = $(element);
         }
 
-        if ($element.parent().hasClass('timeline-event-icon')) {
-            $element = $element.parent().prev();
-            if (!$element) {
-                alert('No previous element found. This is unexpected since icons should always be preceeded by a tape div.');
-            }
-        }
-        if ($element.hasClass('timeline-event-tape')) {
-            $element = $element.prev();
-            if (!$element) {
-                alert('No previous element found. This is unexpected since tapes should always be preceeded by a label div.');
-            }
-        }
-
-        var callbackCalled = false;
-        if ($element.attr('class')) {
-            $.each($element.attr('class').split(/\s+/), function(i, className) {
-                if (callbackCalled)
-                    return false;
-                if (className.length > '_-_'.length * 3) {
-                    parts = className.split('_-_');
-                    if (parts.length == 4) {
-                        callbackCalled = true;
-                        callback(parts[2], custom);
-                    }
-                }
-            });
-            if (!callbackCalled)
-                callback(null);
-        }
+        var ids = getIDs($element);
+        if(ids != null) callback(ids, custom);
+        else callback(null);
         return true;
     }
 
 
     $(document).click(function(e, data) {
+      	if(window['timeline_plugin_select_callback']) timeline_plugin_select_callback(getIDs($('.focus')), []);
+
         switch (e.which) {
             case 1:
                 return window['timeline_plugin_click_callback'] ? handler(e, data, timeline_plugin_click_callback) : false;
@@ -248,6 +276,7 @@ function startObservation() {
             default:
             // unknown mouse button
         }
+        
         return false;
     });
 
@@ -274,13 +303,14 @@ function startObservation() {
 
     var hoveredId = null;
     $(document).mousemove(function(e, data) {
-        return handler(e, data, function(id) {
+        return handler(e, data, function(ids) {
+        	var id = ids.length > 0 ? ids[0] : null;
             if (hoveredId == id)
                 return;
             if (hoveredId != null && window['timeline_plugin_mouseOut_callback'])
-                timeline_plugin_mouseOut_callback(hoveredId);
+                timeline_plugin_mouseOut_callback([hoveredId]);
             if (id != null && window['timeline_plugin_mouseIn_callback'])
-                timeline_plugin_mouseIn_callback(id);
+                timeline_plugin_mouseIn_callback([id]);
             hoveredId = id;
         });
     });

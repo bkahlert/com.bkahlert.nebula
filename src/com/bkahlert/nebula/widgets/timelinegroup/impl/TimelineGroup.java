@@ -105,6 +105,15 @@ public class TimelineGroup<TIMELINE extends ITimeline, INPUT> extends
 				((ITimelineListener) listener).hoveredOut(event);
 			}
 		}
+
+		@Override
+		public void selected(TimelineEvent event) {
+			Object[] listeners = TimelineGroup.this.timelineListeners
+					.getListeners();
+			for (Object listener : listeners) {
+				((ITimelineListener) listener).selected(event);
+			}
+		}
 	};
 
 	public TimelineGroup(Composite parent, int style,

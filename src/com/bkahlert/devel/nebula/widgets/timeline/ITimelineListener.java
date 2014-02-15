@@ -75,4 +75,11 @@ public interface ITimelineListener {
 	 * @param event
 	 */
 	public void hoveredOut(TimelineEvent event);
+
+	/**
+	 * Is called if {@link TimelineEvent}s were (un)selected.
+	 * 
+	 * @param event
+	 */
+	public void selected(TimelineEvent event);
 }

@@ -37,26 +37,18 @@ public abstract class AbstractTimelineGroupViewer<TIMELINE extends ITimeline, IN
 	private final ITimelineListener timelineListener = new ITimelineListener() {
 		@Override
 		public void clicked(TimelineEvent event) {
-			AbstractTimelineGroupViewer.this
-					.setSelection(new StructuredSelection(event.getSource()));
 		}
 
 		@Override
 		public void middleClicked(TimelineEvent event) {
-			AbstractTimelineGroupViewer.this
-					.setSelection(new StructuredSelection(event.getSource()));
 		}
 
 		@Override
 		public void rightClicked(TimelineEvent event) {
-			AbstractTimelineGroupViewer.this
-					.setSelection(new StructuredSelection(event.getSource()));
 		}
 
 		@Override
 		public void doubleClicked(TimelineEvent event) {
-			AbstractTimelineGroupViewer.this
-					.setSelection(new StructuredSelection(event.getSource()));
 		}
 
 		@Override
@@ -78,6 +70,12 @@ public abstract class AbstractTimelineGroupViewer<TIMELINE extends ITimeline, IN
 		@Override
 		public void hoveredOut(TimelineEvent event) {
 		}
+
+		@Override
+		public void selected(TimelineEvent event) {
+			AbstractTimelineGroupViewer.this
+					.setSelection(new StructuredSelection(event.getSources()));
+		};
 	};
 
 	public AbstractTimelineGroupViewer(

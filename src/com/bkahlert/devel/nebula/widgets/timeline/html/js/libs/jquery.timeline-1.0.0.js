@@ -78,10 +78,25 @@
             });
         },
 
-        addClassOn : function(eventType, className, keepClassUntilQualified) {
+        addClassOn : function(eventType, className, allowMultipleSelection) {
+			var shiftDown = false;
+			if(allowMultipleSelection) {
+				$(document).bind('keydown', function(event){
+					if(event.keyCode === 16 || event.charCode === 16){
+						shiftDown = true;
+					}
+				});
+				$(document).bind('keyup', function(event){
+					if(event.keyCode === 16 || event.charCode === 16){
+						shiftDown = false;
+					}
+				});
+        	}
+        
             var timeline = $(this).data("timeline");
             $(document).bind(eventType, function(e) {
                 var element = document.elementFromPoint(e.pageX, e.pageY);
+                
                 if (!element)
                     return;
 
@@ -90,6 +105,14 @@
                  */
                 if (timeline._resizing)
                     return;
+                    
+                /*
+                 * do nothing if dragging band (moving the timeline)
+                 */
+                if(timeline._wasDragged) {
+                	timeline._wasDragged = true;
+                	return false;
+                }
 
                 var $element = $(element);
 
@@ -110,17 +133,14 @@
                     newEventIcon = $element.parent();
                 }
 
-                if (keepClassUntilQualified && (newEventLabel == null || newEventTape == null))
-                    return;
-
-                $("." + className).removeClass(className);
+                if(!allowMultipleSelection || !shiftDown) $("." + className).removeClass(className);
 
                 if (newEventLabel != null)
-                    newEventLabel.addClass(className);
+                    newEventLabel.toggleClass(className);
                 if (newEventTape != null)
-                    newEventTape.addClass(className);
+                    newEventTape.toggleClass(className);
                 if (newEventIcon != null)
-                    newEventIcon.addClass(className);
+                    newEventIcon.toggleClass(className);
             });
         },
 
@@ -129,7 +149,8 @@
         },
 
         activateFocusClass : function() {
-            this.timeline("addClassOn", "click", "focus", true);
+        	// must use mouseup since click is possibly triggered later than the detection of selected objects
+            this.timeline("addClassOn", "mouseup", "focus", true);
         },
 
         /**
@@ -877,10 +898,34 @@ Timeline.CompactEventPainter.prototype.paintPreciseDurationEvent = function(evt,
 
 Timeline._Band.prototype._onMouseDown = function(innerFrame, evt, target) {
     this.closeBubble();
-
+    
+    this._timeline._wasDragged = false;
     this._dragging = true;
-    this._dragX = evt.clientX;
-    this._dragY = evt.clientY;
+    this._originalX = this._dragX = evt.clientX;
+    this._originalY = this._dragY = evt.clientY;
+};
+
+Timeline._Band.prototype._onMouseMove = function(innerFrame, evt, target) {
+    if (this._dragging) {
+        var diffX = evt.clientX - this._dragX;
+        var diffY = evt.clientY - this._dragY;
+        
+        this._dragX = evt.clientX;
+        this._dragY = evt.clientY;
+        
+        this._moveEther(this._timeline.isHorizontal() ? diffX : diffY);
+        this._positionHighlight();
+        
+        this._timeline._wasDragged = true;
+    }
+};
+
+Timeline._Band.prototype._onMouseUp = function(innerFrame, evt, target) {
+    this._dragging = false;
+    this._keyboardInput.focus();
+    
+    var timeline = this._timeline;
+    window.setTimeout(function() { timeline._wasDragged = false; }, 100);
 };
 
 /*

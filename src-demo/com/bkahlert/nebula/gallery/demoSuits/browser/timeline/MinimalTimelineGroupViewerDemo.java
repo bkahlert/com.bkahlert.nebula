@@ -12,6 +12,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -393,6 +395,14 @@ public class MinimalTimelineGroupViewerDemo extends AbstractDemo {
 											}
 
 										})));
+					}
+				});
+
+		this.viewer
+				.addSelectionChangedListener(new ISelectionChangedListener() {
+					@Override
+					public void selectionChanged(SelectionChangedEvent event) {
+						log("Selection changed: " + event.getSelection());
 					}
 				});
 

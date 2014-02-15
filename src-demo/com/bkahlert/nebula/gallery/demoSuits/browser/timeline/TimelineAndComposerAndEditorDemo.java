@@ -155,6 +155,13 @@ public class TimelineAndComposerAndEditorDemo extends AbstractDemo {
 				TimelineAndComposerAndEditorDemo.this
 						.customLog("left clicked: " + event);
 			}
+
+			@Override
+			public void selected(
+					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+				TimelineAndComposerAndEditorDemo.this.customLog("selected: "
+						+ event);
+			}
 		});
 		timeline.show(input, 500, 500, null);
 
@@ -185,18 +192,19 @@ public class TimelineAndComposerAndEditorDemo extends AbstractDemo {
 	}
 
 	private void customLog(String html) {
+		log(html);
 		if (this.composerReadOnly != null
 				&& !this.composerReadOnly.isDisposed()) {
-			this.composerReadOnly
-					.setSource("<span style=\"font-weight:700;color:"
-							+ ColorUtils.getRandomRGB().toHexString() + ";\">"
-							+ html + "</span>");
+			this.composerReadOnly.setSource(this.composerReadOnly.getSource()
+					+ "<span style=\"font-weight:700;color:"
+					+ ColorUtils.getRandomRGB().toHexString() + ";\">" + html
+					+ "</span><br/>");
 		}
 
 		if (this.editor != null && !this.editor.isDisposed()) {
 			this.editor.load("<span style=\"font-style:italic;color:"
 					+ ColorUtils.getRandomRGB().toHexString() + ";\">" + html
-					+ "</span>");
+					+ "</span><br/>");
 		}
 	}
 }

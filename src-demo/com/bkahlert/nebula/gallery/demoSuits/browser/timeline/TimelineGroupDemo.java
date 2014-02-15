@@ -162,6 +162,12 @@ public class TimelineGroupDemo extends AbstractDemo {
 					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
 				log("left clicked: " + event);
 			}
+
+			@Override
+			public void selected(
+					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+				log("selected: " + event);
+			}
 		});
 	}
 
