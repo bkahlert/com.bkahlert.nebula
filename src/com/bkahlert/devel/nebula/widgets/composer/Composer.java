@@ -385,7 +385,6 @@ public class Composer extends BrowserComposite {
 		this.run("return com.bkahlert.devel.nebula.editor.setEnabled("
 				+ (isEnabled ? "true" : "false") + ");",
 				IConverter.CONVERTER_BOOLEAN);
-		super.setEnabled(isEnabled);
 	}
 
 	@Override
