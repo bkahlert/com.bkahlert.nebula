@@ -447,6 +447,7 @@ public class ExecUtilsTest {
 			@Override
 			public Void call() throws Exception {
 				List<Future<String>> rt = ExecUtils.nonUIAsyncExec(
+						ExecUtilsTest.class, "testNonUIAsyncExecBatch",
 						new LinkedList<Integer>(Arrays.asList(1500, 50, 500)),
 						new ExecUtils.ParametrizedCallable<Integer, String>() {
 							@Override
@@ -476,6 +477,7 @@ public class ExecUtilsTest {
 			@Override
 			public Void call() throws Exception {
 				Iterable<String> rt = ExecUtils.nonUIAsyncExecMerged(
+						ExecUtilsTest.class, "testNonUIAsyncExecMerged",
 						new LinkedList<Integer>(Arrays.asList(1500, 50, 500)),
 						new ExecUtils.ParametrizedCallable<Integer, String>() {
 							@Override
