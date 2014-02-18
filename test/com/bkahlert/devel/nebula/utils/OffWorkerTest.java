@@ -17,8 +17,16 @@ import com.bkahlert.devel.nebula.utils.OffWorker.StateException;
 public class OffWorkerTest {
 
 	public static final class Task implements Callable<Long> {
+		private final int i;
+
+		public Task(int i) {
+			this.i = i;
+		}
+
 		@Override
 		public Long call() throws Exception {
+			System.out.println("Running " + Task.class.getSimpleName() + " #"
+					+ this.i + " in " + Thread.currentThread());
 			Thread.sleep(2);
 			return System.currentTimeMillis();
 		}
@@ -30,12 +38,11 @@ public class OffWorkerTest {
 		int numTasks = 1500;
 		// int delay = 2000;
 
-		final OffWorker offWorker = new OffWorker(OffWorkerTest.class, "Test",
-				numTasks);
+		final OffWorker offWorker = new OffWorker(OffWorkerTest.class, "Test");
 		List<Future<Long>> futures = new ArrayList<Future<Long>>();
 
 		for (int i = 0; i < numTasks; i++) {
-			Future<Long> future = offWorker.submit(new Task());
+			Future<Long> future = offWorker.submit(new Task(i));
 			futures.add(future);
 
 			if (i == numTasks / 2) {
@@ -58,6 +65,9 @@ public class OffWorkerTest {
 			assertTrue(timestamp > lastTimestamp);
 			lastTimestamp = timestamp;
 		}
+
+		System.out.println("Running task after all have finished");
+		assertTrue(offWorker.submit(new Task(numTasks)).get() > lastTimestamp);
 
 		offWorker.shutdown();
 

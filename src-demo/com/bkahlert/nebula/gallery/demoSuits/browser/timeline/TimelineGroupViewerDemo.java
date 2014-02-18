@@ -114,7 +114,12 @@ public class TimelineGroupViewerDemo extends AbstractDemo {
 	}
 
 	private TimelineGroupViewer<ITimeline, URI> viewer = null;
+	private final URI uri;
 	private static List<URI> input = new ArrayList<URI>();
+
+	public TimelineGroupViewerDemo() throws Exception {
+		this.uri = new URI("whatever");
+	}
 
 	@Override
 	public void createControls(Composite composite) {
@@ -209,6 +214,28 @@ public class TimelineGroupViewerDemo extends AbstractDemo {
 				TimelineGroupViewerDemo.this.viewer.highlight(groupedRanges,
 						null);
 				log("Highlight finished");
+			}
+		});
+
+		Button highlightAndCenterButton = new Button(composite, SWT.PUSH);
+		highlightAndCenterButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ITimelineEvent event = TimelineGroupViewerDemo.this.getInput()
+						.getBand(0).getEvent(0);
+
+				Map<URI, Calendar> centeredDates = new HashMap<URI, Calendar>();
+				Map<URI, CalendarRange[]> groupedRanges = new HashMap<URI, CalendarRange[]>();
+				centeredDates.put(TimelineGroupViewerDemo.this.uri,
+						event.getStart());
+				groupedRanges.put(
+						TimelineGroupViewerDemo.this.uri,
+						new CalendarRange[] { new CalendarRange(event
+								.getStart(), event.getEnd()) });
+				TimelineGroupViewerDemo.this.viewer.setCenterVisibleDate(
+						centeredDates, null);
+				TimelineGroupViewerDemo.this.viewer.highlight(groupedRanges,
+						null);
 			}
 		});
 	}
@@ -438,7 +465,7 @@ public class TimelineGroupViewerDemo extends AbstractDemo {
 				});
 
 		try {
-			input.add(new URI("whatever"));
+			input.add(this.uri);
 			this.viewer.setInput(input);
 			final Future<Void> future = this.viewer.refresh(null);
 			ExecUtils.nonUISyncExec(new Callable<Void>() {

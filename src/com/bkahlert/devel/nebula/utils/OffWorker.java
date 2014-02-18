@@ -1,9 +1,9 @@
 package com.bkahlert.devel.nebula.utils;
 
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class OffWorker {
 
@@ -19,12 +19,12 @@ public class OffWorker {
 		INIT, RUNNING, PAUSED, SHUTDOWN
 	}
 
-	private final ArrayBlockingQueue<FutureTask<?>> queue;
+	private final LinkedBlockingQueue<FutureTask<?>> queue;
 	private final Thread runner;
 	private State state = State.INIT;
 
-	public OffWorker(Class<?> owner, String purpose, int capacity) {
-		this.queue = new ArrayBlockingQueue<FutureTask<?>>(capacity, true);
+	public OffWorker(Class<?> owner, String purpose) {
+		this.queue = new LinkedBlockingQueue<FutureTask<?>>();
 		this.runner = new Thread(new Runnable() {
 			@Override
 			public void run() {
