@@ -290,7 +290,7 @@ public class ExecUtils {
 		final AtomicReference<V> r = new AtomicReference<V>();
 		final AtomicReference<Exception> exception = new AtomicReference<Exception>();
 		final Semaphore mutex = new Semaphore(0);
-		Display.getDefault().asyncExec(new Runnable() {
+		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
 				try {
