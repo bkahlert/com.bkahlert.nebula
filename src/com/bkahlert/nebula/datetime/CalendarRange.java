@@ -222,6 +222,10 @@ public class CalendarRange implements Comparable<CalendarRange> {
 	 */
 	public String formatDurationNicely(String durationFormat) {
 		String duration = this.formatDuration(durationFormat);
+		if (duration.length() <= 1) {
+			return duration;
+		}
+
 		List<String> parts = new LinkedList<String>(Arrays.asList(duration
 				.split(" ")));
 		for (Iterator<String> it = parts.iterator(); it.hasNext();) {
