@@ -134,8 +134,19 @@ public interface IBaseTimeline extends IBrowserComposite, IDisposable {
 	public Future<Integer> getZoomIndex();
 
 	/**
-	 * Applies the given {@link IDecorator}s to the timeline. Replaces all
-	 * decorations that existed before.
+	 * Returns the {@link IBaseTimeline}'s permanent {@link IDecorator}s. Those
+	 * {@link IDecorator}s are not affected by
+	 * {@link #setDecorators(IDecorator[])} and can only be set through
+	 * {@link #show(ITimelineInput, IProgressMonitor)}.
+	 * 
+	 * @return
+	 */
+	public IDecorator[] getPermanentDecorators();
+
+	/**
+	 * Applies the given temporate {@link IDecorator}s to the
+	 * {@link IBaseTimeline}. Replaces all previously applied {@link IDecorator}
+	 * s.
 	 * <p>
 	 * Hint: This method may be called from a non-UI thread. The relatively
 	 * time-consuming JSON conversion is done asynchronously making this method
@@ -146,7 +157,7 @@ public interface IBaseTimeline extends IBrowserComposite, IDisposable {
 	public void setDecorators(IDecorator[] decorators);
 
 	/**
-	 * Returns the currently applied decorations.
+	 * Returns the currently applied temporary {@link IDecorator}s.
 	 * 
 	 * @return
 	 */

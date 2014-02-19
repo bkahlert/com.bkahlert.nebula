@@ -78,6 +78,7 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 	@SuppressWarnings("unused")
 	private static Logger LOGGER = Logger.getLogger(BaseTimeline.class);
 
+	private IDecorator[] permanentDecorators = null;
 	private IDecorator[] decorators = null;
 	private List<ITimelineEvent> sortedEvents = null;
 
@@ -137,6 +138,15 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 	public Future<Void> show(final ITimelineInput input,
 			final int startAnimationDuration, final int endAnimationDuration,
 			final IProgressMonitor monitor) {
+
+		if (input != null && input.getOptions() != null) {
+			this.permanentDecorators = input.getOptions()
+					.getPermanentDecorators();
+			this.decorators = input.getOptions().getDecorators();
+		} else {
+			this.permanentDecorators = null;
+			this.decorators = null;
+		}
 
 		return ExecUtils.nonUIAsyncExec(BaseTimeline.class, "Showing timeline",
 				new Callable<Void>() {
@@ -211,6 +221,11 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 								: null;
 					}
 				});
+	}
+
+	@Override
+	public IDecorator[] getPermanentDecorators() {
+		return this.permanentDecorators;
 	}
 
 	@Override
