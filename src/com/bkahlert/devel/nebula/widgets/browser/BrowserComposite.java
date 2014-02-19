@@ -158,11 +158,10 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 					if (readyState.equals("complete")
 							&& (BrowserComposite.this.pageLoadCheckScript == null || IConverter.CONVERTER_BOOLEAN.convert(BrowserComposite.this.browser
 									.evaluate(BrowserComposite.this.pageLoadCheckScript)))) {
-						BrowserComposite.this.loadingCompleted = true;
 
 						String uri = BrowserComposite.this.browser.getUrl();
 						final Future<Void> finished = BrowserComposite.this
-								.afterCompletion(uri);
+								.beforeCompletion(uri);
 						ExecUtils.nonUISyncExec(BrowserComposite.class,
 								"Progress Check for " + uri, new Runnable() {
 									@Override
@@ -175,7 +174,10 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 											LOGGER.error(e);
 										}
 
+										BrowserComposite.this
+												.injectAnkerHoverCallback();
 										synchronized (BrowserComposite.this.monitor) {
+											BrowserComposite.this.loadingCompleted = true;
 											BrowserComposite.this.monitor
 													.notifyAll();
 										}
@@ -253,23 +255,17 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		}
 
 		String js = "return(function($){if(!$ || window[\"successfullyInjectedAnkerHoverCallback\"])return false;window[\"hoveredAnker\"]=null;$(\"body\").bind(\"DOMSubtreeModified beforeunload\",function(){if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](window[\"hoveredAnker\"])}});$(\"body\").on({mouseenter:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();window[\"hoveredAnker\"]=e;if(window[\"mouseenter\"]&&typeof window[\"mouseenter\"]){window[\"mouseenter\"](e)}},mouseleave:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](e)}}},\"a\");window[\"successfullyInjectedAnkerHoverCallback\"]=true;return true;})(typeof(jQuery)!=='undefined'?jQuery:null)";
-		final Future<Boolean> success = BrowserComposite.this.run(js,
-				IConverter.CONVERTER_BOOLEAN);
-		ExecUtils.nonUISyncExec(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if (success.get()) {
-						BrowserComposite.this.successfullyInjectedAnkerHoverCallback = true;
-					}
-				} catch (Exception e) {
-					LOGGER.error(
-							"Could not inject anker hover callback code in "
-									+ BrowserComposite.this.getClass()
-											.getSimpleName(), e);
-				}
+		try {
+			boolean success = BrowserComposite.this.runImmediately(js,
+					IConverter.CONVERTER_BOOLEAN);
+			System.err.println(success);
+			if (success) {
+				BrowserComposite.this.successfullyInjectedAnkerHoverCallback = true;
 			}
-		});
+		} catch (Exception e) {
+			LOGGER.error("Could not inject anker hover callback code in "
+					+ BrowserComposite.this.getClass().getSimpleName(), e);
+		}
 	}
 
 	@Override
@@ -285,8 +281,6 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		this.pageLoadCheckScript = pageLoadCheckScript;
 		this.successfullyInjectedAnkerHoverCallback = false;
 		this.browser.setUrl(uri.toString());
-
-		this.injectAnkerHoverCallback();
 
 		return ExecUtils.nonUIAsyncExec(BrowserComposite.class, "Opening "
 				+ uri, new Callable<Boolean>() {
@@ -387,7 +381,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	@Override
 	public Future<Boolean> openAboutBlank() {
 		try {
-			return this.open(new URI("about:blank"), 50);
+			return this.open(new URI("about:blank"), 5000);
 		} catch (URISyntaxException e) {
 			return new CompletedFuture<Boolean>(false, e);
 		}
@@ -407,7 +401,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	}
 
 	@Override
-	public Future<Void> afterCompletion(String uri) {
+	public Future<Void> beforeCompletion(String uri) {
 		return null;
 	}
 
@@ -502,7 +496,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		return this.run(script, true);
 	}
 
-	private Future<Boolean> run(final URI script,
+	protected Future<Boolean> run(final URI script,
 			final boolean removeAfterExecution) {
 		Assert.isLegal(script != null);
 		return ExecUtils.nonUIAsyncExec(BrowserComposite.class,
@@ -554,6 +548,37 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				});
 	}
 
+	private <DEST> Callable<DEST> createScriptRunner(final String script,
+			final IConverter<Object, DEST> converter,
+			final String shortenedScript) {
+		return ExecUtils.createThreadLabelingCode(new Callable<DEST>() {
+			@Override
+			public DEST call() throws Exception {
+				LOGGER.info("Running " + shortenedScript);
+				final Browser browser = BrowserComposite.this.getBrowser();
+				try {
+					BrowserComposite.this.scriptAboutToBeSentToBrowser(script);
+					Object returnValue = browser.evaluate(script);
+					BrowserComposite.this
+							.scriptReturnValueReceived(returnValue);
+					LOGGER.info("Returned " + returnValue);
+					return converter.convert(returnValue);
+				} catch (Exception e) {
+					LOGGER.error(e);
+					throw e;
+				}
+			}
+		}, BrowserComposite.class, "Running " + script);
+	}
+
+	@Override
+	public <DEST> DEST runImmediately(String script,
+			IConverter<Object, DEST> converter) throws Exception {
+		return ExecUtils.syncExec(this.createScriptRunner(script, converter,
+				script.length() > 100 ? script.substring(0, 100) + "..."
+						: script));
+	}
+
 	@Override
 	public <DEST> Future<DEST> run(final String script,
 			final IConverter<Object, DEST> converter) {
@@ -567,27 +592,8 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				: script };
 		logScript[0] = logScript[0].replace("\n", " ").replace("\r", " ")
 				.replace("\t", " ");
-		final Callable<DEST> callable = ExecUtils.createThreadLabelingCode(
-				new Callable<DEST>() {
-					@Override
-					public DEST call() throws Exception {
-						LOGGER.info("Running " + logScript[0]);
-						final Browser browser = BrowserComposite.this
-								.getBrowser();
-						try {
-							BrowserComposite.this
-									.scriptAboutToBeSentToBrowser(script);
-							Object returnValue = browser.evaluate(script);
-							BrowserComposite.this
-									.scriptReturnValueReceived(returnValue);
-							LOGGER.info("Returned " + returnValue);
-							return converter.convert(returnValue);
-						} catch (Exception e) {
-							LOGGER.error(e);
-							throw e;
-						}
-					}
-				}, BrowserComposite.class, "Running " + logScript[0]);
+		final Callable<DEST> callable = this.createScriptRunner(script,
+				converter, logScript[0]);
 		if (BrowserComposite.this.loadingCompleted) {
 			final AtomicReference<DEST> converted = new AtomicReference<DEST>();
 			Exception exception = null;
@@ -639,7 +645,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	};
 
 	/**
-	 * Testers can override this method to see what goint to be executed.
+	 * Testers can override this method to see what is going to be executed.
 	 * 
 	 * @param script
 	 */
@@ -663,19 +669,21 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	}
 
 	@Override
-	public void injectCssFile(URI uri) {
-		this.run("if(document.createStyleSheet){document.createStyleSheet(\""
-				+ uri.toString()
-				+ "\")}else{$(\"head\").append($(\"<link rel=\\\"stylesheet\\\" href=\\\""
-				+ uri.toString() + "\\\" type=\\\"text/css\\\" />\"))}");
+	public Future<Void> injectCssFile(URI uri) {
+		return this
+				.run("if(document.createStyleSheet){document.createStyleSheet(\""
+						+ uri.toString()
+						+ "\")}else{$(\"head\").append($(\"<link rel=\\\"stylesheet\\\" href=\\\""
+						+ uri.toString() + "\\\" type=\\\"text/css\\\" />\"))}",
+						IConverter.CONVERTER_VOID);
 	}
 
 	@Override
-	public void injectCss(String css) {
+	public Future<Void> injectCss(String css) {
 		String script = "(function(){var style=document.createElement(\"style\");style.appendChild(document.createTextNode(\""
 				+ css
 				+ "\"));(document.getElementsByTagName(\"head\")[0]||document.documentElement).appendChild(style)})()";
-		this.run(script);
+		return this.run(script, IConverter.CONVERTER_VOID);
 	}
 
 	public void addJavaScriptExceptionListener(

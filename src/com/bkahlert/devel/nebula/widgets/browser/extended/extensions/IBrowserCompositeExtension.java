@@ -21,9 +21,10 @@ public interface IBrowserCompositeExtension {
 	 * 
 	 * @param extendedBrowserComposite
 	 * @return true if this extension is already loaded.
+	 * @throws Exception
 	 */
-	public Future<Boolean> hasExtension(
-			IBrowserComposite extendedBrowserComposite);
+	public Boolean hasExtension(IBrowserComposite extendedBrowserComposite)
+			throws Exception;
 
 	/**
 	 * Loads this extension independently of its current loading state.

@@ -120,7 +120,7 @@ public interface IBrowserComposite extends IWidget {
 	 * @param uri
 	 * @return
 	 */
-	public Future<Void> afterCompletion(String uri);
+	public Future<Void> beforeCompletion(String uri);
 
 	/**
 	 * Injects the given script and returns a {@link Future} that blocks until
@@ -137,13 +137,16 @@ public interface IBrowserComposite extends IWidget {
 	 * Includes the given path as a cascading style sheet.
 	 * 
 	 * @param path
+	 * @return
 	 */
-	public void injectCssFile(URI uri);
+	public Future<Void> injectCssFile(URI uri);
 
 	/**
 	 * Adds the given CSS code to the head.
+	 * 
+	 * @return
 	 */
-	public void injectCss(String css);
+	public Future<Void> injectCss(String css);
 
 	/**
 	 * Runs the script included in the given {@link File} in the
@@ -222,6 +225,9 @@ public interface IBrowserComposite extends IWidget {
 	 */
 	public <DEST> Future<DEST> run(String script,
 			IConverter<Object, DEST> converter);
+
+	public <DEST> DEST runImmediately(String script,
+			IConverter<Object, DEST> converter) throws Exception;
 
 	/**
 	 * Returns a {@link Future} that tells you if an element with the given id

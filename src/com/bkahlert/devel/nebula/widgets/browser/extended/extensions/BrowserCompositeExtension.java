@@ -1,12 +1,10 @@
 package com.bkahlert.devel.nebula.widgets.browser.extended.extensions;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.commons.io.FileUtils;
@@ -105,13 +103,10 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 	}
 
 	@Override
-	public Future<Boolean> hasExtension(IBrowserComposite browserComposite) {
-		try {
-			return browserComposite.run(this.verificationScript,
-					IConverter.CONVERTER_BOOLEAN);
-		} catch (Exception e) {
-			return new CompletedFuture<Boolean>(false, e);
-		}
+	public Boolean hasExtension(IBrowserComposite browserComposite)
+			throws Exception {
+		return browserComposite.runImmediately(this.verificationScript,
+				IConverter.CONVERTER_BOOLEAN);
 	}
 
 	@Override
@@ -161,8 +156,8 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 				"Adding Extension Once", new Callable<Boolean>() {
 					@Override
 					public Boolean call() throws Exception {
-						if (!BrowserCompositeExtension.this.hasExtension(
-								browserComposite).get()) {
+						if (!BrowserCompositeExtension.this
+								.hasExtension(browserComposite)) {
 							return BrowserCompositeExtension.this.addExtension(
 									browserComposite).get();
 						}
@@ -172,23 +167,22 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 	}
 
 	/*
-	 * TODO merge with BrowserComposite inject (only difference here: directly
-	 * injects if local file)
+	 * TODO merge with Browser inject (only difference here: directly injects if
+	 * local file)
 	 */
 	private static Boolean inject(IBrowserComposite browserComposite,
-			URI jsExtension, String name) throws IOException,
-			InterruptedException, ExecutionException {
+			URI jsExtension, String name) throws Exception {
 		if ("file".equalsIgnoreCase(jsExtension.getScheme())) {
 			File file = new File(jsExtension.toString().substring(
 					"file://".length()));
 			String script = FileUtils.readFileToString(file);
-			return browserComposite.run(script,
+			return browserComposite.runImmediately(script,
 					new IConverter<Object, Boolean>() {
 						@Override
 						public Boolean convert(Object returnValue) {
 							return true;
 						}
-					}).get();
+					});
 		} else {
 			try {
 				return browserComposite.inject(jsExtension).get();

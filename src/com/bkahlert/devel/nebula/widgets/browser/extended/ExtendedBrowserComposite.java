@@ -35,7 +35,7 @@ public class ExtendedBrowserComposite extends BrowserComposite implements
 	}
 
 	@Override
-	public Future<Void> afterCompletion(String uri) {
+	public Future<Void> beforeCompletion(String uri) {
 		/*
 		 * TODO FIX BUG: afterCompletion is called after the pageLoadScript. Two
 		 * problems can occur: (1) pageLoadNeeds to access something loaded

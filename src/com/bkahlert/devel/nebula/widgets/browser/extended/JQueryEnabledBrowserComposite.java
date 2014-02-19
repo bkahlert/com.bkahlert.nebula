@@ -87,13 +87,13 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 	}
 
 	@Override
-	public Future<Void> afterCompletion(final String uri) {
+	public Future<Void> beforeCompletion(final String uri) {
 		return ExecUtils.nonUIAsyncExec(JQueryEnabledBrowserComposite.class,
 				"Active Listeners", new Callable<Void>() {
 					@Override
 					public Void call() throws Exception {
 						JQueryEnabledBrowserComposite.super
-								.afterCompletion(uri).get();
+								.beforeCompletion(uri).get();
 
 						String js = "(function(e){e(document).ready(function(){e(\"body\").on(\"focus\",\"*\",function(t){if(t.target!=this)return;var n=e(document.activeElement).clone().wrap(\"<p>\").parent().html();if(window[\"__focus\"]&&typeof window[\"__focus\"]==\"function\"){window[\"__focus\"](n)}})})})(jQuery)";
 						JQueryEnabledBrowserComposite.this.run(js);
