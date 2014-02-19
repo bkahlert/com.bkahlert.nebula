@@ -139,7 +139,8 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		this.browser.addProgressListener(new ProgressAdapter() {
 			@Override
 			public void completed(ProgressEvent event) {
-				if (BrowserComposite.this.isCancelled.get()
+				if (BrowserComposite.this.loadingCompleted
+						|| BrowserComposite.this.isCancelled.get()
 						|| BrowserComposite.this.browser == null
 						|| BrowserComposite.this.browser.isDisposed()) {
 					return;
