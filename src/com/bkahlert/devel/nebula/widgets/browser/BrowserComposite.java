@@ -42,6 +42,7 @@ import com.bkahlert.devel.nebula.widgets.browser.extended.html.Anker;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.browser.exception.BrowserTimeoutException;
+import com.bkahlert.nebula.browser.exception.BrowserUninitializedException;
 import com.bkahlert.nebula.browser.exception.ScriptExecutionException;
 import com.bkahlert.nebula.utils.CompletedFuture;
 
@@ -69,6 +70,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	private Browser browser;
 	private boolean settingUri = false;
 	private boolean allowLocationChange = false;
+	private boolean firstLoadingStarted = false;
 	private boolean loadingCompleted = false;
 	final AtomicReference<Boolean> isCancelled = new AtomicReference<Boolean>(
 			false);
@@ -277,6 +279,7 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	@Override
 	public Future<Boolean> open(final String uri, final Integer timeout,
 			String pageLoadCheckScript) {
+		this.firstLoadingStarted = true;
 		this.loadingCompleted = false;
 		this.pageLoadCheckScript = pageLoadCheckScript;
 		this.successfullyInjectedAnkerHoverCallback = false;
@@ -597,6 +600,10 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 			return new CompletedFuture<DEST>(null,
 					new ScriptExecutionException(new JavaScript(script),
 							new BrowserTimeoutException()));
+		} else if (!this.firstLoadingStarted) {
+			return new CompletedFuture<DEST>(null,
+					new ScriptExecutionException(new JavaScript(script),
+							new BrowserUninitializedException(this)));
 		} else {
 			return this.delayedScriptsWorker.submit(new Callable<DEST>() {
 				@Override
