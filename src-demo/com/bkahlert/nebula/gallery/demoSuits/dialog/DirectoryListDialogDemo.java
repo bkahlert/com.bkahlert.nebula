@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
-import com.bkahlert.devel.nebula.dialogs.DirectoryListDialog;
+import com.bkahlert.nebula.dialogs.DirectoryListDialog;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 

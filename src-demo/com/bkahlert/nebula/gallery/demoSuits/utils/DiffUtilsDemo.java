@@ -13,11 +13,11 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import com.bkahlert.devel.nebula.utils.ExecUtils;
-import com.bkahlert.devel.nebula.widgets.decoration.EmptyText;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.utils.DiffUtils;
+import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.widgets.decoration.EmptyText;
 
 @Demo
 public class DiffUtilsDemo extends AbstractDemo {

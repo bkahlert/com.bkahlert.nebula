@@ -9,7 +9,7 @@ import java.util.Calendar;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.bkahlert.devel.nebula.utils.CalendarUtils;
+import com.bkahlert.nebula.utils.CalendarUtils;
 
 public class CalendarRangeTest {
 

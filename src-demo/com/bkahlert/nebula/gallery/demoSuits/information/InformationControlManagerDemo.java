@@ -16,8 +16,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
-import com.bkahlert.devel.nebula.colors.ColorUtils;
-import com.bkahlert.devel.nebula.widgets.SimpleRoundedComposite;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.information.EnhanceableInformationControl;
@@ -28,6 +26,8 @@ import com.bkahlert.nebula.information.InformationControl;
 import com.bkahlert.nebula.information.InformationControlCreator;
 import com.bkahlert.nebula.information.InformationControlManager;
 import com.bkahlert.nebula.information.InformationControlManagerUtils;
+import com.bkahlert.nebula.utils.colors.ColorUtils;
+import com.bkahlert.nebula.widgets.SimpleRoundedComposite;
 import com.bkahlert.nebula.widgets.image.Image;
 import com.bkahlert.nebula.widgets.image.Image.FILL_MODE;
 

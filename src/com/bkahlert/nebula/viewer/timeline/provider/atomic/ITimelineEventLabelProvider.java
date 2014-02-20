@@ -3,8 +3,8 @@ package com.bkahlert.nebula.viewer.timeline.provider.atomic;
 import java.net.URI;
 import java.util.Calendar;
 
-import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.nebula.utils.colors.RGB;
+import com.bkahlert.nebula.widgets.timeline.ITimeline;
 
 /**
  * Provides label information for the passed {@link ITimeline} event represented

@@ -9,9 +9,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import com.bkahlert.devel.nebula.widgets.RoundedLabels;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.widgets.RoundedLabels;
 
 @Demo
 public class RoundedLabelsDemo extends AbstractDemo {

@@ -14,14 +14,14 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.junit.Assert;
 
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Decorator;
-import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
 import com.bkahlert.nebula.datetime.CalendarRange;
 import com.bkahlert.nebula.viewer.timeline.provider.complex.ITimelineProviderFactory;
+import com.bkahlert.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.nebula.widgets.timeline.impl.Decorator;
+import com.bkahlert.nebula.widgets.timeline.model.IDecorator;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineEvent;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 /**

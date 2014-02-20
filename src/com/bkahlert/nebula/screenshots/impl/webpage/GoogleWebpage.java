@@ -6,7 +6,7 @@ import java.net.URISyntaxException;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.Rectangle;
 
-import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector;
+import com.bkahlert.nebula.widgets.browser.extended.ISelector;
 
 public class GoogleWebpage extends SingleFieldWebpage {
 

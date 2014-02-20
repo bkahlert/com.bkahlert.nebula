@@ -2,11 +2,11 @@ package com.bkahlert.nebula.viewer.timeline.provider.atomic;
 
 import java.util.Calendar;
 
-import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
-import com.bkahlert.devel.nebula.widgets.timeline.model.IHotZone;
-import com.bkahlert.devel.nebula.widgets.timeline.model.IZoomStep;
+import com.bkahlert.nebula.widgets.timeline.IBaseTimeline;
+import com.bkahlert.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.nebula.widgets.timeline.model.IDecorator;
+import com.bkahlert.nebula.widgets.timeline.model.IHotZone;
+import com.bkahlert.nebula.widgets.timeline.model.IZoomStep;
 
 /**
  * Instances of this class provide label information for {@link ITimeline}s.

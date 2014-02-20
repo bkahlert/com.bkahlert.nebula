@@ -1,6 +1,6 @@
 package com.bkahlert.nebula.viewer.timeline.provider.complex;
 
-import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
+import com.bkahlert.nebula.widgets.timeline.IBaseTimeline;
 
 /**
  * Instances of this class create {@link ITimelineProvider} objects.

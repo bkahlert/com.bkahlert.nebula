@@ -26,7 +26,7 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            class="com.bkahlert.devel.nebula.views.SampleEditorView"
+            class="com.bkahlert.nebula.views.SampleEditorView"
             id="de.fu_berlin.imp.seqan.usability_analyzer.nebula.ui.views.SampleEditorView"
             name="Sample Editor"
             restorable="true">
@@ -73,7 +73,7 @@
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="com.bkahlert.devel.nebula.handlers.ToggleSourceModeHandler"
+            class="com.bkahlert.nebula.handlers.ToggleSourceModeHandler"
             commandId="com.bkahlert.devel.nebula.toggleSourceMode">
       </handler>
       <handler
@@ -95,7 +95,7 @@
    <extension
          point="org.eclipse.ui.startup">
       <startup
-            class="com.bkahlert.devel.nebula.utils.KeyboardUtils">
+            class="com.bkahlert.nebula.utils.KeyboardUtils">
       </startup>
    </extension>
    <extension
@@ -108,7 +108,7 @@
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="com.bkahlert.devel.nebula.handlers.EditorDemoInformationControl"
+            class="com.bkahlert.nebula.handlers.EditorDemoInformationControl"
             commandId="com.bkahlert.devel.nebula.commands.EditorDemoInformationControl">
       </handler>
    </extension>

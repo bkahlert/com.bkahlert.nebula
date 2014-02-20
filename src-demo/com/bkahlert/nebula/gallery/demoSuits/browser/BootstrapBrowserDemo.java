@@ -11,20 +11,20 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import com.bkahlert.devel.nebula.utils.ExecUtils;
-import com.bkahlert.devel.nebula.widgets.browser.extended.BootstrapEnabledBrowserComposite;
-import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
-import com.bkahlert.devel.nebula.widgets.browser.extended.html.IElement;
-import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
-import com.bkahlert.devel.nebula.widgets.browser.listener.IFocusListener;
-import com.bkahlert.nebula.browser.BrowserUtils;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.widgets.browser.BrowserUtils;
+import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
+import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
+import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
+import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 
 @Demo
 public class BootstrapBrowserDemo extends AbstractDemo {
 
-	private BootstrapEnabledBrowserComposite bootstrapBrowser;
+	private BootstrapBrowser bootstrapBrowser;
 	private String html = "<p>Hello <a href=\"#\">World</a>!</p>";
 
 	@Override
@@ -65,7 +65,7 @@ public class BootstrapBrowserDemo extends AbstractDemo {
 
 	@Override
 	public void createDemo(Composite parent) {
-		this.bootstrapBrowser = new BootstrapEnabledBrowserComposite(parent,
+		this.bootstrapBrowser = new BootstrapBrowser(parent,
 				SWT.BORDER) {
 			@Override
 			public void scriptAboutToBeSentToBrowser(String script) {

@@ -1,0 +1,62 @@
+package com.bkahlert.nebula.widgets.browser.extended;
+
+import java.net.URI;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+
+import org.apache.log4j.Logger;
+import org.eclipse.swt.widgets.Composite;
+
+import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.widgets.browser.Browser;
+import com.bkahlert.nebula.widgets.browser.IBrowser;
+import com.bkahlert.nebula.widgets.browser.extended.extensions.IBrowserCompositeExtension;
+
+/**
+ * This {@link IBrowser} behaves like the {@link Browser} but
+ * allows {@link IBrowserCompositeExtension}s to be automatically loaded when
+ * the requested {@link URI} was loaded.
+ * 
+ * @author bkahlert
+ * 
+ */
+public class ExtendedBrowser extends Browser implements
+		IBrowser {
+
+	private static final Logger LOGGER = Logger
+			.getLogger(ExtendedBrowser.class);
+
+	private final IBrowserCompositeExtension[] extensions;
+
+	public ExtendedBrowser(Composite parent, int style,
+			IBrowserCompositeExtension[] extensions) {
+		super(parent, style);
+		this.extensions = extensions;
+	}
+
+	@Override
+	public Future<Void> beforeCompletion(String uri) {
+		/*
+		 * TODO FIX BUG: afterCompletion is called after the pageLoadScript. Two
+		 * problems can occur: (1) pageLoadNeeds to access something loaded
+		 * through extensions; (2) queued scripts get executed before extensions
+		 * are loaded
+		 */
+		return ExecUtils.nonUIAsyncExec(ExtendedBrowser.class,
+				"After Completion Extensions", new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+						for (IBrowserCompositeExtension extension : ExtendedBrowser.this.extensions) {
+							try {
+								extension.addExtensionOnce(
+										ExtendedBrowser.this).get();
+							} catch (Exception e) {
+								LOGGER.error(e);
+							}
+						}
+						return null;
+					}
+				});
+	}
+
+}

@@ -8,10 +8,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
-import com.bkahlert.devel.nebula.colors.ColorUtils;
-import com.bkahlert.devel.nebula.widgets.composer.ComposerReadOnly;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.utils.colors.ColorUtils;
+import com.bkahlert.nebula.widgets.composer.ComposerReadOnly;
 
 @Demo
 public class ComposerReadOnlyDemo extends AbstractDemo {

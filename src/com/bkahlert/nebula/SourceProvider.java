@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
 
-import com.bkahlert.devel.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.ExecUtils;
 
 public class SourceProvider extends AbstractSourceProvider {
 

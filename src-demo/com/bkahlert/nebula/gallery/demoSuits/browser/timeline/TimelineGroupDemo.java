@@ -11,20 +11,20 @@ import java.util.concurrent.Callable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
-import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineBand;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineInput;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.utils.colors.RGB;
+import com.bkahlert.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.nebula.widgets.timeline.ITimelineFactory;
+import com.bkahlert.nebula.widgets.timeline.ITimelineListener;
+import com.bkahlert.nebula.widgets.timeline.impl.Options;
+import com.bkahlert.nebula.widgets.timeline.impl.Timeline;
+import com.bkahlert.nebula.widgets.timeline.impl.TimelineBand;
+import com.bkahlert.nebula.widgets.timeline.impl.TimelineEvent;
+import com.bkahlert.nebula.widgets.timeline.impl.TimelineInput;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineBand;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineEvent;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 @Demo
@@ -111,61 +111,61 @@ public class TimelineGroupDemo extends AbstractDemo {
 
 			@Override
 			public void rightClicked(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				log("right clicked: " + event);
 			}
 
 			@Override
 			public void resizing(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				log("resizing: " + event);
 			}
 
 			@Override
 			public void resized(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				log("resized: " + event);
 			}
 
 			@Override
 			public void resizeStarted(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				log("resize started: " + event);
 			}
 
 			@Override
 			public void middleClicked(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				log("middle clicked: " + event);
 			}
 
 			@Override
 			public void hoveredOut(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				log("hovered out: " + event);
 			}
 
 			@Override
 			public void hoveredIn(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				log("hovered in: " + event);
 			}
 
 			@Override
 			public void doubleClicked(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				log("double clicked: " + event);
 			}
 
 			@Override
 			public void clicked(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				log("left clicked: " + event);
 			}
 
 			@Override
 			public void selected(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				log("selected: " + event);
 			}
 		});

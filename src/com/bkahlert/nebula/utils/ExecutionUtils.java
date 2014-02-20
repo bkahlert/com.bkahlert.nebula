@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.bkahlert.devel.nebula.utils.StringUtils;
-
 public class ExecutionUtils {
 	/**
 	 * Executes the given command and returns its result code.

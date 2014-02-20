@@ -5,7 +5,7 @@ import java.util.Iterator;
 
 import org.eclipse.swt.graphics.Rectangle;
 
-import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector;
+import com.bkahlert.nebula.widgets.browser.extended.ISelector;
 
 public class SingleFieldWebpage extends FormContainingWebpage {
 

@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 
-import com.bkahlert.devel.nebula.utils.CalendarUtils;
+import com.bkahlert.nebula.utils.CalendarUtils;
 
 /**
  * This class describes a range defined by two {@link TimeZoneDate}s. To define

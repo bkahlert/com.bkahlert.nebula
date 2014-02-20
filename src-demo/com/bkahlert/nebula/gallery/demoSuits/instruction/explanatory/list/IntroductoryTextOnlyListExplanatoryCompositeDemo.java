@@ -7,11 +7,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
-
-import com.bkahlert.devel.nebula.widgets.explanation.ListExplanationComposite.ListExplanation;
-import com.bkahlert.devel.nebula.widgets.explanation.explanatory.ListExplanatoryComposite;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.widgets.explanation.ListExplanationComposite.ListExplanation;
+import com.bkahlert.nebula.widgets.explanation.explanatory.ListExplanatoryComposite;
 
 @Demo
 public class IntroductoryTextOnlyListExplanatoryCompositeDemo extends

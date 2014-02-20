@@ -11,7 +11,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
-import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import com.bkahlert.nebula.gallery.ImageManager;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoExplorer.DemoElement;
@@ -19,6 +18,7 @@ import com.bkahlert.nebula.gallery.demoExplorer.DemoExplorer;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.gallery.util.deprecated.CompositeUtils;
 import com.bkahlert.nebula.gallery.widgets.DemoBannerComposite;
+import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
 public class GalleryView extends ViewPart {
 	public static final String ID = "com.bkahlert.nebula.gallery.views.GalleryView";

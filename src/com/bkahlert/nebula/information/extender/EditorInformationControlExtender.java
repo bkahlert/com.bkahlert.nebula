@@ -11,12 +11,12 @@ import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.widgets.Composite;
 
-import com.bkahlert.devel.nebula.widgets.composer.Composer;
-import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
-import com.bkahlert.devel.nebula.widgets.composer.ComposerReadOnly;
-import com.bkahlert.devel.nebula.widgets.editor.Editor;
 import com.bkahlert.nebula.information.EnhanceableInformationControl;
 import com.bkahlert.nebula.information.InformationControl;
+import com.bkahlert.nebula.widgets.composer.Composer;
+import com.bkahlert.nebula.widgets.composer.ComposerReadOnly;
+import com.bkahlert.nebula.widgets.composer.Composer.ToolbarSet;
+import com.bkahlert.nebula.widgets.editor.Editor;
 
 /**
  * Instances of this class extends a {@link InformationControl} by a

@@ -13,8 +13,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.about.AboutAction;
 
-import com.bkahlert.devel.nebula.colors.ColorUtils;
-import com.bkahlert.devel.nebula.widgets.SimpleRoundedComposite;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.information.EnhanceableInformationControl;
@@ -25,6 +23,8 @@ import com.bkahlert.nebula.information.InformationControl;
 import com.bkahlert.nebula.information.InformationControlCreator;
 import com.bkahlert.nebula.information.InformationControlManager;
 import com.bkahlert.nebula.information.extender.EditorInformationControlExtender;
+import com.bkahlert.nebula.utils.colors.ColorUtils;
+import com.bkahlert.nebula.widgets.SimpleRoundedComposite;
 
 @SuppressWarnings("restriction")
 @Demo

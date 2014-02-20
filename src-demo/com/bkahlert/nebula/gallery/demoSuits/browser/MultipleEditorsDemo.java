@@ -8,13 +8,13 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
-import com.bkahlert.devel.nebula.colors.ColorUtils;
-import com.bkahlert.devel.nebula.widgets.RoundedComposite;
-import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
-import com.bkahlert.devel.nebula.widgets.editor.AutosaveEditor;
-import com.bkahlert.devel.nebula.widgets.editor.Editor;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.utils.colors.ColorUtils;
+import com.bkahlert.nebula.widgets.RoundedComposite;
+import com.bkahlert.nebula.widgets.composer.Composer.ToolbarSet;
+import com.bkahlert.nebula.widgets.editor.AutosaveEditor;
+import com.bkahlert.nebula.widgets.editor.Editor;
 
 @Demo
 public class MultipleEditorsDemo extends AbstractDemo {

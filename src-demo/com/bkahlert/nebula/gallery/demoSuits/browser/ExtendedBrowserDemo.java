@@ -13,20 +13,20 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import com.bkahlert.devel.nebula.utils.ExecUtils;
-import com.bkahlert.devel.nebula.widgets.browser.extended.JQueryEnabledBrowserComposite;
-import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
-import com.bkahlert.devel.nebula.widgets.browser.extended.html.IElement;
-import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
-import com.bkahlert.devel.nebula.widgets.browser.listener.IFocusListener;
-import com.bkahlert.nebula.browser.BrowserUtils;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.widgets.browser.BrowserUtils;
+import com.bkahlert.nebula.widgets.browser.extended.JQueryBrowser;
+import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
+import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
+import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 
 @Demo
 public class ExtendedBrowserDemo extends AbstractDemo {
 
-	private JQueryEnabledBrowserComposite jQueryBrowserComposite;
+	private JQueryBrowser jQueryBrowserComposite;
 	private Integer x = 50;
 	private Integer y = 200;
 
@@ -83,7 +83,7 @@ public class ExtendedBrowserDemo extends AbstractDemo {
 
 	@Override
 	public void createDemo(Composite parent) {
-		this.jQueryBrowserComposite = new JQueryEnabledBrowserComposite(parent,
+		this.jQueryBrowserComposite = new JQueryBrowser(parent,
 				SWT.BORDER) {
 			@Override
 			public void scriptAboutToBeSentToBrowser(String script) {

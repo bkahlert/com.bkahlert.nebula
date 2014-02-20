@@ -7,8 +7,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.TextStyle;
 import org.eclipse.swt.widgets.Display;
 
-import com.bkahlert.devel.nebula.colors.ColorUtils;
-import com.bkahlert.devel.nebula.utils.FontUtils;
+import com.bkahlert.nebula.utils.colors.ColorUtils;
 
 public class Stylers {
 

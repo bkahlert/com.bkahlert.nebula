@@ -10,15 +10,15 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
-import com.bkahlert.devel.nebula.widgets.chatControl.ChatControl;
-import com.bkahlert.devel.nebula.widgets.chatControl.events.CharacterEnteredEvent;
-import com.bkahlert.devel.nebula.widgets.chatControl.events.ChatClearedEvent;
-import com.bkahlert.devel.nebula.widgets.chatControl.events.IChatControlListener;
-import com.bkahlert.devel.nebula.widgets.chatControl.events.MessageEnteredEvent;
-import com.bkahlert.devel.nebula.widgets.explanation.SimpleExplanationComposite.SimpleExplanation;
-import com.bkahlert.devel.nebula.widgets.explanation.explanatory.SimpleExplanatoryComposite;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.widgets.chatControl.ChatControl;
+import com.bkahlert.nebula.widgets.chatControl.events.CharacterEnteredEvent;
+import com.bkahlert.nebula.widgets.chatControl.events.ChatClearedEvent;
+import com.bkahlert.nebula.widgets.chatControl.events.IChatControlListener;
+import com.bkahlert.nebula.widgets.chatControl.events.MessageEnteredEvent;
+import com.bkahlert.nebula.widgets.explanation.SimpleExplanationComposite.SimpleExplanation;
+import com.bkahlert.nebula.widgets.explanation.explanatory.SimpleExplanatoryComposite;
 
 @Demo
 public class ChatControlDemo extends AbstractDemo {

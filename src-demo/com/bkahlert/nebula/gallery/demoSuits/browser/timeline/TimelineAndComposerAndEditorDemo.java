@@ -11,22 +11,22 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import com.bkahlert.devel.nebula.colors.ColorUtils;
-import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
-import com.bkahlert.devel.nebula.widgets.composer.ComposerReadOnly;
-import com.bkahlert.devel.nebula.widgets.editor.Editor;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineBand;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineInput;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.utils.colors.ColorUtils;
+import com.bkahlert.nebula.utils.colors.RGB;
+import com.bkahlert.nebula.widgets.composer.ComposerReadOnly;
+import com.bkahlert.nebula.widgets.composer.Composer.ToolbarSet;
+import com.bkahlert.nebula.widgets.editor.Editor;
+import com.bkahlert.nebula.widgets.timeline.ITimelineListener;
+import com.bkahlert.nebula.widgets.timeline.impl.Options;
+import com.bkahlert.nebula.widgets.timeline.impl.Timeline;
+import com.bkahlert.nebula.widgets.timeline.impl.TimelineBand;
+import com.bkahlert.nebula.widgets.timeline.impl.TimelineEvent;
+import com.bkahlert.nebula.widgets.timeline.impl.TimelineInput;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineBand;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineEvent;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineInput;
 
 @Demo
 public class TimelineAndComposerAndEditorDemo extends AbstractDemo {
@@ -95,70 +95,70 @@ public class TimelineAndComposerAndEditorDemo extends AbstractDemo {
 
 			@Override
 			public void rightClicked(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				TimelineAndComposerAndEditorDemo.this
 						.customLog("right clicked: " + event);
 			}
 
 			@Override
 			public void resizing(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				TimelineAndComposerAndEditorDemo.this.customLog("resizing: "
 						+ event);
 			}
 
 			@Override
 			public void resized(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				TimelineAndComposerAndEditorDemo.this.customLog("resize end: "
 						+ event);
 			}
 
 			@Override
 			public void resizeStarted(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				TimelineAndComposerAndEditorDemo.this
 						.customLog("resize start: " + event);
 			}
 
 			@Override
 			public void middleClicked(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				TimelineAndComposerAndEditorDemo.this
 						.customLog("middle clicked: " + event);
 			}
 
 			@Override
 			public void hoveredOut(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				TimelineAndComposerAndEditorDemo.this.customLog("hovered out: "
 						+ event);
 			}
 
 			@Override
 			public void hoveredIn(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				TimelineAndComposerAndEditorDemo.this.customLog("hovered in: "
 						+ event);
 			}
 
 			@Override
 			public void doubleClicked(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				TimelineAndComposerAndEditorDemo.this
 						.customLog("double clicked: " + event);
 			}
 
 			@Override
 			public void clicked(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				TimelineAndComposerAndEditorDemo.this
 						.customLog("left clicked: " + event);
 			}
 
 			@Override
 			public void selected(
-					com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent event) {
+					com.bkahlert.nebula.widgets.timeline.TimelineEvent event) {
 				TimelineAndComposerAndEditorDemo.this.customLog("selected: "
 						+ event);
 			}

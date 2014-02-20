@@ -3,11 +3,10 @@ package com.bkahlert.nebula.gallery.demoSuits.instruction.explanation.simple;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
-
-import com.bkahlert.devel.nebula.widgets.explanation.SimpleExplanationComposite;
-import com.bkahlert.devel.nebula.widgets.explanation.SimpleExplanationComposite.SimpleExplanation;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.widgets.explanation.SimpleExplanationComposite;
+import com.bkahlert.nebula.widgets.explanation.SimpleExplanationComposite.SimpleExplanation;
 
 @Demo
 public class ExplanationOnlySimpleExplanationCompositeDemo extends AbstractDemo {

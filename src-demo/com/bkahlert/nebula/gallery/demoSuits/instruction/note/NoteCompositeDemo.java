@@ -12,11 +12,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.MessageBox;
 
-
-import com.bkahlert.devel.nebula.utils.LayoutUtils;
-import com.bkahlert.devel.nebula.widgets.explanation.note.NoteComposite;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.utils.LayoutUtils;
+import com.bkahlert.nebula.widgets.explanation.note.NoteComposite;
 
 @Demo(title = "Different NoteComposites with various system icons and colors")
 public class NoteCompositeDemo extends AbstractDemo {

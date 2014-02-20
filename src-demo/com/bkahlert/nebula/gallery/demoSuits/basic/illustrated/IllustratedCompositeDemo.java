@@ -10,10 +10,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 
-import com.bkahlert.devel.nebula.utils.LayoutUtils;
-import com.bkahlert.devel.nebula.widgets.IllustratedComposite;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.utils.LayoutUtils;
+import com.bkahlert.nebula.widgets.IllustratedComposite;
 
 @Demo
 public class IllustratedCompositeDemo extends AbstractDemo {

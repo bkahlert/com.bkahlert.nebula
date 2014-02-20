@@ -8,23 +8,23 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineBand;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineInput;
-import com.bkahlert.devel.nebula.widgets.timeline.model.IOptions;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
+import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineBandLabelProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineContentProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineEventLabelProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.complex.ITimelineProvider;
+import com.bkahlert.nebula.widgets.timeline.IBaseTimeline;
+import com.bkahlert.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.nebula.widgets.timeline.impl.Options;
+import com.bkahlert.nebula.widgets.timeline.impl.TimelineBand;
+import com.bkahlert.nebula.widgets.timeline.impl.TimelineEvent;
+import com.bkahlert.nebula.widgets.timeline.impl.TimelineInput;
+import com.bkahlert.nebula.widgets.timeline.model.IOptions;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineBand;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineEvent;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineInput;
 
 public class TimelineProvider<TIMELINE extends IBaseTimeline, INPUT> implements
 		ITimelineProvider<TIMELINE, INPUT> {

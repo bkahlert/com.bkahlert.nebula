@@ -3,11 +3,11 @@ package com.bkahlert.nebula.screenshots.impl.webpage;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.widgets.Shell;
 
-import com.bkahlert.devel.nebula.widgets.browser.extended.IJQueryEnabledBrowserComposite;
-import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector;
 import com.bkahlert.nebula.screenshots.webpage.IFormContainingWebpage;
 import com.bkahlert.nebula.screenshots.webpage.IFormContainingWebpage.IFieldFill;
 import com.bkahlert.nebula.screenshots.webpage.IFormContainingWebpage.Strategy;
+import com.bkahlert.nebula.widgets.browser.extended.IJQueryBrowser;
+import com.bkahlert.nebula.widgets.browser.extended.ISelector;
 
 public class FormContainingWebpageScreenshotRenderer<WEBPAGE extends IFormContainingWebpage>
 		extends WebpageScreenshotRenderer<WEBPAGE> {
@@ -21,7 +21,7 @@ public class FormContainingWebpageScreenshotRenderer<WEBPAGE extends IFormContai
 
 	@Override
 	public void loadingWebpageFinished(WEBPAGE webpage,
-			IJQueryEnabledBrowserComposite browser) {
+			IJQueryBrowser browser) {
 		Iterable<IFieldFill> fieldFills = webpage.getFieldFills();
 		if (fieldFills == null) {
 			return;

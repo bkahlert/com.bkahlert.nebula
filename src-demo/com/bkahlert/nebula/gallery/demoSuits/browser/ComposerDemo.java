@@ -10,13 +10,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
-import com.bkahlert.devel.nebula.dialogs.PopupDialog;
-import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
-import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
-import com.bkahlert.devel.nebula.widgets.composer.Composer;
-import com.bkahlert.devel.nebula.widgets.composer.IAnkerLabelProvider;
+import com.bkahlert.nebula.dialogs.PopupDialog;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
+import com.bkahlert.nebula.widgets.composer.Composer;
+import com.bkahlert.nebula.widgets.composer.IAnkerLabelProvider;
 
 @Demo
 public class ComposerDemo extends AbstractDemo {

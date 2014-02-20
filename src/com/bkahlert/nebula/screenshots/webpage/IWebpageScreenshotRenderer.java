@@ -1,9 +1,9 @@
 package com.bkahlert.nebula.screenshots.webpage;
 
-import com.bkahlert.devel.nebula.widgets.browser.extended.IJQueryEnabledBrowserComposite;
 import com.bkahlert.nebula.screenshots.IScreenshotRenderer;
+import com.bkahlert.nebula.widgets.browser.extended.IJQueryBrowser;
 
-public interface IWebpageScreenshotRenderer<WEBPAGE extends IWebpage, BROWSER extends IJQueryEnabledBrowserComposite>
+public interface IWebpageScreenshotRenderer<WEBPAGE extends IWebpage, BROWSER extends IJQueryBrowser>
 		extends IScreenshotRenderer<WEBPAGE, BROWSER> {
 
 	/**

@@ -1,6 +1,6 @@
 package com.bkahlert.nebula.screenshots.webpage;
 
-import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector;
+import com.bkahlert.nebula.widgets.browser.extended.ISelector;
 
 public interface IFormContainingWebpage extends IWebpage {
 

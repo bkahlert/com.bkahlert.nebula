@@ -4,11 +4,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
-
-import com.bkahlert.devel.nebula.widgets.explanation.SimpleExplanationComposite;
-import com.bkahlert.devel.nebula.widgets.explanation.SimpleExplanationComposite.SimpleExplanation;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.widgets.explanation.SimpleExplanationComposite;
+import com.bkahlert.nebula.widgets.explanation.SimpleExplanationComposite.SimpleExplanation;
 
 @Demo(title = "The following SimpleExplanationComposite has a minimal width/height of 300/300.")
 public class HugeSimpleExplanationCompositeDemo extends AbstractDemo {

@@ -19,19 +19,19 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.bkahlert.devel.nebula.utils.ExecUtils;
-import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimePassed;
-import com.bkahlert.devel.nebula.widgets.timeline.model.IOptions;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.nebula.utils.CompletedFuture;
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.viewer.timeline.ITimelineGroupViewer;
 import com.bkahlert.nebula.viewer.timeline.provider.complex.IBandGroupProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.complex.ITimelineProvider;
 import com.bkahlert.nebula.viewer.timeline.provider.complex.ITimelineProvider.ITimelineLabelProviderCreationInterceptor;
 import com.bkahlert.nebula.viewer.timeline.provider.complex.ITimelineProviderFactory;
+import com.bkahlert.nebula.widgets.timeline.IBaseTimeline;
+import com.bkahlert.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.nebula.widgets.timeline.impl.TimePassed;
+import com.bkahlert.nebula.widgets.timeline.model.IOptions;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineEvent;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 
 /**

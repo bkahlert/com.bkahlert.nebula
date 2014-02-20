@@ -15,14 +15,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.about.AboutAction;
 
-import com.bkahlert.devel.nebula.dialogs.PopupDialog;
-import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
-import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
-import com.bkahlert.devel.nebula.widgets.browser.listener.AnkerAdapter;
-import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
-import com.bkahlert.devel.nebula.widgets.composer.Composer.ToolbarSet;
-import com.bkahlert.devel.nebula.widgets.editor.AutosaveEditor;
-import com.bkahlert.devel.nebula.widgets.editor.Editor;
+import com.bkahlert.nebula.dialogs.PopupDialog;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.information.EnhanceableInformationControl;
@@ -32,6 +25,13 @@ import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.information.InformationControl;
 import com.bkahlert.nebula.information.InformationControlCreator;
 import com.bkahlert.nebula.information.InformationControlManager;
+import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.nebula.widgets.browser.listener.AnkerAdapter;
+import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
+import com.bkahlert.nebula.widgets.composer.Composer.ToolbarSet;
+import com.bkahlert.nebula.widgets.editor.AutosaveEditor;
+import com.bkahlert.nebula.widgets.editor.Editor;
 
 @SuppressWarnings("restriction")
 @Demo

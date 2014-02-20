@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.nebula.viewer.timeline.provider.atomic.ITimelineLabelProvider;
+import com.bkahlert.nebula.widgets.timeline.IBaseTimeline;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineEvent;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineInput;
 
 /**
  * Instances of this class encapsulate the providers needed to render one

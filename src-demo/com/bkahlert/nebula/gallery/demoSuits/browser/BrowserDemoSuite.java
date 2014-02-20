@@ -7,8 +7,8 @@ import com.bkahlert.nebula.gallery.demoExplorer.DemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.gallery.demoSuits.browser.timeline.TimelineDemoSuite;
 
-@DemoSuite(value = { BrowserCompositeDemo.class,
-		MultipleBrowserCompositeDemo.class, ComposerDemo.class,
+@DemoSuite(value = { BrowserDemo.class,
+		MultipleBrowsersDemo.class, ComposerDemo.class,
 		ComposerReadOnlyDemo.class, EditorDemo.class,
 		MultipleEditorsDemo.class, ImageDemo.class, TimelineDemoSuite.class,
 		ExtendedBrowserDemo.class, BootstrapBrowserDemo.class })

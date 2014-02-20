@@ -19,7 +19,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.gallery.util.deprecated.CompositeUtils;
@@ -29,6 +28,7 @@ import com.bkahlert.nebula.screenshots.impl.webpage.GoogleWebpage;
 import com.bkahlert.nebula.screenshots.impl.webpage.WebpageBoundsFactory;
 import com.bkahlert.nebula.screenshots.impl.webpage.WebpageBoundsFactory.Device;
 import com.bkahlert.nebula.screenshots.impl.webpage.WebpageScreenshotTaker;
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.widgets.image.Image;
 import com.bkahlert.nebula.widgets.image.Image.FILL_MODE;
 

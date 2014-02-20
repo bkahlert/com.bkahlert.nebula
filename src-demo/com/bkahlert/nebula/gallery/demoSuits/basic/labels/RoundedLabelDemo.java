@@ -4,10 +4,10 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
-import com.bkahlert.devel.nebula.colors.ColorUtils;
-import com.bkahlert.devel.nebula.widgets.RoundedLabel;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.utils.colors.ColorUtils;
+import com.bkahlert.nebula.widgets.RoundedLabel;
 
 @Demo
 public class RoundedLabelDemo extends AbstractDemo {

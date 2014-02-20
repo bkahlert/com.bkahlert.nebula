@@ -5,9 +5,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
-import com.bkahlert.devel.nebula.widgets.explanation.ExplanationComposite;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.widgets.explanation.ExplanationComposite;
 
 @Demo
 public class ExplanationCompositeDemo extends AbstractDemo {

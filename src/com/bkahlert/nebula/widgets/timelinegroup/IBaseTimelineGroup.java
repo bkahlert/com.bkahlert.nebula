@@ -7,8 +7,8 @@ import java.util.concurrent.Future;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
+import com.bkahlert.nebula.widgets.timeline.IBaseTimeline;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineInput;
 
 public interface IBaseTimelineGroup<TIMELINE extends IBaseTimeline, INPUT> {
 

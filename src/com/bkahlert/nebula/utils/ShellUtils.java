@@ -13,8 +13,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.bkahlert.devel.nebula.utils.ExecUtils;
-
 public class ShellUtils {
 
 	private static Robot robot;

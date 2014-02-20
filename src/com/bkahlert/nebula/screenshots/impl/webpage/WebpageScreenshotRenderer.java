@@ -23,17 +23,17 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.bkahlert.devel.nebula.utils.ExecUtils;
-import com.bkahlert.devel.nebula.widgets.browser.extended.IJQueryEnabledBrowserComposite;
-import com.bkahlert.devel.nebula.widgets.browser.extended.JQueryEnabledBrowserComposite;
 import com.bkahlert.nebula.screenshots.webpage.IWebpage;
 import com.bkahlert.nebula.screenshots.webpage.IWebpageScreenshotRenderer;
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.HttpUtils;
+import com.bkahlert.nebula.widgets.browser.extended.IJQueryBrowser;
+import com.bkahlert.nebula.widgets.browser.extended.JQueryBrowser;
 
 // TODO render in hidden composite
 // TODO render area should not get focus so everything can be done in the background
 public class WebpageScreenshotRenderer<WEBPAGE extends IWebpage> implements
-		IWebpageScreenshotRenderer<WEBPAGE, IJQueryEnabledBrowserComposite> {
+		IWebpageScreenshotRenderer<WEBPAGE, IJQueryBrowser> {
 
 	public static class WebpageRendererException extends Exception {
 
@@ -62,7 +62,7 @@ public class WebpageScreenshotRenderer<WEBPAGE extends IWebpage> implements
 
 	private static class Renderer extends Dialog {
 
-		private JQueryEnabledBrowserComposite browser;
+		private JQueryBrowser browser;
 
 		public Renderer(Shell parentShell) {
 			super(parentShell);
@@ -79,7 +79,7 @@ public class WebpageScreenshotRenderer<WEBPAGE extends IWebpage> implements
 			Composite composite = (Composite) super.createDialogArea(parent);
 			composite.setLayout(new FillLayout());
 
-			this.browser = new JQueryEnabledBrowserComposite(composite,
+			this.browser = new JQueryBrowser(composite,
 					SWT.NONE);
 
 			return composite;
@@ -233,7 +233,7 @@ public class WebpageScreenshotRenderer<WEBPAGE extends IWebpage> implements
 		};
 	}
 
-	protected IJQueryEnabledBrowserComposite getBrowser(WEBPAGE request) {
+	protected IJQueryBrowser getBrowser(WEBPAGE request) {
 		for (Entry<Renderer, WEBPAGE> entry : WebpageScreenshotRenderer.this.renderers
 				.entrySet()) {
 			if (entry.getValue() == request) {
@@ -268,22 +268,22 @@ public class WebpageScreenshotRenderer<WEBPAGE extends IWebpage> implements
 
 	@Override
 	public void preparedWebpageControlFinished(WEBPAGE webpage,
-			IJQueryEnabledBrowserComposite browser) {
+			IJQueryBrowser browser) {
 	}
 
 	@Override
 	public void loadingWebpageFinished(WEBPAGE webpage,
-			IJQueryEnabledBrowserComposite browser) {
+			IJQueryBrowser browser) {
 	}
 
 	@Override
 	public void scrollingWebpageFinished(WEBPAGE webpage,
-			IJQueryEnabledBrowserComposite browser) {
+			IJQueryBrowser browser) {
 	}
 
 	@Override
 	public void renderingFinished(WEBPAGE subject,
-			IJQueryEnabledBrowserComposite control) {
+			IJQueryBrowser control) {
 	}
 
 }

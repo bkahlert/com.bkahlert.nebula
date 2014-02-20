@@ -4,8 +4,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 
-import com.bkahlert.devel.nebula.utils.FontUtils;
-import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite;
+import com.bkahlert.nebula.utils.FontUtils;
+import com.bkahlert.nebula.widgets.SimpleIllustratedComposite;
 
 public class BannerComposite extends SimpleIllustratedComposite {
 

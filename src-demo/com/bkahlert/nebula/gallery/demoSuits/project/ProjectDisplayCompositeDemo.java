@@ -4,10 +4,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 
-
-import com.bkahlert.devel.nebula.widgets.viewer.ProjectDisplayComposite;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.viewer.ProjectDisplayComposite;
 
 @Demo
 public class ProjectDisplayCompositeDemo extends AbstractDemo {

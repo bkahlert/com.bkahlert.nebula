@@ -2,9 +2,9 @@ package com.bkahlert.nebula.viewer.timeline.provider.atomic;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
 import com.bkahlert.nebula.viewer.timeline.ITimelineGroupViewer;
+import com.bkahlert.nebula.widgets.timeline.IBaseTimeline;
+import com.bkahlert.nebula.widgets.timeline.ITimeline;
 
 /**
  * Provides the {@link ITimeline} with contents.

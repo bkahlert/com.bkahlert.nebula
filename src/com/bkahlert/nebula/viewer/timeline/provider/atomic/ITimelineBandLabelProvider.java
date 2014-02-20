@@ -1,6 +1,6 @@
 package com.bkahlert.nebula.viewer.timeline.provider.atomic;
 
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.nebula.widgets.timeline.ITimeline;
 
 /**
  * Provides label information for the passed {@link ITimeline} band defined by a

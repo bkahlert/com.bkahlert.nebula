@@ -24,7 +24,10 @@ import javax.imageio.stream.ImageInputStream;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.internal.preferences.Base64;
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
@@ -32,7 +35,10 @@ import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
+
+import com.bkahlert.nebula.utils.colors.ColorUtils;
 
 @SuppressWarnings("restriction")
 public class ImageUtils {
@@ -320,5 +326,77 @@ public class ImageUtils {
 			}
 		}
 		return imageUris.get(image);
+	}
+
+	/**
+	 * Returns a new {@link Image} where all pixels with the color of the pixel
+	 * at the specified position are transparent.
+	 * <p>
+	 * <strong>Attention: This creates a new {@link Image} that needs to be
+	 * disposed independently of the given one.</strong>
+	 * 
+	 * @param image
+	 *            that serves as the basis for the generated copy
+	 * @param x
+	 *            coordinate of the pixel to be taken the color from
+	 * @param y
+	 *            coordinate of the pixel to be taken the color from
+	 * @return
+	 */
+	public static Image createTransparentImage(Image image, int x, int y) {
+		ImageData transparentImageData = image.getImageData();
+		transparentImageData.transparentPixel = transparentImageData.palette
+				.getPixel(transparentImageData.palette
+						.getRGB(transparentImageData.getPixel(0, 0)));
+		return new Image(Display.getCurrent(), transparentImageData);
+	}
+
+	public static Image getDot(int width, int height,
+			com.bkahlert.nebula.utils.colors.RGB color,
+			com.bkahlert.nebula.utils.colors.RGB rgb) {
+		Image image = new Image(Display.getCurrent(), width, height);
+		GC gc = new GC(image);
+		gc.setAdvanced(true);
+
+		Color backgroundColor = new Color(Display.getCurrent(),
+				color.toClassicRGB());
+		Color borderColor = rgb != null ? new Color(Display.getCurrent(),
+				rgb.toClassicRGB()) : null;
+		if (rgb != null) {
+			PaintUtils.drawRoundedRectangle(gc, new Rectangle(0, 0, width,
+					height), backgroundColor, borderColor);
+		} else {
+			PaintUtils.drawRoundedRectangle(gc, new Rectangle(0, 0, width,
+					height), backgroundColor);
+		}
+
+		if (borderColor != null) {
+			borderColor.dispose();
+		}
+		backgroundColor.dispose();
+		gc.dispose();
+
+		Image transparentImage = createTransparentImage(image, 0, 0);
+		image.dispose();
+
+		return transparentImage;
+	}
+
+	public static Image getDot(int width, int height,
+			com.bkahlert.nebula.utils.colors.RGB background,
+			Float borderLightness) {
+		com.bkahlert.nebula.utils.colors.RGB border = borderLightness != null ? ColorUtils
+				.addLightness(background, borderLightness) : null;
+		return getDot(width, height, background, border);
+	}
+
+	public static ImageDescriptor getOverlayDot(
+			com.bkahlert.nebula.utils.colors.RGB color) {
+		Assert.isNotNull(color);
+		Image image = getDot(6, 6, color, ColorUtils.addLightness(color, -0.1f));
+		ImageDescriptor imageDescriptor = ImageDescriptor
+				.createFromImageData(image.getImageData());
+		image.dispose();
+		return imageDescriptor;
 	}
 }

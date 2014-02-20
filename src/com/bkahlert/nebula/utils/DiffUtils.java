@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.bkahlert.devel.nebula.utils.FileUtils;
-
 public class DiffUtils {
 	public static class PatchFailedException extends Exception {
 		private static final long serialVersionUID = 1L;

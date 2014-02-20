@@ -8,18 +8,18 @@ import java.util.Calendar;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
-import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Options;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineBand;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.TimelineInput;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.utils.colors.RGB;
+import com.bkahlert.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.nebula.widgets.timeline.impl.Options;
+import com.bkahlert.nebula.widgets.timeline.impl.Timeline;
+import com.bkahlert.nebula.widgets.timeline.impl.TimelineBand;
+import com.bkahlert.nebula.widgets.timeline.impl.TimelineEvent;
+import com.bkahlert.nebula.widgets.timeline.impl.TimelineInput;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineBand;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineEvent;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineInput;
 
 @Demo
 public class TimelineDemo extends AbstractDemo {

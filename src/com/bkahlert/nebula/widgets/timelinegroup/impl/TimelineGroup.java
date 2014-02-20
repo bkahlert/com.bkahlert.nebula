@@ -6,10 +6,10 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
 
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineListener;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineEvent;
+import com.bkahlert.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.nebula.widgets.timeline.ITimelineFactory;
+import com.bkahlert.nebula.widgets.timeline.ITimelineListener;
+import com.bkahlert.nebula.widgets.timeline.TimelineEvent;
 
 /**
  * This widget display one or more {@code TIMELINE}s.

@@ -6,11 +6,11 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import com.bkahlert.devel.nebula.widgets.IllustratedComposite;
-import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite;
-import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.widgets.IllustratedComposite;
+import com.bkahlert.nebula.widgets.SimpleIllustratedComposite;
+import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
 
 @Demo
 public class SimpleIllustratedCompositeDemo extends AbstractDemo {

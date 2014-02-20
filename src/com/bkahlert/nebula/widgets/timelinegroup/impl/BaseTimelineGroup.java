@@ -22,12 +22,12 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Layout;
 
-import com.bkahlert.devel.nebula.utils.ExecUtils;
-import com.bkahlert.devel.nebula.widgets.timeline.IBaseTimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimeline;
-import com.bkahlert.devel.nebula.widgets.timeline.ITimelineFactory;
-import com.bkahlert.devel.nebula.widgets.timeline.impl.Timeline;
-import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
+import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.widgets.timeline.IBaseTimeline;
+import com.bkahlert.nebula.widgets.timeline.ITimeline;
+import com.bkahlert.nebula.widgets.timeline.ITimelineFactory;
+import com.bkahlert.nebula.widgets.timeline.impl.Timeline;
+import com.bkahlert.nebula.widgets.timeline.model.ITimelineInput;
 import com.bkahlert.nebula.widgets.timelinegroup.IBaseTimelineGroup;
 
 /**
@@ -53,7 +53,7 @@ public class BaseTimelineGroup<TIMELINE extends IBaseTimeline, INPUT> extends
 	}
 
 	/* (non-Javadoc)
-	 * @see com.bkahlert.devel.nebula.widgets.timeline.IBaseTimelineGroup#show(java.util.Map, org.eclipse.core.runtime.IProgressMonitor, java.util.concurrent.Callable)
+	 * @see com.bkahlert.nebula.widgets.timeline.IBaseTimelineGroup#show(java.util.Map, org.eclipse.core.runtime.IProgressMonitor, java.util.concurrent.Callable)
 	 */
 	@Override
 	public <T> Future<T> show(Map<INPUT, ITimelineInput> inputs,
@@ -148,7 +148,7 @@ public class BaseTimelineGroup<TIMELINE extends IBaseTimeline, INPUT> extends
 	}
 
 	/* (non-Javadoc)
-	 * @see com.bkahlert.devel.nebula.widgets.timeline.IBaseTimelineGroup#createTimeline()
+	 * @see com.bkahlert.nebula.widgets.timeline.IBaseTimelineGroup#createTimeline()
 	 */
 	@Override
 	public TIMELINE createTimeline() {
@@ -157,7 +157,7 @@ public class BaseTimelineGroup<TIMELINE extends IBaseTimeline, INPUT> extends
 	}
 
 	/* (non-Javadoc)
-	 * @see com.bkahlert.devel.nebula.widgets.timeline.IBaseTimelineGroup#getTimelineKeys()
+	 * @see com.bkahlert.nebula.widgets.timeline.IBaseTimelineGroup#getTimelineKeys()
 	 */
 	@Override
 	public Set<INPUT> getTimelineKeys() {
@@ -177,7 +177,7 @@ public class BaseTimelineGroup<TIMELINE extends IBaseTimeline, INPUT> extends
 	}
 
 	/* (non-Javadoc)
-	 * @see com.bkahlert.devel.nebula.widgets.timeline.IBaseTimelineGroup#getTimeline(INPUT)
+	 * @see com.bkahlert.nebula.widgets.timeline.IBaseTimelineGroup#getTimeline(INPUT)
 	 */
 	@Override
 	@SuppressWarnings("unchecked")

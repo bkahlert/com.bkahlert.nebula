@@ -6,14 +6,13 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 
-
-import com.bkahlert.devel.nebula.utils.LayoutUtils;
-import com.bkahlert.devel.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
-import com.bkahlert.devel.nebula.widgets.wizards.SummaryItemComposite;
 import com.bkahlert.nebula.gallery.ImageManager;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.gallery.util.deprecated.StringUtils;
+import com.bkahlert.nebula.utils.LayoutUtils;
+import com.bkahlert.nebula.widgets.SimpleIllustratedComposite.IllustratedText;
+import com.bkahlert.nebula.widgets.wizards.SummaryItemComposite;
 
 @Demo
 public class SummaryItemCompositeDemo extends AbstractDemo {

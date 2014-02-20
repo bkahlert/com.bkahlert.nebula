@@ -6,12 +6,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Tree;
 
-
-import com.bkahlert.devel.nebula.utils.ViewerUtils;
 import com.bkahlert.nebula.gallery.demoSuits.MainDemo;
 import com.bkahlert.nebula.gallery.util.deprecated.LayoutUtils;
 import com.bkahlert.nebula.gallery.util.deprecated.TreeLabelProvider;
 import com.bkahlert.nebula.gallery.util.deprecated.ViewerComposite;
+import com.bkahlert.nebula.utils.ViewerUtils;
 
 public class DemoExplorer extends ViewerComposite {
 

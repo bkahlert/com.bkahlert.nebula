@@ -12,12 +12,12 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
-import com.bkahlert.devel.nebula.colors.RGB;
-import com.bkahlert.devel.nebula.utils.ExecUtils;
-import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
-import com.bkahlert.devel.nebula.widgets.timeline.TimelineJsonGenerator;
-import com.bkahlert.nebula.browser.BrowserUtils;
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.ImageUtils;
+import com.bkahlert.nebula.utils.colors.RGB;
+import com.bkahlert.nebula.widgets.browser.Browser;
+import com.bkahlert.nebula.widgets.browser.BrowserUtils;
+import com.bkahlert.nebula.widgets.timeline.TimelineJsonGenerator;
 
 /**
  * Shows an image in a way that it always fills the {@link Composite}'s
@@ -26,7 +26,7 @@ import com.bkahlert.nebula.utils.ImageUtils;
  * @author bkahlert
  * 
  */
-public class Image extends BrowserComposite {
+public class Image extends Browser {
 
 	/**
 	 * Specifies the way the image should fill the canvas if the latter does not
