@@ -49,10 +49,6 @@ public interface IJQueryEnabledBrowserComposite extends IBrowserComposite {
 	 */
 	public Future<Boolean> scrollTo(ISelector selector);
 
-	public void addFocusListener(IFocusListener focusListener);
-
-	public void removeFocusListener(IFocusListener focusListener);
-
 	/**
 	 * Given the first element specified by the given selector the focus.
 	 * 
@@ -147,11 +143,5 @@ public interface IJQueryEnabledBrowserComposite extends IBrowserComposite {
 	 * @return
 	 */
 	public Future<Object> submit(ISelector selector);
-
-	public static interface IFocusListener {
-		public void focusGained(IElement element);
-
-		public void focusLost(IElement element);
-	}
 
 }

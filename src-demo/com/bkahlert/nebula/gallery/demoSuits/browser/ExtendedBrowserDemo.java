@@ -2,6 +2,7 @@ package com.bkahlert.nebula.gallery.demoSuits.browser;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.Future;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -14,6 +15,11 @@ import org.eclipse.swt.widgets.Text;
 
 import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.widgets.browser.extended.JQueryEnabledBrowserComposite;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IElement;
+import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
+import com.bkahlert.devel.nebula.widgets.browser.listener.IFocusListener;
+import com.bkahlert.nebula.browser.BrowserUtils;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 
@@ -22,7 +28,7 @@ public class ExtendedBrowserDemo extends AbstractDemo {
 
 	private JQueryEnabledBrowserComposite jQueryBrowserComposite;
 	private Integer x = 50;
-	private Integer y = 100;
+	private Integer y = 200;
 
 	@Override
 	public void createControls(Composite composite) {
@@ -78,14 +84,63 @@ public class ExtendedBrowserDemo extends AbstractDemo {
 	@Override
 	public void createDemo(Composite parent) {
 		this.jQueryBrowserComposite = new JQueryEnabledBrowserComposite(parent,
-				SWT.BORDER);
+				SWT.BORDER) {
+			@Override
+			public void scriptAboutToBeSentToBrowser(String script) {
+				log("SENT: " + BrowserUtils.shortenScript(script));
+			}
+
+			@Override
+			public void scriptReturnValueReceived(Object returnValue) {
+				log("RETN: " + returnValue);
+			}
+		};
 		try {
-			this.jQueryBrowserComposite.open(new URI(
-					"http://agilemanifesto.org"), 5000);
-			ExtendedBrowserDemo.this.jQueryBrowserComposite.scrollTo(50, 50);
+			final Future<Boolean> loaded = this.jQueryBrowserComposite.open(
+					new URI("http://amazon.com"), 5000);
+			this.jQueryBrowserComposite.addAnkerListener(new IAnkerListener() {
+				@Override
+				public void ankerHovered(IAnker anker, boolean entered) {
+					if (entered) {
+						log("Anker hovered over: " + anker);
+					} else {
+						log("Anker hovered out: " + anker);
+					}
+				}
+
+				@Override
+				public void ankerClicked(IAnker anker) {
+					log("Anker clicked: " + anker);
+				}
+			});
+			this.jQueryBrowserComposite.addFocusListener(new IFocusListener() {
+				@Override
+				public void focusGained(IElement element) {
+					log("Focus gainedr: " + element);
+				}
+
+				@Override
+				public void focusLost(IElement element) {
+					log("Focus lost: " + element);
+				}
+			});
+			this.jQueryBrowserComposite.scrollTo(this.x, this.y);
+			ExecUtils.nonUIAsyncExec(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if (loaded.get()) {
+							log("loaded successfully");
+						} else {
+							log("loading failed");
+						}
+					} catch (Exception e) {
+						log("loading error: " + e);
+					}
+				}
+			});
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
-		log(this.jQueryBrowserComposite.getBrowser().getUrl());
 	}
 }

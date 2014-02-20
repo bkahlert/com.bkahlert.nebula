@@ -1,21 +1,14 @@
 package com.bkahlert.devel.nebula.widgets.browser;
 
 import java.io.File;
-import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
@@ -29,89 +22,48 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import com.bkahlert.devel.nebula.utils.EventDelegator;
 import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.IConverter;
-import com.bkahlert.devel.nebula.utils.OffWorker;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.Anker;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.Element;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
-import com.bkahlert.nebula.browser.exception.BrowserTimeoutException;
-import com.bkahlert.nebula.browser.exception.BrowserUninitializedException;
-import com.bkahlert.nebula.browser.exception.ScriptExecutionException;
+import com.bkahlert.devel.nebula.widgets.browser.listener.IFocusListener;
+import com.bkahlert.nebula.browser.BrowserScriptRunner;
+import com.bkahlert.nebula.browser.BrowserScriptRunner.BrowserStatus;
+import com.bkahlert.nebula.browser.BrowserUtils;
 import com.bkahlert.nebula.utils.CompletedFuture;
 
 public class BrowserComposite extends Composite implements IBrowserComposite {
 
 	private static Logger LOGGER = Logger.getLogger(BrowserComposite.class);
 
-	public static URI getFileUrl(Class<?> clazz, String clazzRelativePath) {
-		return getFileUrl(clazz, clazzRelativePath, "");
-	}
-
-	public static URI getFileUrl(Class<?> clazz, String clazzRelativePath,
-			String suffix) {
-		try {
-			URL url = FileLocator.toFileURL(clazz
-					.getResource(clazzRelativePath));
-			String timelineUrlString = url.toString().replace("file:",
-					"file://");
-			return new URI(timelineUrlString + suffix);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	private Browser browser;
+	private BrowserScriptRunner browserScriptRunner;
+
 	private boolean settingUri = false;
 	private boolean allowLocationChange = false;
-	private boolean firstLoadingStarted = false;
-	private boolean loadingCompleted = false;
-	final AtomicReference<Boolean> isCancelled = new AtomicReference<Boolean>(
-			false);
-	final AtomicReference<Exception> openException = new AtomicReference<Exception>(
-			null);
-	private String pageLoadCheckScript = null;
-	private final List<IJavaScriptExceptionListener> javaScriptExceptionListeners = new ArrayList<IJavaScriptExceptionListener>();
-	private final List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
 
-	private final OffWorker delayedScriptsWorker = new OffWorker(
-			this.getClass(), "Script Runner");
+	private final List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
+	private final List<IFocusListener> focusListeners = new ArrayList<IFocusListener>();
 
 	public BrowserComposite(Composite parent, int style) {
 		super(parent, style);
 		this.setLayout(new FillLayout());
+
 		this.browser = new Browser(this, SWT.NONE);
-
-		new BrowserFunction(this.getBrowser(), "error_callback") {
+		this.browserScriptRunner = new BrowserScriptRunner(this.browser) {
 			@Override
-			public Object function(Object[] arguments) {
-				String filename = (String) arguments[0];
-				Long lineNumber = Math.round((Double) arguments[1]);
-				String detail = (String) arguments[2];
-
-				JavaScriptException javaScriptException = new JavaScriptException(
-						filename, lineNumber, detail);
-				LOGGER.error(javaScriptException);
-				return this.fire(javaScriptException);
+			public void scriptAboutToBeSentToBrowser(String script) {
+				BrowserComposite.this.scriptAboutToBeSentToBrowser(script);
 			}
 
-			private boolean fire(JavaScriptException e) {
-				if (!BrowserComposite.this.loadingCompleted) {
-					BrowserComposite.this.openException.set(e);
-				}
-				boolean preventDefault = false;
-				for (IJavaScriptExceptionListener javaScriptExceptionListener : BrowserComposite.this.javaScriptExceptionListeners) {
-					if (javaScriptExceptionListener.thrown(e)) {
-						preventDefault = true;
-					}
-				}
-				return preventDefault;
+			@Override
+			public void scriptReturnValueReceived(Object returnValue) {
+				BrowserComposite.this.scriptReturnValueReceived(returnValue);
 			}
 		};
 
@@ -135,14 +87,162 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				return null;
 			}
 		};
+		new BrowserFunction(this.getBrowser(), "__focusgained") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length == 1 && arguments[0] instanceof String) {
+					final IElement element = new Element((String) arguments[0]);
+					BrowserComposite.this.fireFocusGained(element);
+				}
+				return null;
+			}
+		};
+		new BrowserFunction(this.getBrowser(), "__focuslost") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length == 1 && arguments[0] instanceof String) {
+					final IElement element = new Element((String) arguments[0]);
+					BrowserComposite.this.fireFocusLost(element);
+				}
+				return null;
+			}
+		};
+
+		this.browser.addLocationListener(new LocationAdapter() {
+			@Override
+			public void changing(LocationEvent event) {
+				if (!BrowserComposite.this.settingUri) {
+					if (BrowserComposite.this.browserScriptRunner
+							.getBrowserStatus() == BrowserStatus.LOADED) {
+						IAnker anker = null;
+						try {
+							anker = BrowserUtils
+									.extractAnker(BrowserComposite.this.browserScriptRunner
+											.runImmediately(
+													"return window[\"hoveredAnker\"]",
+													IConverter.CONVERTER_STRING));
+						} catch (Exception e) {
+							LOGGER.error(
+									"Error getting most recently hovered anker",
+									e);
+						}
+						if (anker == null
+								|| !BrowserUtils.fuzzyEquals(anker.getHref(),
+										event.location)) {
+							anker = new Anker(event.location, null, null);
+						}
+						for (IAnkerListener ankerListener : BrowserComposite.this.ankerListeners) {
+							ankerListener.ankerClicked(anker);
+						}
+					}
+					event.doit = BrowserComposite.this.allowLocationChange
+							|| BrowserComposite.this.browserScriptRunner
+									.getBrowserStatus() == BrowserStatus.LOADING;
+				}
+			}
+
+			// TODO call injectAnkerCode after a page has loaded a user clicked
+			// on (or do all the same steps on first page load on all
+			// consecutive loads)
+		});
+
+		this.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				BrowserComposite.this.browserScriptRunner.dispose();
+			}
+		});
+	}
+
+	private boolean successfullyInjectedAnkerHoverCallback = false;
+
+	/**
+	 * Injects the code needed for {@link #addAnkerListener(IAnkerListener)} and
+	 * {@link #removeAnkerListener(IAnkerListener)} to work.
+	 * <p>
+	 * The JavaScript remembers a successful injection in case to consecutive
+	 * calls are made.
+	 * <p>
+	 * As soon as a successful injection has been registered,
+	 * {@link #successfullyInjectedAnkerHoverCallback} is set so no unnecessary
+	 * further injection is made.
+	 */
+	private void injectAnkerHoverCallback() {
+		if (this.successfullyInjectedAnkerHoverCallback) {
+			return;
+		}
+
+		String js = "return (function(){function e(e){var t=document.createElement(\"div\");t.appendChild(e.cloneNode(true));return t.innerHTML}if(window[\"successfullyInjectedAnkerHoverCallback\"])return false;window[\"hoveredAnker\"]=null;var t=null;window.addEventListener(\"mouseover\",function(n){if(n.srcElement.tagName==\"A\"){var r=e(n.srcElement);window[\"hoveredAnker\"]=r;t=r;if(window[\"mouseenter\"]&&typeof window[\"mouseenter\"]){window[\"mouseenter\"](r)}}},true);window.addEventListener(\"mouseout\",function(n){if(n.srcElement.tagName==\"A\"){var r=e(n.srcElement);t=null;if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](r)}}},true);var n=function(e){if(t==null)return;var n=t;t=null;if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](n)}};window.addEventListener(\"DOMSubtreeModified\",n,true);window.addEventListener(\"beforeunload\",n,true);window.addEventListener(\"unload\",n,true);window[\"successfullyInjectedAnkerHoverCallback\"]=true;return true})()";
+		try {
+			boolean success = BrowserComposite.this.runImmediately(js,
+					IConverter.CONVERTER_BOOLEAN);
+			if (success) {
+				BrowserComposite.this.successfullyInjectedAnkerHoverCallback = true;
+			}
+		} catch (Exception e) {
+			LOGGER.error("Could not inject anker hover callback code in "
+					+ BrowserComposite.this.getClass().getSimpleName(), e);
+		}
+	}
+
+	private boolean successfullyInjectedFocusCallback = false;
+
+	/**
+	 * Injects the code needed for {@link #addAnkerListener(IAnkerListener)} and
+	 * {@link #removeAnkerListener(IAnkerListener)} to work.
+	 * <p>
+	 * The JavaScript remembers a successful injection in case to consecutive
+	 * calls are made.
+	 * <p>
+	 * As soon as a successful injection has been registered,
+	 * {@link #successfullyInjectedAnkerHoverCallback} is set so no unnecessary
+	 * further injection is made.
+	 */
+	private void injectFocusCallback() {
+		if (this.successfullyInjectedFocusCallback) {
+			return;
+		}
+
+		String js = "return (function(){function e(e){try{var t=document.createElement(\"div\");t.appendChild(e.cloneNode(true));return t.innerHTML}catch(n){return null}}if(window[\"successfullyInjectedFocusCallback\"])return false;window[\"__focusElement\"]=null;var t=null;window.addEventListener(\"focus\",function(n){var r=e(n.srcElement);window[\"__focusElement\"]=r;t=r;if(window[\"__focusgained\"]&&typeof window[\"__focusgained\"]){window[\"__focusgained\"](r)}},true);window.addEventListener(\"blur\",function(n){var r=e(n.srcElement);t=null;if(window[\"__focuslost\"]&&typeof window[\"__focuslost\"]){window[\"__focuslost\"](r)}},true);var n=function(e){if(t==null)return;var n=t;t=null;if(window[\"__focuslost\"]&&typeof window[\"__focuslost\"]){window[\"__focuslost\"](n)}};window.addEventListener(\"DOMSubtreeModified\",n,true);window.addEventListener(\"beforeunload\",n,true);window.addEventListener(\"unload\",n,true);window[\"successfullyInjectedFocusCallback\"]=true;return true})()";
+		try {
+			boolean success = BrowserComposite.this.runImmediately(js,
+					IConverter.CONVERTER_BOOLEAN);
+			if (success) {
+				BrowserComposite.this.successfullyInjectedFocusCallback = true;
+			}
+		} catch (Exception e) {
+			LOGGER.error("Could not inject focus callback code in "
+					+ BrowserComposite.this.getClass().getSimpleName(), e);
+		}
+	}
+
+	@Override
+	public Future<Boolean> open(String address, Integer timeout) {
+		return this.open(address, timeout, null);
+	}
+
+	@Override
+	public Future<Boolean> open(final String uri, final Integer timeout,
+			final String pageLoadCheckScript) {
+		BrowserComposite.this.browserScriptRunner
+				.setBrowserStatus(BrowserStatus.LOADING);
 
 		this.browser.addProgressListener(new ProgressAdapter() {
 			@Override
 			public void completed(ProgressEvent event) {
-				if (BrowserComposite.this.loadingCompleted
-						|| BrowserComposite.this.isCancelled.get()
-						|| BrowserComposite.this.browser == null
+				if (BrowserComposite.this.browser == null
 						|| BrowserComposite.this.browser.isDisposed()) {
+					return;
+				}
+
+				if (BrowserComposite.this.browserScriptRunner
+						.getBrowserStatus() != BrowserStatus.LOADING) {
+					if (BrowserComposite.this.browserScriptRunner
+							.getBrowserStatus() != BrowserStatus.CANCELLED) {
+						LOGGER.error("State Error: "
+								+ BrowserComposite.this.browserScriptRunner
+										.getBrowserStatus());
+					}
 					return;
 				}
 
@@ -153,11 +253,13 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 					 * the page until it is really loaded. Optionally a user
 					 * provided pageLoadCheckScript is executed.
 					 */
-					String readyState = (String) BrowserComposite.this.browser
-							.evaluate("return document.readyState;");
+					String readyState = BrowserComposite.this.browserScriptRunner
+							.runImmediately("return document.readyState;",
+									IConverter.CONVERTER_STRING);
 					if (readyState.equals("complete")
-							&& (BrowserComposite.this.pageLoadCheckScript == null || IConverter.CONVERTER_BOOLEAN.convert(BrowserComposite.this.browser
-									.evaluate(BrowserComposite.this.pageLoadCheckScript)))) {
+							&& (pageLoadCheckScript == null || BrowserComposite.this.browserScriptRunner
+									.runImmediately(pageLoadCheckScript,
+											IConverter.CONVERTER_BOOLEAN))) {
 
 						String uri = BrowserComposite.this.browser.getUrl();
 						final Future<Void> finished = BrowserComposite.this
@@ -176,8 +278,14 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 
 										BrowserComposite.this
 												.injectAnkerHoverCallback();
+										BrowserComposite.this
+												.injectFocusCallback();
 										synchronized (BrowserComposite.this.monitor) {
-											BrowserComposite.this.loadingCompleted = true;
+											if (BrowserComposite.this.browserScriptRunner
+													.getBrowserStatus() != BrowserStatus.CANCELLED) {
+												BrowserComposite.this.browserScriptRunner
+														.setBrowserStatus(BrowserStatus.LOADED);
+											}
 											BrowserComposite.this.monitor
 													.notifyAll();
 										}
@@ -195,7 +303,6 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 					LOGGER.error(
 							"An error occurred while checking the page load state",
 							e);
-					BrowserComposite.this.openException.set(e);
 					synchronized (BrowserComposite.this.monitor) {
 						BrowserComposite.this.monitor.notifyAll();
 					}
@@ -203,94 +310,12 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 			}
 		});
 
-		this.browser.addLocationListener(new LocationAdapter() {
-			@Override
-			public void changing(LocationEvent event) {
-				if (!BrowserComposite.this.settingUri) {
-					IAnker anker = new Anker(event.location, null, null);
-					for (IAnkerListener ankerListener : BrowserComposite.this.ankerListeners) {
-						ankerListener.ankerClicked(anker);
-					}
-					event.doit = BrowserComposite.this.allowLocationChange
-							|| !BrowserComposite.this.loadingCompleted;
-				}
-			}
-
-			// TODO call injectAnkerCode after a page has loaded a user clicked
-			// on (or do all the same steps on first page load on all
-			// consecutive loads)
-		});
-
-		this.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				if (BrowserComposite.this.delayedScriptsWorker != null
-						&& !BrowserComposite.this.delayedScriptsWorker
-								.isShutdown()) {
-					BrowserComposite.this.delayedScriptsWorker.shutdown();
-				}
-			}
-		});
-	}
-
-	private boolean successfullyInjectedAnkerHoverCallback = false;
-
-	/**
-	 * Injects the code needed for {@link #addAnkerListener(IAnkerListener)} and
-	 * {@link #removeAnkerListener(IAnkerListener)} to work.
-	 * <p>
-	 * The JavaScript remembers a successful injection in case to consecutive
-	 * calls are made.
-	 * <p>
-	 * As soon as a successful injection has been registered,
-	 * {@link #successfullyInjectedAnkerHoverCallback} is set so no unnecessary
-	 * further injection is made.
-	 * <p>
-	 * This method should be called after every attempt to register an
-	 * {@link IAnkerListener}.
-	 */
-	private void injectAnkerHoverCallback() {
-		if (this.successfullyInjectedAnkerHoverCallback) {
-			return;
-		}
-
-		String js = "return(function($){if(!$ || window[\"successfullyInjectedAnkerHoverCallback\"])return false;window[\"hoveredAnker\"]=null;$(\"body\").bind(\"DOMSubtreeModified beforeunload\",function(){if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](window[\"hoveredAnker\"])}});$(\"body\").on({mouseenter:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();window[\"hoveredAnker\"]=e;if(window[\"mouseenter\"]&&typeof window[\"mouseenter\"]){window[\"mouseenter\"](e)}},mouseleave:function(){var e=$(this).clone().wrap(\"<p>\").parent().html();if(window[\"mouseleave\"]&&typeof window[\"mouseleave\"]){window[\"mouseleave\"](e)}}},\"a\");window[\"successfullyInjectedAnkerHoverCallback\"]=true;return true;})(typeof(jQuery)!=='undefined'?jQuery:null)";
-		try {
-			boolean success = BrowserComposite.this.runImmediately(js,
-					IConverter.CONVERTER_BOOLEAN);
-			System.err.println(success);
-			if (success) {
-				BrowserComposite.this.successfullyInjectedAnkerHoverCallback = true;
-			}
-		} catch (Exception e) {
-			LOGGER.error("Could not inject anker hover callback code in "
-					+ BrowserComposite.this.getClass().getSimpleName(), e);
-		}
-	}
-
-	@Override
-	public Future<Boolean> open(String address, Integer timeout) {
-		return this.open(address, timeout, null);
-	}
-
-	@Override
-	public Future<Boolean> open(final String uri, final Integer timeout,
-			String pageLoadCheckScript) {
-		this.firstLoadingStarted = true;
-		this.loadingCompleted = false;
-		this.pageLoadCheckScript = pageLoadCheckScript;
-		this.successfullyInjectedAnkerHoverCallback = false;
-		this.browser.setUrl(uri.toString());
-
 		return ExecUtils.nonUIAsyncExec(BrowserComposite.class, "Opening "
 				+ uri, new Callable<Boolean>() {
 			@Override
 			public Boolean call() throws Exception {
-				BrowserComposite.this.isCancelled.set(false);
-				BrowserComposite.this.openException.set(null);
-
 				// stops waiting after timeout
-				Future<?> timeoutMonitor = null;
+				Future<Void> timeoutMonitor = null;
 				if (timeout != null && timeout > 0) {
 					timeoutMonitor = ExecUtils.nonUIAsyncExec(
 							BrowserComposite.class, "Timeout Watcher for "
@@ -298,12 +323,13 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 								@Override
 								public void run() {
 									synchronized (BrowserComposite.this.monitor) {
-										if (!BrowserComposite.this.loadingCompleted) {
-											BrowserComposite.this.isCancelled
-													.set(true);
-											BrowserComposite.this.monitor
-													.notifyAll();
+										if (BrowserComposite.this.browserScriptRunner
+												.getBrowserStatus() != BrowserStatus.LOADED) {
+											BrowserComposite.this.browserScriptRunner
+													.setBrowserStatus(BrowserStatus.CANCELLED);
 										}
+										BrowserComposite.this.monitor
+												.notifyAll();
 									}
 								}
 							}, timeout);
@@ -318,7 +344,6 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 					public void run() {
 						BrowserComposite.this.settingUri = true;
 						BrowserComposite.this.browser.setUrl(uri.toString());
-						BrowserComposite.this.activateExceptionHandling();
 						BrowserComposite.this.settingUri = false;
 					}
 				});
@@ -326,42 +351,38 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 				BrowserComposite.this.afterLoad(uri);
 
 				synchronized (BrowserComposite.this.monitor) {
-					while (!BrowserComposite.this.loadingCompleted
-							&& !BrowserComposite.this.isCancelled.get()) {
-						LOGGER.debug("Waiting for " + uri
+					if (BrowserComposite.this.browserScriptRunner
+							.getBrowserStatus() == BrowserStatus.LOADING) {
+						LOGGER.debug("Waiting for "
+								+ uri
 								+ " to be loaded (Thread: "
-								+ Thread.currentThread() + "; completed: "
-								+ BrowserComposite.this.loadingCompleted
-								+ "; timed out: "
-								+ BrowserComposite.this.isCancelled.get() + ")");
+								+ Thread.currentThread()
+								+ "; status: "
+								+ BrowserComposite.this.browserScriptRunner
+										.getBrowserStatus() + ")");
 						BrowserComposite.this.monitor.wait();
 						// notified by progresslistener or by timeout
-					}
-
-					if (BrowserComposite.this.openException.get() != null) {
-						throw BrowserComposite.this.openException.get();
 					}
 
 					if (timeoutMonitor != null) {
 						timeoutMonitor.cancel(true);
 					}
 
-					if (BrowserComposite.this.loadingCompleted == BrowserComposite.this.isCancelled
-							.get()) {
+					switch (BrowserComposite.this.browserScriptRunner
+							.getBrowserStatus()) {
+					case LOADED:
+						LOGGER.debug("Successfully loaded " + uri);
+						break;
+					case CANCELLED:
+						LOGGER.error("Aborted loading " + uri
+								+ " due to timeout");
+						break;
+					default:
 						throw new RuntimeException("Implementation error");
 					}
 
-					if (BrowserComposite.this.loadingCompleted) {
-						LOGGER.debug("Successfully loaded " + uri);
-						BrowserComposite.this.delayedScriptsWorker.start();
-					} else {
-						LOGGER.error("Aborted loading " + uri
-								+ " due to timeout");
-					}
-
-					BrowserComposite.this.delayedScriptsWorker.finish();
-
-					return BrowserComposite.this.loadingCompleted;
+					return BrowserComposite.this.browserScriptRunner
+							.getBrowserStatus() == BrowserStatus.LOADED;
 				}
 			}
 		});
@@ -418,46 +439,6 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	}
 
 	/**
-	 * 
-	 * @param string
-	 * @param mouseEnter
-	 *            true if mouseenter; false otherwise
-	 */
-	protected void fireAnkerHover(String html, boolean mouseEnter) {
-		Document document = Jsoup.parse(html);
-		Elements elements = document.getElementsByTag("a");
-		for (Element element : elements) {
-			String href = element.attr("href");
-			if (href == null) {
-				href = element.attr("data-cke-saved-href");
-			}
-			String[] classes = element.attr("class") != null ? element.attr(
-					"class").split("\\s+") : new String[0];
-			String content = element.text();
-
-			IAnker anker = new Anker(href, classes, content);
-			for (IAnkerListener ankerListener : BrowserComposite.this.ankerListeners) {
-				ankerListener.ankerHovered(anker, mouseEnter);
-			}
-		}
-	}
-
-	@Override
-	public Future<Boolean> inject(URI script) {
-		return this.run(script, false);
-	}
-
-	/**
-	 * Notifies all registered {@link IJavaScriptExceptionListener}s in case a
-	 * JavaScript error occurred.
-	 */
-	private void activateExceptionHandling() {
-		this.getBrowser()
-				.execute(
-						"window.onerror = function(detail, filename, lineNumber) { if ( typeof window['error_callback'] !== 'function') return; return window['error_callback'](filename ? filename : 'unknown file', lineNumber ? lineNumber : 'unknown line number', detail ? detail : 'unknown detail'); }");
-	}
-
-	/**
 	 * Deactivate browser's native context/popup menu. Doing so allows the
 	 * definition of menus in an inheriting composite via setMenu.
 	 */
@@ -476,196 +457,56 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	}
 
 	public boolean isLoadingCompleted() {
-		return this.loadingCompleted;
+		return this.browserScriptRunner.getBrowserStatus() == BrowserStatus.LOADED;
 	}
 
 	private final Object monitor = new Object();
 
 	@Override
-	public void run(final File script) {
-		Assert.isLegal(script.canRead());
-		try {
-			this.run(new URI("file://" + script.getAbsolutePath()));
-		} catch (URISyntaxException e) {
-			LOGGER.error("Error running script included in " + script, e);
-		}
+	public Future<Boolean> inject(URI script) {
+		return this.browserScriptRunner.inject(script);
+	}
+
+	@Override
+	public Future<Boolean> run(final File script) {
+		return this.browserScriptRunner.run(script);
 	}
 
 	@Override
 	public Future<Boolean> run(final URI script) {
-		return this.run(script, true);
-	}
-
-	protected Future<Boolean> run(final URI script,
-			final boolean removeAfterExecution) {
-		Assert.isLegal(script != null);
-		return ExecUtils.nonUIAsyncExec(BrowserComposite.class,
-				"Script Runner for: " + script, new Callable<Boolean>() {
-					@Override
-					public Boolean call() throws Exception {
-						final String callbackFunctionName = "_"
-								+ new BigInteger(130, new SecureRandom())
-										.toString(32);
-
-						final Semaphore mutex = new Semaphore(0);
-						ExecUtils.syncExec(new Runnable() {
-							@Override
-							public void run() {
-								final AtomicReference<BrowserFunction> callback = new AtomicReference<BrowserFunction>();
-								callback.set(new BrowserFunction(
-										BrowserComposite.this.getBrowser(),
-										callbackFunctionName) {
-									@Override
-									public Object function(Object[] arguments) {
-										callback.get().dispose();
-										mutex.release();
-										return null;
-									}
-								});
-							}
-						});
-
-						String js = "var h = document.getElementsByTagName(\"head\")[0]; var s = document.createElement(\"script\");s.type = \"text/javascript\";s.src = \""
-								+ script.toString()
-								+ "\"; s.onload=function(e){";
-						if (removeAfterExecution) {
-							js += "h.removeChild(s);";
-						}
-						js += callbackFunctionName + "();";
-						js += "};h.appendChild(s);";
-
-						// runs the scripts that ends by calling the callback
-						// ...
-						BrowserComposite.this.run(js);
-						try {
-							// ... which destroys itself and releases this lock
-							mutex.acquire();
-						} catch (InterruptedException e) {
-							LOGGER.error(e);
-						}
-						return null;
-					}
-				});
-	}
-
-	private <DEST> Callable<DEST> createScriptRunner(final String script,
-			final IConverter<Object, DEST> converter,
-			final String shortenedScript) {
-		return ExecUtils.createThreadLabelingCode(new Callable<DEST>() {
-			@Override
-			public DEST call() throws Exception {
-				LOGGER.info("Running " + shortenedScript);
-				final Browser browser = BrowserComposite.this.getBrowser();
-				try {
-					BrowserComposite.this.scriptAboutToBeSentToBrowser(script);
-					Object returnValue = browser.evaluate(script);
-					BrowserComposite.this
-							.scriptReturnValueReceived(returnValue);
-					LOGGER.info("Returned " + returnValue);
-					return converter.convert(returnValue);
-				} catch (Exception e) {
-					LOGGER.error(e);
-					throw e;
-				}
-			}
-		}, BrowserComposite.class, "Running " + script);
+		return this.browserScriptRunner.run(script);
 	}
 
 	@Override
-	public <DEST> DEST runImmediately(String script,
-			IConverter<Object, DEST> converter) throws Exception {
-		return ExecUtils.syncExec(this.createScriptRunner(script, converter,
-				script.length() > 100 ? script.substring(0, 100) + "..."
-						: script));
+	public Future<Object> run(final String script) {
+		return this.browserScriptRunner.run(script);
 	}
 
 	@Override
 	public <DEST> Future<DEST> run(final String script,
 			final IConverter<Object, DEST> converter) {
-		Assert.isLegal(converter != null);
-		if (this.getBrowser() == null || this.getBrowser().isDisposed()) {
-			return null;
-		}
-		this.scriptEnqueued(script);
-		final String[] logScript = new String[] { script.length() > 100 ? script
-				.substring(0, 100) + "..."
-				: script };
-		logScript[0] = logScript[0].replace("\n", " ").replace("\r", " ")
-				.replace("\t", " ");
-		final Callable<DEST> callable = this.createScriptRunner(script,
-				converter, logScript[0]);
-		if (BrowserComposite.this.loadingCompleted) {
-			final AtomicReference<DEST> converted = new AtomicReference<DEST>();
-			Exception exception = null;
-			try {
-				converted.set(ExecUtils.syncExec(callable));
-			} catch (Exception e) {
-				exception = e;
-			}
-			return new CompletedFuture<DEST>(converted.get(), exception);
-		} else if (this.isCancelled.get()) {
-			return new CompletedFuture<DEST>(null,
-					new ScriptExecutionException(new JavaScript(script),
-							new BrowserTimeoutException()));
-		} else if (!this.firstLoadingStarted) {
-			return new CompletedFuture<DEST>(null,
-					new ScriptExecutionException(new JavaScript(script),
-							new BrowserUninitializedException(this)));
-		} else {
-			return this.delayedScriptsWorker.submit(new Callable<DEST>() {
-				@Override
-				public DEST call() throws Exception {
-					if (BrowserComposite.this.isDisposed()) {
-						return null;
-					}
-					if (BrowserComposite.this.loadingCompleted) {
-						return ExecUtils.syncExec(callable);
-					} else {
-						throw new ScriptExecutionException(new JavaScript(
-								script), new BrowserTimeoutException());
-					}
-				}
-			});
-		}
+		return this.browserScriptRunner.run(script, converter);
 	}
 
 	@Override
-	public Future<Object> run(final String script) {
-		return this.run(script, new IConverter<Object, Object>() {
-			@Override
-			public Object convert(Object object) {
-				return object;
-			}
-		});
+	public <DEST> DEST runImmediately(String script,
+			IConverter<Object, DEST> converter) throws Exception {
+		return this.browserScriptRunner.runImmediately(script, converter);
 	}
 
 	@Override
-	public Future<Object> run(IJavaScript script) {
-		return this.run(script.toString());
-	};
-
-	/**
-	 * Testers can override this method to see what is going to be executed.
-	 * 
-	 * @param script
-	 */
-	public void scriptEnqueued(String script) {
+	public void runImmediately(File script) throws Exception {
+		this.browserScriptRunner.runImmediately(script);
 	}
 
-	/**
-	 * Testers can override this method to see what's executed.
-	 * 
-	 * @param script
-	 */
+	@Override
 	public void scriptAboutToBeSentToBrowser(String script) {
+		return;
 	}
 
-	/**
-	 * Testers can override this method to chec the script execution results.
-	 * 
-	 * @param returnValue
-	 */
+	@Override
 	public void scriptReturnValueReceived(Object returnValue) {
+		return;
 	}
 
 	@Override
@@ -686,16 +527,6 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 		return this.run(script, IConverter.CONVERTER_VOID);
 	}
 
-	public void addJavaScriptExceptionListener(
-			IJavaScriptExceptionListener javaScriptExceptionListener) {
-		this.javaScriptExceptionListeners.add(javaScriptExceptionListener);
-	}
-
-	public void removeJavaScriptExceptionListener(
-			IJavaScriptExceptionListener javaScriptExceptionListener) {
-		this.javaScriptExceptionListeners.remove(javaScriptExceptionListener);
-	}
-
 	@Override
 	public void addAnkerListener(IAnkerListener ankerListener) {
 		this.ankerListeners.add(ankerListener);
@@ -704,6 +535,52 @@ public class BrowserComposite extends Composite implements IBrowserComposite {
 	@Override
 	public void removeAnkerListener(IAnkerListener ankerListener) {
 		this.ankerListeners.remove(ankerListener);
+	}
+
+	/**
+	 * 
+	 * @param string
+	 * @param mouseEnter
+	 *            true if mouseenter; false otherwise
+	 */
+	protected void fireAnkerHover(String html, boolean mouseEnter) {
+		IAnker anker = BrowserUtils.extractAnker(html);
+		for (IAnkerListener ankerListener : BrowserComposite.this.ankerListeners) {
+			ankerListener.ankerHovered(anker, mouseEnter);
+		}
+	}
+
+	/**
+	 * 
+	 * @param string
+	 */
+	protected void fireAnkerClicked(String html) {
+		IAnker anker = BrowserUtils.extractAnker(html);
+		for (IAnkerListener ankerListener : BrowserComposite.this.ankerListeners) {
+			ankerListener.ankerClicked(anker);
+		}
+	}
+
+	@Override
+	public void addFocusListener(IFocusListener focusListener) {
+		this.focusListeners.add(focusListener);
+	}
+
+	@Override
+	public void removeFocusListener(IFocusListener focusListener) {
+		this.focusListeners.remove(focusListener);
+	}
+
+	synchronized protected void fireFocusGained(IElement element) {
+		for (IFocusListener focusListener : this.focusListeners) {
+			focusListener.focusGained(element);
+		}
+	}
+
+	synchronized protected void fireFocusLost(IElement element) {
+		for (IFocusListener focusListener : this.focusListeners) {
+			focusListener.focusLost(element);
+		}
 	}
 
 	@Override

@@ -18,6 +18,8 @@ import org.eclipse.swt.widgets.Text;
 
 import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.decoration.EmptyText;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
@@ -117,7 +119,20 @@ public class MultipleBrowserCompositeDemo extends AbstractDemo {
 
 		this.browserComposites = new BrowserComposite[URLS.length];
 		for (int i = 0; i < this.browserComposites.length; i++) {
+			final int num = i;
 			this.browserComposites[i] = new BrowserComposite(parent, SWT.BORDER);
+			this.browserComposites[i].addAnkerListener(new IAnkerListener() {
+				@Override
+				public void ankerHovered(IAnker anker, boolean entered) {
+					log("(" + num + ") hovered " + (entered ? "over" : "out")
+							+ " " + anker);
+				}
+
+				@Override
+				public void ankerClicked(IAnker anker) {
+					log("(" + num + ") clicked on " + anker);
+				}
+			});
 			try {
 				final Future<Boolean> success = this.browserComposites[i]
 						.open(new URI(URLS[i]),

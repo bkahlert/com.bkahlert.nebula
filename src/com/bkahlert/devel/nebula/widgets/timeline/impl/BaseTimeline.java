@@ -24,6 +24,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.model.IDecorator;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineBand;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineEvent;
 import com.bkahlert.devel.nebula.widgets.timeline.model.ITimelineInput;
+import com.bkahlert.nebula.browser.BrowserUtils;
 
 /**
  * This is a very basic timeline implementation that does not handle any
@@ -86,7 +87,7 @@ public class BaseTimeline extends BrowserComposite implements IBaseTimeline {
 		super(parent, style);
 		this.deactivateNativeMenu();
 		this.open(
-				getFileUrl(BaseTimeline.class, "../html/timeline.html",
+				BrowserUtils.getFileUrl(BaseTimeline.class, "../html/timeline.html",
 						"?internal=true"),
 				30000,
 				"return typeof jQuery != \"undefined\" && jQuery('html').hasClass('timeline-ready')");

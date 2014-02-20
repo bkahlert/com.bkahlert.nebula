@@ -7,14 +7,12 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 
 import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.nebula.widgets.browser.IBrowserComposite;
-import com.bkahlert.nebula.utils.CompletedFuture;
 
 /**
  * This standard implementation of the {@link IBrowserCompositeExtension} can
@@ -37,7 +35,7 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 
 	private final String name;
 	private final String verificationScript;
-	private final URI[] jsExtensions;
+	private final File[] jsExtensions;
 	private final URI[] cssExtensions;
 
 	private final List<Class<? extends IBrowserCompositeExtension>> dependencies;
@@ -51,13 +49,13 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 	 * @param arrayList
 	 */
 	public BrowserCompositeExtension(String name, String verificationScript,
-			URI jsExtension,
+			File jsExtension,
 			ArrayList<Class<? extends IBrowserCompositeExtension>> dependencies) {
 		Assert.isLegal(name != null && verificationScript != null
 				&& jsExtension != null);
 		this.name = name;
 		this.verificationScript = verificationScript;
-		this.jsExtensions = new URI[] { jsExtension };
+		this.jsExtensions = new File[] { jsExtension };
 		this.cssExtensions = new URI[0];
 		this.dependencies = dependencies;
 	}
@@ -71,13 +69,13 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 	 * @param arrayList
 	 */
 	public BrowserCompositeExtension(String name, String verificationScript,
-			URI jsExtension, URI cssExtension,
+			File jsExtension, URI cssExtension,
 			ArrayList<Class<? extends IBrowserCompositeExtension>> dependencies) {
 		Assert.isLegal(name != null && verificationScript != null
 				&& jsExtension != null && cssExtension != null);
 		this.name = name;
 		this.verificationScript = verificationScript;
-		this.jsExtensions = new URI[] { jsExtension };
+		this.jsExtensions = new File[] { jsExtension };
 		this.cssExtensions = new URI[] { cssExtension };
 		this.dependencies = dependencies;
 	}
@@ -91,7 +89,7 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 	 * @param arrayList
 	 */
 	public BrowserCompositeExtension(String name, String verificationScript,
-			URI[] jsExtensions, URI[] cssExtensions,
+			File[] jsExtensions, URI[] cssExtensions,
 			ArrayList<Class<? extends IBrowserCompositeExtension>> dependencies) {
 		Assert.isLegal(name != null && verificationScript != null
 				&& jsExtensions != null && cssExtensions != null);
@@ -133,9 +131,14 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 						}
 
 						boolean success = true;
-						for (URI jsExtension : BrowserCompositeExtension.this.jsExtensions) {
-							if (!inject(browserComposite, jsExtension,
-									BrowserCompositeExtension.this.name)) {
+						for (File jsExtension : BrowserCompositeExtension.this.jsExtensions) {
+							try {
+								browserComposite.runImmediately(jsExtension);
+							} catch (Exception e) {
+								LOGGER.error(
+										"Could not load the JS extension \""
+												+ BrowserCompositeExtension.this.name
+												+ "\".", e);
 								success = false;
 							}
 						}
@@ -164,34 +167,6 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 						return null;
 					}
 				});
-	}
-
-	/*
-	 * TODO merge with Browser inject (only difference here: directly injects if
-	 * local file)
-	 */
-	private static Boolean inject(IBrowserComposite browserComposite,
-			URI jsExtension, String name) throws Exception {
-		if ("file".equalsIgnoreCase(jsExtension.getScheme())) {
-			File file = new File(jsExtension.toString().substring(
-					"file://".length()));
-			String script = FileUtils.readFileToString(file);
-			return browserComposite.runImmediately(script,
-					new IConverter<Object, Boolean>() {
-						@Override
-						public Boolean convert(Object returnValue) {
-							return true;
-						}
-					});
-		} else {
-			try {
-				return browserComposite.inject(jsExtension).get();
-			} catch (Exception e) {
-				LOGGER.error("Could not load the JS extension \"" + name
-						+ "\".", e);
-				return false;
-			}
-		}
 	}
 
 }

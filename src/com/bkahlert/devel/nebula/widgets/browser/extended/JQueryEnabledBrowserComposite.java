@@ -2,19 +2,15 @@ package com.bkahlert.devel.nebula.widgets.browser.extended;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
-import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.IConverter;
-import com.bkahlert.devel.nebula.widgets.browser.IJavaScript;
-import com.bkahlert.devel.nebula.widgets.browser.JavaScript;
 import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector.IdSelector;
 import com.bkahlert.devel.nebula.widgets.browser.extended.ISelector.NameSelector;
 import com.bkahlert.devel.nebula.widgets.browser.extended.extensions.IBrowserCompositeExtension;
@@ -27,8 +23,6 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 		implements IJQueryEnabledBrowserComposite {
 	private static final Logger LOGGER = Logger
 			.getLogger(JQueryEnabledBrowserComposite.class);
-
-	private final List<IFocusListener> focusListeners = new ArrayList<IFocusListener>();
 
 	public JQueryEnabledBrowserComposite(Composite parent, int style) {
 		this(parent, style, new IBrowserCompositeExtension[] {});
@@ -46,88 +40,34 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 				}
 			}
 		}.toArray(new IBrowserCompositeExtension[0]));
-
-		new BrowserFunction(this.getBrowser(), "__focus") {
-			@Override
-			public Object function(Object[] arguments) {
-				if (arguments.length == 1 && arguments[0] instanceof String) {
-					final IElement element = new Element((String) arguments[0]);
-					JQueryEnabledBrowserComposite.this
-							.notifyFocusChanged(element);
-				}
-				return null;
-			}
-		};
 	}
 
-	@Override
-	public void addFocusListener(IFocusListener focusListener) {
-		this.focusListeners.add(focusListener);
+	private String getFocusStmt(ISelector selector) {
+		return "$('" + selector + "').focus()";
 	}
 
-	@Override
-	public void removeFocusListener(IFocusListener focusListener) {
-		this.focusListeners.remove(focusListener);
+	private String getBlurStmt(ISelector selector) {
+		return "$('" + selector + "').blur()";
 	}
 
-	private IElement lastFocusedElement = null;
-
-	synchronized protected void notifyFocusChanged(IElement element) {
-		if ((this.lastFocusedElement == null && element == null)
-				|| (this.lastFocusedElement != null && element != null && this.lastFocusedElement
-						.toHtml().equals(element.toHtml()))) {
-			return;
-		}
-
-		for (IFocusListener focusListener : this.focusListeners) {
-			focusListener.focusLost(this.lastFocusedElement);
-			focusListener.focusGained(element);
-		}
-		this.lastFocusedElement = element;
+	private String getKeyUpStmt(ISelector selector) {
+		return "$('" + selector + "').keyup()";
 	}
 
-	@Override
-	public Future<Void> beforeCompletion(final String uri) {
-		return ExecUtils.nonUIAsyncExec(JQueryEnabledBrowserComposite.class,
-				"Active Listeners", new Callable<Void>() {
-					@Override
-					public Void call() throws Exception {
-						JQueryEnabledBrowserComposite.super
-								.beforeCompletion(uri).get();
-
-						String js = "(function(e){e(document).ready(function(){e(\"body\").on(\"focus\",\"*\",function(t){if(t.target!=this)return;var n=e(document.activeElement).clone().wrap(\"<p>\").parent().html();if(window[\"__focus\"]&&typeof window[\"__focus\"]==\"function\"){window[\"__focus\"](n)}})})})(jQuery)";
-						JQueryEnabledBrowserComposite.this.run(js);
-						return null;
-					}
-				});
+	private String getKeyDownStmt(ISelector selector) {
+		return "$('" + selector + "').keydown()";
 	}
 
-	private IJavaScript getFocusStmt(ISelector selector) {
-		return new JavaScript("$('" + selector + "').focus()");
+	private String getKeyPressStmt(ISelector selector) {
+		return "$('" + selector + "').keypress()";
 	}
 
-	private IJavaScript getBlurStmt(ISelector selector) {
-		return new JavaScript("$('" + selector + "').blur()");
+	private String getSubmitStmt(ISelector selector) {
+		return "$('" + selector + "').closest('form').submit();";
 	}
 
-	private IJavaScript getKeyUpStmt(ISelector selector) {
-		return new JavaScript("$('" + selector + "').keyup()");
-	}
-
-	private IJavaScript getKeyDownStmt(ISelector selector) {
-		return new JavaScript("$('" + selector + "').keydown()");
-	}
-
-	private IJavaScript getKeyPressStmt(ISelector selector) {
-		return new JavaScript("$('" + selector + "').keypress()");
-	}
-
-	private IJavaScript getSubmitStmt(ISelector selector) {
-		return new JavaScript("$('" + selector + "').closest('form').submit();");
-	}
-
-	private IJavaScript getValStmt(ISelector selector, String value) {
-		return new JavaScript("$('" + selector + "').val('" + value + "');");
+	private String getValStmt(ISelector selector, String value) {
+		return "$('" + selector + "').val('" + value + "');";
 	}
 
 	/**
@@ -145,17 +85,15 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 	 * @see http 
 	 *      ://stackoverflow.com/questions/596481/simulate-javascript-key-events
 	 */
-	private JavaScript getSimulateKeyPress() {
-		return new JavaScript(
-				"function simulateKeyPress(e,t){var n=document.createEvent('KeyboardEvent');var r=typeof n.initKeyboardEvent!=='undefined'?'initKeyboardEvent':'initKeyEvent';n[r](t,true,true,window,false,false,false,false,16,0);e.each(function(){this.dispatchEvent(n)})}");
+	private String getSimulateKeyPress() {
+		return "function simulateKeyPress(e,t){var n=document.createEvent('KeyboardEvent');var r=typeof n.initKeyboardEvent!=='undefined'?'initKeyboardEvent':'initKeyEvent';n[r](t,true,true,window,false,false,false,false,16,0);e.each(function(){this.dispatchEvent(n)})}";
 	}
 
-	private JavaScript getForceKeyPressStmt(ISelector selector) {
-		return new JavaScript(this.getSimulateKeyPress(), new JavaScript(
-				"simulateKeyPress($('" + selector + "'), 'keydown');"),
-				new JavaScript("simulateKeyPress($('" + selector
-						+ "'), 'keypress');"), new JavaScript(
-						"simulateKeyPress($('" + selector + "'), 'keyup');"));
+	private String getForceKeyPressStmt(ISelector selector) {
+		return this.getSimulateKeyPress() + "simulateKeyPress($('" + selector
+				+ "'), 'keydown');" + "simulateKeyPress($('" + selector
+				+ "'), 'keypress');" + "simulateKeyPress($('" + selector
+				+ "'), 'keyup');";
 	}
 
 	@Override
@@ -346,9 +284,10 @@ public class JQueryEnabledBrowserComposite extends ExtendedBrowserComposite
 		// return null;
 		// }
 		// });
-		return this.run(new JavaScript(this.getFocusStmt(selector), this
-				.getValStmt(selector, text), this
-				.getForceKeyPressStmt(selector), this.getBlurStmt(selector)));
+		return this.run(this.getFocusStmt(selector)
+				+ this.getValStmt(selector, text)
+				+ this.getForceKeyPressStmt(selector)
+				+ this.getBlurStmt(selector));
 	}
 
 	@Override

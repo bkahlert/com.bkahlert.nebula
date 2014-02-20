@@ -15,9 +15,8 @@ import org.eclipse.swt.widgets.Composite;
 import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
-import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
-import com.bkahlert.devel.nebula.widgets.browser.JavaScriptException;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineJsonGenerator;
+import com.bkahlert.nebula.browser.BrowserUtils;
 import com.bkahlert.nebula.utils.ImageUtils;
 
 /**
@@ -53,6 +52,7 @@ public class Image extends BrowserComposite {
 		VERTICAL;
 	}
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(Image.class);
 
 	public static Point extractSize(Object size) {
@@ -93,15 +93,6 @@ public class Image extends BrowserComposite {
 		this.cachedOriginalSize = defaultSize;
 		this.cachedCurrentSize = defaultSize;
 
-		this.addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {
-			@Override
-			public boolean thrown(JavaScriptException e) {
-				LOGGER.error("Internal " + Image.class.getSimpleName()
-						+ " error", e);
-				return true;
-			}
-		});
-
 		new BrowserFunction(this.getBrowser(), "imageLoaded") {
 			@Override
 			public Object function(Object[] arguments) {
@@ -135,7 +126,7 @@ public class Image extends BrowserComposite {
 			}
 		};
 
-		this.open(getFileUrl(Image.class, "html/index.html", "?internal=true"),
+		this.open(BrowserUtils.getFileUrl(Image.class, "html/index.html", "?internal=true"),
 				5000);
 	}
 

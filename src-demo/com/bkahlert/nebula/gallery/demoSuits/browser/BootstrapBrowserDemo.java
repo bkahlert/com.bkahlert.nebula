@@ -1,5 +1,7 @@
 package com.bkahlert.nebula.gallery.demoSuits.browser;
 
+import java.util.concurrent.Future;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -12,7 +14,10 @@ import org.eclipse.swt.widgets.Text;
 import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.widgets.browser.extended.BootstrapEnabledBrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
+import com.bkahlert.devel.nebula.widgets.browser.listener.IFocusListener;
+import com.bkahlert.nebula.browser.BrowserUtils;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 
@@ -61,8 +66,18 @@ public class BootstrapBrowserDemo extends AbstractDemo {
 	@Override
 	public void createDemo(Composite parent) {
 		this.bootstrapBrowser = new BootstrapEnabledBrowserComposite(parent,
-				SWT.BORDER);
-		this.bootstrapBrowser.openAboutBlank();
+				SWT.BORDER) {
+			@Override
+			public void scriptAboutToBeSentToBrowser(String script) {
+				log("SENT: " + BrowserUtils.shortenScript(script));
+			}
+
+			@Override
+			public void scriptReturnValueReceived(Object returnValue) {
+				log("RETN: " + returnValue);
+			}
+		};
+		final Future<Boolean> loaded = this.bootstrapBrowser.openAboutBlank();
 		this.bootstrapBrowser.addAnkerListener(new IAnkerListener() {
 			@Override
 			public void ankerHovered(IAnker anker, boolean entered) {
@@ -78,6 +93,31 @@ public class BootstrapBrowserDemo extends AbstractDemo {
 				log("Anker clicked: " + anker);
 			}
 		});
+		this.bootstrapBrowser.addFocusListener(new IFocusListener() {
+			@Override
+			public void focusGained(IElement element) {
+				log("Focus gainedr: " + element);
+			}
+
+			@Override
+			public void focusLost(IElement element) {
+				log("Focus lost: " + element);
+			}
+		});
+		ExecUtils.nonUIAsyncExec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if (loaded.get()) {
+						log("loaded successfully");
+					} else {
+						log("loading failed");
+					}
+				} catch (Exception e) {
+					log("loading error: " + e);
+				}
+			}
+		});
 		this.bootstrapBrowser
 				.setBodyHtml("<div class=\"container\">"
 						+ "<form class=\"form-horizontal\" role=\"form\">"
@@ -86,6 +126,5 @@ public class BootstrapBrowserDemo extends AbstractDemo {
 						+ "<div class=\"col-lg-10\">"
 						+ "<p class=\"form-control-static\"><a href=\"mailto:email@example.com\">email@example.com</a></p>"
 						+ "</div>" + "</div>" + "</form>" + "</div>");
-		log(this.bootstrapBrowser.getBrowser().getUrl());
 	}
 }

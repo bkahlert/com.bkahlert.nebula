@@ -9,8 +9,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.devel.nebula.colors.ColorUtils;
-import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
-import com.bkahlert.devel.nebula.widgets.browser.JavaScriptException;
 import com.bkahlert.devel.nebula.widgets.composer.ComposerReadOnly;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
@@ -24,14 +22,6 @@ public class ComposerReadOnlyDemo extends AbstractDemo {
 	public void createDemo(Composite composite) {
 		this.composer = new ComposerReadOnly(composite, SWT.NONE);
 		this.composer.setSource("Hello CKEditor - Image");
-		this.composer
-				.addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {
-					@Override
-					public boolean thrown(JavaScriptException exception) {
-						ComposerReadOnlyDemo.log(exception.getDetail());
-						return true;
-					}
-				});
 	}
 
 	@Override

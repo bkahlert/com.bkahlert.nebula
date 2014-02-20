@@ -20,7 +20,9 @@ import com.bkahlert.devel.nebula.colors.ColorUtils;
 import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.devel.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
+import com.bkahlert.devel.nebula.widgets.browser.listener.IFocusListener;
 import com.bkahlert.devel.nebula.widgets.decoration.EmptyText;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
@@ -146,6 +148,17 @@ public class BrowserCompositeDemo extends AbstractDemo {
 			@Override
 			public void ankerClicked(IAnker anker) {
 				log("clicked on " + anker);
+			}
+		});
+		this.browserComposite.addFocusListener(new IFocusListener() {
+			@Override
+			public void focusLost(IElement element) {
+				log("focus lost " + element);
+			}
+
+			@Override
+			public void focusGained(IElement element) {
+				log("focus gained " + element);
 			}
 		});
 		try {

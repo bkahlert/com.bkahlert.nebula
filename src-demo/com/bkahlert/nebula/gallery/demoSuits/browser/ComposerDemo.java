@@ -11,8 +11,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
 import com.bkahlert.devel.nebula.dialogs.PopupDialog;
-import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
-import com.bkahlert.devel.nebula.widgets.browser.JavaScriptException;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.devel.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.devel.nebula.widgets.composer.Composer;
@@ -29,14 +27,6 @@ public class ComposerDemo extends AbstractDemo {
 	public void createDemo(Composite composite) {
 		this.composer = new Composer(composite, SWT.BORDER);
 		this.composer.setSource("Hello CKEditor - Image");
-		this.composer
-				.addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {
-					@Override
-					public boolean thrown(JavaScriptException exception) {
-						ComposerDemo.log(exception.getDetail());
-						return true;
-					}
-				});
 		this.composer.addAnkerLabelProvider(new IAnkerLabelProvider() {
 			@Override
 			public boolean isResponsible(IAnker anker) {

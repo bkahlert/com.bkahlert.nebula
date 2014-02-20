@@ -30,11 +30,10 @@ import com.bkahlert.devel.nebula.colors.RGB;
 import com.bkahlert.devel.nebula.utils.ExecUtils;
 import com.bkahlert.devel.nebula.utils.IConverter;
 import com.bkahlert.devel.nebula.widgets.browser.BrowserComposite;
-import com.bkahlert.devel.nebula.widgets.browser.IJavaScriptExceptionListener;
-import com.bkahlert.devel.nebula.widgets.browser.JavaScriptException;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.Anker;
 import com.bkahlert.devel.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.devel.nebula.widgets.timeline.TimelineJsonGenerator;
+import com.bkahlert.nebula.browser.BrowserUtils;
 
 /**
  * This is a wrapped CKEditor (ckeditor.com).
@@ -49,6 +48,7 @@ import com.bkahlert.devel.nebula.widgets.timeline.TimelineJsonGenerator;
  */
 public class Composer extends BrowserComposite {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(Composer.class);
 	private static final Pattern URL_PATTERN = Pattern
 			.compile("(.*?)(\\w+://[!#$&-;=?-\\[\\]_a-zA-Z~%]+)(.*?)");
@@ -83,26 +83,16 @@ public class Composer extends BrowserComposite {
 		super(parent, style);
 		this.deactivateNativeMenu();
 
-		this.addJavaScriptExceptionListener(new IJavaScriptExceptionListener() {
-			@Override
-			public boolean thrown(JavaScriptException e) {
-				LOGGER.error("Internal " + Composer.class.getSimpleName()
-						+ " error", e);
-				return true;
-			}
-		});
-
 		this.fixShortcuts(delayChangeEventUpTo);
 		this.listenForModifications(delayChangeEventUpTo);
 
 		this.open(
-				getFileUrl(Composer.class, "html/index.html",
+				BrowserUtils.getFileUrl(Composer.class, "html/index.html",
 						"?internal=true&toolbarSet="
 								+ toolbarSet.toString().toLowerCase()), 30000,
 				"return typeof jQuery != \"undefined\" && jQuery(\"html\").hasClass(\"ready\")");
 
 		this.addDisposeListener(new DisposeListener() {
-
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				if (Composer.this.delayChangeTimer != null) {
