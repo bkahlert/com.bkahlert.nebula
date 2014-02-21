@@ -178,4 +178,8 @@ public interface IBrowser extends IBrowserScriptRunner, IWidget {
 	 */
 	public Future<String> getBodyHtml();
 
+	/**
+	 * Returns the document's HTML
+	 */
+	public Future<String> getHtml();
 }

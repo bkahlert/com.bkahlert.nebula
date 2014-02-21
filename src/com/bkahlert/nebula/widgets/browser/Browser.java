@@ -607,4 +607,10 @@ public class Browser extends Composite implements IBrowser {
 				IConverter.CONVERTER_STRING);
 	}
 
+	@Override
+	public Future<String> getHtml() {
+		return this.run("return document.documentElement.outerHTML",
+				IConverter.CONVERTER_STRING);
+	}
+
 }
