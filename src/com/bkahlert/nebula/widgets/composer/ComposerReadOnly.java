@@ -18,14 +18,4 @@ public class ComposerReadOnly extends Composer {
 		return false;
 	}
 
-	@Override
-	public void scriptAboutToBeSentToBrowser(String script) {
-		System.err.println("SENT " + script);
-	}
-
-	@Override
-	public void scriptReturnValueReceived(Object returnValue) {
-		System.err.println("RET " + returnValue);
-	}
-
 }
