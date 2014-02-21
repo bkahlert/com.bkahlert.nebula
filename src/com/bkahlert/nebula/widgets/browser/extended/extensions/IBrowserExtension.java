@@ -14,7 +14,7 @@ import com.bkahlert.nebula.widgets.browser.extended.ExtendedBrowser;
  * @author bkahlert
  * 
  */
-public interface IBrowserCompositeExtension {
+public interface IBrowserExtension {
 
 	/**
 	 * Checks if this extension is already loaded.

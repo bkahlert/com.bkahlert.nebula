@@ -13,9 +13,9 @@ import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.widgets.browser.extended.ISelector.IdSelector;
 import com.bkahlert.nebula.widgets.browser.extended.ISelector.NameSelector;
-import com.bkahlert.nebula.widgets.browser.extended.extensions.IBrowserCompositeExtension;
-import com.bkahlert.nebula.widgets.browser.extended.extensions.JQueryExtension;
-import com.bkahlert.nebula.widgets.browser.extended.extensions.JQueryScrollToExtension;
+import com.bkahlert.nebula.widgets.browser.extended.extensions.IBrowserExtension;
+import com.bkahlert.nebula.widgets.browser.extended.extensions.jquery.JQueryBrowserExtension;
+import com.bkahlert.nebula.widgets.browser.extended.extensions.jquery.JQueryScrollToBrowserExtension;
 import com.bkahlert.nebula.widgets.browser.extended.html.Element;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 
@@ -25,21 +25,21 @@ public class JQueryBrowser extends ExtendedBrowser
 			.getLogger(JQueryBrowser.class);
 
 	public JQueryBrowser(Composite parent, int style) {
-		this(parent, style, new IBrowserCompositeExtension[] {});
+		this(parent, style, new IBrowserExtension[] {});
 	}
 
 	@SuppressWarnings("serial")
 	public JQueryBrowser(Composite parent, int style,
-			final IBrowserCompositeExtension[] extensions) {
-		super(parent, style, new ArrayList<IBrowserCompositeExtension>() {
+			final IBrowserExtension[] extensions) {
+		super(parent, style, new ArrayList<IBrowserExtension>() {
 			{
-				this.add(new JQueryExtension());
-				this.add(new JQueryScrollToExtension());
+				this.add(new JQueryBrowserExtension());
+				this.add(new JQueryScrollToBrowserExtension());
 				if (extensions != null) {
 					this.addAll(Arrays.asList(extensions));
 				}
 			}
-		}.toArray(new IBrowserCompositeExtension[0]));
+		}.toArray(new IBrowserExtension[0]));
 	}
 
 	private String getFocusStmt(ISelector selector) {

@@ -10,11 +10,11 @@ import org.eclipse.swt.widgets.Composite;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.widgets.browser.Browser;
 import com.bkahlert.nebula.widgets.browser.IBrowser;
-import com.bkahlert.nebula.widgets.browser.extended.extensions.IBrowserCompositeExtension;
+import com.bkahlert.nebula.widgets.browser.extended.extensions.IBrowserExtension;
 
 /**
  * This {@link IBrowser} behaves like the {@link Browser} but
- * allows {@link IBrowserCompositeExtension}s to be automatically loaded when
+ * allows {@link IBrowserExtension}s to be automatically loaded when
  * the requested {@link URI} was loaded.
  * 
  * @author bkahlert
@@ -26,10 +26,10 @@ public class ExtendedBrowser extends Browser implements
 	private static final Logger LOGGER = Logger
 			.getLogger(ExtendedBrowser.class);
 
-	private final IBrowserCompositeExtension[] extensions;
+	private final IBrowserExtension[] extensions;
 
 	public ExtendedBrowser(Composite parent, int style,
-			IBrowserCompositeExtension[] extensions) {
+			IBrowserExtension[] extensions) {
 		super(parent, style);
 		this.extensions = extensions;
 	}
@@ -46,7 +46,7 @@ public class ExtendedBrowser extends Browser implements
 				"After Completion Extensions", new Callable<Void>() {
 					@Override
 					public Void call() throws Exception {
-						for (IBrowserCompositeExtension extension : ExtendedBrowser.this.extensions) {
+						for (IBrowserExtension extension : ExtendedBrowser.this.extensions) {
 							try {
 								extension.addExtensionOnce(
 										ExtendedBrowser.this).get();

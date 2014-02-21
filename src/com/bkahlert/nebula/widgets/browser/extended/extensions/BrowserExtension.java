@@ -15,7 +15,7 @@ import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.widgets.browser.IBrowser;
 
 /**
- * This standard implementation of the {@link IBrowserCompositeExtension} can
+ * This standard implementation of the {@link IBrowserExtension} can
  * extend {@link IBrowser}s with JavaScript.
  * <p>
  * The loading process depends on where the jsExtensions (.js) is located. If
@@ -28,17 +28,17 @@ import com.bkahlert.nebula.widgets.browser.IBrowser;
  * @author bkahlert
  * 
  */
-public class BrowserCompositeExtension implements IBrowserCompositeExtension {
+public class BrowserExtension implements IBrowserExtension {
 
 	private static final Logger LOGGER = Logger
-			.getLogger(BrowserCompositeExtension.class);
+			.getLogger(BrowserExtension.class);
 
 	private final String name;
 	private final String verificationScript;
 	private final File[] jsExtensions;
 	private final URI[] cssExtensions;
 
-	private final List<Class<? extends IBrowserCompositeExtension>> dependencies;
+	private final List<Class<? extends IBrowserExtension>> dependencies;
 
 	/**
 	 * This constructor allows adding a single JS file.
@@ -48,9 +48,9 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 	 * @param jsExtensions
 	 * @param arrayList
 	 */
-	public BrowserCompositeExtension(String name, String verificationScript,
+	public BrowserExtension(String name, String verificationScript,
 			File jsExtension,
-			ArrayList<Class<? extends IBrowserCompositeExtension>> dependencies) {
+			ArrayList<Class<? extends IBrowserExtension>> dependencies) {
 		Assert.isLegal(name != null && verificationScript != null
 				&& jsExtension != null);
 		this.name = name;
@@ -68,9 +68,9 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 	 * @param jsExtensions
 	 * @param arrayList
 	 */
-	public BrowserCompositeExtension(String name, String verificationScript,
+	public BrowserExtension(String name, String verificationScript,
 			File jsExtension, URI cssExtension,
-			ArrayList<Class<? extends IBrowserCompositeExtension>> dependencies) {
+			ArrayList<Class<? extends IBrowserExtension>> dependencies) {
 		Assert.isLegal(name != null && verificationScript != null
 				&& jsExtension != null && cssExtension != null);
 		this.name = name;
@@ -88,9 +88,9 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 	 * @param jsExtensions
 	 * @param arrayList
 	 */
-	public BrowserCompositeExtension(String name, String verificationScript,
+	public BrowserExtension(String name, String verificationScript,
 			File[] jsExtensions, URI[] cssExtensions,
-			ArrayList<Class<? extends IBrowserCompositeExtension>> dependencies) {
+			ArrayList<Class<? extends IBrowserExtension>> dependencies) {
 		Assert.isLegal(name != null && verificationScript != null
 				&& jsExtensions != null && cssExtensions != null);
 		this.name = name;
@@ -109,14 +109,14 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 
 	@Override
 	public Future<Boolean> addExtension(final IBrowser browser) {
-		return ExecUtils.nonUIAsyncExec(BrowserCompositeExtension.class,
+		return ExecUtils.nonUIAsyncExec(BrowserExtension.class,
 				"Adding Extension", new Callable<Boolean>() {
 					@Override
 					public Boolean call() throws Exception {
-						if (BrowserCompositeExtension.this.dependencies != null) {
-							for (Class<? extends IBrowserCompositeExtension> dependencyClass : BrowserCompositeExtension.this.dependencies) {
+						if (BrowserExtension.this.dependencies != null) {
+							for (Class<? extends IBrowserExtension> dependencyClass : BrowserExtension.this.dependencies) {
 								try {
-									IBrowserCompositeExtension dependency = dependencyClass
+									IBrowserExtension dependency = dependencyClass
 											.newInstance();
 									dependency.addExtensionOnce(
 											browser).get();
@@ -131,19 +131,19 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 						}
 
 						boolean success = true;
-						for (File jsExtension : BrowserCompositeExtension.this.jsExtensions) {
+						for (File jsExtension : BrowserExtension.this.jsExtensions) {
 							try {
 								browser.runImmediately(jsExtension);
 							} catch (Exception e) {
 								LOGGER.error(
 										"Could not load the JS extension \""
-												+ BrowserCompositeExtension.this.name
+												+ BrowserExtension.this.name
 												+ "\".", e);
 								success = false;
 							}
 						}
 
-						for (URI cssExtension : BrowserCompositeExtension.this.cssExtensions) {
+						for (URI cssExtension : BrowserExtension.this.cssExtensions) {
 							browser.injectCssFile(cssExtension);
 						}
 
@@ -155,13 +155,13 @@ public class BrowserCompositeExtension implements IBrowserCompositeExtension {
 	@Override
 	public Future<Boolean> addExtensionOnce(
 			final IBrowser browser) {
-		return ExecUtils.nonUIAsyncExec(BrowserCompositeExtension.class,
+		return ExecUtils.nonUIAsyncExec(BrowserExtension.class,
 				"Adding Extension Once", new Callable<Boolean>() {
 					@Override
 					public Boolean call() throws Exception {
-						if (!BrowserCompositeExtension.this
+						if (!BrowserExtension.this
 								.hasExtension(browser)) {
-							return BrowserCompositeExtension.this.addExtension(
+							return BrowserExtension.this.addExtension(
 									browser).get();
 						}
 						return null;

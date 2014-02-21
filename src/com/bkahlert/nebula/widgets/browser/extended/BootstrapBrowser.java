@@ -6,8 +6,8 @@ import java.util.Arrays;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.widgets.Composite;
 
-import com.bkahlert.nebula.widgets.browser.extended.extensions.BootstrapExtension;
-import com.bkahlert.nebula.widgets.browser.extended.extensions.IBrowserCompositeExtension;
+import com.bkahlert.nebula.widgets.browser.extended.extensions.IBrowserExtension;
+import com.bkahlert.nebula.widgets.browser.extended.extensions.bootstrap.BootstrapBrowserExtension;
 
 public class BootstrapBrowser extends JQueryBrowser implements
 		IBootstrapBrowser {
@@ -16,20 +16,20 @@ public class BootstrapBrowser extends JQueryBrowser implements
 			.getLogger(BootstrapBrowser.class);
 
 	public BootstrapBrowser(Composite parent, int style) {
-		this(parent, style, new IBrowserCompositeExtension[] {});
+		this(parent, style, new IBrowserExtension[] {});
 	}
 
 	@SuppressWarnings("serial")
 	public BootstrapBrowser(Composite parent, int style,
-			final IBrowserCompositeExtension[] extensions) {
-		super(parent, style, new ArrayList<IBrowserCompositeExtension>() {
+			final IBrowserExtension[] extensions) {
+		super(parent, style, new ArrayList<IBrowserExtension>() {
 			{
-				this.add(new BootstrapExtension());
+				this.add(new BootstrapBrowserExtension());
 				if (extensions != null) {
 					this.addAll(Arrays.asList(extensions));
 				}
 			}
-		}.toArray(new IBrowserCompositeExtension[0]));
+		}.toArray(new IBrowserExtension[0]));
 	}
 
 }
