@@ -83,8 +83,7 @@ public class ExtendedBrowserDemo extends AbstractDemo {
 
 	@Override
 	public void createDemo(Composite parent) {
-		this.jQueryBrowserComposite = new JQueryBrowser(parent,
-				SWT.BORDER) {
+		this.jQueryBrowserComposite = new JQueryBrowser(parent, SWT.BORDER) {
 			@Override
 			public void scriptAboutToBeSentToBrowser(String script) {
 				log("SENT: " + BrowserUtils.shortenScript(script));
@@ -97,7 +96,7 @@ public class ExtendedBrowserDemo extends AbstractDemo {
 		};
 		try {
 			final Future<Boolean> loaded = this.jQueryBrowserComposite.open(
-					new URI("http://amazon.com"), 5000);
+					new URI("http://amazon.com"), 60000);
 			this.jQueryBrowserComposite.addAnkerListener(new IAnkerListener() {
 				@Override
 				public void ankerHovered(IAnker anker, boolean entered) {
