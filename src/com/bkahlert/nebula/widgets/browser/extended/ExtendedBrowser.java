@@ -8,20 +8,20 @@ import org.apache.log4j.Logger;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.widgets.browser.Browser;
 import com.bkahlert.nebula.widgets.browser.IBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.extensions.IBrowserExtension;
 
 /**
- * This {@link IBrowser} behaves like the {@link Browser} but
- * allows {@link IBrowserExtension}s to be automatically loaded when
- * the requested {@link URI} was loaded.
+ * This {@link IBrowser} behaves like the {@link Browser} but allows
+ * {@link IBrowserExtension}s to be automatically loaded when the requested
+ * {@link URI} was loaded.
  * 
  * @author bkahlert
  * 
  */
-public class ExtendedBrowser extends Browser implements
-		IBrowser {
+public class ExtendedBrowser extends Browser implements IBrowser {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(ExtendedBrowser.class);
@@ -58,5 +58,4 @@ public class ExtendedBrowser extends Browser implements
 					}
 				});
 	}
-
 }

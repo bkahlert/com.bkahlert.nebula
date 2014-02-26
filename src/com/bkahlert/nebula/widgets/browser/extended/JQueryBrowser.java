@@ -19,10 +19,8 @@ import com.bkahlert.nebula.widgets.browser.extended.extensions.jquery.JQueryScro
 import com.bkahlert.nebula.widgets.browser.extended.html.Element;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 
-public class JQueryBrowser extends ExtendedBrowser
-		implements IJQueryBrowser {
-	private static final Logger LOGGER = Logger
-			.getLogger(JQueryBrowser.class);
+public class JQueryBrowser extends ExtendedBrowser implements IJQueryBrowser {
+	private static final Logger LOGGER = Logger.getLogger(JQueryBrowser.class);
 
 	public JQueryBrowser(Composite parent, int style) {
 		this(parent, style, new IBrowserExtension[] {});
@@ -175,16 +173,16 @@ public class JQueryBrowser extends ExtendedBrowser
 
 	@Override
 	public Future<Boolean> scrollTo(final int x, final int y) {
-		return ExecUtils.nonUIAsyncExec(JQueryBrowser.class,
-				"Scroll To", new Callable<Boolean>() {
+		return ExecUtils.nonUIAsyncExec(JQueryBrowser.class, "Scroll To",
+				new Callable<Boolean>() {
 					@Override
 					public Boolean call() throws Exception {
 						try {
 							String script = String
 									.format("if(jQuery(document).scrollLeft()!=%d||jQuery(document).scrollTop()!=%d){jQuery.scrollTo({left:'%dpx',top:'%dpx'}, 0);return true;}else{return false;}",
 											x, y, x, y);
-							return JQueryBrowser.this.run(
-									script, IConverter.CONVERTER_BOOLEAN).get();
+							return JQueryBrowser.this.run(script,
+									IConverter.CONVERTER_BOOLEAN).get();
 						} catch (Exception e) {
 							LOGGER.error("Error scrolling", e);
 						}
@@ -200,14 +198,13 @@ public class JQueryBrowser extends ExtendedBrowser
 
 	@Override
 	public Future<Boolean> scrollTo(final ISelector selector) {
-		return ExecUtils.nonUIAsyncExec(JQueryBrowser.class,
-				"Scroll To", new Callable<Boolean>() {
+		return ExecUtils.nonUIAsyncExec(JQueryBrowser.class, "Scroll To",
+				new Callable<Boolean>() {
 					@Override
 					public Boolean call() throws Exception {
-						Point pos = JQueryBrowser.this
-								.getScrollPosition(selector).get();
-						return JQueryBrowser.this.scrollTo(pos)
-								.get();
+						Point pos = JQueryBrowser.this.getScrollPosition(
+								selector).get();
+						return JQueryBrowser.this.scrollTo(pos).get();
 					}
 				});
 	}
