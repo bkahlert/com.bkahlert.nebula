@@ -11,7 +11,7 @@ import com.bkahlert.nebula.gallery.demoSuits.browser.timeline.TimelineDemoSuite;
 		MultipleBrowsersDemo.class, ComposerDemo.class,
 		ComposerReadOnlyDemo.class, EditorDemo.class,
 		MultipleEditorsDemo.class, ImageDemo.class, TimelineDemoSuite.class,
-		ExtendedBrowserDemo.class, BootstrapBrowserDemo.class })
+		JQueryBrowserDemo.class, BootstrapBrowserDemo.class })
 @Demo
 public class BrowserDemoSuite extends AbstractDemo {
 

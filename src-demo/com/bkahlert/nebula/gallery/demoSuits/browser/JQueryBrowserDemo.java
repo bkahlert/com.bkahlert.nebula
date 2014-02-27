@@ -24,7 +24,7 @@ import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 
 @Demo
-public class ExtendedBrowserDemo extends AbstractDemo {
+public class JQueryBrowserDemo extends AbstractDemo {
 
 	private JQueryBrowser jQueryBrowserComposite;
 	private Integer x = 50;
@@ -40,18 +40,18 @@ public class ExtendedBrowserDemo extends AbstractDemo {
 				ExecUtils.nonUISyncExec(new Runnable() {
 					@Override
 					public void run() {
-						log("scrolling to " + ExtendedBrowserDemo.this.x + ", "
-								+ ExtendedBrowserDemo.this.y);
+						log("scrolling to " + JQueryBrowserDemo.this.x + ", "
+								+ JQueryBrowserDemo.this.y);
 						try {
-							if (ExtendedBrowserDemo.this.jQueryBrowserComposite
-									.scrollTo(ExtendedBrowserDemo.this.x,
-											ExtendedBrowserDemo.this.y).get()) {
+							if (JQueryBrowserDemo.this.jQueryBrowserComposite
+									.scrollTo(JQueryBrowserDemo.this.x,
+											JQueryBrowserDemo.this.y).get()) {
 								log("Scrolled");
 							} else {
 								log("Already at desired position");
 							}
-							log("scrolled to " + ExtendedBrowserDemo.this.x
-									+ ", " + ExtendedBrowserDemo.this.y);
+							log("scrolled to " + JQueryBrowserDemo.this.x
+									+ ", " + JQueryBrowserDemo.this.y);
 						} catch (Exception e) {
 							log(e.getMessage());
 						}
@@ -65,7 +65,7 @@ public class ExtendedBrowserDemo extends AbstractDemo {
 		xText.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
-				ExtendedBrowserDemo.this.x = Integer.valueOf(((Text) e
+				JQueryBrowserDemo.this.x = Integer.valueOf(((Text) e
 						.getSource()).getText());
 			}
 		});
@@ -75,7 +75,7 @@ public class ExtendedBrowserDemo extends AbstractDemo {
 		yText.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
-				ExtendedBrowserDemo.this.y = Integer.valueOf(((Text) e
+				JQueryBrowserDemo.this.y = Integer.valueOf(((Text) e
 						.getSource()).getText());
 			}
 		});

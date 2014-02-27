@@ -17,10 +17,11 @@ import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
  */
 public class AnkerAdaptingListener implements IAnkerListener {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
 			.getLogger(AnkerAdaptingListener.class);
 
-	private IURIListener uriListener;
+	private final IURIListener uriListener;
 
 	public AnkerAdaptingListener(IURIListener uriListener) {
 		Assert.isNotNull(uriListener);
@@ -32,8 +33,8 @@ public class AnkerAdaptingListener implements IAnkerListener {
 		try {
 			this.uriListener.uriClicked(new URI(anker.getHref()));
 		} catch (URISyntaxException e) {
-			LOGGER.info("Error converting " + anker.getHref() + " to a "
-					+ URI.class.getSimpleName(), e);
+			// LOGGER.info("Error converting " + anker.getHref() + " to a "
+			// + URI.class.getSimpleName(), e);
 		}
 	}
 
@@ -42,8 +43,8 @@ public class AnkerAdaptingListener implements IAnkerListener {
 		try {
 			this.uriListener.uriHovered(new URI(anker.getHref()), entered);
 		} catch (URISyntaxException e) {
-			LOGGER.info("Error converting " + anker.getHref() + " to a "
-					+ URI.class.getSimpleName(), e);
+			// LOGGER.info("Error converting " + anker.getHref() + " to a "
+			// + URI.class.getSimpleName(), e);
 		}
 	}
 
