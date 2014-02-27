@@ -15,8 +15,8 @@ import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.widgets.browser.IBrowser;
 
 /**
- * This standard implementation of the {@link IBrowserExtension} can extend
- * {@link IBrowser}s with JavaScript.
+ * This standard implementation of the {@link IBrowserExtension} can
+ * extend {@link IBrowser}s with JavaScript.
  * <p>
  * The loading process depends on where the jsExtensions (.js) is located. If
  * the file is on the local machine it is loaded inline. Otherwise a
@@ -101,14 +101,15 @@ public class BrowserExtension implements IBrowserExtension {
 	}
 
 	@Override
-	public Boolean hasExtension(IBrowser browser) throws Exception {
+	public Boolean hasExtension(IBrowser browser)
+			throws Exception {
 		return browser.runImmediately(this.verificationScript,
 				IConverter.CONVERTER_BOOLEAN);
 	}
 
 	@Override
 	public Future<Boolean> addExtension(final IBrowser browser) {
-		return ExecUtils.nonUISyncExec(BrowserExtension.class,
+		return ExecUtils.nonUIAsyncExec(BrowserExtension.class,
 				"Adding Extension", new Callable<Boolean>() {
 					@Override
 					public Boolean call() throws Exception {
@@ -117,7 +118,8 @@ public class BrowserExtension implements IBrowserExtension {
 								try {
 									IBrowserExtension dependency = dependencyClass
 											.newInstance();
-									dependency.addExtensionOnce(browser).get();
+									dependency.addExtensionOnce(
+											browser).get();
 								} catch (Exception e) {
 									LOGGER.warn(
 											"Cannot instantiate dependency "
@@ -151,14 +153,16 @@ public class BrowserExtension implements IBrowserExtension {
 	}
 
 	@Override
-	public Future<Boolean> addExtensionOnce(final IBrowser browser) {
-		return ExecUtils.nonUISyncExec(BrowserExtension.class,
+	public Future<Boolean> addExtensionOnce(
+			final IBrowser browser) {
+		return ExecUtils.nonUIAsyncExec(BrowserExtension.class,
 				"Adding Extension Once", new Callable<Boolean>() {
 					@Override
 					public Boolean call() throws Exception {
-						if (!BrowserExtension.this.hasExtension(browser)) {
-							return BrowserExtension.this.addExtension(browser)
-									.get();
+						if (!BrowserExtension.this
+								.hasExtension(browser)) {
+							return BrowserExtension.this.addExtension(
+									browser).get();
 						}
 						return null;
 					}

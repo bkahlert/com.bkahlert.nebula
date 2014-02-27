@@ -13,14 +13,15 @@ import com.bkahlert.nebula.widgets.browser.IBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.extensions.IBrowserExtension;
 
 /**
- * This {@link IBrowser} behaves like the {@link Browser} but allows
- * {@link IBrowserExtension}s to be automatically loaded when the requested
- * {@link URI} was loaded.
+ * This {@link IBrowser} behaves like the {@link Browser} but
+ * allows {@link IBrowserExtension}s to be automatically loaded when
+ * the requested {@link URI} was loaded.
  * 
  * @author bkahlert
  * 
  */
-public class ExtendedBrowser extends Browser implements IBrowser {
+public class ExtendedBrowser extends Browser implements
+		IBrowser {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(ExtendedBrowser.class);
@@ -47,9 +48,8 @@ public class ExtendedBrowser extends Browser implements IBrowser {
 					public Void call() throws Exception {
 						for (IBrowserExtension extension : ExtendedBrowser.this.extensions) {
 							try {
-								extension
-										.addExtensionOnce(ExtendedBrowser.this)
-										.get();
+								extension.addExtensionOnce(
+										ExtendedBrowser.this).get();
 							} catch (Exception e) {
 								LOGGER.error(e);
 							}
@@ -58,4 +58,5 @@ public class ExtendedBrowser extends Browser implements IBrowser {
 					}
 				});
 	}
+
 }
