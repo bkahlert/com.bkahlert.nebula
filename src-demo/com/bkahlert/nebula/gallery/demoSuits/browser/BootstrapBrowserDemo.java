@@ -65,8 +65,7 @@ public class BootstrapBrowserDemo extends AbstractDemo {
 
 	@Override
 	public void createDemo(Composite parent) {
-		this.bootstrapBrowser = new BootstrapBrowser(parent,
-				SWT.BORDER) {
+		this.bootstrapBrowser = new BootstrapBrowser(parent, SWT.BORDER) {
 			@Override
 			public void scriptAboutToBeSentToBrowser(String script) {
 				log("SENT: " + BrowserUtils.shortenScript(script));
@@ -96,7 +95,7 @@ public class BootstrapBrowserDemo extends AbstractDemo {
 		this.bootstrapBrowser.addFocusListener(new IFocusListener() {
 			@Override
 			public void focusGained(IElement element) {
-				log("Focus gainedr: " + element);
+				log("Focus gained: " + element);
 			}
 
 			@Override
