@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.nebula.utils.ExecUtils;
-import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.widgets.browser.Browser;
 import com.bkahlert.nebula.widgets.browser.IBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.extensions.IBrowserExtension;
@@ -48,8 +47,9 @@ public class ExtendedBrowser extends Browser implements IBrowser {
 					public Void call() throws Exception {
 						for (IBrowserExtension extension : ExtendedBrowser.this.extensions) {
 							try {
-								extension.addExtensionOnce(
-										ExtendedBrowser.this).get();
+								extension
+										.addExtensionOnce(ExtendedBrowser.this)
+										.get();
 							} catch (Exception e) {
 								LOGGER.error(e);
 							}
