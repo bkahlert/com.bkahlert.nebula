@@ -82,7 +82,7 @@ com.bkahlert.devel.nebula.timeline = com.bkahlert.devel.nebula.timeline || {};
         openDemo : function(data) {
             $("#container").remove();
             $("html").addClass("ready");
-            $("head").append($("<link rel='stylesheet' type='text/css' href='file:///Users/bkahlert/Dropbox/Development/Repositories/SUA/de.fu_berlin.imp.seqan.usability_analyzer.timeline/bin/de/fu_berlin/imp/seqan/usability_analyzer/timeline/ui/widgets/style.css' />"));
+            $("head").append($("<link rel='stylesheet' type='text/css' href='file:///Users/bkahlert/development/reps/SUA/de.fu_berlin.imp.seqan.usability_analyzer.timeline/bin/de/fu_berlin/imp/seqan/usability_analyzer/timeline/ui/widgets/style.css' />"));
             $("body").append($('<div style="position: absolute; top: 10px; right: 50px; z-index: 99999;"><input type="button" value="Custom Function" onClick="testFunction();"/></div>'));
 
             data.options = data.options || {};

@@ -425,7 +425,7 @@ Timeline._Impl.prototype._autoWidthCheck = function(okToShrink) {
         	  var animateParam ={};
         	  animateParam[widthStyle] = newWidth + 'px';
         	  
-        	  SimileAjax.jQuery(timeline._containerDiv).animate(
+        	  jQuery(timeline._containerDiv).animate(
         	      animateParam, timeline.autoWidthAnimationTime,
         	      'linear', function(){timeline._autoResizing = false;});
         }
@@ -438,6 +438,7 @@ Timeline._Impl.prototype._autoWidthCheck = function(okToShrink) {
         if (timeline._autoResizing) {
         	return; // early return
         }
+
 
         // compute targetWidth
         for (var i = 0; i < timeline._bands.length; i++) {

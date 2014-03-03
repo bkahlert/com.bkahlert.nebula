@@ -2706,7 +2706,7 @@ if(B){A._containerDiv.style[G]=D+"px";
 }else{A._autoResizing=true;
 var H={};
 H[G]=D+"px";
-SimileAjax.jQuery(A._containerDiv).animate(H,A.autoWidthAnimationTime,"linear",function(){A._autoResizing=false;
+jQuery(A._containerDiv).animate(H,A.autoWidthAnimationTime,"linear",function(){A._autoResizing=false;
 });
 }}function F(){var H=0;
 var G=A.getPixelWidth();
