@@ -155,8 +155,12 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
 
         getPrevCaretCharacter : function() {
             var container = $(".cke_editable");
-            var selection = container.saveSelection();
-            return selection[0] > 0 ? container.text().substring(selection[0] - 1, selection[0]) : null;
+            try {
+            	var selection = container.saveSelection();
+            	return selection[0] > 0 ? container.text().substring(selection[0] - 1, selection[0]) : null;
+            } catch(e) {
+            	return null;
+            }
         },
 
         savedSelection : null,
