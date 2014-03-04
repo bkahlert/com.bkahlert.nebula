@@ -1,5 +1,8 @@
 package com.bkahlert.nebula.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.runtime.Platform;
 
 public class AdapterUtils {
@@ -9,5 +12,13 @@ public class AdapterUtils {
 			return (T) object;
 		}
 		return (T) Platform.getAdapterManager().getAdapter(object, adaptTo);
+	}
+
+	public static <T> List<T> adaptAll(List<?> objects, Class<T> adaptTo) {
+		List<T> adaptions = new ArrayList<T>();
+		for (Object object : objects) {
+			adaptions.add(adapt(object, adaptTo));
+		}
+		return adaptions;
 	}
 }
