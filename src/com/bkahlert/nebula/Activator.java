@@ -4,16 +4,18 @@ import java.net.URL;
 
 import org.apache.log4j.xml.DOMConfigurator;
 import org.eclipse.core.runtime.FileLocator;
-import org.osgi.framework.BundleActivator;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-public class Activator implements BundleActivator {
+public class Activator extends AbstractUIPlugin {
 
 	private static BundleContext context;
 
 	static BundleContext getContext() {
 		return context;
 	}
+
+	private static Activator plugin;
 
 	/*
 	 * (non-Javadoc)
@@ -25,6 +27,7 @@ public class Activator implements BundleActivator {
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
+		Activator.plugin = this;
 
 		URL confURL = bundleContext.getBundle().getEntry("log4j.xml");
 		DOMConfigurator.configure(FileLocator.toFileURL(confURL).getFile());
@@ -38,7 +41,12 @@ public class Activator implements BundleActivator {
 	 */
 	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
+		Activator.plugin = null;
 		Activator.context = null;
+	}
+
+	public static AbstractUIPlugin getDefault() {
+		return plugin;
 	}
 
 }

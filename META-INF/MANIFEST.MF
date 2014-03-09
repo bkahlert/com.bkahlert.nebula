@@ -23,7 +23,8 @@ Require-Bundle: org.eclipse.ui,
  org.hamcrest.core
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: com.bkahlert.nebula.data,
+Export-Package: com.bkahlert.nebula,
+ com.bkahlert.nebula.data,
  com.bkahlert.nebula.datetime,
  com.bkahlert.nebula.dialogs,
  com.bkahlert.nebula.information,
