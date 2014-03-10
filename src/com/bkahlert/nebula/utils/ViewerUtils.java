@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.StructuredViewer;
@@ -49,34 +48,6 @@ import com.bkahlert.nebula.utils.DistributionUtils.Width;
  * @author bkahlert
  */
 public class ViewerUtils {
-
-	public static class Annotater<ObjectType, AnnotationType> {
-		private static final String MAP_KEY = "annotator";
-		private final Viewer viewer;
-
-		public Annotater(Viewer viewer) {
-			Assert.isNotNull(viewer);
-			this.viewer = viewer;
-		}
-
-		@SuppressWarnings("unchecked")
-		synchronized private Map<ObjectType, AnnotationType> getMap() {
-			if (!(this.viewer.getData(MAP_KEY) instanceof Map<?, ?>)) {
-				this.viewer.setData(MAP_KEY,
-						new HashMap<ObjectType, AnnotationType>());
-			}
-			return (Map<ObjectType, AnnotationType>) this.viewer
-					.getData(MAP_KEY);
-		}
-
-		public void setAnnotation(ObjectType object, AnnotationType annotation) {
-			this.getMap().put(object, annotation);
-		}
-
-		public AnnotationType getAnnotation(ObjectType object) {
-			return this.getMap().get(object);
-		}
-	}
 
 	public static class FullWidthResizer {
 		private final ColumnViewer columnViewer;
@@ -508,29 +479,6 @@ public class ViewerUtils {
 		}
 
 		return itemsWithDataType;
-	}
-
-	/**
-	 * Returns all {@link Item}s who's {@link Item#getData()} object is the
-	 * given one. The reference is compared.
-	 * 
-	 * @param items
-	 * @param clazz
-	 * @return
-	 */
-	public static List<Item> getItemWithData(Item[] items, Object data) {
-		if (items == null) {
-			return null;
-		}
-
-		List<Item> itemsWithData = new ArrayList<Item>();
-		for (Item item : ViewerUtils.getAllItems(items)) {
-			if (item.getData() == data) {
-				itemsWithData.add(item);
-			}
-		}
-
-		return itemsWithData;
 	}
 
 	/**
