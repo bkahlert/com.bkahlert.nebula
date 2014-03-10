@@ -29,6 +29,7 @@ public class PaintUtils {
 	public static void drawRoundedBorder(GC gc, Rectangle bounds,
 			Color borderColor) {
 		Color backupBackground = gc.getBackground();
+		Color backupForeground = gc.getForeground();
 		int backupLineWidth = gc.getLineWidth();
 
 		gc.setLineWidth(LINE_WEIGHT);
@@ -36,6 +37,7 @@ public class PaintUtils {
 		gc.drawRoundRectangle(bounds.x, bounds.y, bounds.width - LINE_WEIGHT,
 				bounds.height - LINE_WEIGHT, ARC, ARC);
 
+		gc.setForeground(backupForeground);
 		gc.setBackground(backupBackground);
 		gc.setLineWidth(backupLineWidth);
 	}
