@@ -6,7 +6,7 @@ import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoExplorer.DemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 
-@DemoSuite({ FilterableViewerDemo.class, ProjectDisplayCompositeDemo.class,
+@DemoSuite({ ProjectDisplayCompositeDemo.class,
 		BaseProjectSelectionCompositeDemo.class,
 		ProjectSelectionCompositeDemo.class })
 @Demo
