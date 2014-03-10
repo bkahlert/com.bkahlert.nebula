@@ -1,4 +1,4 @@
-package com.bkahlert.nebula.gallery.demoSuits.project;
+package com.bkahlert.nebula.gallery.demoSuits.viewer;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.ISelection;

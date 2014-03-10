@@ -6,17 +6,16 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
-import com.bkahlert.nebula.viewer.ProjectDisplayComposite;
+import com.bkahlert.nebula.viewer.FilterableTreeViewer;
 
 @Demo
-public class ProjectDisplayCompositeDemo extends AbstractDemo {
-	protected ProjectDisplayComposite projectDisplayComposite;
+public class FilterableViewerDemo extends AbstractDemo {
+	protected FilterableTreeViewer filterableTreeViewer;
 
 	@Override
 	public void createDemo(Composite parent) {
 		parent.setLayout(new FillLayout());
 
-		this.projectDisplayComposite = new ProjectDisplayComposite(parent,
-				SWT.BORDER);
+		this.filterableTreeViewer = new FilterableTreeViewer(parent, SWT.BORDER);
 	}
 }
