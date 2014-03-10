@@ -16,10 +16,16 @@ import org.jmock.api.Invocation;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.jmock.lib.legacy.ClassImposteriser;
 
+import com.bkahlert.nebula.widgets.timeline.impl.TimePassed;
+
 /**
  * This class circumvents the limitation of the {@link CellLabelProvider} as it
  * allows to retrieve the text and image of an element without the need of a
  * {@link StructuredViewer}.
+ * <p>
+ * <strong>Warning: The construction of an instance is time consuming. Try to
+ * reuse an instance instead of creating a new one each time you want to request
+ * a label.</strong>
  * 
  * @author bkahlert
  * 
@@ -38,20 +44,20 @@ public class CellLabelClient {
 
 		Mockery context = new Mockery() {
 			{
-				setImposteriser(ClassImposteriser.INSTANCE);
-				setThreadingPolicy(new Synchroniser());
+				this.setImposteriser(ClassImposteriser.INSTANCE);
+				this.setThreadingPolicy(new Synchroniser());
 			}
 		};
 
 		this.viewerCell = context.mock(ViewerCell.class);
 		context.checking(new Expectations() {
 			{
-				allowing(viewerCell).getElement();
-				will(new Action() {
+				this.allowing(CellLabelClient.this.viewerCell).getElement();
+				this.will(new Action() {
 					@Override
 					public Object invoke(Invocation invocation)
 							throws Throwable {
-						return getElement();
+						return CellLabelClient.this.getElement();
 					}
 
 					@Override
@@ -60,12 +66,15 @@ public class CellLabelClient {
 					}
 				});
 
-				allowing(viewerCell).setText(with(AnyOf.anyOf(any(String.class), aNull(String.class))));
-				will(new Action() {
+				this.allowing(CellLabelClient.this.viewerCell).setText(
+						this.with(AnyOf.anyOf(any(String.class),
+								aNull(String.class))));
+				this.will(new Action() {
 					@Override
 					public Object invoke(Invocation invocation)
 							throws Throwable {
-						setText((String) invocation.getParameter(0));
+						CellLabelClient.this.setText((String) invocation
+								.getParameter(0));
 						return null;
 					}
 
@@ -75,12 +84,12 @@ public class CellLabelClient {
 					}
 				});
 
-				allowing(viewerCell).getText();
-				will(new Action() {
+				this.allowing(CellLabelClient.this.viewerCell).getText();
+				this.will(new Action() {
 					@Override
 					public Object invoke(Invocation invocation)
 							throws Throwable {
-						return getText();
+						return CellLabelClient.this.getText();
 					}
 
 					@Override
@@ -89,12 +98,15 @@ public class CellLabelClient {
 					}
 				});
 
-				allowing(viewerCell).setImage(with(AnyOf.anyOf(any(Image.class), aNull(Image.class))));
-				will(new Action() {
+				this.allowing(CellLabelClient.this.viewerCell).setImage(
+						this.with(AnyOf.anyOf(any(Image.class),
+								aNull(Image.class))));
+				this.will(new Action() {
 					@Override
 					public Object invoke(Invocation invocation)
 							throws Throwable {
-						setImage((Image) invocation.getParameter(0));
+						CellLabelClient.this.setImage((Image) invocation
+								.getParameter(0));
 						return null;
 					}
 
@@ -104,12 +116,12 @@ public class CellLabelClient {
 					}
 				});
 
-				allowing(viewerCell).getImage();
-				will(new Action() {
+				this.allowing(CellLabelClient.this.viewerCell).getImage();
+				this.will(new Action() {
 					@Override
 					public Object invoke(Invocation invocation)
 							throws Throwable {
-						return getImage();
+						return CellLabelClient.this.getImage();
 					}
 
 					@Override
@@ -118,45 +130,54 @@ public class CellLabelClient {
 					}
 				});
 
-				allowing(viewerCell).setBackground(with(AnyOf.anyOf(any(Color.class), aNull(Color.class))));
-				allowing(viewerCell).setForeground(with(AnyOf.anyOf(any(Color.class), aNull(Color.class))));
-				allowing(viewerCell).setFont(with(AnyOf.anyOf(any(Font.class), aNull(Font.class))));
-				allowing(viewerCell).setStyleRanges(
-						with(AnyOf.anyOf(any(StyleRange[].class), aNull(StyleRange[].class))));
+				this.allowing(CellLabelClient.this.viewerCell).setBackground(
+						this.with(AnyOf.anyOf(any(Color.class),
+								aNull(Color.class))));
+				this.allowing(CellLabelClient.this.viewerCell).setForeground(
+						this.with(AnyOf.anyOf(any(Color.class),
+								aNull(Color.class))));
+				this.allowing(CellLabelClient.this.viewerCell).setFont(
+						this.with(AnyOf.anyOf(any(Font.class),
+								aNull(Font.class))));
+				this.allowing(CellLabelClient.this.viewerCell).setStyleRanges(
+						this.with(AnyOf.anyOf(any(StyleRange[].class),
+								aNull(StyleRange[].class))));
 
-				allowing(viewerCell).getBackground();
-				will(returnValue(null));
-				allowing(viewerCell).getBounds();
-				will(returnValue(null));
-				allowing(viewerCell).getColumnIndex();
-				will(returnValue(null));
-				allowing(viewerCell).getFont();
-				will(returnValue(null));
-				allowing(viewerCell).getForeground();
-				will(returnValue(null));
-				allowing(viewerCell).getImage();
-				will(returnValue(null));
-				allowing(viewerCell).getImageBounds();
-				will(returnValue(null));
-				allowing(viewerCell).getItem();
-				will(returnValue(null));
-				allowing(viewerCell).getStyleRanges();
-				will(returnValue(null));
-				allowing(viewerCell).getTextBounds();
-				will(returnValue(null));
-				allowing(viewerCell).getViewerRow();
-				will(returnValue(null));
-				allowing(viewerCell).getVisualIndex();
-				will(returnValue(null));
+				this.allowing(CellLabelClient.this.viewerCell).getBackground();
+				this.will(returnValue(null));
+				this.allowing(CellLabelClient.this.viewerCell).getBounds();
+				this.will(returnValue(null));
+				this.allowing(CellLabelClient.this.viewerCell).getColumnIndex();
+				this.will(returnValue(null));
+				this.allowing(CellLabelClient.this.viewerCell).getFont();
+				this.will(returnValue(null));
+				this.allowing(CellLabelClient.this.viewerCell).getForeground();
+				this.will(returnValue(null));
+				this.allowing(CellLabelClient.this.viewerCell).getImage();
+				this.will(returnValue(null));
+				this.allowing(CellLabelClient.this.viewerCell).getImageBounds();
+				this.will(returnValue(null));
+				this.allowing(CellLabelClient.this.viewerCell).getItem();
+				this.will(returnValue(null));
+				this.allowing(CellLabelClient.this.viewerCell).getStyleRanges();
+				this.will(returnValue(null));
+				this.allowing(CellLabelClient.this.viewerCell).getTextBounds();
+				this.will(returnValue(null));
+				this.allowing(CellLabelClient.this.viewerCell).getViewerRow();
+				this.will(returnValue(null));
+				this.allowing(CellLabelClient.this.viewerCell).getVisualIndex();
+				this.will(returnValue(null));
 			}
 		});
 	}
 
 	public void setElement(Object element) {
+		TimePassed passed = new TimePassed("Setting element: " + element);
 		this.element = element;
-		setText("");
-		setImage(null);
+		this.setText("");
+		this.setImage(null);
 		this.cellLabelProvider.update(this.viewerCell);
+		passed.finished();
 	}
 
 	public Object getElement() {
@@ -164,7 +185,7 @@ public class CellLabelClient {
 	}
 
 	public String getText() {
-		return text;
+		return this.text;
 	}
 
 	protected void setText(String text) {
@@ -172,7 +193,7 @@ public class CellLabelClient {
 	}
 
 	public Image getImage() {
-		return image;
+		return this.image;
 	}
 
 	protected void setImage(Image image) {
