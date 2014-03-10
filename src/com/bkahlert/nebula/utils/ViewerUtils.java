@@ -145,6 +145,21 @@ public class ViewerUtils {
 	}
 
 	/**
+	 * Gets a viewer's input
+	 * 
+	 * @param viewer
+	 * @return
+	 * 
+	 * @see StructuredViewer#setInput(Object)
+	 */
+	public static Object getInput(final Viewer viewer) {
+		if (viewer instanceof StructuredViewer) {
+			return ((StructuredViewer) viewer).getInput();
+		}
+		return null;
+	}
+
+	/**
 	 * Add the a new element to a given element in a viewer and makes sure it
 	 * runs in the SWT thread. Runs a refresh in case the viewer does not
 	 * support additions.
@@ -479,6 +494,74 @@ public class ViewerUtils {
 		}
 
 		return itemsWithDataType;
+	}
+
+	/**
+	 * Returns all {@link Item}s who's {@link Item#getData()} object is of the
+	 * given type.
+	 * 
+	 * @param items
+	 * @param clazz
+	 * @return
+	 */
+	public static List<Item> getItemWithDataType(Control control, Class<?> clazz) {
+		if (control == null) {
+			return null;
+		}
+
+		List<Item> itemsWithDataType = new ArrayList<Item>();
+		for (Item item : ViewerUtils.getAllItems(control)) {
+			if (clazz.isInstance(item.getData())) {
+				itemsWithDataType.add(item);
+			}
+		}
+
+		return itemsWithDataType;
+	}
+
+	/**
+	 * Returns all {@link Item}s who's {@link Item#getData()} object equals the
+	 * given one.
+	 * 
+	 * @param items
+	 * @param clazz
+	 * @return
+	 */
+	public static List<Item> getItemWithData(Item[] items, Object data) {
+		if (items == null) {
+			return null;
+		}
+
+		List<Item> itemsWithData = new ArrayList<Item>();
+		for (Item item : ViewerUtils.getAllItems(items)) {
+			if (data.equals(item.getData())) {
+				itemsWithData.add(item);
+			}
+		}
+
+		return itemsWithData;
+	}
+
+	/**
+	 * Returns all {@link Item}s who's {@link Item#getData()} object equals the
+	 * given one.
+	 * 
+	 * @param items
+	 * @param clazz
+	 * @return
+	 */
+	public static List<Item> getItemWithData(Control control, Object data) {
+		if (control == null) {
+			return null;
+		}
+
+		List<Item> itemsWithData = new ArrayList<Item>();
+		for (Item item : ViewerUtils.getAllItems(control)) {
+			if (data.equals(item.getData())) {
+				itemsWithData.add(item);
+			}
+		}
+		return itemsWithData;
 	}
 
 	/**
