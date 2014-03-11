@@ -16,8 +16,6 @@ import org.jmock.api.Invocation;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.jmock.lib.legacy.ClassImposteriser;
 
-import com.bkahlert.nebula.widgets.timeline.impl.TimePassed;
-
 /**
  * This class circumvents the limitation of the {@link CellLabelProvider} as it
  * allows to retrieve the text and image of an element without the need of a
@@ -172,12 +170,10 @@ public class CellLabelClient {
 	}
 
 	public void setElement(Object element) {
-		TimePassed passed = new TimePassed("Setting element: " + element);
 		this.element = element;
 		this.setText("");
 		this.setImage(null);
 		this.cellLabelProvider.update(this.viewerCell);
-		passed.finished();
 	}
 
 	public Object getElement() {
