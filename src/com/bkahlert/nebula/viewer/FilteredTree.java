@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -95,8 +94,6 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 	public FilteredTree(Composite parent, int treeStyle,
 			TreeViewerFactory factory) {
 		super(parent, treeStyle, new TreePatternFilter(factory), true);
-		Assert.isNotNull(parent);
-		Assert.isNotNull(factory);
 	}
 
 	@Override
