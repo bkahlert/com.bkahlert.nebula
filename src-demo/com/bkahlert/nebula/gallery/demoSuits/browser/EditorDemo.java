@@ -54,6 +54,7 @@ public class EditorDemo extends AbstractDemo {
 			public void setHtml(String objectToLoad, String html,
 					IProgressMonitor monitor) {
 				AbstractDemo.log("saved: " + html);
+				System.out.println("saved: " + html);
 			}
 		};
 		this.editor.addAnkerListener(new IAnkerListener() {
