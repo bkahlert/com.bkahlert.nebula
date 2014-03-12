@@ -27,10 +27,11 @@ import org.eclipse.swt.widgets.Listener;
 import com.bkahlert.nebula.utils.EventDelegator;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.NamedJob;
+import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.composer.Composer;
-import com.bkahlert.nebula.widgets.composer.IAnkerLabelProvider;
 import com.bkahlert.nebula.widgets.composer.Composer.ToolbarSet;
+import com.bkahlert.nebula.widgets.composer.IAnkerLabelProvider;
 
 /**
  * Instances of this class wrap a {@link BootstrapBrowser} and add load and save
@@ -56,7 +57,7 @@ public abstract class Editor<T> extends Composite {
 	 * which need to reload their contents if they loaded the same object.
 	 */
 	private static Map<Object, List<Editor<Object>>> responsibleEditors = new HashMap<Object, List<Editor<Object>>>();
-	private static Editor<?> lastFocussedEditor = null;
+	private static Map<Object, Editor<?>> lastFocussedEditor = new HashMap<Object, Editor<?>>();
 
 	private T loadedObject = null;
 	private NamedJob loadJob = null;
@@ -85,7 +86,7 @@ public abstract class Editor<T> extends Composite {
 		this.composer.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
-				lastFocussedEditor = Editor.this;
+				lastFocussedEditor.put(Editor.this.loadedObject, Editor.this);
 			}
 		});
 		this.composer.addDisposeListener(new DisposeListener() {
@@ -166,7 +167,7 @@ public abstract class Editor<T> extends Composite {
 
 	@Override
 	public boolean setFocus() {
-		lastFocussedEditor = this;
+		lastFocussedEditor.put(this.loadedObject, this);
 		return this.composer.setFocus();
 	}
 
@@ -194,7 +195,6 @@ public abstract class Editor<T> extends Composite {
 				responsibleEditors.remove(this.loadedObject);
 			}
 		}
-
 		if (this.loadedObject == objectToLoad) {
 			return null;
 		}
@@ -303,7 +303,7 @@ public abstract class Editor<T> extends Composite {
 			return null;
 		}
 
-		if (lastFocussedEditor != this) {
+		if (lastFocussedEditor.get(this.loadedObject) != this) {
 			return null;
 		}
 

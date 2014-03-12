@@ -12,6 +12,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.bkahlert.nebula.views.EditorView;
+import com.bkahlert.nebula.widgets.editor.Editor;
 
 public class ToggleSourceModeHandler extends AbstractHandler {
 
@@ -31,9 +32,13 @@ public class ToggleSourceModeHandler extends AbstractHandler {
 				if (part instanceof EditorView<?>) {
 					EditorView<?> editorView = (EditorView<?>) part;
 					if (sourceMode) {
-						editorView.getEditor().showSource();
+						for (Editor<?> editor : editorView.getEditors()) {
+							editor.showSource();
+						}
 					} else {
-						editorView.getEditor().hideSource();
+						for (Editor<?> editor : editorView.getEditors()) {
+							editor.hideSource();
+						}
 					}
 				}
 			}

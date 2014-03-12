@@ -86,10 +86,9 @@ public class Composer extends Browser {
 		this.fixShortcuts(delayChangeEventUpTo);
 		this.listenForModifications(delayChangeEventUpTo);
 
-		this.open(
-				BrowserUtils.getFileUrl(Composer.class, "html/index.html",
-						"?internal=true&toolbarSet="
-								+ toolbarSet.toString().toLowerCase()), 30000,
+		this.open(BrowserUtils.getFileUrl(Composer.class, "html/index.html",
+				"?internal=true&toolbarSet="
+						+ toolbarSet.toString().toLowerCase()), 30000,
 				"return typeof jQuery != \"undefined\" && jQuery(\"html\").hasClass(\"ready\")");
 
 		this.addDisposeListener(new DisposeListener() {
@@ -177,9 +176,13 @@ public class Composer extends Browser {
 	protected void modifiedCallback(String html, long delayChangeEventTo) {
 		String newHtml = (html == null || html.replace("&nbsp;", " ").trim()
 				.isEmpty()) ? "" : html.trim();
+
 		if (this.oldHtml.equals(newHtml)) {
 			return;
 		}
+
+
+		this.oldHtml = newHtml;
 
 		// When space entered but widget is not disposing, create links
 		if (delayChangeEventTo > 0) {
@@ -198,15 +201,15 @@ public class Composer extends Browser {
 			}
 		}
 
-		final String tmp = newHtml;
+		final String saveHtml = newHtml;
 		final Runnable fireRunnable = new Runnable() {
 			@Override
 			public void run() {
 				Event event = new Event();
 				event.display = Display.getCurrent();
 				event.widget = Composer.this;
-				event.text = tmp;
-				event.data = tmp;
+				event.text = saveHtml;
+				event.data = saveHtml;
 				ModifyEvent modifyEvent = new ModifyEvent(event);
 				for (ModifyListener modifyListener : Composer.this.modifyListeners) {
 					modifyListener.modifyText(modifyEvent);
@@ -214,23 +217,25 @@ public class Composer extends Browser {
 			}
 		};
 
-		this.oldHtml = tmp;
-
-		if (this.delayChangeTimerTask != null) {
-			this.delayChangeTimerTask.cancel();
-		}
-		if (delayChangeEventTo > 0) {
-			this.delayChangeTimerTask = new TimerTask() {
-				@Override
-				public void run() {
-					fireRunnable.run();
-				}
-			};
-			this.delayChangeTimer.schedule(this.delayChangeTimerTask,
-					delayChangeEventTo);
-		} else {
-			this.delayChangeTimerTask = null;
-			fireRunnable.run();
+		synchronized (this) {
+			if (this.delayChangeTimerTask != null) {
+				this.delayChangeTimerTask.cancel();
+			}
+			if (delayChangeEventTo > 0) {
+				System.out.println("delay timer: " + newHtml + " "
+						+ System.identityHashCode(this));
+				this.delayChangeTimerTask = new TimerTask() {
+					@Override
+					public void run() {
+						fireRunnable.run();
+					}
+				};
+				this.delayChangeTimer.schedule(this.delayChangeTimerTask,
+						delayChangeEventTo);
+			} else {
+				this.delayChangeTimerTask = null;
+				fireRunnable.run();
+			}
 		}
 	}
 
@@ -314,11 +319,16 @@ public class Composer extends Browser {
 		/*
 		 * do not wait for the delay to pass but invoke the task immediately
 		 */
-		if (this.delayChangeTimerTask != null) {
-			this.delayChangeTimerTask.cancel();
-			this.delayChangeTimerTask.run();
-			this.delayChangeTimerTask = null;
+		synchronized (this) {
+			if (this.delayChangeTimerTask != null) {
+				System.out.println("SET SOURCE: "
+						+ System.identityHashCode(this));
+				this.delayChangeTimerTask.cancel();
+				this.delayChangeTimerTask.run();
+				this.delayChangeTimerTask = null;
+			}
 		}
+		this.oldHtml = html;
 		return this.run("return com.bkahlert.devel.nebula.editor.setSource("
 				+ TimelineJsonGenerator.enquote(html) + ", "
 				+ (restoreSelection ? "true" : "false") + ");",
