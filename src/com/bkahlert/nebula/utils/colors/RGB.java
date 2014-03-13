@@ -20,7 +20,34 @@ public class RGB {
 	private double green;
 	private double blue;
 
+	/**
+	 * Constructs a new RGB.
+	 * 
+	 * @param red
+	 *            0.0 ... 1.0
+	 * @param green
+	 *            0.0 ... 1.0
+	 * @param blue
+	 *            0.0 ... 1.0
+	 */
 	public RGB(double red, double green, double blue) {
+		super();
+		this.setRed(red);
+		this.setGreen(green);
+		this.setBlue(blue);
+	}
+
+	/**
+	 * Constructs a new RGB
+	 * 
+	 * @param red
+	 *            0 ... 255
+	 * @param green
+	 *            0 ... 255
+	 * @param blue
+	 *            0 ... 255
+	 */
+	public RGB(int red, int green, int blue) {
 		super();
 		this.setRed(red);
 		this.setGreen(green);
@@ -40,7 +67,7 @@ public class RGB {
 	}
 
 	/**
-	 * @return red
+	 * @return red 0.0 ... 1.0
 	 */
 	public double getRed() {
 		return this.red;
@@ -48,6 +75,7 @@ public class RGB {
 
 	/**
 	 * @param red
+	 *            0.0 ... 1.0
 	 */
 	public void setRed(double red) {
 		if (red < 0 || red > 1) {
@@ -57,7 +85,21 @@ public class RGB {
 	}
 
 	/**
-	 * @return green
+	 * @param red
+	 *            0 ... 255
+	 */
+	public void setRed(int red) {
+		if (red < 0) {
+			red = 0;
+		}
+		if (red > 255) {
+			red = 255;
+		}
+		this.setRed(red / 255.0);
+	}
+
+	/**
+	 * @return green 0.0 ... 1.0
 	 */
 	public double getGreen() {
 		return this.green;
@@ -65,6 +107,7 @@ public class RGB {
 
 	/**
 	 * @param green
+	 *            0.0 ... 1.0
 	 */
 	public void setGreen(double green) {
 		if (green < 0 || green > 1) {
@@ -74,7 +117,21 @@ public class RGB {
 	}
 
 	/**
-	 * @return blue
+	 * @param red
+	 *            0 ... 255
+	 */
+	public void setGreen(int green) {
+		if (green < 0) {
+			green = 0;
+		}
+		if (green > 255) {
+			green = 255;
+		}
+		this.setGreen(green / 255.0);
+	}
+
+	/**
+	 * @return blue 0.0 ... 1.0
 	 */
 	public double getBlue() {
 		return this.blue;
@@ -82,12 +139,27 @@ public class RGB {
 
 	/**
 	 * @param blue
+	 *            0.0 ... 1.0
 	 */
 	public void setBlue(double blue) {
 		if (blue < 0 || blue > 1) {
 			throw new IllegalArgumentException("Blue must be between 0 and 1");
 		}
 		this.blue = blue;
+	}
+
+	/**
+	 * @param red
+	 *            0 ... 255
+	 */
+	public void setBlue(int blue) {
+		if (blue < 0) {
+			blue = 0;
+		}
+		if (blue > 255) {
+			blue = 255;
+		}
+		this.setBlue(blue / 255.0);
 	}
 
 	/*
