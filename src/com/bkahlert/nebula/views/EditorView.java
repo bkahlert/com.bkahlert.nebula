@@ -171,20 +171,37 @@ public abstract class EditorView<T> extends ViewPart {
 	 * @param objectsToLoad
 	 * @see Editor#load(Object)
 	 */
-	public final void load(T... objectsToLoad) {
+	public final void load(final Runnable callback, T... objectsToLoad) {
+
 		this.createEditors(objectsToLoad.length);
 		Assert.isTrue(objectsToLoad.length == this.editors.size());
+
+		if (objectsToLoad.length == 0) {
+			EditorView.this.refreshHeader();
+			if (callback != null) {
+				callback.run();
+			}
+			return;
+		}
+
+		final AtomicReference<Integer> jobCount = new AtomicReference<Integer>(
+				0);
 		for (int i = 0; i < objectsToLoad.length; i++) {
 			NamedJob loadJob = this.editors.get(i).load(objectsToLoad[i]);
 			if (loadJob != null) {
+				jobCount.set(jobCount.get() + 1);
 				loadJob.addJobChangeListener(new JobChangeAdapter() {
 					@Override
 					public void done(IJobChangeEvent event) {
-						EditorView.this.refreshHeader();
+						jobCount.set(jobCount.get() - 1);
+						if (jobCount.get() == 0) {
+							EditorView.this.refreshHeader();
+							if (callback != null) {
+								callback.run();
+							}
+						}
 					}
 				});
-			} else {
-				EditorView.this.refreshHeader();
 			}
 		}
 	}
