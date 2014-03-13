@@ -9,6 +9,7 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.BrowserFunction;
@@ -177,10 +178,9 @@ public class Composer extends Browser {
 		String newHtml = (html == null || html.replace("&nbsp;", " ").trim()
 				.isEmpty()) ? "" : html.trim();
 
-		if (this.oldHtml.equals(newHtml)) {
+		if (StringUtils.equals(this.oldHtml, newHtml)) {
 			return;
 		}
-
 
 		this.oldHtml = newHtml;
 
@@ -222,8 +222,6 @@ public class Composer extends Browser {
 				this.delayChangeTimerTask.cancel();
 			}
 			if (delayChangeEventTo > 0) {
-				System.out.println("delay timer: " + newHtml + " "
-						+ System.identityHashCode(this));
 				this.delayChangeTimerTask = new TimerTask() {
 					@Override
 					public void run() {
@@ -389,7 +387,11 @@ public class Composer extends Browser {
 
 	@Override
 	public void setBackground(Color color) {
-		String hex = new RGB(color.getRGB()).toHexString();
+		this.setBackground(color != null ? new RGB(color.getRGB()) : null);
+	}
+
+	public void setBackground(RGB rgb) {
+		String hex = rgb != null ? rgb.toHexString() : "transparent";
 		this.injectCss("html .cke_reset { background-color: " + hex + "; }");
 	}
 

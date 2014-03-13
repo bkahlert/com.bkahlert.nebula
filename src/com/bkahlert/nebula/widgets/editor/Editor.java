@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Listener;
 import com.bkahlert.nebula.utils.EventDelegator;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.NamedJob;
+import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.composer.Composer;
@@ -163,6 +164,10 @@ public abstract class Editor<T> extends Composite {
 	@Override
 	public void setBackground(Color color) {
 		this.composer.setBackground(color);
+	}
+
+	public void setBackground(RGB rgb) {
+		this.composer.setBackground(rgb);
 	}
 
 	@Override

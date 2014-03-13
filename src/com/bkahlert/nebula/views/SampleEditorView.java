@@ -16,7 +16,7 @@ public class SampleEditorView extends EditorView<String> {
 
 	@Override
 	public void postInit() {
-		this.load("Hello World!");
+		this.load(null, "Hello World!");
 		// ExecUtils.asyncExec(new Runnable() {
 		// @Override
 		// public void run() {
@@ -55,7 +55,7 @@ public class SampleEditorView extends EditorView<String> {
 			@Override
 			public void run() {
 				try {
-					SampleEditorView.this.load("Input #1", "Input #2");
+					SampleEditorView.this.load(null, "Input #1", "Input #2");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
