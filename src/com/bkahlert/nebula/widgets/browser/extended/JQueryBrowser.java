@@ -6,21 +6,25 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
+import com.bkahlert.nebula.utils.CompletedFuture;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.widgets.browser.extended.ISelector.IdSelector;
 import com.bkahlert.nebula.widgets.browser.extended.ISelector.NameSelector;
 import com.bkahlert.nebula.widgets.browser.extended.extensions.IBrowserExtension;
 import com.bkahlert.nebula.widgets.browser.extended.extensions.jquery.JQueryBrowserExtension;
-import com.bkahlert.nebula.widgets.browser.extended.extensions.jquery.JQueryScrollToBrowserExtension;
 import com.bkahlert.nebula.widgets.browser.extended.html.Element;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 
 public class JQueryBrowser extends ExtendedBrowser implements IJQueryBrowser {
 	private static final Logger LOGGER = Logger.getLogger(JQueryBrowser.class);
+
+	private Point disposedScrollPositon = null;
 
 	public JQueryBrowser(Composite parent, int style) {
 		this(parent, style, new IBrowserExtension[] {});
@@ -32,12 +36,23 @@ public class JQueryBrowser extends ExtendedBrowser implements IJQueryBrowser {
 		super(parent, style, new ArrayList<IBrowserExtension>() {
 			{
 				this.add(new JQueryBrowserExtension());
-				this.add(new JQueryScrollToBrowserExtension());
 				if (extensions != null) {
 					this.addAll(Arrays.asList(extensions));
 				}
 			}
 		}.toArray(new IBrowserExtension[0]));
+		this.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				try {
+					JQueryBrowser.this.disposedScrollPositon = JQueryBrowser.this
+							.getScrollPosition().get();
+				} catch (Exception e1) {
+					LOGGER.error("Error saving state of " + JQueryBrowser.this,
+							e1);
+				}
+			}
+		});
 	}
 
 	private String getFocusStmt(ISelector selector) {
@@ -102,93 +117,49 @@ public class JQueryBrowser extends ExtendedBrowser implements IJQueryBrowser {
 
 	@Override
 	public Future<Point> getScrollPosition() {
-		return ExecUtils.nonUIAsyncExec(JQueryBrowser.class,
-				"Get Scroll Position", new Callable<Point>() {
-					@Override
-					public Point call() throws Exception {
-						try {
-							return JQueryBrowser.this
-									.run("return [jQuery(document).scrollLeft(),jQuery(document).scrollTop()];",
-											IConverter.CONVERTER_POINT).get();
-						} catch (Exception e) {
-							LOGGER.error("Error getting scroll position", e);
-						}
-						return null;
-					}
-				});
+		if (this.disposedScrollPositon != null) {
+			return new CompletedFuture<Point>(this.disposedScrollPositon, null);
+		}
+		return JQueryBrowser.this
+				.run("return [jQuery(document).scrollLeft(),jQuery(document).scrollTop()];",
+						IConverter.CONVERTER_POINT);
 	}
 
 	@Override
 	public Future<Point> getScrollPosition(final ISelector selector) {
-		return ExecUtils.nonUIAsyncExec(JQueryBrowser.class,
-				"Get Scroll Position", new Callable<Point>() {
-					@Override
-					public Point call() throws Exception {
-						try {
-							String jQuery = "jQuery('" + selector + "')";
-							if (selector instanceof IdSelector) {
-								// preferred if id contains special characters
-								jQuery = "jQuery(document.getElementById(\""
-										+ ((IdSelector) selector).getId()
-										+ "\"))";
-							}
-							if (selector instanceof NameSelector) {
-								// preferred if name contains special characters
-								jQuery = "jQuery(document.getElementsByName(\""
-										+ ((NameSelector) selector).getName()
-										+ "\")[0])";
-							}
-							return JQueryBrowser.this
-									.run("var offset = "
-											+ jQuery
-											+ ".offset(); return offset ? [offset.left, offset.top] : null;",
-											IConverter.CONVERTER_POINT).get();
-						} catch (Exception e) {
-							LOGGER.error("Error getting scroll position", e);
-						}
-						return null;
-					}
-				});
+		String jQuery = "jQuery('" + selector + "')";
+		if (selector instanceof IdSelector) {
+			// preferred if id contains special characters
+			jQuery = "jQuery(document.getElementById(\""
+					+ ((IdSelector) selector).getId() + "\"))";
+		}
+		if (selector instanceof NameSelector) {
+			// preferred if name contains special characters
+			jQuery = "jQuery(document.getElementsByName(\""
+					+ ((NameSelector) selector).getName() + "\")[0])";
+		}
+		return JQueryBrowser.this
+				.run("var offset = "
+						+ jQuery
+						+ ".offset(); return offset ? [offset.left, offset.top] : null;",
+						IConverter.CONVERTER_POINT);
 	}
 
 	@Override
 	public Future<Point> getRelativePosition(final ISelector selector) {
-		return ExecUtils.nonUIAsyncExec(JQueryBrowser.class,
-				"Get Relative Position", new Callable<Point>() {
-					@Override
-					public Point call() throws Exception {
-						try {
-							return JQueryBrowser.this
-									.run("var offset = jQuery('"
-											+ selector
-											+ "').offset();return [offset.left-jQuery(document).scrollLeft(),offset.top-jQuery(document).scrollTop()];",
-											IConverter.CONVERTER_POINT).get();
-						} catch (Exception e) {
-							LOGGER.error("Error scrolling", e);
-						}
-						return null;
-					}
-				});
+		return JQueryBrowser.this
+				.run("var offset = jQuery('"
+						+ selector
+						+ "').offset();return [offset.left-jQuery(document).scrollLeft(),offset.top-jQuery(document).scrollTop()];",
+						IConverter.CONVERTER_POINT);
 	}
 
 	@Override
 	public Future<Boolean> scrollTo(final int x, final int y) {
-		return ExecUtils.nonUIAsyncExec(JQueryBrowser.class, "Scroll To",
-				new Callable<Boolean>() {
-					@Override
-					public Boolean call() throws Exception {
-						try {
-							String script = String
-									.format("if(jQuery(document).scrollLeft()!=%d||jQuery(document).scrollTop()!=%d){jQuery.scrollTo({left:'%dpx',top:'%dpx'}, 0);return true;}else{return false;}",
-											x, y, x, y);
-							return JQueryBrowser.this.run(script,
-									IConverter.CONVERTER_BOOLEAN).get();
-						} catch (Exception e) {
-							LOGGER.error("Error scrolling", e);
-						}
-						return null;
-					}
-				});
+		String script = String
+				.format("if(jQuery(document).scrollLeft()!=%d||jQuery(document).scrollTop()!=%d){jQuery('html, body').animate({ scrollLeft: %d, scrollTop: %d }, 0);return true;}else{return false;}",
+						x, y, x, y);
+		return JQueryBrowser.this.run(script, IConverter.CONVERTER_BOOLEAN);
 	}
 
 	@Override

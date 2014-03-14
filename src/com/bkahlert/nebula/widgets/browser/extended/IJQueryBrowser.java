@@ -20,6 +20,13 @@ public interface IJQueryBrowser extends IBrowser {
 
 	public Future<Point> getRelativePosition(ISelector selector);
 
+	/**
+	 * Returns the current scroll position. This method can also be called when
+	 * the widget is already disposed. In this case the last known scroll
+	 * position is returned.
+	 * 
+	 * @return
+	 */
 	public Future<Point> getScrollPosition();
 
 	public Future<Point> getScrollPosition(ISelector selector);

@@ -61,6 +61,27 @@ public class BootstrapBrowserDemo extends AbstractDemo {
 						.getText();
 			}
 		});
+
+		Button scrollButton = new Button(composite, SWT.PUSH);
+		scrollButton.setText("scroll down");
+		scrollButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ExecUtils.nonUISyncExec(new Runnable() {
+					@Override
+					public void run() {
+						log("scrolling down " + BootstrapBrowserDemo.this.html);
+						try {
+							BootstrapBrowserDemo.this.bootstrapBrowser
+									.scrollTo(0, 9999).get();
+							log("scrolled down");
+						} catch (Exception e) {
+							log(e.getMessage());
+						}
+					}
+				});
+			}
+		});
 	}
 
 	@Override

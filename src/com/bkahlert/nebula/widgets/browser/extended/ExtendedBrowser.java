@@ -47,9 +47,10 @@ public class ExtendedBrowser extends Browser implements IBrowser {
 					public Void call() throws Exception {
 						for (IBrowserExtension extension : ExtendedBrowser.this.extensions) {
 							try {
-								extension
-										.addExtensionOnce(ExtendedBrowser.this)
-										.get();
+								if (!extension.addExtensionOnce(
+										ExtendedBrowser.this).get()) {
+									LOGGER.error("Error loading " + extension);
+								}
 							} catch (Exception e) {
 								LOGGER.error(e);
 							}

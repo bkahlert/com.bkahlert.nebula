@@ -117,7 +117,13 @@ public class BrowserExtension implements IBrowserExtension {
 								try {
 									IBrowserExtension dependency = dependencyClass
 											.newInstance();
-									dependency.addExtensionOnce(browser).get();
+									if (!dependency.addExtensionOnce(browser)
+											.get()) {
+										LOGGER.error("Dependency "
+												+ dependency
+												+ " could not be loaded. Still trying to add extension "
+												+ BrowserExtension.this);
+									}
 								} catch (Exception e) {
 									LOGGER.warn(
 											"Cannot instantiate dependency "
@@ -160,7 +166,7 @@ public class BrowserExtension implements IBrowserExtension {
 							return BrowserExtension.this.addExtension(browser)
 									.get();
 						}
-						return null;
+						return true;
 					}
 				});
 	}
