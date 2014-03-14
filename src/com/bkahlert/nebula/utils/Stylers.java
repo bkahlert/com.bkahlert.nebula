@@ -42,6 +42,14 @@ public class Stylers {
 		}
 	};
 
+	public static final StyledString.Styler SMALL_STYLER = new StyledString.Styler() {
+		@Override
+		public void applyStyles(TextStyle textStyle) {
+			textStyle.font = FontUtils.SMALL_FONT;
+			textStyle.rise = FontUtils.SMALL_FONT_RISE;
+		}
+	};
+
 	public static final StyledString.Styler MINOR_STYLER = new StyledString.Styler() {
 		@Override
 		public void applyStyles(TextStyle textStyle) {

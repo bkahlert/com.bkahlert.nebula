@@ -319,8 +319,6 @@ public class Composer extends Browser {
 		 */
 		synchronized (this) {
 			if (this.delayChangeTimerTask != null) {
-				System.out.println("SET SOURCE: "
-						+ System.identityHashCode(this));
 				this.delayChangeTimerTask.cancel();
 				this.delayChangeTimerTask.run();
 				this.delayChangeTimerTask = null;
