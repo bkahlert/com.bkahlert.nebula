@@ -58,6 +58,8 @@ public class Composer extends Browser {
 		DEFAULT, TERMINAL, NONE;
 	}
 
+	private final ToolbarSet toolbarSet;
+
 	private final List<IAnkerLabelProvider> ankerLabelProviders = new ArrayList<IAnkerLabelProvider>();
 	private final List<ModifyListener> modifyListeners = new ArrayList<ModifyListener>();
 	private String oldHtml = "";
@@ -83,6 +85,8 @@ public class Composer extends Browser {
 			final long delayChangeEventUpTo, ToolbarSet toolbarSet) {
 		super(parent, style);
 		this.deactivateNativeMenu();
+
+		this.toolbarSet = toolbarSet;
 
 		this.fixShortcuts(delayChangeEventUpTo);
 		this.listenForModifications(delayChangeEventUpTo);
@@ -287,6 +291,10 @@ public class Composer extends Browser {
 			}
 		}
 		return newAnker;
+	}
+
+	public ToolbarSet getToolbarSet() {
+		return this.toolbarSet;
 	}
 
 	/**

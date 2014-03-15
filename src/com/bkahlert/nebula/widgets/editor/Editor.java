@@ -104,6 +104,10 @@ public abstract class Editor<T> extends Composite {
 		});
 	}
 
+	public ToolbarSet getToolbarSet() {
+		return this.composer.getToolbarSet();
+	}
+
 	@Override
 	public void addListener(int eventType, Listener listener) {
 		if (EventDelegator.mustDelegate(eventType, this)) {

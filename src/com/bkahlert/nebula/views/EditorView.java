@@ -1,6 +1,7 @@
 package com.bkahlert.nebula.views;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -207,6 +208,21 @@ public abstract class EditorView<T> extends ViewPart {
 	}
 
 	private void createEditors(int length) {
+		ToolbarSet toolbarSet = this.toolbarSet;
+		if (length > 2) {
+			toolbarSet = ToolbarSet.TERMINAL;
+		}
+
+		// dispose editors with a different toolbar set
+		for (Iterator<Editor<T>> iterator = this.editors.iterator(); iterator
+				.hasNext();) {
+			Editor<T> editor = iterator.next();
+			if (editor.getToolbarSet() != toolbarSet) {
+				editor.dispose();
+				iterator.remove();
+			}
+		}
+
 		List<Editor<T>> disposed = new ArrayList<Editor<T>>();
 		List<Editor<T>> created = new ArrayList<Editor<T>>();
 		while (length < this.editors.size()) {
@@ -217,7 +233,7 @@ public abstract class EditorView<T> extends ViewPart {
 			Editor<T> editor;
 			if (this.autosave) {
 				editor = new AutosaveEditor<T>(this.parent, SWT.NONE,
-						this.delayChangeEventUpTo, this.toolbarSet) {
+						this.delayChangeEventUpTo, toolbarSet) {
 					@Override
 					public String getHtml(T loadedObject,
 							IProgressMonitor monitor) throws Exception {
@@ -232,7 +248,7 @@ public abstract class EditorView<T> extends ViewPart {
 				};
 			} else {
 				editor = new Editor<T>(this.parent, SWT.NONE,
-						this.delayChangeEventUpTo, this.toolbarSet) {
+						this.delayChangeEventUpTo, toolbarSet) {
 					@Override
 					public String getHtml(T loadedObject,
 							IProgressMonitor monitor) throws Exception {
