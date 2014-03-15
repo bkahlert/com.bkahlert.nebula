@@ -16,6 +16,12 @@ public class RGB {
 	public static final RGB WHITE = new RGB(1.0, 1.0, 1.0);
 	public static final RGB BLACK = new RGB(0.0, 0.0, 0.0);
 
+	public static final RGB PRIMARY = new RGB(50, 118, 177);
+	public static final RGB SUCCESS = new RGB(71, 164, 71);
+	public static final RGB INFO = new RGB(57, 179, 215);
+	public static final RGB WARNING = new RGB(237, 156, 40);
+	public static final RGB DANGER = new RGB(210, 50, 45);
+
 	private double red;
 	private double green;
 	private double blue;
