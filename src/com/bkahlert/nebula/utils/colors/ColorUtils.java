@@ -59,6 +59,39 @@ public class ColorUtils {
 	}
 
 	/**
+	 * Increases a color's lightness
+	 * 
+	 * @param rgb
+	 *            that defines the color
+	 * @param lightness
+	 *            by which the color's lightness should be increased;<br/>
+	 *            range: -1 (results in black) to +1 (+1 results in white)
+	 * @return
+	 * 
+	 * @see <a href="http://en.wikipedia.org/wiki/HSL_and_HSV">HLS and HSV</a>
+	 */
+	public static org.eclipse.swt.graphics.RGB addLightness(
+			org.eclipse.swt.graphics.RGB rgb, float lightness) {
+		return addLightness(new RGB(rgb), lightness).toClassicRGB();
+	}
+
+	/**
+	 * Increases a color's lightness
+	 * 
+	 * @param color
+	 * @param lightness
+	 *            by which the color's lightness should be increased;<br/>
+	 *            range: -1 (results in black) to +1 (+1 results in white)
+	 * @return newly created color. Must be disposed after usage!
+	 * 
+	 * @see <a href="http://en.wikipedia.org/wiki/HSL_and_HSV">HLS and HSV</a>
+	 */
+	public static Color addLightness(Color color, float lightness) {
+		return new Color(Display.getDefault(), addLightness(color.getRGB(),
+				lightness));
+	}
+
+	/**
 	 * Scales a color's lightness; the higher the ratio the lighter the color
 	 * 
 	 * @param rgb

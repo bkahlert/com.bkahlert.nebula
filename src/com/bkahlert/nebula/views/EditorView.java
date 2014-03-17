@@ -266,6 +266,7 @@ public abstract class EditorView<T> extends ViewPart {
 			created.add(editor);
 		}
 		this.parent.layout();
+
 		if (disposed.size() > 0) {
 			this.disposed(created);
 		}

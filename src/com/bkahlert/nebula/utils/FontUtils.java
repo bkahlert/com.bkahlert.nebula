@@ -35,11 +35,24 @@ public class FontUtils {
 	public static final double SMALL_TEXT_FACTOR = .8;
 
 	/**
+	 * Factor by which the large font is actually larger than the system's
+	 * default font.
+	 */
+	public static final double LARGE_TEXT_FACTOR = 1.15;
+
+	/**
 	 * A smaller font compared to the system's default font.
 	 */
 	public static final Font SMALL_FONT = FontUtils.RESOURCES
 			.createFont(FontDescriptor.createFrom(getResizedFontData(
 					SYSTEM_FONT.getFontData(), SMALL_TEXT_FACTOR)));
+
+	/**
+	 * A larger font compared to the system's default font.
+	 */
+	public static final Font LARGE_FONT = FontUtils.RESOURCES
+			.createFont(FontDescriptor.createFrom(getResizedFontData(
+					SYSTEM_FONT.getFontData(), LARGE_TEXT_FACTOR)));
 
 	/**
 	 * Number of pixels the font needs to be moved upwards in order to make it

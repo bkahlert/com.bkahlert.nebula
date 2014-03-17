@@ -22,6 +22,9 @@ public class RGB {
 	public static final RGB WARNING = new RGB(237, 156, 40);
 	public static final RGB DANGER = new RGB(210, 50, 45);
 
+	public static final RGB IMPORTANCE_HIGH = new RGB(127, 64, 195);
+	public static final RGB IMPORTANCE_LOW = new RGB(179, 179, 179);
+
 	private double red;
 	private double green;
 	private double blue;
