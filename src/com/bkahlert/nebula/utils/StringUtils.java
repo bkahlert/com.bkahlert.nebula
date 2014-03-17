@@ -1,29 +1,46 @@
 package com.bkahlert.nebula.utils;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+
+import javax.swing.JEditorPane;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.EditorKit;
 
 public class StringUtils {
+
+	private static final Pattern BODY_PATTERN = Pattern.compile(
+			".*<body.*?>(.*)</body>.*", Pattern.CASE_INSENSITIVE
+					| Pattern.DOTALL);
 
 	public static interface IStringAdapter<T> {
 		public String getString(T object);
 	}
 
 	public static String join(List<String> strings, String separator) {
-		if (strings == null)
+		if (strings == null) {
 			return "";
+		}
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0, m = strings.size(); i < m; i++) {
 			String string = strings.get(i);
-			if (string == null)
+			if (string == null) {
 				string = "";
+			}
 
 			sb.append(string);
-			if (i + 1 < m)
+			if (i + 1 < m) {
 				sb.append(separator);
+			}
 		}
 		return sb.toString();
 	}
@@ -42,8 +59,9 @@ public class StringUtils {
 	 *      href="http://stackoverflow.com/questions/8033655/java-find-longest-common-prefix-in-java">http://stackoverflow.com/questions/8033655/java-find-longest-common-prefix-in-java</a>
 	 */
 	public static String getLongestCommonPrefix(String string1, String string2) {
-		if (string1 == null || string2 == null)
+		if (string1 == null || string2 == null) {
 			throw new IllegalArgumentException();
+		}
 		int minLength = Math.min(string1.length(), string2.length());
 		for (int i = 0; i < minLength; i++) {
 			if (string1.charAt(i) != string2.charAt(i)) {
@@ -68,19 +86,22 @@ public class StringUtils {
 	 */
 	public static <T> String getLongestCommonPrefix(
 			IStringAdapter<T> stringAdapter, T... objects) {
-		if (objects == null)
+		if (objects == null) {
 			throw new IllegalArgumentException();
+		}
 
 		List<String> strings = new ArrayList<String>();
 		for (T object : objects) {
-			if (object == null && stringAdapter == null)
+			if (object == null && stringAdapter == null) {
 				throw new IllegalArgumentException();
+			}
 			strings.add(stringAdapter != null ? stringAdapter.getString(object)
 					: object.toString());
 		}
 
-		if (strings.size() == 0)
+		if (strings.size() == 0) {
 			return "";
+		}
 		if (strings.size() == 1) {
 			return strings.get(0);
 		}
@@ -112,22 +133,27 @@ public class StringUtils {
 	 */
 	public static <T> Map<String, Integer> getLongestCommonPrefix(
 			IStringAdapter<T> stringAdapter, int partitionLength, T... objects) {
-		if (objects == null)
+		if (objects == null) {
 			throw new IllegalArgumentException();
+		}
 
 		Map<String, List<String>> partitionedStrings = new HashMap<String, List<String>>();
 		for (T object : objects) {
-			if (object == null && stringAdapter == null)
+			if (object == null && stringAdapter == null) {
 				throw new IllegalArgumentException();
+			}
 			String string = stringAdapter != null ? stringAdapter
 					.getString(object) : object.toString();
-			if (string == null)
+			if (string == null) {
 				throw new IllegalArgumentException();
-			if (string.length() < partitionLength)
+			}
+			if (string.length() < partitionLength) {
 				continue;
+			}
 			String key = string.substring(0, partitionLength);
-			if (!partitionedStrings.containsKey(key))
+			if (!partitionedStrings.containsKey(key)) {
 				partitionedStrings.put(key, new ArrayList<String>());
+			}
 			partitionedStrings.get(key).add(string);
 		}
 
@@ -139,5 +165,42 @@ public class StringUtils {
 		}
 
 		return rs;
+	}
+
+	public static String rtfToBody(String rtf) throws IOException {
+		String html = rtfToHtml(new StringReader(rtf));
+		if (html.contains("<body")) {
+			html = BODY_PATTERN.matcher(html).replaceAll("$1");
+		}
+		return html;
+	}
+
+	public static String rtfToHtml(String rtf) throws IOException {
+		return rtfToHtml(new StringReader(rtf));
+	}
+
+	/**
+	 * @see http 
+	 *      ://www.codeproject.com/Tips/136483/Java-How-to-convert-RTF-into-HTML
+	 * @param rtf
+	 * @return
+	 * @throws IOException
+	 */
+	public static String rtfToHtml(Reader rtf) throws IOException {
+		JEditorPane p = new JEditorPane();
+		p.setContentType("text/rtf");
+		EditorKit kitRtf = p.getEditorKitForContentType("text/rtf");
+		try {
+			kitRtf.read(rtf, p.getDocument(), 0);
+			kitRtf = null;
+			EditorKit kitHtml = p.getEditorKitForContentType("text/html");
+			Writer writer = new StringWriter();
+			kitHtml.write(writer, p.getDocument(), 0, p.getDocument()
+					.getLength());
+			return writer.toString();
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

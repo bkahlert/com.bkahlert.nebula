@@ -221,10 +221,20 @@ public class ImageUtils {
 	 * @return
 	 */
 	public static String convertToInlineSrc(ImageData data) {
-		BufferedImage x = ImageUtils.convertToAWT(data);
+		return convertToInlineSrc(ImageUtils.convertToAWT(data));
+	}
+
+	/**
+	 * Returns a Base64-encoded {@link String} that can be used for the
+	 * <code>src</code> attribute of an HTML <code>img</code>.
+	 * 
+	 * @param data
+	 * @return
+	 */
+	public static String convertToInlineSrc(BufferedImage image) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
-			ImageIO.write(x, "png", baos);
+			ImageIO.write(image, "png", baos);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -182,4 +182,11 @@ public interface IBrowser extends IBrowserScriptRunner, IWidget {
 	 * Returns the document's HTML
 	 */
 	public Future<String> getHtml();
+
+	/**
+	 * Inserts the given html at the current caret / cursor position.
+	 * 
+	 * @return
+	 */
+	public Future<Object> pasteHtmlAtCaret(String html);
 }

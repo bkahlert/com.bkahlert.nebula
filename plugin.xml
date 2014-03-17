@@ -149,5 +149,20 @@
             extenderClass="com.bkahlert.nebula.gallery.demoSuits.information.InformationControlExtenderDemo$InformationControlExtender">
       </extender>
    </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.bkahlert.nebula.handlers.BrowserPasteHandler"
+            commandId="org.eclipse.ui.edit.paste">
+         <activeWhen><and>
+            <with
+                  variable="activeFocusControlId">
+               <equals
+                     value="com.bkahlert.nebula.browser">
+               </equals>
+            </with></and>
+         </activeWhen>
+      </handler>
+   </extension>
 
 </plugin>
