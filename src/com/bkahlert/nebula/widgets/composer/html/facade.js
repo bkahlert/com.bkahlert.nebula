@@ -18,7 +18,7 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
 	                com.bkahlert.devel.nebula.editor.onchange(evt);
 	            }
 		    },
-		    startupFocus: true,
+		    startupFocus: false,
         	readOnly: false
         },
 
@@ -140,7 +140,7 @@ com.bkahlert.devel.nebula.editor = com.bkahlert.devel.nebula.editor || {};
 
         setEnabled : function(isEnabled) {
         	com.bkahlert.devel.nebula.editor.config.readOnly = !isEnabled;
-        	com.bkahlert.devel.nebula.editor.config.startupFocus = isEnabled;
+        	//com.bkahlert.devel.nebula.editor.config.startupFocus = isEnabled;
             var editor = CKEDITOR.instances.editor1;
             editor.setReadOnly(com.bkahlert.devel.nebula.editor.config.readOnly);
             if(isEnabled) {
