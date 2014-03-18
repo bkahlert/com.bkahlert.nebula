@@ -76,6 +76,10 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 		return ExecUtils.createThreadLabelingCode(new Callable<DEST>() {
 			@Override
 			public DEST call() throws Exception {
+				if (browserScriptRunner.browser == null
+						|| browserScriptRunner.browser.isDisposed()) {
+					return null;
+				}
 				LOGGER.info("Running " + BrowserUtils.shortenScript(script));
 				try {
 					browserScriptRunner.scriptAboutToBeSentToBrowser(script);
