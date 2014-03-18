@@ -220,3 +220,11 @@ img.left {
     margin-right: 15px;
     padding: 5px;
 }
+
+img.full-width {
+	width: 100%;
+}
+
+img {
+	max-width: 100%;
+}

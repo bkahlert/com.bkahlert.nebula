@@ -60,5 +60,9 @@ CKEDITOR.stylesSet.add('default', [
 }, {
     name : 'Cited Work',
     element : 'cite'
+}, {
+    name: 'Full Width Image',
+    element: 'img',
+    attributes: { 'class': 'full-width' }
 }]);
 
