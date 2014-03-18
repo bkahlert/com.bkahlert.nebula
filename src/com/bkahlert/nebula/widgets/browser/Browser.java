@@ -17,11 +17,15 @@ import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.contexts.IContextActivation;
+import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.swt.IFocusService;
 
 import com.bkahlert.nebula.utils.CompletedFuture;
@@ -43,6 +47,9 @@ public class Browser extends Composite implements IBrowser {
 	private static final IFocusService FOCUS_SERVICE = (IFocusService) PlatformUI
 			.getWorkbench().getService(IFocusService.class);
 	public static final String FOCUS_ID = "com.bkahlert.nebula.browser";
+
+	private static final IContextService CONTEXT_SERVICE = (IContextService) PlatformUI
+			.getWorkbench().getService(IContextService.class);
 
 	private org.eclipse.swt.browser.Browser browser;
 	private BrowserScriptRunner browserScriptRunner;
@@ -155,6 +162,21 @@ public class Browser extends Composite implements IBrowser {
 			// TODO call injectAnkerCode after a page has loaded a user clicked
 			// on (or do all the same steps on first page load on all
 			// consecutive loads)
+		});
+
+		this.browser.addFocusListener(new FocusListener() {
+			private IContextActivation activation = null;
+
+			@Override
+			public void focusGained(FocusEvent e) {
+				this.activation = CONTEXT_SERVICE
+						.activateContext("com.bkahlert.ui.browser");
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				CONTEXT_SERVICE.deactivateContext(this.activation);
+			}
 		});
 
 		this.addDisposeListener(new DisposeListener() {

@@ -41,6 +41,11 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
+            categoryId="org.eclipse.ui.category.edit"
+            id="com.bkahlert.nebula.paste"
+            name="Paste">
+      </command>
+      <command
             id="com.bkahlert.devel.nebula.toggleSourceMode"
             name="Toggle Source Mode">
          <state
@@ -71,7 +76,52 @@
       </image>
    </extension>
    <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="com.bkahlert.nebula.paste"
+            contextId="com.bkahlert.ui.browser"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+V">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            id="com.bkahlert.ui.browser"
+            name="Browser Context"
+            parentId="org.eclipse.ui.contexts.dialogAndWindow">
+      </context>
+   </extension>
+   <extension
          point="org.eclipse.ui.handlers">
+      <handler
+            class="com.bkahlert.nebula.handlers.BrowserPasteHandler"
+            commandId="com.bkahlert.nebula.paste">
+         <activeWhen>
+            <and>
+               <with
+                     variable="activeFocusControlId">
+                  <equals
+                        value="com.bkahlert.nebula.browser">
+                  </equals>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="com.bkahlert.nebula.handlers.BrowserPasteHandler"
+            commandId="org.eclipse.ui.edit.paste">
+         <activeWhen>
+            <and>
+               <with
+                     variable="activeFocusControlId">
+                  <equals
+                        value="com.bkahlert.nebula.browser">
+                  </equals>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
       <handler
             class="com.bkahlert.nebula.handlers.ToggleSourceModeHandler"
             commandId="com.bkahlert.devel.nebula.toggleSourceMode">
@@ -148,21 +198,6 @@
       <extender
             extenderClass="com.bkahlert.nebula.gallery.demoSuits.information.InformationControlExtenderDemo$InformationControlExtender">
       </extender>
-   </extension>
-   <extension
-         point="org.eclipse.ui.handlers">
-      <handler
-            class="com.bkahlert.nebula.handlers.BrowserPasteHandler"
-            commandId="org.eclipse.ui.edit.paste">
-         <activeWhen><and>
-            <with
-                  variable="activeFocusControlId">
-               <equals
-                     value="com.bkahlert.nebula.browser">
-               </equals>
-            </with></and>
-         </activeWhen>
-      </handler>
    </extension>
 
 </plugin>
