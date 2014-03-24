@@ -15,8 +15,8 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
@@ -144,8 +144,7 @@ public abstract class EditorView<T> extends ViewPart {
 
 	@Override
 	public final void createPartControl(Composite parent) {
-		this.parent = parent;
-		this.parent.setLayout(new FillLayout());
+		this.parent = new SashForm(parent, SWT.HORIZONTAL);
 
 		MenuManager menuManager = new MenuManager("#PopupMenu");
 		menuManager.setRemoveAllWhenShown(true);
@@ -207,11 +206,13 @@ public abstract class EditorView<T> extends ViewPart {
 		}
 	}
 
-	private void createEditors(int length) {
+	private void createEditors(int numEditorsNeeded) {
 		ToolbarSet toolbarSet = this.toolbarSet;
-		if (length > 2) {
+		if (numEditorsNeeded > 2) {
 			toolbarSet = ToolbarSet.TERMINAL;
 		}
+
+		int style = SWT.NONE;
 
 		// dispose editors with a different toolbar set
 		for (Iterator<Editor<T>> iterator = this.editors.iterator(); iterator
@@ -225,14 +226,14 @@ public abstract class EditorView<T> extends ViewPart {
 
 		List<Editor<T>> disposed = new ArrayList<Editor<T>>();
 		List<Editor<T>> created = new ArrayList<Editor<T>>();
-		while (length < this.editors.size()) {
-			this.editors.get(length).dispose();
-			disposed.add(this.editors.remove(length));
+		while (numEditorsNeeded < this.editors.size()) {
+			this.editors.get(numEditorsNeeded).dispose();
+			disposed.add(this.editors.remove(numEditorsNeeded));
 		}
-		while (length > this.editors.size()) {
+		while (numEditorsNeeded > this.editors.size()) {
 			Editor<T> editor;
 			if (this.autosave) {
-				editor = new AutosaveEditor<T>(this.parent, SWT.NONE,
+				editor = new AutosaveEditor<T>(this.parent, style,
 						this.delayChangeEventUpTo, toolbarSet) {
 					@Override
 					public String getHtml(T loadedObject,
@@ -247,7 +248,7 @@ public abstract class EditorView<T> extends ViewPart {
 					}
 				};
 			} else {
-				editor = new Editor<T>(this.parent, SWT.NONE,
+				editor = new Editor<T>(this.parent, style,
 						this.delayChangeEventUpTo, toolbarSet) {
 					@Override
 					public String getHtml(T loadedObject,
