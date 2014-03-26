@@ -125,18 +125,28 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 			}
 
 			@Override
-			public void done(IJobChangeEvent event) {
+			public void done(final IJobChangeEvent event) {
 				super.done(event);
-				Text text = FilteredTree.this.getFilterControl();
-				if (text.getText() != null && !text.isDisposed()
-						&& text.getText().isEmpty()) {
-					if (this.expanded != null
-							&& (event.getResult() == Status.OK_STATUS)) {
-						FilteredTree.this.getViewer().setExpandedTreePaths(
-								this.expanded);
-						this.expanded = null;
-					}
+				final Text text = FilteredTree.this.getFilterControl();
+				try {
+					ExecUtils.syncExec(new Runnable() {
+						@Override
+						public void run() {
+							if (text.getText() != null && !text.isDisposed()
+									&& text.getText().isEmpty()) {
+								if (expanded != null
+										&& (event.getResult() == Status.OK_STATUS)) {
+									FilteredTree.this.getViewer()
+											.setExpandedTreePaths(expanded);
+									expanded = null;
+								}
+							}
+						}
+					});
+				} catch (Exception e) {
+					LOGGER.error("Error filtering Tree", e);
 				}
+
 			}
 		});
 		return job;
