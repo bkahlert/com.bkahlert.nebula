@@ -199,5 +199,25 @@
             extenderClass="com.bkahlert.nebula.gallery.demoSuits.information.InformationControlExtenderDemo$InformationControlExtender">
       </extender>
    </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="com.bkahlert.nebula.utils.ExpressionDebugger"
+            id="com.bkahlert.nebula.propertyTesters.Debugger"
+            namespace="com.bkahlert.nebula"
+            properties="debug"
+            type="java.lang.Object">
+      </propertyTester>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="com.bkahlert.nebula.debug">
+         <test
+               forcePluginActivation="true"
+               property="com.bkahlert.nebula.debug">
+         </test>
+      </definition>
+   </extension>
 
 </plugin>

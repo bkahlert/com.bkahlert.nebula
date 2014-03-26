@@ -7,6 +7,9 @@
 	<logger name="com.bkahlert.nebula.widgets.browser">
 		<level value="warn" />
 	</logger>
+	<logger name="com.bkahlert.nebula.utils.ExpressionDebugger">
+		<level value="debug" />
+	</logger>
 	<root>
 		<level value="warn" />
 		<appender-ref ref="com.bkahlert.nebula.ConsoleAppender" />
