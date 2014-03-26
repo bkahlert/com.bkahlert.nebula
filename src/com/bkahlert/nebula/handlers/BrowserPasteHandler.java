@@ -74,7 +74,7 @@ public class BrowserPasteHandler extends AbstractHandler {
 				String rtf = StringUtils.join(IOUtils
 						.readLines((InputStream) clipboard.getData(rtfFlavor)),
 						"\n");
-				html = StringUtils.rtfToBody(rtf);
+				html = StringUtils.rtfToPlain(rtf);
 			} else if (clipboard.isDataFlavorAvailable(DataFlavor.stringFlavor)) {
 				String plainText = (String) clipboard
 						.getData(DataFlavor.stringFlavor);
