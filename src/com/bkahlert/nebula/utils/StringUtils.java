@@ -1,5 +1,6 @@
 package com.bkahlert.nebula.utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -14,7 +15,9 @@ import java.util.regex.Pattern;
 
 import javax.swing.JEditorPane;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
+import javax.swing.text.rtf.RTFEditorKit;
 
 public class StringUtils {
 
@@ -177,6 +180,18 @@ public class StringUtils {
 
 	public static String rtfToHtml(String rtf) throws IOException {
 		return rtfToHtml(new StringReader(rtf));
+	}
+
+	public static String rtfToPlain(String rtf) {
+		RTFEditorKit rtfParser = new RTFEditorKit();
+		Document document = rtfParser.createDefaultDocument();
+		try {
+			rtfParser.read(new ByteArrayInputStream(rtf.getBytes()), document,
+					0);
+			return document.getText(0, document.getLength());
+		} catch (Exception e) {
+			throw new RuntimeException("Error converting RTF to plain text", e);
+		}
 	}
 
 	/**
