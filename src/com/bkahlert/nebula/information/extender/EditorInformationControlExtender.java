@@ -14,8 +14,8 @@ import org.eclipse.swt.widgets.Composite;
 import com.bkahlert.nebula.information.EnhanceableInformationControl;
 import com.bkahlert.nebula.information.InformationControl;
 import com.bkahlert.nebula.widgets.composer.Composer;
-import com.bkahlert.nebula.widgets.composer.ComposerReadOnly;
 import com.bkahlert.nebula.widgets.composer.Composer.ToolbarSet;
+import com.bkahlert.nebula.widgets.composer.ComposerReadOnly;
 import com.bkahlert.nebula.widgets.editor.Editor;
 
 /**
@@ -32,10 +32,10 @@ public abstract class EditorInformationControlExtender<INFORMATION> implements
 	private static final Logger LOGGER = Logger
 			.getLogger(EditorInformationControlExtender.class);
 
-	private Map<InformationControl<INFORMATION>, ComposerReadOnly> composers = new HashMap<InformationControl<INFORMATION>, ComposerReadOnly>();
-	private Map<InformationControl<INFORMATION>, Editor<INFORMATION>> editors = new HashMap<InformationControl<INFORMATION>, Editor<INFORMATION>>();
+	private final Map<InformationControl<INFORMATION>, ComposerReadOnly> composers = new HashMap<InformationControl<INFORMATION>, ComposerReadOnly>();
+	private final Map<InformationControl<INFORMATION>, Editor<INFORMATION>> editors = new HashMap<InformationControl<INFORMATION>, Editor<INFORMATION>>();
 
-	private GridDataFactory layoutData;
+	private final GridDataFactory layoutData;
 
 	/**
 	 * Creates a new instance.
@@ -93,8 +93,9 @@ public abstract class EditorInformationControlExtender<INFORMATION> implements
 	@Override
 	public void extend(InformationControl<INFORMATION> informationControl,
 			INFORMATION information) {
-		System.out.println("num composers: " + this.composers.size());
-		System.out.println("num editors: " + this.editors.size());
+		LOGGER.debug("Filling " + this + " with " + information
+				+ "\n\t# composers: " + this.composers.size()
+				+ "\n\t# editors: " + this.editors.size());
 		ComposerReadOnly composer = this.composers.get(informationControl);
 		if (composer != null) {
 			composer.setSource(this.getHtml(information, null));
