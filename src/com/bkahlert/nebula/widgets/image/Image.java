@@ -14,10 +14,10 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.ImageUtils;
+import com.bkahlert.nebula.utils.JSONUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.Browser;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
-import com.bkahlert.nebula.widgets.timeline.TimelineJsonGenerator;
 
 /**
  * Shows an image in a way that it always fills the {@link Composite}'s
@@ -163,7 +163,7 @@ public class Image extends Browser {
 			@Override
 			public Void call() throws Exception {
 				String script = "com.bkahlert.nebula.image.load("
-						+ TimelineJsonGenerator.enquote(src) + ", '"
+						+ JSONUtils.enquote(src) + ", '"
 						+ Image.this.fillMode.toString().toLowerCase() + "');";
 				Future<Object> future = Image.this.run(script);
 				Image.this.waitUntilImageLoaded();

@@ -29,12 +29,12 @@ import org.jsoup.nodes.Element;
 
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.JSONUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.Browser;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 import com.bkahlert.nebula.widgets.browser.extended.html.Anker;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
-import com.bkahlert.nebula.widgets.timeline.TimelineJsonGenerator;
 
 /**
  * This is a wrapped CKEditor (ckeditor.com).
@@ -334,7 +334,7 @@ public class Composer extends Browser {
 		}
 		this.oldHtml = html;
 		return this.run("return com.bkahlert.devel.nebula.editor.setSource("
-				+ TimelineJsonGenerator.enquote(html) + ", "
+				+ JSONUtils.enquote(html) + ", "
 				+ (restoreSelection ? "true" : "false") + ");",
 				IConverter.CONVERTER_BOOLEAN);
 	}

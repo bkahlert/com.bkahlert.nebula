@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 import com.bkahlert.nebula.utils.CalendarUtils;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.JSONUtils;
 import com.bkahlert.nebula.widgets.browser.Browser;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 import com.bkahlert.nebula.widgets.timeline.IBaseTimeline;
@@ -237,7 +238,7 @@ public class BaseTimeline extends Browser implements IBaseTimeline {
 				false);
 
 		this.run("com.bkahlert.devel.nebula.timeline.setDecorators("
-				+ TimelineJsonGenerator.enquote(decoratorJSON) + ");");
+				+ JSONUtils.enquote(decoratorJSON) + ");");
 	}
 
 	@Override
