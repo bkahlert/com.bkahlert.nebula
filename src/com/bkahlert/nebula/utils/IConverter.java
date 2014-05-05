@@ -73,5 +73,20 @@ public interface IConverter<SRC, DEST> {
 		}
 	};
 
+	/**
+	 * {@link IConverter} that converts objects to {@link Double}s. Returns a
+	 * {@link Double} if the object is of type {@link Double}. Otherwise
+	 * converts to <code>null</code>.
+	 */
+	public static final IConverter<Object, Double> CONVERTER_DOUBLE = new IConverter<Object, Double>() {
+		@Override
+		public Double convert(Object returnValue) {
+			if (returnValue == null || !Double.class.isInstance(returnValue)) {
+				return null;
+			}
+			return (Double) returnValue;
+		}
+	};
+
 	public DEST convert(SRC returnValue);
 }

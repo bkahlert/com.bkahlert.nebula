@@ -23,18 +23,22 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 				el: $('body'),
 				width: $window.width(),
 				height: $window.height(),
-				model: com.bkahlert.jointjs.graph
+				model: com.bkahlert.jointjs.graph,
+				elementView: joint.shapes.html.ElementView,
+				linkView: joint.shapes.LinkView
 			});
 			
+			com.bkahlert.jointjs.registerKeyboardBindings();
 			com.bkahlert.jointjs.activateLinkCreationCapability(com.bkahlert.jointjs.graph, com.bkahlert.jointjs.paper);
 			com.bkahlert.jointjs.activateLinkTextChangeCapability();
 			
-			com.bkahlert.jointjs.createNode('sua://test', { position: { x: 10, y: 100 }, title: 'my box', content: '<ul><li>jkjk</li></ul>' });
-			com.bkahlert.jointjs.createNode('sua://test2', { title: 'my box233333' });
-			var linkid = com.bkahlert.jointjs.createLink(null, { id: 'sua://test' }, { id: 'sua://test2' });
+			var a = com.bkahlert.jointjs.createNode('sua://test', { position: { x: 100, y: 300 }, title: 'my box', content: '<ul><li>jkjk</li></ul>' });
+			var b = com.bkahlert.jointjs.createNode('sua://test2', { title: 'my box233333' });
+			var linkid = com.bkahlert.jointjs.createPermanentLink(null, { id: 'sua://test' }, { id: 'sua://test2' });
+			var c = com.bkahlert.jointjs.createNode('sua://test3', { title: 'my box233333', position: { x: 300, y: 300 },  });
+			var linkid2 = com.bkahlert.jointjs.createLink(null, { id: 'sua://test3' }, { id: 'sua://test2' });
 			com.bkahlert.jointjs.setText(linkid, 0, 'my_label');
 			com.bkahlert.jointjs.setText('sua://test2', 'content', 'XN dskjd sdkds dskdsdjks dskj ');
-			console.log(com.bkahlert.jointjs.getText('sua://test2', 'title'));
 			
 			var internal = /[?&]internal=true/.test(location.href);
 			if (!internal) {
@@ -92,7 +96,29 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		}))
 		.append($('<button>Layout</a>').click(function () {
 			com.bkahlert.jointjs.layout();
+		}))
+		.append($('<button>Zoom In</a>').click(function () {
+			com.bkahlert.jointjs.zoomIn();
+		}))
+		.append($('<button>Zoom Out</a>').click(function () {
+			com.bkahlert.jointjs.zoomOut();
 		}));
+		},
+		
+		getZoom: function() {
+			return this.paper.getScale().sx;
+		},
+		
+		setZoom: function(val) {
+			com.bkahlert.jointjs.paper.scale(val);
+		},
+		
+		zoomIn: function(val) {
+			com.bkahlert.jointjs.setZoom(com.bkahlert.jointjs.getZoom()*1.2);
+		},
+		
+		zoomOut: function(val) {
+			com.bkahlert.jointjs.setZoom(com.bkahlert.jointjs.getZoom()*0.8);
 		},
 		
 		createNode: function(id, attrs) {
@@ -114,11 +140,32 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			};
 			if(id) _.extend(config, { id: id });
 			var link = new joint.dia.Link(config).attr({
-				'.marker-source': { d: 'M-3.5,0a3.5,3.5 0 1,0 7,0a3.5,3.5 0 1,0 -7,0 z' },
+				'.marker-source': {  },
 				'.marker-target': { d: 'M 10 0 L 0 5 L 10 10 z' }
 			}).set('smooth', true);
 			com.bkahlert.jointjs.graph.addCell(link);
 			return link.id;
+		},
+		
+		createPermanentLink: function(id, source, target) {
+			var config = {
+				className: 'test',
+				source: source ? source : { x: 10, y: 10 },
+				target: target ? target : { x: 100, y: 10 },
+				labels: [
+					{ position: 0.5, attrs: { text: { text: '' } } }
+				]
+			};
+			if(id) _.extend(config, { id: id });
+			var link = new joint.dia.Link(config).attr({
+				'.marker-source': { },
+				'.marker-target': { d: 'M 10 0 L 0 5 L 10 10 z' },
+				'.connection': { 'stroke-dasharray': '1,4' }
+			}).set('smooth', true).set('permanent', true);
+			
+			com.bkahlert.jointjs.graph.addCell(link);
+			
+			return link.id;			
 		},
 		
 		removeCell: function(id) {
@@ -130,6 +177,39 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 				return false;
 			}
 		},
+		
+		registerKeyboardBindings : function() {
+            $(document).keydown(function(event) {
+				switch(event.which) {
+					/* normal keyboard, arrow up */
+					case 38:
+					// TODO buggy
+					/* normal keyboard, + */
+					case 171:
+					/* normal keyboard, numpad + */
+					case 107:
+					/* laptop keyboard, + */
+					case 187:
+						com.bkahlert.jointjs.zoomIn();
+						event.preventDefault();
+						event.stopPropagation();
+						break;
+					/* normal keyboard, arrow down */
+					case 40:
+					// TODO buggy
+					/* normal keyboard, - */
+					case 173:
+					/* normal keyboard, numpad - */
+					case 109:
+					/* laptop keyboard, - */
+					case 189:
+						com.bkahlert.jointjs.zoomOut();
+						event.preventDefault();
+						event.stopPropagation();
+						break;
+				}
+			});
+        },
 		
 		activateLinkCreationCapability: function(graph, paper) {
 			var shiftKey = false;
@@ -154,7 +234,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		},
 		
 		activateLinkTextChangeCapability: function() {
-			$(document).on('mouseenter', '.link[model-id]', function() {
+			$(document).on('mouseenter', '.link[model-id]:not(.permanent)', function() {
 				com.bkahlert.jointjs.showTextChangePopup($(this).attr('model-id'));
 			}).on('mouseleave', '.link[model-id]', function() {
 				com.bkahlert.jointjs.hideTextChangePopup($(this).attr('model-id'));
@@ -245,6 +325,58 @@ $(document).ready(com.bkahlert.jointjs.start);
 
 
 
+
+
+
+
+joint.shapes.LinkView = joint.dia.LinkView.extend({
+
+	className: function() {
+		var classes = ['link'];
+		if(this.model.get('permanent')) classes.push('permanent');
+		return classes.join(' ');
+    },
+	
+	renderTools: function() {
+
+        if (!this._V.linkTools) return this;
+
+        // Tools are a group of clickable elements that manipulate the whole link.
+        // A good example of this is the remove tool that removes the whole link.
+        // Tools appear after hovering the link close to the `source` element/point of the link
+        // but are offset a bit so that they don't cover the `marker-arrowhead`.
+
+        var $tools = $(this._V.linkTools.node).empty();
+        var toolTemplate = _.template(this.model.get('toolMarkup') || this.model.toolMarkup);
+        var tool = V(toolTemplate());
+
+        $tools.append(tool.node);
+
+        // Cache the tool node so that the `updateToolsPosition()` can update the tool position quickly.
+        this._toolCache = tool;
+
+        return this;
+    }
+
+});
+
+
+// own function
+joint.dia.Paper.prototype.getScale = function() {
+	var transformAttr = V(this.viewport).attr('transform') || '';
+			
+	var scale;
+	var scaleMatch = transformAttr.match(/scale\((.*)\)/);
+	if (scaleMatch) {
+		scale = scaleMatch[1].split(',');
+	}
+	var sx = (scale && scale[0]) ? parseFloat(scale[0]) : 1;
+	var sy = (scale && scale[1]) ? parseFloat(scale[1]) : sx;
+	
+	return { sx: sx, sy:sy };
+}
+
+
 /**
  * Custom node based on HTML
  *
@@ -286,6 +418,10 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
         this.$box.find('.delete').on('click', _.bind(this.model.remove, this.model));
         // Update the box position whenever the underlying model changes.
         this.model.on('change', this.updateBox, this);
+		
+		// TODO get paper that shows this element instead of using a singleton
+		com.bkahlert.jointjs.paper.on('scale', this.updateBox, this);
+		
         // Remove the box when the model gets removed from the graph.
         this.model.on('remove', this.removeBox, this);
 
@@ -293,7 +429,10 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
     },
     render: function() {
         joint.dia.ElementView.prototype.render.apply(this, arguments);
-        this.paper.$el.prepend(this.$box);
+		
+		var $c = this.paper.$el.find('.html-view');
+		if($c.length == 0) $c = $('<div class="html-view"></div>').prependTo(this.paper.$el);
+        $c.prepend(this.$box);
         this.updateBox();
         return this;
     },
@@ -309,7 +448,16 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
 		this.$box.css('background-color', backgroundColor ? backgroundColor : 'auto');
 		var borderColor = this.model.get('border-color');
 		this.$box.css('border-color', borderColor ? borderColor : 'auto');
-		this.$box.css({ width: bbox.width, height: bbox.height, left: bbox.x, top: bbox.y, transform: 'rotate(' + (this.model.get('angle') || 0) + 'deg)' });
+		
+		var transform = 'rotate(' + (this.model.get('angle') || 0) + 'deg)';
+		
+		// apply scaling
+		if(this.paper) {
+			var scale = this.paper.getScale();
+			$('.html-view').css({ position: 'absolute', transform: 'scale(' + scale.sx + ', ' + scale.sy + ')' });
+		}
+		
+		this.$box.css({ width: bbox.width, height: bbox.height, left: bbox.x, top: bbox.y, transform: transform });
     },
     removeBox: function(evt) {
         this.$box.remove();

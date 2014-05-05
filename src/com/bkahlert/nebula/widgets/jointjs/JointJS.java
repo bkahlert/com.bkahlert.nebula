@@ -135,10 +135,33 @@ public class JointJS extends Browser {
 				IConverter.CONVERTER_STRING);
 	}
 
+	public Future<String> createPermanentLink(String id, Object source,
+			Object target) {
+		String idParam = id != null ? "'" + id + "'" : "null";
+		return this.run("return com.bkahlert.jointjs.createPermanentLink("
+				+ idParam + ", " + JSONUtils.buildJson(source) + ", "
+				+ JSONUtils.buildJson(target) + ");",
+				IConverter.CONVERTER_STRING);
+	}
+
 	@SuppressWarnings("serial")
 	public Future<String> createLink(String id, final String sourceId,
 			final String targetId) {
 		return this.createLink(id, new HashMap<String, String>() {
+			{
+				this.put("id", sourceId);
+			}
+		}, new HashMap<String, String>() {
+			{
+				this.put("id", targetId);
+			}
+		});
+	}
+
+	@SuppressWarnings("serial")
+	public Future<String> createPermanentLink(String id, final String sourceId,
+			final String targetId) {
+		return this.createPermanentLink(id, new HashMap<String, String>() {
 			{
 				this.put("id", sourceId);
 			}
@@ -219,7 +242,31 @@ public class JointJS extends Browser {
 				IConverter.CONVERTER_BOOLEAN);
 	}
 
-	// TODO createPersistentLink
+	public Future<Double> getZoom() {
+		return this.run("return com.bkahlert.jointjs.getZoom();",
+				IConverter.CONVERTER_DOUBLE);
+	}
+
+	public Future<Void> setZoom(Double zoom) {
+		return this.run("return com.bkahlert.jointjs.setZoom(" + zoom + ");",
+				IConverter.CONVERTER_VOID);
+	}
+
+	public Future<Double> zoomIn() {
+		return this.run("return com.bkahlert.jointjs.zoomIn();",
+				IConverter.CONVERTER_DOUBLE);
+	}
+
+	public Future<Double> zoomOut() {
+		return this.run("return com.bkahlert.jointjs.zoomOut();",
+				IConverter.CONVERTER_DOUBLE);
+	}
+
+	// TODO clean up demo
+
+	// TODO save graph
+
+	// TODO sync graph with model
 
 	/*
 	 * com.bkahlert.jointjs.createNode('sua://test', { position: { x: 10, y: 100

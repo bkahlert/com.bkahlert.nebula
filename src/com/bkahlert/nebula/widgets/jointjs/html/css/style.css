@@ -5790,6 +5790,11 @@ body {
 .link .marker-target {
   fill: #000;
 }
+.link.permanent .tool-remove,
+.link.permanent .link-tools,
+.link.permanent .marker-arrowheads {
+  visibility: hidden;
+}
 .html-element {
   position: absolute;
   background: #eee;
