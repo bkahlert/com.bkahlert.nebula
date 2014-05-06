@@ -242,6 +242,21 @@ public class JointJS extends Browser {
 				IConverter.CONVERTER_BOOLEAN);
 	}
 
+	public Future<List<String>> getNodes() {
+		return this.run("return com.bkahlert.jointjs.getNodes();",
+				IConverter.CONVERTER_STRINGLIST);
+	}
+
+	public Future<List<String>> getLinks() {
+		return this.run("return com.bkahlert.jointjs.getLinks();",
+				IConverter.CONVERTER_STRINGLIST);
+	}
+
+	public Future<List<String>> getPermanentLinks() {
+		return this.run("return com.bkahlert.jointjs.getPermanentLinks();",
+				IConverter.CONVERTER_STRINGLIST);
+	}
+
 	public Future<Double> getZoom() {
 		return this.run("return com.bkahlert.jointjs.getZoom();",
 				IConverter.CONVERTER_DOUBLE);
@@ -261,8 +276,6 @@ public class JointJS extends Browser {
 		return this.run("return com.bkahlert.jointjs.zoomOut();",
 				IConverter.CONVERTER_DOUBLE);
 	}
-
-	// TODO clean up demo
 
 	// TODO save graph
 
