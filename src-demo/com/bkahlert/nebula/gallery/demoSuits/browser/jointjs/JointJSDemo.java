@@ -2,6 +2,7 @@ package com.bkahlert.nebula.gallery.demoSuits.browser.jointjs;
 
 import java.util.concurrent.Callable;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -66,6 +67,31 @@ public class JointJSDemo extends AbstractDemo {
 							log(e.toString());
 						}
 						log("loaded");
+					}
+				}).start();
+			}
+		});
+
+		Button getNodesLinksButton = new Button(composite, SWT.PUSH);
+		getNodesLinksButton.setText("log nodes/links");
+		getNodesLinksButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						log("getting nodes and links");
+						try {
+							log("Nodes: "
+									+ StringUtils.join(JointJSDemo.this.jointjs
+											.getNodes().get(), ", "));
+							log("Links: "
+									+ StringUtils.join(JointJSDemo.this.jointjs
+											.getLinks().get(), ", "));
+						} catch (Exception e) {
+							log(e.toString());
+						}
+						log("got nodes and links");
 					}
 				}).start();
 			}

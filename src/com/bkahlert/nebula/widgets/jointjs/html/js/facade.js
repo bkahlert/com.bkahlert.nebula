@@ -32,19 +32,10 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			com.bkahlert.jointjs.activateLinkCreationCapability(com.bkahlert.jointjs.graph, com.bkahlert.jointjs.paper);
 			com.bkahlert.jointjs.activateLinkTextChangeCapability();
 			
-			var a = com.bkahlert.jointjs.createNode('sua://test', { position: { x: 100, y: 300 }, title: 'my box', content: '<ul><li>jkjk</li></ul>' });
-			var b = com.bkahlert.jointjs.createNode('sua://test2', { title: 'my box233333' });
-			var linkid = com.bkahlert.jointjs.createPermanentLink(null, { id: 'sua://test' }, { id: 'sua://test2' });
-			var c = com.bkahlert.jointjs.createNode('sua://test3', { title: 'my box233333', position: { x: 300, y: 300 },  });
-			var linkid2 = com.bkahlert.jointjs.createLink(null, { id: 'sua://test3' }, { id: 'sua://test2' });
-			com.bkahlert.jointjs.setText(linkid, 0, 'my_label');
-			com.bkahlert.jointjs.setText('sua://test2', 'content', 'XN dskjd sdkds dskdsdjks dskj ');
-			
 			var internal = /[?&]internal=true/.test(location.href);
 			if (!internal) {
 				com.bkahlert.jointjs.openDemo();
 			} else {
-				com.bkahlert.jointjs.openDemo();
 			}
 		},
 
@@ -75,34 +66,47 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
             }
         },
 
-       openDemo: function () {
-		$('<div class="buttons"></div>').appendTo('body').css({
-			position: 'absolute',
-			top: 0,
-			right: 0
-		})
-		.append($('<button>Load</a>').prop('disabled', true).click(function () {
-			com.bkahlert.jointjs.load(window.saved);
-		}))
-		.append($('<button>Save</a>').click(function () {
-			$('.buttons > :first-child').prop('disabled', false);
-			window.saved = com.bkahlert.jointjs.save();
-		}))
-		.append($('<button>Add Node</a>').click(function () {
-			com.bkahlert.jointjs.createNode();
-		}))
-		.append($('<button>Add Link</a>').click(function () {
-			com.bkahlert.jointjs.createLink();
-		}))
-		.append($('<button>Layout</a>').click(function () {
-			com.bkahlert.jointjs.layout();
-		}))
-		.append($('<button>Zoom In</a>').click(function () {
-			com.bkahlert.jointjs.zoomIn();
-		}))
-		.append($('<button>Zoom Out</a>').click(function () {
-			com.bkahlert.jointjs.zoomOut();
-		}));
+		openDemo: function () {
+			$('<div class="buttons"></div>').appendTo('body').css({
+				position: 'absolute',
+				top: 0,
+				right: 0
+			})
+			.append($('<button>Load</a>').prop('disabled', true).click(function () {
+				com.bkahlert.jointjs.load(window.saved);
+			}))
+			.append($('<button>Save</a>').click(function () {
+				$('.buttons > :first-child').prop('disabled', false);
+				window.saved = com.bkahlert.jointjs.save();
+			}))
+			.append($('<button>Add Node</a>').click(function () {
+				com.bkahlert.jointjs.createNode();
+			}))
+			.append($('<button>Add Link</a>').click(function () {
+				com.bkahlert.jointjs.createLink();
+			}))
+			.append($('<button>Layout</a>').click(function () {
+				com.bkahlert.jointjs.layout();
+			}))
+			.append($('<button>Zoom In</a>').click(function () {
+				com.bkahlert.jointjs.zoomIn();
+			}))
+			.append($('<button>Zoom Out</a>').click(function () {
+				com.bkahlert.jointjs.zoomOut();
+			}))
+			.append($('<button>Log Nodes/Links</a>').click(function () {
+				console.log(com.bkahlert.jointjs.getNodes());
+				console.log(com.bkahlert.jointjs.getLinks());
+				console.log(com.bkahlert.jointjs.getPermanentLinks());
+			}));
+			
+			var a = com.bkahlert.jointjs.createNode('sua://test', { position: { x: 100, y: 300 }, title: 'my box', content: '<ul><li>jkjk</li></ul>' });
+			var b = com.bkahlert.jointjs.createNode('sua://test2', { title: 'my box233333' });
+			var linkid = com.bkahlert.jointjs.createPermanentLink(null, { id: 'sua://test' }, { id: 'sua://test2' });
+			var c = com.bkahlert.jointjs.createNode('sua://test3', { title: 'my box233333', position: { x: 300, y: 300 },  });
+			var linkid2 = com.bkahlert.jointjs.createLink(null, { id: 'sua://test3' }, { id: 'sua://test2' });
+			com.bkahlert.jointjs.setText(linkid, 0, 'my_label');
+			com.bkahlert.jointjs.setText('sua://test2', 'content', 'XN dskjd sdkds dskdsdjks dskj ');
 		},
 		
 		getZoom: function() {
@@ -176,6 +180,30 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			} else {
 				return false;
 			}
+		},
+		
+		getNodes: function() {
+			var nodes = [];
+			_.each(com.bkahlert.jointjs.graph.getElements(), function(element) {
+				nodes.push(element.id);
+			});
+			return nodes;
+		},
+		
+		getLinks: function() {
+			var links = [];
+			_.each(com.bkahlert.jointjs.graph.getLinks(), function(link) {
+				if(!link.get('permanent')) links.push(link.id);
+			});
+			return links;
+		},
+		
+		getPermanentLinks: function() {
+			var links = [];
+			_.each(com.bkahlert.jointjs.graph.getLinks(), function(link) {
+				if(link.get('permanent')) links.push(link.id);
+			});
+			return links;
 		},
 		
 		registerKeyboardBindings : function() {

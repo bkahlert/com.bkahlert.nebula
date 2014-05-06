@@ -1,5 +1,9 @@
 package com.bkahlert.nebula.utils;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.eclipse.swt.graphics.Point;
 
 /**
@@ -50,6 +54,29 @@ public interface IConverter<SRC, DEST> {
 				return null;
 			}
 			return (String) returnValue;
+		}
+	};
+
+	/**
+	 * {@link IConverter} that converts objects a {@link List} of
+	 * {@link Strings}s. If a primitive type is returned, a list containing this
+	 * single element is returned. <code>null</code> is directly passed through.
+	 */
+	public static final IConverter<Object, List<String>> CONVERTER_STRINGLIST = new IConverter<Object, List<String>>() {
+		@Override
+		public List<String> convert(Object returnValue) {
+			if (returnValue == null) {
+				return null;
+			} else if (Object[].class.isInstance(returnValue)) {
+				List<String> strings = new LinkedList<String>();
+				for (int i = 0, m = ((Object[]) returnValue).length; i < m; i++) {
+					Object obj = ((Object[]) returnValue)[i];
+					strings.add(obj != null ? obj.toString() : null);
+				}
+				return strings;
+			} else {
+				return Arrays.asList(returnValue.toString());
+			}
 		}
 	};
 
