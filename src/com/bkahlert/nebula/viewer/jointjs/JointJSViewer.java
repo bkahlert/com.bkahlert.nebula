@@ -146,7 +146,7 @@ public class JointJSViewer extends AbstractJointJSViewer {
 						if (this.existantNodeIds.contains(id)) {
 							// update
 							String title = JointJSViewer.this.labelProvider
-									.getTitle(node);
+									.getText(node);
 							String content = JointJSViewer.this.labelProvider
 									.getContent(node);
 							JointJSViewer.this.jointjs.setNodeTitle(id, title);
@@ -155,7 +155,7 @@ public class JointJSViewer extends AbstractJointJSViewer {
 						} else {
 							// new
 							String title = JointJSViewer.this.labelProvider
-									.getTitle(node);
+									.getText(node);
 							String content = JointJSViewer.this.labelProvider
 									.getContent(node);
 							Point position = JointJSViewer.this.labelProvider
@@ -170,7 +170,7 @@ public class JointJSViewer extends AbstractJointJSViewer {
 							}
 
 							try {
-								JointJSViewer.this.jointjs.createNode(id,
+								id = JointJSViewer.this.jointjs.createNode(id,
 										title, content, position, size).get();
 								this.existantNodeIds.add(id);
 							} catch (Exception e) {
@@ -178,15 +178,17 @@ public class JointJSViewer extends AbstractJointJSViewer {
 							}
 						}
 
-						JointJSViewer.this.jointjs
-								.setColor(id, JointJSViewer.this.labelProvider
-										.getColor(node));
-						JointJSViewer.this.jointjs.setBackgroundColor(id,
-								JointJSViewer.this.labelProvider
-										.getBackgroundColor(node));
-						JointJSViewer.this.jointjs.setBorderColor(id,
-								JointJSViewer.this.labelProvider
-										.getBorderColor(node));
+						if (id != null) {
+							JointJSViewer.this.jointjs.setColor(id,
+									JointJSViewer.this.labelProvider
+											.getColor(node));
+							JointJSViewer.this.jointjs.setBackgroundColor(id,
+									JointJSViewer.this.labelProvider
+											.getBackgroundColor(node));
+							JointJSViewer.this.jointjs.setBorderColor(id,
+									JointJSViewer.this.labelProvider
+											.getBorderColor(node));
+						}
 
 						this.createPermanentLink(parentNode, node);
 

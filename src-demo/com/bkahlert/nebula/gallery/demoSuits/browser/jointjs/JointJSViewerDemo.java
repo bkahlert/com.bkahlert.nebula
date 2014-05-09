@@ -3,6 +3,7 @@ package com.bkahlert.nebula.gallery.demoSuits.browser.jointjs;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -30,6 +31,54 @@ public class JointJSViewerDemo extends AbstractDemo {
 
 	private JointJS jointjs;
 	private JointJSViewer jointjsViewer;
+
+	private static class MyLabelProvider extends LabelProvider implements
+			JointJSLabelProvider {
+		@Override
+		public String getText(Object element) {
+			if (element == NODE1) {
+				return "node1";
+			}
+			if (element == NODE2) {
+				return "node2";
+			}
+			if (element == NODE3) {
+				return "node3";
+			}
+			return element.toString();
+		}
+
+		@Override
+		public String getContent(Object element) {
+			return "<ul><li>" + element.hashCode() + "</li><li>"
+					+ element.toString() + "</li></ul>";
+		}
+
+		@Override
+		public RGB getColor(Object element) {
+			return ColorUtils.getRandomRGB();
+		}
+
+		@Override
+		public RGB getBackgroundColor(Object element) {
+			return ColorUtils.getRandomRGB();
+		}
+
+		@Override
+		public RGB getBorderColor(Object element) {
+			return ColorUtils.getRandomRGB();
+		}
+
+		@Override
+		public Point getPosition(Object element) {
+			return null;
+		}
+
+		@Override
+		public Point getSize(Object element) {
+			return null;
+		}
+	}
 
 	private String json = null;
 
@@ -176,52 +225,7 @@ public class JointJSViewerDemo extends AbstractDemo {
 						}
 						return new Object[0];
 					}
-				}, new JointJSLabelProvider() {
-					@Override
-					public String getTitle(Object element) {
-						if (element == NODE1) {
-							return "node1";
-						}
-						if (element == NODE2) {
-							return "node2";
-						}
-						if (element == NODE3) {
-							return "node3";
-						}
-						return element.toString();
-					}
-
-					@Override
-					public String getContent(Object element) {
-						return "<ul><li>" + element.hashCode() + "</li><li>"
-								+ element.toString() + "</li></ul>";
-					}
-
-					@Override
-					public RGB getColor(Object element) {
-						return ColorUtils.getRandomRGB();
-					}
-
-					@Override
-					public RGB getBackgroundColor(Object element) {
-						return ColorUtils.getRandomRGB();
-					}
-
-					@Override
-					public RGB getBorderColor(Object element) {
-						return ColorUtils.getRandomRGB();
-					}
-
-					@Override
-					public Point getPosition(Object element) {
-						return null;
-					}
-
-					@Override
-					public Point getSize(Object element) {
-						return null;
-					}
-				}) {
+				}, new MyLabelProvider()) {
 		};
 
 		this.jointjsViewer.setInput(new Object());

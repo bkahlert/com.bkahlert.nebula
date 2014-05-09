@@ -517,8 +517,9 @@ public class Browser extends Composite implements IBrowser {
 		return this
 				.run("if(document.createStyleSheet){document.createStyleSheet(\""
 						+ uri.toString()
-						+ "\")}else{__injectionJQuery(\"head\").append(__injectionJQuery(\"<link rel=\\\"stylesheet\\\" href=\\\""
-						+ uri.toString() + "\\\" type=\\\"text/css\\\" />\"))}",
+						+ "\")}else{ var link=document.createElement(\"link\"); link.rel=\"stylesheet\"; link.type=\"text/css\"; link.href=\""
+						+ uri.toString()
+						+ "\"; document.getElementsByTagName(\"head\")[0].appendChild(link); }",
 						IConverter.CONVERTER_VOID);
 	}
 

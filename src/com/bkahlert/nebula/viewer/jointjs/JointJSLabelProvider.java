@@ -1,18 +1,11 @@
 package com.bkahlert.nebula.viewer.jointjs;
 
-import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.graphics.Point;
 
 import com.bkahlert.nebula.utils.colors.RGB;
 
-public abstract class JointJSLabelProvider extends LabelProvider {
-
-	/**
-	 * @see returns the same as {@link #getText(Object)}
-	 */
-	public String getTitle(Object element) {
-		return this.getText(element);
-	}
+public interface JointJSLabelProvider extends ILabelProvider {
 
 	public abstract String getContent(Object element);
 
