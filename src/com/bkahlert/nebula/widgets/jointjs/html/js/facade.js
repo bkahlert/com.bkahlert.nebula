@@ -271,8 +271,9 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		
 		showTextChangePopup: function(id) {
 			$('.popover').remove(); // TODO check for link deletions an remove popover
-				
-			var $el = $('[model-id=' + id + ']');
+			
+			// we use a filter to not have to deal with escaping (e.g. [model-id=abc-def] does not work because of the hyphen in the selector)
+			var $el = $('[model-id]').filter(function() { return $(this).attr('model-id') == id; });
 			$el.popover({
 				trigger: 'manual',
 				container: 'body',
@@ -297,14 +298,16 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		
 		hideTextChangePopup: function(id) {
 			if($('#linkTitle').length > 0) {
-				var $el = $('[model-id=' + id + ']');		
+				// we use a filter to not have to deal with escaping (e.g. [model-id=abc-def] does not work because of the hyphen in the selector)
+				var $el = $('[model-id]').filter(function() { return $(this).attr('model-id') == id; });
 				$el.popover('destroy');
 			}
 		},
 		
 		hideAndApplyTextChangePopup: function(id) {
 			if($('#linkTitle').length > 0) {
-				var $el = $('[model-id=' + id + ']');
+				// we use a filter to not have to deal with escaping (e.g. [model-id=abc-def] does not work because of the hyphen in the selector)
+				var $el = $('[model-id]').filter(function() { return $(this).attr('model-id') == id; });
 				var title = $('#linkTitle').val();
 				$el.popover('destroy');
 				com.bkahlert.jointjs.setText(id, 0, title);
