@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
@@ -39,9 +41,30 @@ public class JointJS extends Browser {
 
 	private final List<IJointJSListener> jointJSListeners = new ArrayList<IJointJSListener>();
 
-	public JointJS(Composite parent, int style) {
+	private String nodeCreationPrefix;
+	private String linkCreationPrefix;
+
+	/**
+	 * 
+	 * @param parent
+	 * @param style
+	 * @param nodeCreationPrefix
+	 *            prefix used if a node is created but no id was passed. The
+	 *            prefix is put in front of the automatically generated id.
+	 * @param linkCreationPrefix
+	 *            prefix used if a link is created but no id was passed. The
+	 *            prefix is put in front of the automatically generated id.
+	 */
+	public JointJS(Composite parent, int style, String nodeCreationPrefix,
+			String linkCreationPrefix) {
 		super(parent, style);
 		this.deactivateNativeMenu();
+
+		Assert.isNotNull(nodeCreationPrefix);
+		Assert.isNotNull(linkCreationPrefix);
+
+		this.nodeCreationPrefix = nodeCreationPrefix;
+		this.linkCreationPrefix = linkCreationPrefix;
 
 		new BrowserFunction(this.getBrowser(), "loaded") {
 			@Override
@@ -95,6 +118,9 @@ public class JointJS extends Browser {
 	}
 
 	public Future<String> createNode(String id, Object json) {
+		if (id == null) {
+			id = this.nodeCreationPrefix + UUID.randomUUID().toString();
+		}
 		return this
 				.run("return com.bkahlert.jointjs.createNode('" + id + "', "
 						+ JSONUtils.buildJson(json) + ");",
@@ -127,9 +153,11 @@ public class JointJS extends Browser {
 	}
 
 	public Future<String> createLink(String id, Object source, Object target) {
-		String idParam = id != null ? "'" + id + "'" : "null";
+		if (id == null) {
+			id = this.linkCreationPrefix + UUID.randomUUID().toString();
+		}
 		return this.run(
-				"return com.bkahlert.jointjs.createLink(" + idParam + ", "
+				"return com.bkahlert.jointjs.createLink('" + id + "', "
 						+ JSONUtils.buildJson(source) + ", "
 						+ JSONUtils.buildJson(target) + ");",
 				IConverter.CONVERTER_STRING);
@@ -137,10 +165,13 @@ public class JointJS extends Browser {
 
 	public Future<String> createPermanentLink(String id, Object source,
 			Object target) {
-		String idParam = id != null ? "'" + id + "'" : "null";
-		return this.run("return com.bkahlert.jointjs.createPermanentLink("
-				+ idParam + ", " + JSONUtils.buildJson(source) + ", "
-				+ JSONUtils.buildJson(target) + ");",
+		if (id == null) {
+			id = this.linkCreationPrefix + UUID.randomUUID().toString();
+		}
+		return this.run(
+				"return com.bkahlert.jointjs.createPermanentLink('" + id
+						+ "', " + JSONUtils.buildJson(source) + ", "
+						+ JSONUtils.buildJson(target) + ");",
 				IConverter.CONVERTER_STRING);
 	}
 
