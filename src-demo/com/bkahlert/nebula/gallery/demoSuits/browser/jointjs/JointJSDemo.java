@@ -100,7 +100,7 @@ public class JointJSDemo extends AbstractDemo {
 
 	@Override
 	public void createDemo(Composite parent) {
-		this.jointjs = new JointJS(parent, SWT.BORDER);
+		this.jointjs = new JointJS(parent, SWT.BORDER, "node://", "link://");
 		this.jointjs.addAnkerListener(new IAnkerListener() {
 			@Override
 			public void ankerHovered(IAnker anker, boolean entered) {

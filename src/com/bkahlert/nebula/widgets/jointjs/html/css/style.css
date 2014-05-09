@@ -5795,6 +5795,9 @@ body {
 .link.permanent .marker-arrowheads {
   visibility: hidden;
 }
+.link.permanent .marker-target {
+  fill-opacity: 0;
+}
 .html-element {
   position: absolute;
   background: #eee;

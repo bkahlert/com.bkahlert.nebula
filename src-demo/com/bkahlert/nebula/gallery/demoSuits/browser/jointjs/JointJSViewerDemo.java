@@ -107,10 +107,11 @@ public class JointJSViewerDemo extends AbstractDemo {
 
 	@Override
 	public void createDemo(Composite parent) {
-		this.jointjs = new JointJS(parent, SWT.BORDER);
+		this.jointjs = new JointJS(parent, SWT.BORDER, "node://", "link://");
 		this.jointjsViewer = new JointJSViewer(this.jointjs,
 				new JointJSContentProvider() {
 
+					@SuppressWarnings("unused")
 					private Viewer viewer = null;
 
 					@Override
@@ -170,8 +171,8 @@ public class JointJSViewerDemo extends AbstractDemo {
 						if (element == NODE1) {
 							return new Object[] { NODE2 };
 						}
-						if (element == NODE3) {
-							return new Object[] { NODE1 };
+						if (element == NODE2) {
+							return new Object[] { NODE3 };
 						}
 						return new Object[0];
 					}
