@@ -132,7 +132,9 @@ public class JointJS extends Browser {
 			final Point position, final Point size) {
 		Map<String, Object> json = new HashMap<String, Object>();
 		json.put("title", title);
-		json.put("content", content);
+		if (content != null) {
+			json.put("content", content);
+		}
 		if (position != null) {
 			json.put("position", new HashMap<String, Integer>() {
 				{
@@ -250,19 +252,22 @@ public class JointJS extends Browser {
 	}
 
 	public Future<Void> setColor(String id, RGB rgb) {
-		String color = rgb != null ? "'" + rgb.toHexString() + "'" : "";
+		String color = rgb != null ? "'" + rgb.toCssString() + "'"
+				: "'initial'";
 		return this.run("return com.bkahlert.jointjs.setColor('" + id + "', "
 				+ color + ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Void> setBackgroundColor(String id, RGB rgb) {
-		String color = rgb != null ? "'" + rgb.toHexString() + "'" : "";
+		String color = rgb != null ? "'" + rgb.toCssString() + "'"
+				: "'initial'";
 		return this.run("return com.bkahlert.jointjs.setBackgroundColor('" + id
 				+ "', " + color + ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Void> setBorderColor(String id, RGB rgb) {
-		String color = rgb != null ? "'" + rgb.toHexString() + "'" : "";
+		String color = rgb != null ? "'" + rgb.toCssString() + "'"
+				: "'initial'";
 		return this.run("return com.bkahlert.jointjs.setBorderColor('" + id
 				+ "', " + color + ");", IConverter.CONVERTER_VOID);
 	}

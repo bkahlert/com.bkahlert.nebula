@@ -28,6 +28,7 @@ public class RGB {
 	private double red;
 	private double green;
 	private double blue;
+	private double alpha;
 
 	/**
 	 * Constructs a new RGB.
@@ -40,10 +41,27 @@ public class RGB {
 	 *            0.0 ... 1.0
 	 */
 	public RGB(double red, double green, double blue) {
+		this(red, green, blue, 1.0);
+	}
+
+	/**
+	 * Constructs a new RGB.
+	 * 
+	 * @param red
+	 *            0.0 ... 1.0
+	 * @param green
+	 *            0.0 ... 1.0
+	 * @param blue
+	 *            0.0 ... 1.0
+	 * @param alpha
+	 *            0.0 ... 1.0
+	 */
+	public RGB(double red, double green, double blue, double alpha) {
 		super();
 		this.setRed(red);
 		this.setGreen(green);
 		this.setBlue(blue);
+		this.setAlpha(alpha);
 	}
 
 	/**
@@ -57,10 +75,27 @@ public class RGB {
 	 *            0 ... 255
 	 */
 	public RGB(int red, int green, int blue) {
+		this(red, green, blue, 255);
+	}
+
+	/**
+	 * Constructs a new RGB
+	 * 
+	 * @param red
+	 *            0 ... 255
+	 * @param green
+	 *            0 ... 255
+	 * @param blue
+	 *            0 ... 255
+	 * @param alpha
+	 *            0 ... 255
+	 */
+	public RGB(int red, int green, int blue, int alpha) {
 		super();
 		this.setRed(red);
 		this.setGreen(green);
 		this.setBlue(blue);
+		this.setAlpha(alpha);
 	}
 
 	public RGB(org.eclipse.swt.graphics.RGB rgb) {
@@ -158,7 +193,7 @@ public class RGB {
 	}
 
 	/**
-	 * @param red
+	 * @param blue
 	 *            0 ... 255
 	 */
 	public void setBlue(int blue) {
@@ -169,6 +204,38 @@ public class RGB {
 			blue = 255;
 		}
 		this.setBlue(blue / 255.0);
+	}
+
+	/**
+	 * @return alpha 0.0 ... 1.0
+	 */
+	public double getAlpha() {
+		return this.alpha;
+	}
+
+	/**
+	 * @param alpha
+	 *            0.0 ... 1.0
+	 */
+	public void setAlpha(double alpha) {
+		if (alpha < 0 || alpha > 1) {
+			throw new IllegalArgumentException("Alpha must be between 0 and 1");
+		}
+		this.alpha = alpha;
+	}
+
+	/**
+	 * @param red
+	 *            0 ... 255
+	 */
+	public void setAlpha(int alpha) {
+		if (alpha < 0) {
+			alpha = 0;
+		}
+		if (alpha > 255) {
+			alpha = 255;
+		}
+		this.setAlpha(alpha / 255.0);
 	}
 
 	/*
@@ -223,19 +290,42 @@ public class RGB {
 	}
 
 	public String toHexString() {
-		return "#"
-				+ StringUtils.leftPad(
-						Integer.toHexString(
-								(int) Math.round(this.getRed() * 255))
-								.toUpperCase(), 2, '0')
-				+ StringUtils.leftPad(
-						Integer.toHexString(
-								(int) Math.round(this.getGreen() * 255))
-								.toUpperCase(), 2, '0')
-				+ StringUtils.leftPad(
-						Integer.toHexString(
-								(int) Math.round(this.getBlue() * 255))
-								.toUpperCase(), 2, '0');
+		StringBuilder sb = new StringBuilder("#");
+		sb.append(StringUtils.leftPad(
+				Integer.toHexString((int) Math.round(this.getRed() * 255))
+						.toUpperCase(), 2, '0'));
+		sb.append(StringUtils.leftPad(
+				Integer.toHexString((int) Math.round(this.getGreen() * 255))
+						.toUpperCase(), 2, '0'));
+		sb.append(StringUtils.leftPad(
+				Integer.toHexString((int) Math.round(this.getBlue() * 255))
+						.toUpperCase(), 2, '0'));
+		if (this.alpha < 1.0) {
+			sb.append(StringUtils.leftPad(
+					Integer.toHexString((int) Math.round(this.getAlpha() * 255))
+							.toUpperCase(), 2, '0'));
+		}
+		return sb.toString();
+	}
+
+	public String toCssString() {
+		StringBuilder sb = new StringBuilder();
+		if (this.alpha == 1.0) {
+			sb.append("rgb(");
+		} else {
+			sb.append("rgba(");
+		}
+		sb.append((int) Math.round(this.getRed() * 255));
+		sb.append(", ");
+		sb.append((int) Math.round(this.getGreen() * 255));
+		sb.append(", ");
+		sb.append((int) Math.round(this.getBlue() * 255));
+		if (this.alpha != 1.0) {
+			sb.append(", ");
+			sb.append(this.alpha);
+		}
+		sb.append(")");
+		return sb.toString();
 	}
 
 	@Override
