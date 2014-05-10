@@ -41,7 +41,8 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 
 		load: function (json) {
 			com.bkahlert.jointjs.graph.clear();
-			com.bkahlert.jointjs.graph.fromJSON(JSON.parse(json));
+			if(typeof json === 'string') json = JSON.parse(json);
+			com.bkahlert.jointjs.graph.fromJSON(json);
 			if (typeof window.loaded === 'function') { window.loaded(json); }
 			return json;
 		},
