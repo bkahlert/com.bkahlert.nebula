@@ -53,7 +53,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			return json;
 		},
 
-		layout: function () {
+		autoLayout: function () {
 			var graph = com.bkahlert.jointjs.graph;
 			joint.layout.DirectedGraph.layout(graph, {
 				setLinkVertices: false
@@ -87,7 +87,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 				com.bkahlert.jointjs.createLink();
 			}))
 			.append($('<button>Layout</a>').click(function () {
-				com.bkahlert.jointjs.layout();
+				com.bkahlert.jointjs.autoLayout();
 			}))
 			.append($('<button>Zoom In</a>').click(function () {
 				com.bkahlert.jointjs.zoomIn();

@@ -318,6 +318,11 @@ public class JointJS extends Browser {
 				IConverter.CONVERTER_DOUBLE);
 	}
 
+	public Future<Void> autoLayout() {
+		return this.run("return com.bkahlert.jointjs.autoLayout();",
+				IConverter.CONVERTER_VOID);
+	}
+
 	// TODO save graph
 
 	// TODO sync graph with model
