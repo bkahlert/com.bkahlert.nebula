@@ -247,7 +247,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			
 			paper.on('cell:pointerdblclick', 
 				function(cellView, evt, x, y) {
-					var bounds = { x: cellView.model.attributes.position.x, y: cellView.model.attributes.position.y, w: cellView.model.attributes.size.width, h: cellView.model.attributes.size.height };
+					var bounds = { x: cellView.model.attributes.position.x, y: cellView.model.attributes.position.y, w: parseInt(cellView.model.attributes.size.width), h: parseInt(cellView.model.attributes.size.height) };
 					var id = cellView.model.id;
 					
 					var source = { id: id };
