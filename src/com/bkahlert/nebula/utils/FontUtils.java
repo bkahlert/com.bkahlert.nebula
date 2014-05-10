@@ -1,5 +1,8 @@
 package com.bkahlert.nebula.utils;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
@@ -8,8 +11,13 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 
 public class FontUtils {
 
@@ -124,6 +132,34 @@ public class FontUtils {
 					originalData[i].getStyle());
 		}
 		return styledData;
+	}
+
+	private static Shell shell = null;
+	private static Label label = null;
+
+	/**
+	 * Calculates the space needed to render the given text.
+	 * 
+	 * @param text
+	 * @return
+	 */
+	public static Future<Point> calcSize(final String text) {
+		return ExecUtils.asyncExec(new Callable<Point>() {
+			@Override
+			public Point call() throws Exception {
+				if (shell == null) {
+					shell = new Shell(Display.getCurrent());
+					shell.setLayout(new RowLayout());
+				}
+				if (label == null) {
+					label = new Label(shell, SWT.NONE);
+				}
+				GC gc = new GC(label);
+				Point size = gc.textExtent(text);
+				gc.dispose();
+				return size;
+			}
+		});
 	}
 
 }

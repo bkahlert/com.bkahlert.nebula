@@ -188,6 +188,12 @@ public class JointJSViewer extends AbstractJointJSViewer {
 							JointJSViewer.this.jointjs.setBorderColor(id,
 									JointJSViewer.this.labelProvider
 											.getBorderColor(node));
+							Point size = JointJSViewer.this.labelProvider
+									.getSize(node);
+							if (size != null) {
+								JointJSViewer.this.jointjs.setSize(id, size.x,
+										size.y);
+							}
 						}
 
 						this.createPermanentLink(parentNode, node);
