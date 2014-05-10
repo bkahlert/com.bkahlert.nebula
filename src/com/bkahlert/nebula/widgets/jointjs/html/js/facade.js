@@ -107,6 +107,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			var linkid2 = com.bkahlert.jointjs.createLink(null, { id: 'sua://test3' }, { id: 'sua://test2' });
 			com.bkahlert.jointjs.setText(linkid, 0, 'my_label');
 			com.bkahlert.jointjs.setText('sua://test2', 'content', 'XN dskjd sdkds dskdsdjks dskj ');
+			com.bkahlert.jointjs.setSize(c, 300, 100);
 		},
 		
 		getZoom: function() {
@@ -347,6 +348,11 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		setBorderColor: function(id, rgb) {
 			var cell = com.bkahlert.jointjs.graph.getCell(id);
 			cell.set('border-color', rgb);
+		},
+		
+		setSize: function(id, width, height) {
+			var cell = com.bkahlert.jointjs.graph.getCell(id);
+			cell.set('size', { width: width, height: height });
 		}
     });
 })(jQuery);

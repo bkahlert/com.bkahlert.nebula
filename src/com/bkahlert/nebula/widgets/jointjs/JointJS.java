@@ -272,6 +272,11 @@ public class JointJS extends Browser {
 				+ "', " + color + ");", IConverter.CONVERTER_VOID);
 	}
 
+	public Future<Void> setSize(String id, int width, int height) {
+		return this.run("return com.bkahlert.jointjs.setSize('" + id + "', '"
+				+ width + "', '" + height + "');", IConverter.CONVERTER_VOID);
+	}
+
 	public Future<Boolean> remove(String id) {
 		return this.run(
 				"return com.bkahlert.jointjs.removeCell('" + id + "');",
