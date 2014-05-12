@@ -102,6 +102,12 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			.append($('<button>Zoom Out</a>').click(function () {
 				com.bkahlert.jointjs.zoomOut();
 			}))
+			.append($('<button>Get Pan</a>').click(function () {
+				console.log(com.bkahlert.jointjs.getPan());
+			}))
+			.append($('<button>Set Pan</a>').click(function () {
+				com.bkahlert.jointjs.setPan(100, 100);
+			}))
 			.append($('<button>Log Nodes/Links</a>').click(function () {
 				console.log(com.bkahlert.jointjs.getNodes());
 				console.log(com.bkahlert.jointjs.getLinks());
@@ -133,6 +139,15 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		zoomOut: function(val) {
 			com.bkahlert.jointjs.setZoom(com.bkahlert.jointjs.getZoom()*0.8);
 		},
+		
+		getPan: function() {
+			var translate = com.bkahlert.jointjs.paper.getTranslate();
+			return [translate.tx, translate.ty];
+		},
+		
+		setPan: function(x, y) {
+			com.bkahlert.jointjs.paper.translate(x, y);
+		},	
 		
 		createNode: function(id, attrs) {
 			var config = { id: id };

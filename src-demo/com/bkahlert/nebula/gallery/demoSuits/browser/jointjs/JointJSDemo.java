@@ -27,6 +27,8 @@ public class JointJSDemo extends AbstractDemo {
 	private JointJS jointjs;
 
 	private String json = null;
+	protected Point pan = null;
+	protected Double zoom = null;
 
 	@Override
 	public void createControls(Composite composite) {
@@ -42,6 +44,13 @@ public class JointJSDemo extends AbstractDemo {
 						try {
 							JointJSDemo.this.jointjs
 									.load(JointJSDemo.this.json);
+							JointJSDemo.this.jointjs
+									.setZoom(JointJSDemo.this.zoom);
+							if (JointJSDemo.this.pan != null) {
+								JointJSDemo.this.jointjs.setPan(
+										JointJSDemo.this.pan.x,
+										JointJSDemo.this.pan.y);
+							}
 						} catch (Exception e) {
 							log(e.toString());
 						}
@@ -59,14 +68,23 @@ public class JointJSDemo extends AbstractDemo {
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
-						log("loading");
+						log("saving");
 						try {
 							JointJSDemo.this.json = JointJSDemo.this.jointjs
 									.save().get();
+
+							JointJSDemo.this.pan = JointJSDemo.this.jointjs
+									.getPan().get();
+							log("pan: " + JointJSDemo.this.pan.x + ", "
+									+ JointJSDemo.this.pan.y);
+
+							JointJSDemo.this.zoom = JointJSDemo.this.jointjs
+									.getZoom().get();
+							log("zoom: " + JointJSDemo.this.zoom);
 						} catch (Exception e) {
 							log(e.toString());
 						}
-						log("loaded");
+						log("saved");
 					}
 				}).start();
 			}

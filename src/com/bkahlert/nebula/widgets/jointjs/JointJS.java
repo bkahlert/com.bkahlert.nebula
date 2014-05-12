@@ -318,22 +318,20 @@ public class JointJS extends Browser {
 				IConverter.CONVERTER_DOUBLE);
 	}
 
+	public Future<Point> getPan() {
+		return this.run("return com.bkahlert.jointjs.getPan();",
+				IConverter.CONVERTER_POINT);
+	}
+
+	public Future<Void> setPan(int x, int y) {
+		return this.run("return com.bkahlert.jointjs.setPan(" + x + ", " + y
+				+ ");", IConverter.CONVERTER_VOID);
+	}
+
 	public Future<Void> autoLayout() {
 		return this.run("return com.bkahlert.jointjs.autoLayout();",
 				IConverter.CONVERTER_VOID);
 	}
-
-	// TODO save graph
-
-	// TODO sync graph with model
-
-	/*
-	 * com.bkahlert.jointjs.createNode('sua://test', { position: { x: 10, y: 100
-	 * }, title: 'my box', content: '<ul><li>jkjk</li></ul>' });
-	 * com.bkahlert.jointjs.createNode('sua://test2', { title: 'my box233333'
-	 * }); com.bkahlert.jointjs.createLink('test', { id: 'sua://test' }, { id:
-	 * 'sua://test2' }); /*
-	 */
 
 	public void addJointJSListener(IJointJSListener jointJSListener) {
 		this.jointJSListeners.add(jointJSListener);
