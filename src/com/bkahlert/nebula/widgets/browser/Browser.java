@@ -23,6 +23,7 @@ import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.contexts.IContextActivation;
@@ -64,6 +65,7 @@ public class Browser extends Composite implements IBrowser {
 	public Browser(Composite parent, int style) {
 		super(parent, style);
 		this.setLayout(new FillLayout());
+		new Label(this, SWT.BORDER).setText("ss");
 
 		this.browser = new org.eclipse.swt.browser.Browser(this, SWT.NONE);
 		this.browserScriptRunner = new BrowserScriptRunner(this.browser) {
