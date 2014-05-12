@@ -330,10 +330,11 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		},
 		
 		showTextChangePopup: function(id) {
-			$('.popover').remove(); // TODO check for link deletions an remove popover
+			$('.popover').remove();
 			
 			// we use a filter to not have to deal with escaping (e.g. [model-id=abc-def] does not work because of the hyphen in the selector)
 			var $el = $('[model-id]').filter(function() { return $(this).attr('model-id') == id; });
+			com.bkahlert.jointjs.graph.getCell(id).on('remove', com.bkahlert.jointjs.hideTextChangePopup);
 			$el.popover({
 				trigger: 'manual',
 				container: 'body',
@@ -357,7 +358,10 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		},
 		
 		hideTextChangePopup: function(id) {
-			if($('#linkTitle').length > 0) {
+			if(id.id) {
+				// case if called when link was removed while editing
+				$('.popover').remove();
+			} else if($('#linkTitle').length > 0) {
 				// we use a filter to not have to deal with escaping (e.g. [model-id=abc-def] does not work because of the hyphen in the selector)
 				var $el = $('[model-id]').filter(function() { return $(this).attr('model-id') == id; });
 				$el.popover('destroy');
