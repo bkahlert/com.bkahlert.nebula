@@ -258,11 +258,15 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
         },
         
         activatePanCapability: function(paper) {
-        	$(document).on('mousedown', '.jointjs', function(e) {
+        	paper.on('blank:pointerdown', function(e) {
         		com.bkahlert.jointjs.mousePanX = e.offsetX;
         		com.bkahlert.jointjs.mousePanY = e.offsetY;
-				com.bkahlert.jointjs.mousePan(this, true);
-			}).on('mouseup mouseleave', '.jointjs', function() {
+				com.bkahlert.jointjs.mousePan($(this.viewport).parents('svg'), true);
+			});
+			paper.on('blank:pointerup', function() {
+				com.bkahlert.jointjs.mousePan($(this.viewport).parents('svg'), false);
+			});
+			$(document).on('mouseleave', '.jointjs svg', function() {
 				com.bkahlert.jointjs.mousePan(this, false);
 			});
         },
@@ -273,14 +277,13 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
         	var deltaX = e.offsetX - com.bkahlert.jointjs.mousePanX;
         	var deltaY = e.offsetY - com.bkahlert.jointjs.mousePanY;
         	
-        	var pan = com.bkahlert.jointjs.paper.getPan();
-        	var newX = pan.px + deltaX;
-        	var newY = pan.py + deltaY;
-        	
         	var scale = com.bkahlert.jointjs.paper.getScale();
+        	
+        	var pan = com.bkahlert.jointjs.paper.getPan();
+        	var newX = pan.px + deltaX/scale.sx;
+        	var newY = pan.py + deltaY/scale.sy;        	
 			
-			$('.jointjs .viewport').attr('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + newX + ', ' + newY + ')');
-			$('.jointjs .html-view').css('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + newX + 'px, ' + newY + 'px)');
+			com.bkahlert.jointjs.paper.pan(newX, newY);
         	
         	com.bkahlert.jointjs.mousePanX = e.offsetX;
         	com.bkahlert.jointjs.mousePanY = e.offsetY;
@@ -491,6 +494,12 @@ joint.dia.Paper.prototype.getPan = function() {
 	
 	return { px: px, py: py };
 }
+        
+joint.dia.Paper.prototype.pan = function(x, y) {
+	var scale = com.bkahlert.jointjs.paper.getScale();
+	$(this.viewport).attr('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + x + ', ' + y + ')');
+	this.$el.find('.html-view').css('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + x + 'px, ' + y + 'px)');
+}
 
 
 
@@ -518,6 +527,8 @@ joint.shapes.html.Element = joint.shapes.basic.Rect.extend({
 
 // Create a custom view for that element that displays an HTML div above it.
 // -------------------------------------------------------------------------
+
+joint.dia.ElementView.prototype.oldUpdate = joint.dia.ElementView.prototype.update;
 
 joint.shapes.html.ElementView = joint.dia.ElementView.extend({
 
@@ -554,6 +565,9 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
         this.updateBox();
         return this;
     },
+    update: function(cell, renderingOnlyAttrs) {
+    	this.oldUpdate(cell, renderingOnlyAttrs);
+    },
     updateBox: function() {
 		// Set the position and dimension of the box so that it covers the JointJS element.
 		var bbox = this.model.getBBox();
@@ -567,14 +581,7 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
 		var borderColor = this.model.get('border-color');
 		this.$box.css('border-color', borderColor ? borderColor : 'auto');
 		
-		var transform = 'rotate(' + (this.model.get('angle') || 0) + 'deg)';
-		
-		// apply scaling
-		if(this.paper) {
-			var scale = this.paper.getScale();
-			$('.html-view').css({ position: 'absolute', transform: 'scale(' + scale.sx + ', ' + scale.sy + ')' });
-		}
-		
+		var transform = 'rotate(' + (this.model.get('angle') || 0) + 'deg)';		
 		this.$box.css({ width: bbox.width, height: bbox.height, left: bbox.x, top: bbox.y, transform: transform });
     },
     removeBox: function(evt) {
