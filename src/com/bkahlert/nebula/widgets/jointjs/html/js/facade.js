@@ -85,6 +85,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			.append($('<button>Save</a>').click(function () {
 				$('.buttons > :first-child').prop('disabled', false);
 				window.saved = com.bkahlert.jointjs.save();
+				console.log(window.saved);
 			}))
 			.append($('<button>Add Node</a>').click(function () {
 				com.bkahlert.jointjs.createNode();
@@ -259,8 +260,8 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
         
         activatePanCapability: function(paper) {
         	paper.on('blank:pointerdown', function(e) {
-        		com.bkahlert.jointjs.mousePanX = e.offsetX;
-        		com.bkahlert.jointjs.mousePanY = e.offsetY;
+        		com.bkahlert.jointjs.mouseX = e.offsetX;
+        		com.bkahlert.jointjs.mouseY = e.offsetY;
 				com.bkahlert.jointjs.mousePan($(this.viewport).parents('svg'), true);
 			});
 			paper.on('blank:pointerup', function() {
@@ -274,19 +275,19 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
         // is called if mouse is moved with a down button
         // used to pan
         mousePanTracker: function(e) {
-        	var deltaX = e.offsetX - com.bkahlert.jointjs.mousePanX;
-        	var deltaY = e.offsetY - com.bkahlert.jointjs.mousePanY;
+        	var deltaX = e.offsetX - com.bkahlert.jointjs.mouseX;
+        	var deltaY = e.offsetY - com.bkahlert.jointjs.mouseY;
         	
         	var scale = com.bkahlert.jointjs.paper.getScale();
         	
-        	var pan = com.bkahlert.jointjs.paper.getPan();
-        	var newX = pan.px + deltaX/scale.sx;
-        	var newY = pan.py + deltaY/scale.sy;        	
+        	var translate = com.bkahlert.jointjs.paper.getTranslate();
+        	var newX = translate.tx + deltaX/scale.sx;
+        	var newY = translate.ty + deltaY/scale.sy;        	
 			
-			com.bkahlert.jointjs.paper.pan(newX, newY);
+			com.bkahlert.jointjs.paper.translate(newX, newY);
         	
-        	com.bkahlert.jointjs.mousePanX = e.offsetX;
-        	com.bkahlert.jointjs.mousePanY = e.offsetY;
+        	com.bkahlert.jointjs.mouseX = e.offsetX;
+        	com.bkahlert.jointjs.mouseY = e.offsetY;
         },
         
         // (de)activates mouse panning
@@ -478,31 +479,31 @@ joint.dia.Paper.prototype.getScale = function() {
 
 joint.dia.Paper.prototype.oldScale = joint.dia.Paper.prototype.scale;
 joint.dia.Paper.prototype.scale = function(sx, sy, ox, oy) {
-	var pan = this.getPan();
+	var translate = this.getTranslate();
 	this.oldScale(sx, sy, ox, oy);
 	var scale = this.getScale();
-	$(this.viewport).attr('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + pan.px + ', ' + pan.py + ')');
-	this.$el.find('.html-view').css('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + pan.px + 'px, ' + pan.py + 'px)');
+	$(this.viewport).attr('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + translate.tx + ', ' + translate.ty + ')');
+	this.$el.find('.html-view').css('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + translate.tx + 'px, ' + translate.ty + 'px)');
 }
 
-joint.dia.Paper.prototype.getPan = function() {
+joint.dia.Paper.prototype.getTranslate = function() {
 	var transformAttr = V(this.viewport).attr('transform') || '';
 			
-	var pan;
-	var panMatch = transformAttr.match(/translate\((.*)\)/);
-	if (panMatch) {
-		pan = panMatch[1].split(',');
+	var translate;
+	var translateMatch = transformAttr.match(/translate\((.*)\)/);
+	if (translateMatch) {
+		translate = translateMatch[1].split(',');
 	}
-	var px = (pan && pan[0]) ? parseFloat(pan[0]) : 0;
-	var py = (pan && pan[1]) ? parseFloat(pan[1]) : px;
+	var tx = (translate && translate[0]) ? parseFloat(translate[0]) : 0;
+	var ty = (translate && translate[1]) ? parseFloat(translate[1]) : tx;
 	
-	return { px: px, py: py };
+	return { tx: tx, ty: ty };
 }
         
-joint.dia.Paper.prototype.pan = function(x, y) {
+joint.dia.Paper.prototype.translate = function(tx, ty) {
 	var scale = com.bkahlert.jointjs.paper.getScale();
-	$(this.viewport).attr('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + x + ', ' + y + ')');
-	this.$el.find('.html-view').css('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + x + 'px, ' + y + 'px)');
+	$(this.viewport).attr('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + tx + ', ' + ty + ')');
+	this.$el.find('.html-view').css('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + tx + 'px, ' + ty + 'px)');
 }
 
 
@@ -552,7 +553,7 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
         // Update the box position whenever the underlying model changes.
         this.model.on('change', this.updateBox, this);
 		
-		// TODO get paper that shows this element instead of using a singleton
+		// TODO get paper that shows this element instead of using a singleton (for some reason this.paper seems to exists but can't be accessed)
 		com.bkahlert.jointjs.paper.on('scale', this.updateBox, this);
 		
         // Remove the box when the model gets removed from the graph.
