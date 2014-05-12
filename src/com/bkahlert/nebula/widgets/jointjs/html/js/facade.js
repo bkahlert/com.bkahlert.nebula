@@ -20,7 +20,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			
 			com.bkahlert.jointjs.graph = new joint.dia.Graph();
 			com.bkahlert.jointjs.paper = new joint.dia.Paper({
-				el: $('body'),
+				el: $('.jointjs'),
 				width: $window.width(),
 				height: $window.height(),
 				model: com.bkahlert.jointjs.graph,
@@ -29,12 +29,14 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			});
 			
 			com.bkahlert.jointjs.registerKeyboardBindings();
+			com.bkahlert.jointjs.activatePanCapability(com.bkahlert.jointjs.paper);
 			com.bkahlert.jointjs.activateLinkCreationCapability(com.bkahlert.jointjs.graph, com.bkahlert.jointjs.paper);
 			com.bkahlert.jointjs.activateLinkTextChangeCapability();
 			
 			var internal = /[?&]internal=true/.test(location.href);
 			if (!internal) {
 				com.bkahlert.jointjs.openDemo();
+				com.bkahlert.jointjs.autoLayout();
 			} else {
 			}
 		},
@@ -56,7 +58,11 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		autoLayout: function () {
 			var graph = com.bkahlert.jointjs.graph;
 			joint.layout.DirectedGraph.layout(graph, {
-				setLinkVertices: false
+				setLinkVertices: false,
+				nodeSep: 0.1,
+				edgeSep: 0.1,
+				rankSep: 50,
+				rankDir: 'TB'
 			});
 		},
 
@@ -164,8 +170,8 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			};
 			if(id) _.extend(config, { id: id });
 			var link = new joint.dia.Link(config).attr({
-				'.marker-source': { },
-				'.marker-target': { d: 'M 10 0 L 0 5 L 10 10 z' },
+				'.marker-source': { d: 'M 10 0 L 0 5 L 10 10 z' },
+				'.marker-target': { },
 				'.connection': { 'stroke-dasharray': '1,4' }
 			}).set('smooth', true).set('permanent', true);
 			
@@ -239,6 +245,45 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 						break;
 				}
 			});
+        },
+        
+        activatePanCapability: function(paper) {
+        	$(document).on('mousedown', '.jointjs', function(e) {
+        		com.bkahlert.jointjs.mousePanX = e.offsetX;
+        		com.bkahlert.jointjs.mousePanY = e.offsetY;
+				com.bkahlert.jointjs.mousePan(this, true);
+			}).on('mouseup mouseleave', '.jointjs', function() {
+				com.bkahlert.jointjs.mousePan(this, false);
+			});
+        },
+        
+        // is called if mouse is moved with a down button
+        // used to pan
+        mousePanTracker: function(e) {
+        	var deltaX = e.offsetX - com.bkahlert.jointjs.mousePanX;
+        	var deltaY = e.offsetY - com.bkahlert.jointjs.mousePanY;
+        	
+        	var pan = com.bkahlert.jointjs.paper.getPan();
+        	var newX = pan.px + deltaX;
+        	var newY = pan.py + deltaY;
+        	
+        	var scale = com.bkahlert.jointjs.paper.getScale();
+			
+			$('.jointjs .viewport').attr('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + newX + ', ' + newY + ')');
+			$('.jointjs .html-view').css('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + newX + 'px, ' + newY + 'px)');
+        	
+        	com.bkahlert.jointjs.mousePanX = e.offsetX;
+        	com.bkahlert.jointjs.mousePanY = e.offsetY;
+        },
+        
+        // (de)activates mouse panning
+        mousePan: function(svg, activate) {
+        	$svg = $(svg);
+        	if(activate) {
+        		$svg.bind('mousemove', com.bkahlert.jointjs.mousePanTracker);
+        	} else {
+        		$svg.unbind('mousemove', com.bkahlert.jointjs.mousePanTracker);
+        	}
         },
 		
 		activateLinkCreationCapability: function(graph, paper) {
@@ -414,6 +459,31 @@ joint.dia.Paper.prototype.getScale = function() {
 	return { sx: sx, sy:sy };
 }
 
+joint.dia.Paper.prototype.oldScale = joint.dia.Paper.prototype.scale;
+joint.dia.Paper.prototype.scale = function(sx, sy, ox, oy) {
+	var pan = this.getPan();
+	this.oldScale(sx, sy, ox, oy);
+	var scale = this.getScale();
+	$(this.viewport).attr('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + pan.px + ', ' + pan.py + ')');
+	this.$el.find('.html-view').css('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + pan.px + 'px, ' + pan.py + 'px)');
+}
+
+joint.dia.Paper.prototype.getPan = function() {
+	var transformAttr = V(this.viewport).attr('transform') || '';
+			
+	var pan;
+	var panMatch = transformAttr.match(/translate\((.*)\)/);
+	if (panMatch) {
+		pan = panMatch[1].split(',');
+	}
+	var px = (pan && pan[0]) ? parseFloat(pan[0]) : 0;
+	var py = (pan && pan[1]) ? parseFloat(pan[1]) : px;
+	
+	return { px: px, py: py };
+}
+
+
+
 
 /**
  * Custom node based on HTML
@@ -444,7 +514,7 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
     template: '\
 		<div class="html-element">\
 			<button class="delete hide">x</button>\
-			<h1>fdfd</h1>\
+			<h1>Title</h1>\
 			<div class="content"></div>\
 		</div>',
 
