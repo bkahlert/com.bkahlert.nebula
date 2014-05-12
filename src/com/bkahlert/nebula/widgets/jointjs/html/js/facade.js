@@ -28,7 +28,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 				linkView: joint.shapes.LinkView
 			});
 			
-			com.bkahlert.jointjs.registerKeyboardBindings();
+			com.bkahlert.jointjs.activateZoomControls();
 			com.bkahlert.jointjs.activatePanCapability(com.bkahlert.jointjs.paper);
 			com.bkahlert.jointjs.activateLinkCreationCapability(com.bkahlert.jointjs.graph, com.bkahlert.jointjs.paper);
 			com.bkahlert.jointjs.activateLinkTextChangeCapability();
@@ -214,7 +214,10 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			return links;
 		},
 		
-		registerKeyboardBindings : function() {
+		activateZoomControls : function() {
+			var shiftKey = false;
+			$(document).bind('keyup keydown', function(e){shiftKey = e.shiftKey || e.metaKey});
+			
             $(document).keydown(function(event) {
 				switch(event.which) {
 					/* normal keyboard, arrow up */
@@ -245,6 +248,13 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 						break;
 				}
 			});
+			
+			com.bkahlert.jointjs.paper.on('blank:pointerdblclick', 
+				function(evt, x, y) {
+					if(shiftKey) com.bkahlert.jointjs.zoomOut();
+					else com.bkahlert.jointjs.zoomIn();
+				}
+			);
         },
         
         activatePanCapability: function(paper) {
@@ -288,7 +298,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		
 		activateLinkCreationCapability: function(graph, paper) {
 			var shiftKey = false;
-           $(document).bind('keyup keydown', function(e){shiftKey = e.shiftKey});
+			$(document).bind('keyup keydown', function(e){shiftKey = e.shiftKey || e.metaKey});
 			
 			paper.on('cell:pointerdblclick', 
 				function(cellView, evt, x, y) {
