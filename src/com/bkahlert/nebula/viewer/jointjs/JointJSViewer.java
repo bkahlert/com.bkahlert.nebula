@@ -231,9 +231,9 @@ public class JointJSViewer extends AbstractJointJSViewer {
 							return;
 						}
 						String sourceId = JointJSViewer.this.contentProvider
-								.getId(node);
-						String targetId = JointJSViewer.this.contentProvider
 								.getId(parentNode);
+						String targetId = JointJSViewer.this.contentProvider
+								.getId(node);
 						String id = null;
 						JointJSViewer.this.jointjs.createPermanentLink(id,
 								sourceId, targetId);
