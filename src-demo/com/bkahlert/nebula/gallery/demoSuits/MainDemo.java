@@ -4,7 +4,7 @@ import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoExplorer.DemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.basic.BasicDemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.browser.BrowserDemoSuite;
-import com.bkahlert.nebula.gallery.demoSuits.browser.jointjs.JointJSViewerDemo;
+import com.bkahlert.nebula.gallery.demoSuits.browser.jointjs.JointJSDemo;
 import com.bkahlert.nebula.gallery.demoSuits.chat.ChatDemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.decoration.DecorationDemoSuite;
 import com.bkahlert.nebula.gallery.demoSuits.dialog.DialogDemoSuite;
@@ -20,6 +20,6 @@ import com.bkahlert.nebula.gallery.demoSuits.wizard.WizardDemoSuite;
 		WizardDemoSuite.class, BrowserDemoSuite.class, DialogDemoSuite.class,
 		InformationDemoSuite.class, SoundDemoSuite.class, UtilsDemoSuite.class })
 @Demo
-public class MainDemo extends JointJSViewerDemo {
+public class MainDemo extends JointJSDemo {
 
 }

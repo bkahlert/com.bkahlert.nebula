@@ -23,7 +23,6 @@ import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.contexts.IContextActivation;
@@ -39,6 +38,7 @@ import com.bkahlert.nebula.widgets.browser.extended.html.Element;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
+import com.bkahlert.nebula.widgets.browser.listener.IDropListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 import com.bkahlert.nebula.widgets.browser.runner.BrowserScriptRunner;
 import com.bkahlert.nebula.widgets.browser.runner.BrowserScriptRunner.BrowserStatus;
@@ -61,11 +61,11 @@ public class Browser extends Composite implements IBrowser {
 
 	private final List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
 	private final List<IFocusListener> focusListeners = new ArrayList<IFocusListener>();
+	private final List<IDropListener> dropListeners = new ArrayList<IDropListener>();
 
 	public Browser(Composite parent, int style) {
 		super(parent, style);
 		this.setLayout(new FillLayout());
-		new Label(this, SWT.BORDER).setText("ss");
 
 		this.browser = new org.eclipse.swt.browser.Browser(this, SWT.NONE);
 		this.browserScriptRunner = new BrowserScriptRunner(this.browser) {
@@ -114,6 +114,20 @@ public class Browser extends Composite implements IBrowser {
 				if (arguments.length == 1 && arguments[0] instanceof String) {
 					final IElement element = new Element((String) arguments[0]);
 					Browser.this.fireFocusLost(element);
+				}
+				return null;
+			}
+		};
+		new BrowserFunction(this.browser, "__drop") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length == 3 && arguments[0] instanceof Double
+						&& arguments[1] instanceof Double
+						&& arguments[2] instanceof String) {
+					long offsetX = Math.round((Double) arguments[0]);
+					long offsetY = Math.round((Double) arguments[1]);
+					String data = (String) arguments[2];
+					Browser.this.fireDrop(offsetX, offsetY, data);
 				}
 				return null;
 			}
@@ -193,8 +207,9 @@ public class Browser extends Composite implements IBrowser {
 	private boolean eventCatchScriptInjected = false;
 
 	/**
-	 * Injects the code needed for {@link #addAnkerListener(IAnkerListener)} and
-	 * {@link #addFokusListener(IFocusListener)} to work.
+	 * Injects the code needed for {@link #addAnkerListener(IAnkerListener)},
+	 * {@link #addFokusListener(IFocusListener)} and
+	 * {@link #addDropListener(IFocusListener)} to work.
 	 * <p>
 	 * The JavaScript remembers a successful injection in case to consecutive
 	 * calls are made.
@@ -212,13 +227,23 @@ public class Browser extends Composite implements IBrowser {
 		try {
 			boolean success = Browser.this.runImmediately(js,
 					IConverter.CONVERTER_BOOLEAN);
-			if (success) {
-				Browser.this.eventCatchScriptInjected = true;
+			if (!success) {
+				return;
 			}
 		} catch (Exception e) {
 			LOGGER.error("Could not inject event catch script in "
 					+ Browser.this.getClass().getSimpleName(), e);
 		}
+
+		File dnd = BrowserUtils.getFile(Browser.class, "dnd.js");
+		try {
+			Browser.this.runImmediately(dnd);
+		} catch (Exception e) {
+			LOGGER.error("Could not inject drop catch script in "
+					+ Browser.this.getClass().getSimpleName(), e);
+		}
+
+		Browser.this.eventCatchScriptInjected = true;
 	}
 
 	@Override
@@ -586,6 +611,22 @@ public class Browser extends Composite implements IBrowser {
 	synchronized protected void fireFocusLost(IElement element) {
 		for (IFocusListener focusListener : this.focusListeners) {
 			focusListener.focusLost(element);
+		}
+	}
+
+	@Override
+	public void addDropListener(IDropListener dropListener) {
+		this.dropListeners.add(dropListener);
+	}
+
+	@Override
+	public void removeDropListener(IDropListener dropListener) {
+		this.dropListeners.remove(dropListener);
+	}
+
+	synchronized protected void fireDrop(long offsetX, long offsetY, String data) {
+		for (IDropListener dropListener : this.dropListeners) {
+			dropListener.drop(offsetX, offsetY, data);
 		}
 	}
 
