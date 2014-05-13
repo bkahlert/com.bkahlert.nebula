@@ -13,7 +13,6 @@ import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.BooleanNode;
@@ -27,7 +26,7 @@ import org.codehaus.jackson.node.TextNode;
 /**
  * Utility functions for serializing/deserializing json object/string.
  * 
- * @see http
+ * @see http 
  *      ://www.scribblememo.com/2013/08/13/4296/jsonutil-java-package-com-glassmemo
  *      -app-auth
  */
@@ -68,8 +67,10 @@ public final class JSONUtils {
 	 *            Input JSON string representing a map, a list, or an
 	 *            object/primitive type.
 	 * @return The object deserialized from the jsonStr.
+	 * @throws IOException
+	 * @throws JsonParseException
 	 */
-	public static Object parseJson(String jsonStr) {
+	public static Object parseJson(String jsonStr) throws IOException {
 		if (jsonStr == null) {
 			log.warning("Input jsonStr is null.");
 			return null;
@@ -110,16 +111,7 @@ public final class JSONUtils {
 				}
 			}
 		} catch (JsonParseException e) {
-			log.log(Level.WARNING, "Failed to parse jsonStr = " + jsonStr, e);
-		} catch (JsonProcessingException e) {
-			log.log(Level.WARNING, "Failed to process jsonStr = " + jsonStr, e);
-		} catch (IOException e) {
-			log.log(Level.WARNING, "Exception while processing jsonStr = "
-					+ jsonStr, e);
-		} catch (Exception e) {
-			log.log(Level.WARNING,
-					"Unknownn exception while processing jsonStr = " + jsonStr,
-					e);
+			throw new IOException(e);
 		}
 		return jsonObj;
 	}
@@ -497,7 +489,7 @@ public final class JSONUtils {
 		if (s == null) {
 			return null;
 		}
-	
+
 		StringBuffer sb = new StringBuffer();
 		sb.append("\"");
 		for (int i = 0; i < s.length(); i++) {
