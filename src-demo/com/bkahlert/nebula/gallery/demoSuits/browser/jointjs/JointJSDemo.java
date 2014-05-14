@@ -114,6 +114,46 @@ public class JointJSDemo extends AbstractDemo {
 				}).start();
 			}
 		});
+
+		Button setTitleButton = new Button(composite, SWT.PUSH);
+		setTitleButton.setText("setTitle(\"Test\")");
+		setTitleButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						log("setting title");
+						try {
+							JointJSDemo.this.jointjs.setTitle("Test").get();
+						} catch (Exception e) {
+							log(e.toString());
+						}
+						log("set title");
+					}
+				}).start();
+			}
+		});
+
+		Button getTitleButton = new Button(composite, SWT.PUSH);
+		getTitleButton.setText("getTitle()");
+		getTitleButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						log("getting title");
+						try {
+							log(JointJSDemo.this.jointjs.getTitle().get());
+						} catch (Exception e) {
+							log(e.toString());
+						}
+						log("got title");
+					}
+				}).start();
+			}
+		});
 	}
 
 	@Override

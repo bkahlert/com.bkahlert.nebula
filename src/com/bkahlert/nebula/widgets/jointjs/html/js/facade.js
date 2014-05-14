@@ -37,6 +37,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			if (!internal) {
 				com.bkahlert.jointjs.openDemo();
 				com.bkahlert.jointjs.autoLayout();
+				com.bkahlert.jointjs.setTitle('test');
 			} else {
 			}
 		},
@@ -44,15 +45,28 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		load: function (json) {
 			com.bkahlert.jointjs.graph.clear();
 			if(typeof json === 'string') json = JSON.parse(json);
+			
+			com.bkahlert.jointjs.setTitle(json.title);
 			com.bkahlert.jointjs.graph.fromJSON(json);
+			
 			if (typeof window.loaded === 'function') { window.loaded(json); }
 			return json;
 		},
 
 		save: function () {
-			var json = JSON.stringify(com.bkahlert.jointjs.graph);
+			var json = JSON.parse(JSON.stringify(com.bkahlert.jointjs.graph));
+			json.title = com.bkahlert.jointjs.getTitle();
+			json = JSON.stringify(json);
 			if (typeof window.save === 'function') { window.save(json); }
 			return json;
+		},
+		
+		getTitle: function() {
+			return $('#title').val();
+		},
+		
+		setTitle: function(title) {
+			$('#title').val(title);
 		},
 
 		autoLayout: function () {

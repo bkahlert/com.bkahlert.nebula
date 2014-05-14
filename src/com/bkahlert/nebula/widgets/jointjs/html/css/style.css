@@ -5796,6 +5796,18 @@ body,
   -ms-transform-origin: 0 0 0;
   transform-origin: 0 0 0;
 }
+.title {
+  position: fixed;
+  left: 0;
+  bottom: 0px;
+  width: 100%;
+  padding: 5px;
+  background-color: #555555;
+}
+.title .form-group,
+.title input {
+  width: 100% !important;
+}
 .popover {
   position: absolute;
 }

@@ -117,6 +117,16 @@ public class JointJS extends Browser {
 				IConverter.CONVERTER_STRING);
 	}
 
+	public Future<String> getTitle() {
+		return this.run("return com.bkahlert.jointjs.getTitle();",
+				IConverter.CONVERTER_STRING);
+	}
+
+	public Future<Void> setTitle(String title) {
+		return this.run("com.bkahlert.jointjs.setTitle(\"" + title + "\");",
+				IConverter.CONVERTER_VOID);
+	}
+
 	public Future<String> createNode(String id, Object json) {
 		if (id == null) {
 			id = this.nodeCreationPrefix + UUID.randomUUID().toString();
