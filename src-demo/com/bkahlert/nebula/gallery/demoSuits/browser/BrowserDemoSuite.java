@@ -10,10 +10,10 @@ import com.bkahlert.nebula.gallery.demoSuits.browser.jointjs.JointJSViewerDemo;
 import com.bkahlert.nebula.gallery.demoSuits.browser.timeline.TimelineDemoSuite;
 
 @DemoSuite(value = { BrowserDemo.class, MultipleBrowsersDemo.class,
-		ComposerDemo.class, ComposerReadOnlyDemo.class, EditorDemo.class,
-		MultipleEditorsDemo.class, ImageDemo.class, TimelineDemoSuite.class,
-		JQueryBrowserDemo.class, BootstrapBrowserDemo.class, JointJSDemo.class,
-		JointJSViewerDemo.class })
+		ItemListDemo.class, ComposerDemo.class, ComposerReadOnlyDemo.class,
+		EditorDemo.class, MultipleEditorsDemo.class, ImageDemo.class,
+		TimelineDemoSuite.class, JQueryBrowserDemo.class,
+		BootstrapBrowserDemo.class, JointJSDemo.class, JointJSViewerDemo.class })
 @Demo
 public class BrowserDemoSuite extends AbstractDemo {
 

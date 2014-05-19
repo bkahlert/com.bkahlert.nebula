@@ -63,7 +63,6 @@ public class BrowserUtils {
 		Document document = Jsoup.parse(html);
 		Elements elements = document.getElementsByTag("a");
 		for (Element element : elements) {
-			System.out.println(element);
 			if (element.attr("href") == null) {
 				element.attr("href", element.attr("data-cke-saved-href"));
 			}
