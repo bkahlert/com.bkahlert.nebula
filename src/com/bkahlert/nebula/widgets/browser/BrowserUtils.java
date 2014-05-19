@@ -63,15 +63,11 @@ public class BrowserUtils {
 		Document document = Jsoup.parse(html);
 		Elements elements = document.getElementsByTag("a");
 		for (Element element : elements) {
-			String href = element.attr("href");
-			if (href == null) {
-				href = element.attr("data-cke-saved-href");
+			System.out.println(element);
+			if (element.attr("href") == null) {
+				element.attr("href", element.attr("data-cke-saved-href"));
 			}
-			String[] classes = element.attr("class") != null ? element.attr(
-					"class").split("\\s+") : new String[0];
-			String content = element.text();
-
-			return new Anker(href, classes, content);
+			return new Anker(element);
 		}
 		return null;
 	}

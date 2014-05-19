@@ -24,6 +24,8 @@ public interface IElement {
 	 */
 	public String getAttribute(String name);
 
+	String getData(String key);
+
 	/**
 	 * Returns the {@link IElement}'s css classes.
 	 * 

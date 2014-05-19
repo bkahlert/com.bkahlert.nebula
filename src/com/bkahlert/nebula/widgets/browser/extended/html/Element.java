@@ -10,10 +10,10 @@ import org.jsoup.nodes.Attribute;
 
 public class Element implements IElement {
 
-	private String name;
+	private final String name;
 	private Map<String, String> attributes = new HashMap<String, String>();
-	private String[] classes;
-	private String content;
+	private final String[] classes;
+	private final String content;
 
 	public Element(String name, Map<String, String> attributes, String content) {
 		this.name = name;
@@ -54,6 +54,11 @@ public class Element implements IElement {
 	@Override
 	public String[] getClasses() {
 		return this.classes;
+	}
+
+	@Override
+	public String getData(String key) {
+		return this.getAttribute("data-" + key);
 	}
 
 	@Override

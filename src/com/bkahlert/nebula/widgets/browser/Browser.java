@@ -659,7 +659,6 @@ public class Browser extends Composite implements IBrowser {
 				IConverter.CONVERTER_STRING);
 	}
 
-	// TODO replace by swt.Browser.getText
 	@Override
 	public Future<String> getHtml() {
 		return this.run("return document.documentElement.outerHTML",

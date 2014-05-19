@@ -3,7 +3,6 @@ package com.bkahlert.nebula.widgets.browser.extended.html;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class Anker extends Element implements IAnker {
 
 	public Anker(Map<String, String> attributes, String content) {
