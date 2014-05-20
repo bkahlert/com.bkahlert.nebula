@@ -20,6 +20,8 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
@@ -57,6 +59,7 @@ public class Browser extends Composite implements IBrowser {
 
 	private boolean settingUri = false;
 	private boolean allowLocationChange = false;
+	private Rectangle cachedContentBounds = null;
 
 	private final List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
 	private final List<IFocusListener> focusListeners = new ArrayList<IFocusListener>();
@@ -122,6 +125,30 @@ public class Browser extends Composite implements IBrowser {
 				if (arguments.length == 1 && arguments[0] instanceof String) {
 					final IElement element = new Element((String) arguments[0]);
 					Browser.this.fireFocusLost(element);
+				}
+				return null;
+			}
+		};
+		new BrowserFunction(this.browser, "__resize") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length == 4
+						&& (arguments[0] == null || arguments[0] instanceof Double)
+						&& (arguments[1] == null || arguments[1] instanceof Double)
+						&& (arguments[2] == null || arguments[2] instanceof Double)
+						&& (arguments[3] == null || arguments[3] instanceof Double)) {
+					Browser.this.cachedContentBounds = new Rectangle(
+							arguments[0] != null ? (int) Math.round((Double) arguments[0])
+									: Integer.MAX_VALUE,
+							arguments[1] != null ? (int) Math
+									.round((Double) arguments[1])
+									: Integer.MAX_VALUE,
+							arguments[2] != null ? (int) Math
+									.round((Double) arguments[2])
+									: Integer.MAX_VALUE,
+							arguments[3] != null ? (int) Math
+									.round((Double) arguments[3])
+									: Integer.MAX_VALUE);
 				}
 				return null;
 			}
@@ -655,5 +682,23 @@ public class Browser extends Composite implements IBrowser {
 						+ escapedHtml
 						+ "';var i=document.createDocumentFragment(),s,o;while(s=r.firstChild){o=i.appendChild(s)}n.insertNode(i);if(o){n=n.cloneRange();n.setStartAfter(o);n.collapse(true);t.removeAllRanges();t.addRange(n)}}}else if(document.selection&&document.selection.type!=\"Control\"){document.selection.createRange().pasteHTML('"
 						+ escapedHtml + "')}");
+	}
+
+	@Override
+	public Point computeSize(int wHint, int hHint, boolean changed) {
+		try {
+			this.browser
+					.execute("if (window[\"__notifySize\"] && typeof window[\"__notifySize\"]) window[\"__notifySize\"]();");
+		} catch (Exception e) {
+			LOGGER.error("Error computing size for "
+					+ Browser.class.getSimpleName());
+		}
+
+		Rectangle bounds = this.cachedContentBounds;
+		if (bounds == null) {
+			return super.computeSize(wHint, hHint, changed);
+		}
+
+		return new Point(bounds.x + bounds.width, bounds.y + bounds.height);
 	}
 }
