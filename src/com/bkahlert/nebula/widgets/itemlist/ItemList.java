@@ -7,6 +7,7 @@ import java.util.concurrent.Future;
 
 import org.eclipse.swt.widgets.Composite;
 
+import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.JSONUtils;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
@@ -23,6 +24,24 @@ public class ItemList extends BootstrapBrowser {
 		public void itemClicked(String key);
 
 		public void itemClicked(String key, int i);
+	}
+
+	public static class ItemListAdapter implements IItemListListener {
+		@Override
+		public void itemHovered(String key, boolean entered) {
+		}
+
+		@Override
+		public void itemHovered(String key, int i, boolean entered) {
+		}
+
+		@Override
+		public void itemClicked(String key) {
+		}
+
+		@Override
+		public void itemClicked(String key, int i) {
+		}
 	}
 
 	private final List<IItemListListener> itemListListeners = new ArrayList<ItemList.IItemListListener>();
@@ -50,9 +69,12 @@ public class ItemList extends BootstrapBrowser {
 
 			@Override
 			public void ankerClicked(IAnker anker) {
+				String key = anker.getData("itemlist-key");
+				if (key == null) {
+					return;
+				}
+				String action = anker.getData("itemlist-action");
 				for (IItemListListener itemListListener : ItemList.this.itemListListeners) {
-					String key = anker.getData("itemlist-key");
-					String action = anker.getData("itemlist-action");
 					if (action == null) {
 						itemListListener.itemClicked(key);
 					} else {
@@ -67,40 +89,57 @@ public class ItemList extends BootstrapBrowser {
 	}
 
 	public void addItem(String id, String title) {
-		this.addItem(id, title, ButtonOption.DEFAULT, ButtonSize.DEFAULT, null);
+		this.addItem(id, title, ButtonOption.DEFAULT, ButtonSize.DEFAULT,
+				ButtonStyle.DROPDOWN, null);
 	}
 
 	public void addItem(String id, String title, ButtonOption buttonOption,
-			ButtonSize buttonSize, Collection<String> secondaryActions) {
+			ButtonSize buttonSize, ButtonStyle buttonStyle,
+			Collection<String> secondaryActions) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"btn-group\">");
 		sb.append("<a class=\"btn " + buttonOption + " " + buttonSize
 				+ "\" data-itemlist-key=\"" + id + "\">" + title + "</a>");
 		if (secondaryActions != null && !secondaryActions.isEmpty()) {
-			sb.append("<a class=\"btn dropdown-toggle " + buttonOption + " "
-					+ buttonSize + "\" data-toggle=\"dropdown\">");
-			sb.append("<span class=\"caret\"></span>");
-			sb.append("<span class=\"sr-only\">Toggle Dropdown</span>");
-			sb.append("</a>");
-			sb.append("<ul class=\"dropdown-menu\" role=\"menu\">");
-			int i = 0;
-			for (String secondaryAction : secondaryActions) {
-				if (secondaryAction == null || secondaryAction.isEmpty()
-						|| secondaryAction.equals("-")) {
-					sb.append("<li class=\"divider\"></li>");
-				} else {
-					sb.append("<li><a data-itemlist-key=\"" + id
-							+ "\" data-itemlist-action=\"" + i + "\">"
-							+ secondaryAction + "</a></li>");
+			if (buttonStyle == ButtonStyle.DROPDOWN) {
+				sb.append("<a class=\"btn dropdown-toggle " + buttonOption
+						+ " " + buttonSize + "\" data-toggle=\"dropdown\">");
+				sb.append("<span class=\"caret\"></span>");
+				sb.append("<span class=\"sr-only\">Toggle Dropdown</span>");
+				sb.append("</a>");
+				sb.append("<ul class=\"dropdown-menu\" role=\"menu\">");
+				int i = 0;
+				for (String secondaryAction : secondaryActions) {
+					if (secondaryAction == null || secondaryAction.isEmpty()
+							|| secondaryAction.equals("-")) {
+						sb.append("<li class=\"divider\"></li>");
+					} else {
+						sb.append("<li><a data-itemlist-key=\"" + id
+								+ "\" data-itemlist-action=\"" + i + "\">"
+								+ secondaryAction + "</a></li>");
+					}
+					i++;
 				}
-				i++;
+				sb.append("</ul>");
+			} else {
+				int i = 0;
+				for (String secondaryAction : secondaryActions) {
+					sb.append("<a class=\"btn " + buttonOption + " "
+							+ buttonSize + "\" data-itemlist-key=\"" + id
+							+ "\" data-itemlist-action=\"" + i + "\">"
+							+ secondaryAction + "</a>");
+					i++;
+				}
 			}
-			sb.append("</ul>");
 		}
 		sb.append("</div>");
 
 		this.run("$(" + JSONUtils.enquote(sb.toString())
 				+ ").appendTo('body');");
+	}
+
+	public Future<Void> clear() {
+		return this.run("$('body').empty();", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Void> setSpacing(int pixels) {

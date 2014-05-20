@@ -59,6 +59,10 @@ public class BootstrapBrowser extends JQueryBrowser implements
 		};
 	}
 
+	public static enum ButtonStyle {
+		HORIZONTAL, DROPDOWN;
+	}
+
 	public BootstrapBrowser(Composite parent, int style) {
 		this(parent, style, new IBrowserExtension[] {});
 	}

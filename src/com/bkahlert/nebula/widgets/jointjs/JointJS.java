@@ -104,7 +104,7 @@ public class JointJS extends Browser {
 		};
 
 		this.open(BrowserUtils.getFileUrl(JointJS.class, "html/index.html",
-				"?internal=true"), 5000);
+				"?internal=true"), 60000);
 	}
 
 	public void load(String json) {

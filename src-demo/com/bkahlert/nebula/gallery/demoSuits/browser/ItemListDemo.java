@@ -3,22 +3,29 @@ package com.bkahlert.nebula.gallery.demoSuits.browser;
 import java.io.File;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonOption;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonSize;
+import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonStyle;
 import com.bkahlert.nebula.widgets.decoration.EmptyText;
 import com.bkahlert.nebula.widgets.itemlist.ItemList;
 import com.bkahlert.nebula.widgets.itemlist.ItemList.IItemListListener;
@@ -128,7 +135,12 @@ public class ItemListDemo extends AbstractDemo {
 	}
 
 	@Override
-	public void createDemo(Composite parent) {
+	public void createDemo(final Composite parent) {
+		parent.setLayout(GridLayoutFactory.fillDefaults().create());
+
+		new Label(parent, SWT.NONE).setLayoutData(GridDataFactory
+				.fillDefaults().grab(true, true).create());
+
 		this.itemList = new ItemList(parent, SWT.BORDER);
 		this.itemList.addListener(new IItemListListener() {
 			@Override
@@ -154,11 +166,40 @@ public class ItemListDemo extends AbstractDemo {
 		});
 
 		this.itemList.addItem("item1", "Item #1");
-		this.itemList
-				.addItem("item2", "Item #2", ButtonOption.PRIMARY,
-						ButtonSize.EXTRA_SMALL,
-						Arrays.asList("Option #1", "Option #2"));
+		this.itemList.addItem("item2", "Item #2", ButtonOption.PRIMARY,
+				ButtonSize.EXTRA_SMALL, ButtonStyle.DROPDOWN,
+				Arrays.asList("Option #1", "Option #2"));
+		this.itemList.addItem("item3", "Item #3", ButtonOption.PRIMARY,
+				ButtonSize.LARGE, ButtonStyle.HORIZONTAL,
+				Arrays.asList("Option #1", "Option #2"));
 
-		this.itemList.setSpacing(30);
+		final Future<Void> rendering = this.itemList.setSpacing(30);
+
+		this.itemList.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false,
+				false));
+
+		new Label(parent, SWT.NONE).setLayoutData(GridDataFactory
+				.fillDefaults().grab(true, true).create());
+
+		ExecUtils.nonUIAsyncExec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					rendering.get();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				ExecUtils.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						parent.layout();
+					}
+				});
+			}
+		});
 	}
 }
