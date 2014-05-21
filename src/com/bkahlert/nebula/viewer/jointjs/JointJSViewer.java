@@ -1,11 +1,10 @@
 package com.bkahlert.nebula.viewer.jointjs;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -35,38 +34,6 @@ import com.bkahlert.nebula.widgets.timeline.model.IOptions;
 public class JointJSViewer extends AbstractJointJSViewer {
 
 	private static final Logger LOGGER = Logger.getLogger(JointJSViewer.class);
-
-	private static class Cell {
-		private final String id;
-
-		public Cell(String id) {
-			super();
-			this.id = id;
-		}
-
-		public String getId() {
-			return this.id;
-		}
-	}
-
-	private static class Link extends Cell {
-		private final String sourceId;
-		private final String targetId;
-		private final String[] labels;
-
-		public Link(String id, String sourceId, String targetId, String[] labels) {
-			super(id);
-			this.sourceId = sourceId;
-			this.targetId = targetId;
-			this.labels = labels;
-		}
-
-		@Override
-		public String toString() {
-			return "Link (Labels = " + StringUtils.join(this.labels, ", ")
-					+ "): " + this.sourceId + " -> " + this.targetId;
-		}
-	}
 
 	public static Object[] breakUpAndRemoveDuplicates(Object input) {
 		return TimelineGroupViewer.breakUpAndRemoveDuplicates(input);
@@ -127,21 +94,39 @@ public class JointJSViewer extends AbstractJointJSViewer {
 					private final int defaultX = 0;
 					private int defaultY = 0;
 
-					/**
-					 * Creates the given node if necessary and updates all
-					 * information in the diagram. All links reflecting the
-					 * hierarchy are also rendered.
-					 * 
-					 * @param node
-					 * @param parentNode
-					 * @param linksToBeCreated
-					 *            is used to collect all links that must be
-					 *            created after all the hierarchy was rendered.
-					 */
-					private void syncNodesAndInheritance(Object node,
-							Object parentNode, List<Link> linksToBeCreated) {
+					@Override
+					public Void call() throws Exception {
+						this.existantNodeIds = JointJSViewer.this.jointjs
+								.getNodes().get();
+
+						Object[] nodes = JointJSViewer.this.contentProvider
+								.getNodes();
+						for (Object node : nodes) {
+							this.createNode(node);
+						}
+
+						Object[] permanentLinks = JointJSViewer.this.contentProvider
+								.getPermanentLinks();
+						for (Object permanentLink : permanentLinks) {
+							this.createLink(permanentLink, true);
+						}
+
+						Object[] links = JointJSViewer.this.contentProvider
+								.getLinks();
+						for (Object link : links) {
+							this.createLink(link, false);
+						}
+
+						return ExecUtils.asyncExec(new Runnable() {
+							@Override
+							public void run() {
+							}
+						}).get();
+					}
+
+					private void createNode(Object node) {
 						String id = JointJSViewer.this.contentProvider
-								.getId(node);
+								.getNodeId(node);
 
 						if (this.existantNodeIds.contains(id)) {
 							// update
@@ -158,8 +143,8 @@ public class JointJSViewer extends AbstractJointJSViewer {
 									.getText(node);
 							String content = JointJSViewer.this.labelProvider
 									.getContent(node);
-							Point position = JointJSViewer.this.labelProvider
-									.getPosition(node);
+							Point position = JointJSViewer.this.contentProvider
+									.getNodePosition(node);
 							Point size = JointJSViewer.this.labelProvider
 									.getSize(node);
 
@@ -178,97 +163,54 @@ public class JointJSViewer extends AbstractJointJSViewer {
 							}
 						}
 
-						if (id != null) {
-							JointJSViewer.this.jointjs.setColor(id,
-									JointJSViewer.this.labelProvider
-											.getColor(node));
-							JointJSViewer.this.jointjs.setBackgroundColor(id,
-									JointJSViewer.this.labelProvider
-											.getBackgroundColor(node));
-							JointJSViewer.this.jointjs.setBorderColor(id,
-									JointJSViewer.this.labelProvider
-											.getBorderColor(node));
-							Point size = JointJSViewer.this.labelProvider
-									.getSize(node);
-							if (size != null) {
-								JointJSViewer.this.jointjs.setSize(id, size.x,
-										size.y);
-							}
+						if (id == null) {
+							LOGGER.error("ID missing for created/updated node!");
 						}
 
-						this.createPermanentLink(parentNode, node);
-
-						Object[] links = JointJSViewer.this.contentProvider
-								.getLinks(node);
-						if (links == null) {
-							links = new Object[0];
-						}
-						for (Object link : links) {
-							String targetId = JointJSViewer.this.contentProvider
-									.getId(link);
-							String title = JointJSViewer.this.labelProvider
-									.getText(link);
-							String[] labels = title != null ? new String[] { title }
-									: new String[0];
-							linksToBeCreated.add(new Link(null, id, targetId,
-									labels));
-						}
-
-						Object[] children = JointJSViewer.this.contentProvider
-								.getChildren(node);
-						if (children == null) {
-							children = new Object[0];
-						}
-						for (Object child : children) {
-							this.syncNodesAndInheritance(child, node,
-									linksToBeCreated);
+						JointJSViewer.this.jointjs
+								.setColor(id, JointJSViewer.this.labelProvider
+										.getColor(node));
+						JointJSViewer.this.jointjs.setBackgroundColor(id,
+								JointJSViewer.this.labelProvider
+										.getBackgroundColor(node));
+						JointJSViewer.this.jointjs.setBorderColor(id,
+								JointJSViewer.this.labelProvider
+										.getBorderColor(node));
+						Point size = JointJSViewer.this.labelProvider
+								.getSize(node);
+						if (size != null) {
+							JointJSViewer.this.jointjs.setSize(id, size.x,
+									size.y);
 						}
 					}
 
-					private void createPermanentLink(Object parentNode,
-							Object node) {
-						if (parentNode == null || node == null) {
-							return;
-						}
+					private void createLink(Object link, boolean permanent)
+							throws InterruptedException, ExecutionException {
+						String id = JointJSViewer.this.contentProvider
+								.getLinkId(link);
 						String sourceId = JointJSViewer.this.contentProvider
-								.getId(parentNode);
+								.getLinkSourceId(link);
 						String targetId = JointJSViewer.this.contentProvider
-								.getId(node);
-						String id = null;
-						JointJSViewer.this.jointjs.createPermanentLink(id,
-								sourceId, targetId);
-					}
+								.getLinkTargetId(link);
 
-					@Override
-					public Void call() throws Exception {
-						this.existantNodeIds = JointJSViewer.this.jointjs
-								.getNodes().get();
-
-						Object[] topLevelNodes = JointJSViewer.this.contentProvider
-								.getElements(JointJSViewer.this.input);
-
-						List<Link> linksToBeCreated = new ArrayList<Link>();
-						for (Object topLevelNode : topLevelNodes) {
-							this.syncNodesAndInheritance(topLevelNode, null,
-									linksToBeCreated);
+						if (permanent) {
+							id = JointJSViewer.this.jointjs
+									.createPermanentLink(id, sourceId, targetId)
+									.get();
+						} else {
+							id = JointJSViewer.this.jointjs.createLink(id,
+									sourceId, targetId).get();
 						}
 
-						for (Link link : linksToBeCreated) {
-							String linkId = JointJSViewer.this.jointjs
-									.createLink(link.getId(), link.sourceId,
-											link.targetId).get();
-							for (int i = 0; link.labels != null
-									&& i < link.labels.length; i++) {
-								JointJSViewer.this.jointjs.setText(linkId, i,
-										link.labels[i]);
-							}
+						String[] texts = new String[0];
+						String text = JointJSViewer.this.labelProvider
+								.getText(link);
+						if (text != null) {
+							texts = new String[] { text };
 						}
-
-						return ExecUtils.asyncExec(new Runnable() {
-							@Override
-							public void run() {
-							}
-						}).get();
+						for (int i = 0; texts != null && i < texts.length; i++) {
+							JointJSViewer.this.jointjs.setText(id, i, texts[i]);
+						}
 					}
 				});
 	}

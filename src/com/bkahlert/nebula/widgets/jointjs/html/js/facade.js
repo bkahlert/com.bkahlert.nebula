@@ -136,6 +136,9 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			com.bkahlert.jointjs.setText(linkid, 0, 'my_label');
 			com.bkahlert.jointjs.setText('sua://test2', 'content', 'XN dskjd sdkds dskdsdjks dskj ');
 			com.bkahlert.jointjs.setSize(c, 300, 100);
+			window.setTimeout(function() {
+				com.bkahlert.jointjs.setPosition(c, 500, 500);
+			}, 1000);
 		},
 		
 		getZoom: function() {
@@ -441,6 +444,11 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		setBorderColor: function(id, rgb) {
 			var cell = com.bkahlert.jointjs.graph.getCell(id);
 			cell.set('border-color', rgb);
+		},
+		
+		setPosition: function(id, x, y) {
+			var cell = com.bkahlert.jointjs.graph.getCell(id);
+			cell.set('position', { x: x, y: y });
 		},
 		
 		setSize: function(id, width, height) {

@@ -25,9 +25,24 @@ import com.bkahlert.nebula.widgets.jointjs.JointJS;
 @Demo
 public class JointJSViewerDemo extends AbstractDemo {
 
-	private static final Object NODE1 = new Object();
-	private static final Object NODE2 = new Object();
-	private static final Object NODE3 = new Object();
+	private static final Object NODE1 = new Object() {
+		@Override
+		public String toString() {
+			return "node1";
+		};
+	};
+	private static final Object NODE2 = new Object() {
+		@Override
+		public String toString() {
+			return "node2";
+		};
+	};
+	private static final Object NODE3 = new Object() {
+		@Override
+		public String toString() {
+			return "node3";
+		};
+	};
 
 	private JointJS jointjs;
 	private JointJSViewer jointjsViewer;
@@ -67,11 +82,6 @@ public class JointJSViewerDemo extends AbstractDemo {
 		@Override
 		public RGB getBorderColor(Object element) {
 			return ColorUtils.getRandomRGB();
-		}
-
-		@Override
-		public Point getPosition(Object element) {
-			return null;
 		}
 
 		@Override
@@ -176,55 +186,48 @@ public class JointJSViewerDemo extends AbstractDemo {
 					}
 
 					@Override
-					public String getId(Object element) {
-						if (element == NODE1) {
-							return "node1";
-						}
-						if (element == NODE2) {
-							return "node2";
-						}
-						if (element == NODE3) {
-							return "node3";
-						}
+					public String getNodeId(Object node) {
+						return node.toString();
+					}
+
+					@Override
+					public String getLinkId(Object link) {
 						return null;
 					}
 
 					@Override
-					public boolean hasChildren(Object element) {
-						return this.getChildren(element).length > 0;
+					public Object[] getNodes() {
+						return new Object[] { NODE1, NODE2, NODE3 };
 					}
 
 					@Override
-					public Object getParent(Object element) {
-						if (element == NODE3) {
-							return NODE1;
-						}
+					public Point getNodePosition(Object node) {
 						return null;
 					}
 
 					@Override
-					public Object[] getElements(Object inputElement) {
-						return new Object[] { NODE1, NODE2 };
+					public Object[] getPermanentLinks() {
+						return new Object[] {
+								NODE1.toString() + "," + NODE2.toString(),
+								NODE2.toString() + "," + NODE3.toString() };
 					}
 
 					@Override
-					public Object[] getChildren(Object parentElement) {
-						if (parentElement == NODE1) {
-							return new Object[] { NODE3 };
-						}
-						return new Object[0];
+					public Object[] getLinks() {
+						return new Object[] { NODE3.toString() + ","
+								+ NODE1.toString() };
 					}
 
 					@Override
-					public Object[] getLinks(Object element) {
-						if (element == NODE1) {
-							return new Object[] { NODE2 };
-						}
-						if (element == NODE2) {
-							return new Object[] { NODE3 };
-						}
-						return new Object[0];
+					public String getLinkSourceId(Object link) {
+						return link.toString().split(",")[0];
 					}
+
+					@Override
+					public String getLinkTargetId(Object link) {
+						return link.toString().split(",")[1];
+					}
+
 				}, new MyLabelProvider()) {
 		};
 

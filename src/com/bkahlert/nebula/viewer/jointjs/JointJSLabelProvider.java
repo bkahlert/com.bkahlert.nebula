@@ -15,8 +15,6 @@ public interface JointJSLabelProvider extends ILabelProvider {
 
 	public abstract RGB getBorderColor(Object element);
 
-	public abstract Point getPosition(Object element);
-
 	public abstract Point getSize(Object element);
 
 }

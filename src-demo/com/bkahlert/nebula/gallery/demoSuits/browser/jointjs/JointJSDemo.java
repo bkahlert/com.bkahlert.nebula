@@ -254,6 +254,10 @@ public class JointJSDemo extends AbstractDemo {
 				log("zoomed to 1.0: "
 						+ JointJSDemo.this.jointjs.getZoom().get());
 
+				Thread.sleep(1500);
+				JointJSDemo.this.jointjs.setPosition("sua://test40", 300, 100);
+				log("moved test40");
+
 				return null;
 			}
 		});
