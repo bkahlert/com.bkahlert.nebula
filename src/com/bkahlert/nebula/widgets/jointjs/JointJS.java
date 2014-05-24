@@ -107,9 +107,10 @@ public class JointJS extends Browser {
 				"?internal=true"), 60000);
 	}
 
-	public void load(String json) {
-		JointJS.this.run("return com.bkahlert.jointjs.load("
-				+ JSONUtils.enquote(json) + ")");
+	public Future<String> load(String json) {
+		return JointJS.this.run(
+				"return com.bkahlert.jointjs.load(" + JSONUtils.enquote(json)
+						+ ")", IConverter.CONVERTER_STRING);
 	}
 
 	public Future<String> save() {

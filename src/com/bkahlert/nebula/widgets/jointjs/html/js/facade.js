@@ -49,16 +49,24 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			com.bkahlert.jointjs.setTitle(json.title);
 			com.bkahlert.jointjs.graph.fromJSON(json);
 			
+			var json = com.bkahlert.jointjs.serialize()
 			if (typeof window.loaded === 'function') { window.loaded(json); }
 			return json;
 		},
 
 		save: function () {
-			var json = JSON.parse(JSON.stringify(com.bkahlert.jointjs.graph));
-			json.title = com.bkahlert.jointjs.getTitle();
-			json = JSON.stringify(json);
+			var json = com.bkahlert.jointjs.serialize();
 			if (typeof window.save === 'function') { window.save(json); }
 			return json;
+		},
+		
+		serialize: function () {
+			var json = JSON.parse(JSON.stringify(com.bkahlert.jointjs.graph));
+			json.title = com.bkahlert.jointjs.getTitle();
+			json.zoom = com.bkahlert.jointjs.getZoom();
+			var pan = com.bkahlert.jointjs.getPan();
+			json.pan = { x: pan[0], y: pan[1] };
+			return JSON.stringify(json);
 		},
 		
 		getTitle: function() {
