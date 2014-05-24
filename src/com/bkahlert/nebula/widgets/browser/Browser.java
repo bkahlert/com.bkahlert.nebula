@@ -46,13 +46,22 @@ import com.bkahlert.nebula.widgets.browser.runner.BrowserScriptRunner.BrowserSta
 
 public class Browser extends Composite implements IBrowser {
 
-	private static Logger LOGGER = Logger.getLogger(Browser.class);
-	private static final IFocusService FOCUS_SERVICE = (IFocusService) PlatformUI
-			.getWorkbench().getService(IFocusService.class);
-	public static final String FOCUS_ID = "com.bkahlert.nebula.browser";
+	private static IFocusService FOCUS_SERVICE = null;
+	private static IContextService CONTEXT_SERVICE = null;
 
-	private static final IContextService CONTEXT_SERVICE = (IContextService) PlatformUI
-			.getWorkbench().getService(IContextService.class);
+	static {
+		try {
+			FOCUS_SERVICE = (IFocusService) PlatformUI.getWorkbench()
+					.getService(IFocusService.class);
+			CONTEXT_SERVICE = (IContextService) PlatformUI.getWorkbench()
+					.getService(IContextService.class);
+		} catch (NoClassDefFoundError e) {
+
+		}
+	}
+
+	private static Logger LOGGER = Logger.getLogger(Browser.class);
+	public static final String FOCUS_ID = "com.bkahlert.nebula.browser";
 
 	private org.eclipse.swt.browser.Browser browser;
 	private BrowserScriptRunner browserScriptRunner;
@@ -171,11 +180,15 @@ public class Browser extends Composite implements IBrowser {
 		// needed so paste action can be overwritten
 		// @see
 		// http://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fapi%2Forg%2Feclipse%2Fui%2Fswt%2FIFocusService.html
-		FOCUS_SERVICE.addFocusTracker(this.browser, FOCUS_ID);
+		if (FOCUS_SERVICE != null) {
+			FOCUS_SERVICE.addFocusTracker(this.browser, FOCUS_ID);
+		}
 		this.browser.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				FOCUS_SERVICE.removeFocusTracker(Browser.this.browser);
+				if (FOCUS_SERVICE != null) {
+					FOCUS_SERVICE.removeFocusTracker(Browser.this.browser);
+				}
 			}
 		});
 
@@ -199,13 +212,17 @@ public class Browser extends Composite implements IBrowser {
 
 			@Override
 			public void focusGained(FocusEvent e) {
-				this.activation = CONTEXT_SERVICE
-						.activateContext("com.bkahlert.ui.browser");
+				if (CONTEXT_SERVICE != null) {
+					this.activation = CONTEXT_SERVICE
+							.activateContext("com.bkahlert.ui.browser");
+				}
 			}
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				CONTEXT_SERVICE.deactivateContext(this.activation);
+				if (CONTEXT_SERVICE != null) {
+					CONTEXT_SERVICE.deactivateContext(this.activation);
+				}
 			}
 		});
 

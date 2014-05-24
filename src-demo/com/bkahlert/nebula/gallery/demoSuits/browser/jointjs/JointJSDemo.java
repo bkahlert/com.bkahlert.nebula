@@ -1,18 +1,25 @@
 package com.bkahlert.nebula.gallery.demoSuits.browser.jointjs;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Shell;
+import org.junit.Assert;
+import org.junit.Test;
 
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.ExecUtils.ParametrizedCallable;
+import com.bkahlert.nebula.utils.ShellUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
@@ -154,6 +161,27 @@ public class JointJSDemo extends AbstractDemo {
 				}).start();
 			}
 		});
+
+		Button getPanButton = new Button(composite, SWT.PUSH);
+		getPanButton.setText("getPan()");
+		getPanButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						log("getting pan");
+						try {
+							log(JointJSDemo.this.jointjs.getPan().get()
+									.toString());
+						} catch (Exception e) {
+							log(e.toString());
+						}
+						log("got pan");
+					}
+				}).start();
+			}
+		});
 	}
 
 	@Override
@@ -261,6 +289,40 @@ public class JointJSDemo extends AbstractDemo {
 				return null;
 			}
 		});
+	}
 
+	@Test
+	public void testLoadSaveSeveralTimes() throws Exception {
+		DOMConfigurator
+				.configure("/Users/bkahlert/development/reps/com.bkahlert.devel.nebula/log4j.xml");
+		ShellUtils.runInSeparateShell(500, 300,
+				new ParametrizedCallable<Shell, Future<String>>() {
+					@Override
+					public Future<String> call(Shell shell) throws Exception {
+						final JointJS jointjs = new JointJS(shell, SWT.NONE,
+								"node://", "link://");
+						return ExecUtils.nonUIAsyncExec(new Callable<String>() {
+							@Override
+							public String call() throws Exception {
+								jointjs.createNode("myid", "Hello World!",
+										"Lorem ipsum<br/>lorem ipsum",
+										new Point(10, 10), new Point(100, 30))
+										.get();
+								String json = jointjs.save().get();
+
+								// save the loaded string and check for equality
+								for (int i = 0; i < 10; i++) {
+									String loadedJson = jointjs.load(json)
+											.get();
+									String savedJson = jointjs.save().get();
+									Assert.assertEquals(json, loadedJson);
+									Assert.assertEquals(json, savedJson);
+									json = savedJson;
+								}
+								return json;
+							}
+						});
+					}
+				}, 1000);
 	}
 }

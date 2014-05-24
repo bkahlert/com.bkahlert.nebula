@@ -4,16 +4,27 @@ import java.awt.AWTException;
 import java.awt.Robot;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import com.bkahlert.nebula.utils.ExecUtils.ParametrizedCallable;
+
 public class ShellUtils {
+
+	@SuppressWarnings("unused")
+	private static final Logger LOGGER = Logger.getLogger(ShellUtils.class);
 
 	private static Robot robot;
 
@@ -195,4 +206,53 @@ public class ShellUtils {
 		return bufferedImage;
 	}
 
+	public static <T> void runInSeparateShell(int width, int height,
+			final ParametrizedCallable<Shell, Future<T>> runner, int timeout)
+			throws Exception {
+		Display display = new Display();
+		final Shell shell = new Shell(display);
+
+		shell.setLayout(new FillLayout());
+
+		final Future<T> rt = runner.call(shell);
+		final AtomicReference<Exception> ex = new AtomicReference<Exception>();
+
+		shell.open();
+
+		ExecUtils.nonUIAsyncExec(new Runnable() {
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						rt.get(50, TimeUnit.MILLISECONDS);
+						break;
+					} catch (TimeoutException e) {
+					} catch (Exception e) {
+						ex.set(e);
+						break;
+					}
+				}
+				ExecUtils.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						shell.close();
+					}
+				});
+			}
+		});
+
+		// Set up the event loop.
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				// If no more entries in event queue
+				display.sleep();
+			}
+		}
+
+		if (ex.get() == null) {
+			System.out.println("Test resulted: " + rt.get());
+		} else {
+			throw ex.get();
+		}
+	}
 }
