@@ -5801,8 +5801,11 @@ body,
   left: 0;
   bottom: 0px;
   width: 100%;
-  padding: 5px;
-  background-color: #555555;
+  padding: 2px 5px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: .8em;
+  font-weight: 300;
 }
 .title .form-group,
 .title input {

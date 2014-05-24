@@ -62,11 +62,11 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		},
 		
 		getTitle: function() {
-			return $('#title').val();
+			return $('.title').text();
 		},
 		
 		setTitle: function(title) {
-			$('#title').val(title);
+			$('.title').text(title);
 		},
 
 		autoLayout: function () {
