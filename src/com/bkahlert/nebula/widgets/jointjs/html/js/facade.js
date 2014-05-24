@@ -109,31 +109,37 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 				window.saved = com.bkahlert.jointjs.save();
 				console.log(window.saved);
 			}))
-			.append($('<button>Add Node</a>').click(function () {
+			.append($('<button>Add Node</button>').click(function () {
 				com.bkahlert.jointjs.createNode();
 			}))
-			.append($('<button>Add Link</a>').click(function () {
+			.append($('<button>Add Link</button>').click(function () {
 				com.bkahlert.jointjs.createLink();
 			}))
-			.append($('<button>Layout</a>').click(function () {
+			.append($('<button>Layout</button>').click(function () {
 				com.bkahlert.jointjs.autoLayout();
 			}))
-			.append($('<button>Zoom In</a>').click(function () {
+			.append($('<button>Zoom In</button>').click(function () {
 				com.bkahlert.jointjs.zoomIn();
 			}))
-			.append($('<button>Zoom Out</a>').click(function () {
+			.append($('<button>Zoom Out</button>').click(function () {
 				com.bkahlert.jointjs.zoomOut();
 			}))
-			.append($('<button>Get Pan</a>').click(function () {
+			.append($('<button>Get Pan</button>').click(function () {
 				console.log(com.bkahlert.jointjs.getPan());
 			}))
-			.append($('<button>Set Pan</a>').click(function () {
+			.append($('<button>Set Pan</button>').click(function () {
 				com.bkahlert.jointjs.setPan(100, 100);
 			}))
-			.append($('<button>Log Nodes/Links</a>').click(function () {
+			.append($('<button>Log Nodes/Links</button>').click(function () {
 				console.log(com.bkahlert.jointjs.getNodes());
 				console.log(com.bkahlert.jointjs.getLinks());
 				console.log(com.bkahlert.jointjs.getPermanentLinks());
+			}))
+			.append($('<button>Custom</button>').click(function () {
+				var x = {"cells":[{"type":"html.Element","position":{"x":270,"y":142},"size":{"width":"242","height":"30"},"angle":"0","id":"sua://code/-9223372036854775640","content":"","title":"Offensichtliche Usability-Probleme","z":"0","color":"rgb(0, 0, 0)","background-color":"rgba(255, 102, 102, 0.27450980392156865)","border-color":"rgba(255, 48, 48, 0.39215686274509803)","attrs":{}}],"title":"New Model","zoom":"1","pan":{"x":"0","y":"0"}};
+				console.log(x);
+				com.bkahlert.jointjs.graph.clear();
+				com.bkahlert.jointjs.graph.fromJSON(x);
 			}));
 			
 			var a = com.bkahlert.jointjs.createNode('sua://test', { position: { x: 100, y: 300 }, title: 'my box', content: '<ul><li>jkjk</li></ul>' });
@@ -577,9 +583,6 @@ joint.shapes.html.Element = joint.shapes.basic.Rect.extend({
 
 // Create a custom view for that element that displays an HTML div above it.
 // -------------------------------------------------------------------------
-
-joint.dia.ElementView.prototype.oldUpdate = joint.dia.ElementView.prototype.update;
-
 joint.shapes.html.ElementView = joint.dia.ElementView.extend({
 
     template: '\
@@ -615,9 +618,6 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
         this.updateBox();
         return this;
     },
-    update: function(cell, renderingOnlyAttrs) {
-    	this.oldUpdate(cell, renderingOnlyAttrs);
-    },
     updateBox: function() {
 		// Set the position and dimension of the box so that it covers the JointJS element.
 		var bbox = this.model.getBBox();
@@ -631,7 +631,7 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
 		var borderColor = this.model.get('border-color');
 		this.$box.css('border-color', borderColor ? borderColor : 'auto');
 		
-		var transform = 'rotate(' + (this.model.get('angle') || 0) + 'deg)';		
+		var transform = 'rotate(' + (this.model.get('angle') || 0) + 'deg)';
 		this.$box.css({ width: bbox.width, height: bbox.height, left: bbox.x, top: bbox.y, transform: transform });
     },
     removeBox: function(evt) {
