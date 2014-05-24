@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
@@ -94,7 +95,7 @@ public final class JSONUtils {
 				} else {
 					// Leaf node
 					++GLOBAL_NODE_COUNTER_FOR_DEBUGTRACING;
-					String value = topNode.getValueAsText(); // toString() vs.
+					Object value = getTypedNodeValue(topNode); // toString() vs.
 																// getValueAsText()
 					// ????
 					if (log.isLoggable(Level.FINE)) {
@@ -146,7 +147,7 @@ public final class JSONUtils {
 				} else {
 					// Leaf node
 					++GLOBAL_NODE_COUNTER_FOR_DEBUGTRACING;
-					String value = node.getValueAsText();
+					Object value = getTypedNodeValue(node);
 					if (log.isLoggable(Level.FINE)) {
 						log.fine("jsonMap: counter = "
 								+ GLOBAL_NODE_COUNTER_FOR_DEBUGTRACING
@@ -192,7 +193,7 @@ public final class JSONUtils {
 				} else {
 					// Leaf node
 					++GLOBAL_NODE_COUNTER_FOR_DEBUGTRACING;
-					String value = node.getValueAsText();
+					Object value = getTypedNodeValue(node);
 					if (log.isLoggable(Level.FINE)) {
 						log.fine("jsonList: counter = "
 								+ GLOBAL_NODE_COUNTER_FOR_DEBUGTRACING
@@ -474,6 +475,36 @@ public final class JSONUtils {
 			log.fine("jsonArr = " + jsonArr);
 		}
 		return jsonArr;
+	}
+
+	public static Object getTypedNodeValue(JsonNode node) {
+		if (!node.isValueNode()) {
+			throw new NotImplementedException("Only value nodes are supported");
+		} else if (node.isBigDecimal()) {
+			return node.getDecimalValue();
+		} else if (node.isBigInteger()) {
+			return node.getBigIntegerValue();
+		} else if (node.isBinary()) {
+			try {
+				return node.getBinaryValue();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		} else if (node.isBoolean()) {
+			return node.getBooleanValue();
+		} else if (node.isDouble()) {
+			return node.getDoubleValue();
+		} else if (node.isInt()) {
+			return node.getIntValue();
+		} else if (node.isLong()) {
+			return node.getLongValue();
+		} else if (node.isNull()) {
+			return null;
+		} else if (node.isTextual()) {
+			return node.getTextValue();
+		} else {
+			throw new NotImplementedException("Unidentified type for " + node);
+		}
 	}
 
 	/**
