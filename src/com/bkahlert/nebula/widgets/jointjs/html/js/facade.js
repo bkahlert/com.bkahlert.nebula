@@ -46,8 +46,28 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			com.bkahlert.jointjs.graph.clear();
 			if(typeof json === 'string') json = JSON.parse(json);
 			
-			com.bkahlert.jointjs.setTitle(json.title);
+			var title = null;
+			if(json.title) {
+				title = json.title;
+				delete json.title;
+			}
+			
+			var zoom = 1;
+			if(json.zoom) {
+				zoom = json.zoom;
+				delete json.zoom;
+			}
+			
+			var pan = { "x": 0, "y": 0 };
+			if(json.pan) {
+				pan = json.pan;
+				delete json.pan;
+			}
+			
 			com.bkahlert.jointjs.graph.fromJSON(json);
+			if(title) com.bkahlert.jointjs.setTitle(title);
+			com.bkahlert.jointjs.setZoom(zoom);
+			com.bkahlert.jointjs.setPan(pan.x, pan.y);
 			
 			var json = com.bkahlert.jointjs.serialize()
 			if (typeof window.loaded === 'function') { window.loaded(json); }
