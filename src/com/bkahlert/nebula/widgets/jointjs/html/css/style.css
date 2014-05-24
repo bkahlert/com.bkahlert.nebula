@@ -5796,6 +5796,24 @@ body,
   -ms-transform-origin: 0 0 0;
   transform-origin: 0 0 0;
 }
+.jointjs svg {
+  cursor: pointer;
+  cursor: hand;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+}
+.jointjs svg.grabbing {
+  cursor: pointer;
+  cursor: hand;
+  cursor: -webkit-grabbing;
+  cursor: -moz-grabbing;
+}
+.jointjs svg .link .marker-source,
+.jointjs svg .link .marker-target,
+.jointjs svg .link .marker-arrowhead-group-source,
+.jointjs svg .link .marker-arrowhead-group-target {
+  cursor: move !important;
+}
 .title {
   position: fixed;
   left: 0;

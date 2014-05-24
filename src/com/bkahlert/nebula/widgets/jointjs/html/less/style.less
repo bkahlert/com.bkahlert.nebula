@@ -20,6 +20,29 @@ html, body, .jointjs {
 	.html-view {
 		.transform-origin(0 0 0);
 	}
+	
+	svg {
+		cursor: pointer;
+		cursor: hand;
+		cursor: -webkit-grab;
+		cursor: -moz-grab;
+	}
+	
+	svg.grabbing {
+		cursor: pointer;
+		cursor: hand;
+		cursor: -webkit-grabbing;
+		cursor: -moz-grabbing;
+	}
+	
+	svg .link {
+		.marker-source,
+		.marker-target,
+		.marker-arrowhead-group-source,
+		.marker-arrowhead-group-target {
+			cursor: move !important;
+		}
+	}
 }
 
 .title {

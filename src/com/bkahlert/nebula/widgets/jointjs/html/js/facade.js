@@ -328,7 +328,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
         	
         	var translate = com.bkahlert.jointjs.paper.getTranslate();
         	var newX = translate.tx + deltaX/scale.sx;
-        	var newY = translate.ty + deltaY/scale.sy;        	
+        	var newY = translate.ty + deltaY/scale.sy;
 			
 			com.bkahlert.jointjs.paper.translate(newX, newY);
         	
@@ -341,7 +341,9 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
         	$svg = $(svg);
         	if(activate) {
         		$svg.bind('mousemove', com.bkahlert.jointjs.mousePanTracker);
+        		$svg.attr('class', 'grabbing');
         	} else {
+        		$svg.attr('class', '');
         		$svg.unbind('mousemove', com.bkahlert.jointjs.mousePanTracker);
         	}
         },
