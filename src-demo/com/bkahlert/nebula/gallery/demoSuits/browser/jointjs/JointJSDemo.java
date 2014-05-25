@@ -182,6 +182,46 @@ public class JointJSDemo extends AbstractDemo {
 				}).start();
 			}
 		});
+
+		Button enableButton = new Button(composite, SWT.PUSH);
+		enableButton.setText("enable");
+		enableButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						log("enabling");
+						try {
+							JointJSDemo.this.jointjs.setEnabled(true);
+						} catch (Exception e) {
+							log(e.toString());
+						}
+						log("enabled");
+					}
+				}).start();
+			}
+		});
+
+		Button disableButton = new Button(composite, SWT.PUSH);
+		disableButton.setText("disable");
+		disableButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						log("diabling");
+						try {
+							JointJSDemo.this.jointjs.setEnabled(false);
+						} catch (Exception e) {
+							log(e.toString());
+						}
+						log("disabled");
+					}
+				}).start();
+			}
+		});
 	}
 
 	@Override
@@ -223,6 +263,11 @@ public class JointJSDemo extends AbstractDemo {
 			@Override
 			public void linkTitleChanged(String id, String title) {
 				log("link title changed: " + id + " = " + title);
+			}
+
+			@Override
+			public void hovered(String id, boolean hoveredIn) {
+				log("hovered " + (hoveredIn ? "in" : "out") + ": " + id);
 			}
 		});
 

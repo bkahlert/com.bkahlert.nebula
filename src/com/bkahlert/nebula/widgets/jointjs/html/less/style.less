@@ -9,6 +9,20 @@ html, body, .jointjs {
     height: 100%;
 }
 
+// set via setEnabled
+body.disabled {
+	&:before {
+		z-index: 999999; // also filters all click events
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(1,1,1,.088);
+	}
+}
+
 .jointjs {
 	.html-view, svg {
 		position: absolute;

@@ -89,6 +89,14 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			return JSON.stringify(json);
 		},
 		
+		setEnabled: function (enabled) {
+			if(enabled) {
+				$('body').removeClass('disabled');
+			} else {
+				$('body').addClass('disabled');
+			}
+		},
+		
 		getTitle: function() {
 			return $('.title').text();
 		},
