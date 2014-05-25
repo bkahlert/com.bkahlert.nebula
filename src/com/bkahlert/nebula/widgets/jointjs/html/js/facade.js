@@ -31,7 +31,8 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			com.bkahlert.jointjs.activateZoomControls();
 			com.bkahlert.jointjs.activatePanCapability(com.bkahlert.jointjs.paper);
 			com.bkahlert.jointjs.activateLinkCreationCapability(com.bkahlert.jointjs.graph, com.bkahlert.jointjs.paper);
-			com.bkahlert.jointjs.activateLinkTextChangeCapability();
+			com.bkahlert.jointjs.activateLinkTools();
+			com.bkahlert.jointjs.activateSelections();
 			
 			var internal = /[?&]internal=true/.test(location.href);
 			if (!internal) {
@@ -124,7 +125,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
         },
 
 		openDemo: function () {
-			$('<div class="buttons"></div>').appendTo('body').css({
+			$('<div class="buttons" style="z-index: 9999999"></div>').appendTo('body').css({
 				position: 'absolute',
 				top: 0,
 				right: 0
@@ -162,6 +163,12 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 				console.log(com.bkahlert.jointjs.getNodes());
 				console.log(com.bkahlert.jointjs.getLinks());
 				console.log(com.bkahlert.jointjs.getPermanentLinks());
+			}))
+			.append($('<button>Enable</button>').click(function () {
+				com.bkahlert.jointjs.setEnabled(true);
+			}))
+			.append($('<button>Disable</button>').click(function () {
+				com.bkahlert.jointjs.setEnabled(false);
 			}))
 			.append($('<button>Custom</button>').click(function () {
 				var x = {"cells":[{"type":"html.Element","position":{"x":270,"y":142},"size":{"width":"242","height":"30"},"angle":"0","id":"sua://code/-9223372036854775640","content":"","title":"Offensichtliche Usability-Probleme","z":"0","color":"rgb(0, 0, 0)","background-color":"rgba(255, 102, 102, 0.27450980392156865)","border-color":"rgba(255, 48, 48, 0.39215686274509803)","attrs":{}}],"title":"New Model","zoom":"1","pan":{"x":"0","y":"0"}};
@@ -334,6 +341,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
         
         activatePanCapability: function(paper) {
         	paper.on('blank:pointerdown', function(e) {
+        		if(e.which != 1) return;
         		com.bkahlert.jointjs.mouseX = e.offsetX;
         		com.bkahlert.jointjs.mouseY = e.offsetY;
 				com.bkahlert.jointjs.mousePan($(this.viewport).parents('svg'), true);
@@ -398,7 +406,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			);
 		},
 		
-		activateLinkTextChangeCapability: function() {
+		activateLinkTools: function() {
 			$(document).on('mouseenter', '.link[model-id]:not(.permanent)', function() {
 				com.bkahlert.jointjs.showTextChangePopup($(this).attr('model-id'));
 			}).on('mouseleave', '.link[model-id]', function() {
@@ -452,6 +460,20 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 				var title = $('#linkTitle').val();
 				$el.popover('destroy');
 				com.bkahlert.jointjs.setText(id, 0, title);
+			}
+		},
+		
+		activateSelections: function() {
+			var $d = $(document);
+			if (typeof window.__cellHoveredOver === 'function') {
+				$d.on('mouseenter', '[model-id]', function() {
+					window.__cellHoveredOver($(this).attr('model-id'));
+				});
+			}
+			if (typeof window.__cellHoveredOut === 'function') {
+				$d.on('mouseleave', '[model-id]', function() {
+					window.__cellHoveredOut($(this).attr('model-id'));
+				});
 			}
 		},
 		

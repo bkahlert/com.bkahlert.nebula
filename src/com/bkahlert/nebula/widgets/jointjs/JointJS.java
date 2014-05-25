@@ -9,6 +9,13 @@ import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
@@ -26,7 +33,7 @@ import com.bkahlert.nebula.widgets.browser.BrowserUtils;
  * @author bkahlert
  * 
  */
-public class JointJS extends Browser {
+public class JointJS extends Browser implements ISelectionProvider {
 
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(JointJS.class);
@@ -37,9 +44,14 @@ public class JointJS extends Browser {
 		public void save(String json);
 
 		public void linkTitleChanged(String id, String title);
+
+		public void hovered(String id, boolean hoveredIn);
 	}
 
 	private final List<IJointJSListener> jointJSListeners = new ArrayList<IJointJSListener>();
+
+	private final ListenerList selectionChangedListeners = new ListenerList();
+	private ISelection selection = null;
 
 	private String nodeCreationPrefix;
 	private String linkCreationPrefix;
@@ -103,6 +115,40 @@ public class JointJS extends Browser {
 			}
 		};
 
+		new BrowserFunction(this.getBrowser(), "__cellHoveredOver") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length == 1) {
+					String id = (String) arguments[0];
+					JointJS.this.selection = new StructuredSelection(id);
+					JointJS.this
+							.fireSelectionChanged(new SelectionChangedEvent(
+									JointJS.this, JointJS.this.selection));
+					for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
+						jointJSListener.hovered(id, true);
+					}
+				}
+				return null;
+			}
+		};
+
+		new BrowserFunction(this.getBrowser(), "__cellHoveredOut") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length == 1) {
+					String id = (String) arguments[0];
+					JointJS.this.selection = new StructuredSelection();
+					JointJS.this
+							.fireSelectionChanged(new SelectionChangedEvent(
+									JointJS.this, JointJS.this.selection));
+					for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
+						jointJSListener.hovered(id, false);
+					}
+				}
+				return null;
+			}
+		};
+
 		this.open(BrowserUtils.getFileUrl(JointJS.class, "html/index.html",
 				"?internal=true"), 60000);
 	}
@@ -116,6 +162,13 @@ public class JointJS extends Browser {
 	public Future<String> save() {
 		return this.run("return com.bkahlert.jointjs.save();",
 				IConverter.CONVERTER_STRING);
+	}
+
+	@Override
+	public void setEnabled(boolean isEnabled) {
+		this.run("return com.bkahlert.jointjs.setEnabled("
+				+ (isEnabled ? "true" : "false") + ");",
+				IConverter.CONVERTER_BOOLEAN);
 	}
 
 	public Future<String> getTitle() {
@@ -355,6 +408,50 @@ public class JointJS extends Browser {
 
 	public void removeImageListener(IJointJSListener jointJSListener) {
 		this.jointJSListeners.remove(jointJSListener);
+	}
+
+	@Override
+	public void addSelectionChangedListener(ISelectionChangedListener listener) {
+		this.selectionChangedListeners.add(listener);
+	}
+
+	@Override
+	public ISelection getSelection() {
+		return this.selection;
+	}
+
+	@Override
+	public void removeSelectionChangedListener(
+			ISelectionChangedListener listener) {
+		this.selectionChangedListeners.remove(listener);
+	}
+
+	@Override
+	public void setSelection(ISelection selection) {
+		return;
+	}
+
+	/**
+	 * Notifies any selection changed listeners that the viewer's selection has
+	 * changed. Only listeners registered at the time this method is called are
+	 * notified.
+	 * 
+	 * @param event
+	 *            a selection changed event
+	 * 
+	 * @see ISelectionChangedListener#selectionChanged
+	 */
+	protected void fireSelectionChanged(final SelectionChangedEvent event) {
+		Object[] listeners = this.selectionChangedListeners.getListeners();
+		for (int i = 0; i < listeners.length; ++i) {
+			final ISelectionChangedListener l = (ISelectionChangedListener) listeners[i];
+			SafeRunnable.run(new SafeRunnable() {
+				@Override
+				public void run() {
+					l.selectionChanged(event);
+				}
+			});
+		}
 	}
 
 }
