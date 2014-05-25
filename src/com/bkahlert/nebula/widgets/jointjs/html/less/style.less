@@ -1,6 +1,8 @@
 @import "../lib/bootstrap/less/bootstrap.less";
 @import "../lib/jointjs/joint.css";
 
+@icon-font-path: "../lib/bootstrap/fonts/";
+
 html, body, .jointjs {
     margin: 0;
     overflow: hidden;
@@ -91,8 +93,7 @@ body.disabled {
     }
 	
 	&.permanent {
-		.tool-remove,
-		.link-tools,
+		.link-tools .tool-remove,
 		.marker-arrowheads {
 			visibility: hidden;
 		}
