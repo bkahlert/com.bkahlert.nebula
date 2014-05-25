@@ -22,4 +22,19 @@ public class JSONUtilsTest {
 		String jsonStr2 = JSONUtils.buildJson(jsonObj);
 		assertEquals(jsonStr, jsonStr2);
 	}
+
+	@Test
+	public void testEncoding() throws Exception {
+		String text = "ÄÖÜäöüß";
+		String jsonStr = "{\"text\":\"" + text + "\"}";
+
+		Object jsonObj = JSONUtils.parseJson(jsonStr);
+		@SuppressWarnings("unchecked")
+		String jsonText = (String) ((HashMap<Object, Object>) jsonObj)
+				.get("text");
+		assertEquals(text, jsonText);
+
+		String jsonStr2 = JSONUtils.buildJson(jsonObj);
+		assertEquals(jsonStr, jsonStr2);
+	}
 }
