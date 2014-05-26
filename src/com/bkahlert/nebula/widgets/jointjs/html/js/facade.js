@@ -27,6 +27,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 				elementView: joint.shapes.html.ElementView,
 				linkView: joint.shapes.LinkView
 			});
+			com.bkahlert.jointjs.setTitle(null);
 			
 			com.bkahlert.jointjs.activateZoomControls();
 			com.bkahlert.jointjs.activatePanCapability(com.bkahlert.jointjs.paper);
@@ -103,7 +104,8 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		},
 		
 		setTitle: function(title) {
-			$('.title').text(title);
+			var visible = title && title.trim() != "";
+			$('.title').text(title).css("display", visible ? "block" : "none");
 		},
 
 		autoLayout: function () {

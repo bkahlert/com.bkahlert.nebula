@@ -5839,6 +5839,9 @@ body.disabled:before {
 .title input {
   width: 100% !important;
 }
+.title:empty {
+  display: none;
+}
 .popover {
   position: absolute;
 }
