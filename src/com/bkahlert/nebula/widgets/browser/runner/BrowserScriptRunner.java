@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
@@ -101,6 +102,7 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 
 	private final org.eclipse.swt.browser.Browser browser;
 	private BrowserStatus browserStatus;
+	private boolean isDisposing = false;
 
 	private final OffWorker delayedScriptsWorker = new OffWorker(
 			this.getClass(), "Script Runner");
@@ -180,6 +182,8 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 			this.delayedScriptsWorker.finish();
 			break;
 		case CANCELLED:
+			// Execution of the started scripts won't take place because of a
+			// check of the browser status
 			this.delayedScriptsWorker.start();
 			this.delayedScriptsWorker.finish();
 			break;
@@ -341,8 +345,11 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 					case LOADED:
 						return ExecUtils.syncExec(scriptRunner);
 					case CANCELLED:
+						Exception innerException = BrowserScriptRunner.this.isDisposing ? new SWTException(
+								SWT.ERROR_WIDGET_DISPOSED)
+								: new BrowserTimeoutException();
 						throw new ScriptExecutionException(script,
-								new BrowserTimeoutException());
+								innerException);
 					default:
 						throw new ScriptExecutionException(script,
 								new UnexpectedBrowserStateException(
@@ -359,9 +366,10 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 				return new CompletedFuture<DEST>(null, e);
 			}
 		case CANCELLED:
+			Exception innerException = this.isDisposing ? new SWTException(
+					SWT.ERROR_WIDGET_DISPOSED) : new BrowserTimeoutException();
 			return new CompletedFuture<DEST>(null,
-					new ScriptExecutionException(script,
-							new BrowserTimeoutException()));
+					new ScriptExecutionException(script, innerException));
 		default:
 			return new CompletedFuture<DEST>(null,
 					new ScriptExecutionException(script,
@@ -394,9 +402,22 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 
 	@Override
 	public void dispose() {
-		if (this.delayedScriptsWorker != null
-				&& !this.delayedScriptsWorker.isShutdown()) {
-			this.delayedScriptsWorker.shutdown();
+		if (this.isDisposing) {
+			return;
+		}
+		this.isDisposing = true;
+		if (this.delayedScriptsWorker != null) {
+			this.delayedScriptsWorker.submit(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					if (!BrowserScriptRunner.this.delayedScriptsWorker
+							.isShutdown()) {
+						BrowserScriptRunner.this.delayedScriptsWorker
+								.shutdown();
+					}
+					return null;
+				}
+			});
 		}
 	};
 }

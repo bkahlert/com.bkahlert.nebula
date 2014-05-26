@@ -229,7 +229,14 @@ public class Browser extends Composite implements IBrowser {
 		this.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				Browser.this.browserScriptRunner.dispose();
+				synchronized (Browser.this.monitor) {
+					if (Browser.this.browserScriptRunner.getBrowserStatus() == BrowserStatus.LOADING) {
+						Browser.this.browserScriptRunner
+								.setBrowserStatus(BrowserStatus.CANCELLED);
+					}
+					Browser.this.browserScriptRunner.dispose();
+					Browser.this.monitor.notifyAll();
+				}
 			}
 		});
 	}
