@@ -436,7 +436,7 @@ public class Browser extends Composite implements IBrowser {
 								LOGGER.debug("Successfully loaded " + uri);
 								break;
 							case CANCELLED:
-								LOGGER.error("Aborted loading " + uri
+								LOGGER.debug("Aborted loading " + uri
 										+ " due to timeout");
 								break;
 							default:
