@@ -48,6 +48,26 @@ public class JointJS extends Browser implements ISelectionProvider {
 		public void hovered(String id, boolean hoveredIn);
 	}
 
+	public static class JointJSListener implements IJointJSListener {
+
+		@Override
+		public void loaded(String json) {
+		}
+
+		@Override
+		public void save(String json) {
+		}
+
+		@Override
+		public void linkTitleChanged(String id, String title) {
+		}
+
+		@Override
+		public void hovered(String id, boolean hoveredIn) {
+		}
+
+	}
+
 	private final List<IJointJSListener> jointJSListeners = new ArrayList<IJointJSListener>();
 
 	private final ListenerList selectionChangedListeners = new ListenerList();
@@ -429,7 +449,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 		this.jointJSListeners.add(jointJSListener);
 	}
 
-	public void removeImageListener(IJointJSListener jointJSListener) {
+	public void removeJointJSListener(IJointJSListener jointJSListener) {
 		this.jointJSListeners.remove(jointJSListener);
 	}
 

@@ -99,7 +99,6 @@ public class BrowserPasteHandler extends AbstractHandler {
 				Browser browser = (Browser) swtBrowser.getParent();
 				return this.paste(browser);
 			}
-			System.err.println(swtBrowser);
 		}
 		return null;
 	}
