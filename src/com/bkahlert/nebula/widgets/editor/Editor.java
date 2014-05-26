@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusAdapter;
@@ -28,6 +29,7 @@ import com.bkahlert.nebula.utils.EventDelegator;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.NamedJob;
 import com.bkahlert.nebula.utils.colors.RGB;
+import com.bkahlert.nebula.widgets.browser.exception.BrowserTimeoutException;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.composer.Composer;
@@ -263,8 +265,19 @@ public abstract class Editor<T> extends Composite {
 							}
 						});
 					} catch (Exception e) {
-						LOGGER.error("Error while loading content of "
-								+ objectToLoad, e);
+						boolean log = true;
+						if (e.getCause() != null
+								&& e.getCause().getCause() != null) {
+							Throwable cause = e.getCause().getCause();
+							if (cause.getClass() == BrowserTimeoutException.class
+									|| cause.getClass() == SWTException.class) {
+								log = false;
+							}
+						}
+						if (log) {
+							LOGGER.error("Error while loading content of "
+									+ objectToLoad, e);
+						}
 						Editor.this.loadedObject = null;
 						return Status.CANCEL_STATUS;
 					}
