@@ -185,6 +185,8 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			com.bkahlert.jointjs.setText(linkid, 0, 'my_label');
 			com.bkahlert.jointjs.setText('sua://test2', 'content', 'XN dskjd sdkds dskdsdjks dskj ');
 			com.bkahlert.jointjs.setSize(c, 300, 100);
+			console.log(com.bkahlert.jointjs.getConnectedLinks('sua://test2'));
+			console.log(com.bkahlert.jointjs.getConnectedPermanentLinks('sua://test2'));
 			window.setTimeout(function() {
 				com.bkahlert.jointjs.setPosition(c, 500, 500);
 			}, 1000);
@@ -291,6 +293,24 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		getPermanentLinks: function() {
 			var links = [];
 			_.each(com.bkahlert.jointjs.graph.getLinks(), function(link) {
+				if(link.get('permanent')) links.push(link.id);
+			});
+			return links;
+		},
+		
+		getConnectedLinks: function(id) {
+			var cell = com.bkahlert.jointjs.graph.getCell(id);
+			var links = [];
+			_.each(com.bkahlert.jointjs.graph.getConnectedLinks(cell, {}), function(link) {
+				if(!link.get('permanent')) links.push(link.id);
+			});
+			return links;
+		},
+		
+		getConnectedPermanentLinks: function(id) {
+			var cell = com.bkahlert.jointjs.graph.getCell(id);
+			var links = [];
+			_.each(com.bkahlert.jointjs.graph.getConnectedLinks(cell, {}), function(link) {
 				if(link.get('permanent')) links.push(link.id);
 			});
 			return links;

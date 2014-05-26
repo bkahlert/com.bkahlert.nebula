@@ -367,6 +367,17 @@ public class JointJS extends Browser implements ISelectionProvider {
 				IConverter.CONVERTER_STRINGLIST);
 	}
 
+	public Future<List<String>> getConnectedLinks(String id) {
+		return this.run("return com.bkahlert.jointjs.getConnectedLinks(\"" + id
+				+ "\");", IConverter.CONVERTER_STRINGLIST);
+	}
+
+	public Future<List<String>> getConnectedPermanentLinks(String id) {
+		return this.run(
+				"return com.bkahlert.jointjs.getConnectedPermanentLinks(\""
+						+ id + "\");", IConverter.CONVERTER_STRINGLIST);
+	}
+
 	public Future<Double> getZoom() {
 		return this.run("return com.bkahlert.jointjs.getZoom();",
 				IConverter.CONVERTER_DOUBLE);
