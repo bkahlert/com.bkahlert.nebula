@@ -56,6 +56,11 @@ public class JointJS extends Browser implements ISelectionProvider {
 	private String nodeCreationPrefix;
 	private String linkCreationPrefix;
 
+	public JointJS(Composite parent, int style, String nodeCreationPrefix,
+			String linkCreationPrefix) {
+		this(parent, style, nodeCreationPrefix, linkCreationPrefix, null);
+	}
+
 	/**
 	 * 
 	 * @param parent
@@ -66,9 +71,13 @@ public class JointJS extends Browser implements ISelectionProvider {
 	 * @param linkCreationPrefix
 	 *            prefix used if a link is created but no id was passed. The
 	 *            prefix is put in front of the automatically generated id.
+	 * @param selectionConverter
+	 *            converts the model id string to a type of your choice before
+	 *            firing it as an selection
 	 */
 	public JointJS(Composite parent, int style, String nodeCreationPrefix,
-			String linkCreationPrefix) {
+			String linkCreationPrefix,
+			final IConverter<String, ?> selectionConverter) {
 		super(parent, style);
 		this.deactivateNativeMenu();
 
@@ -120,7 +129,10 @@ public class JointJS extends Browser implements ISelectionProvider {
 			public Object function(Object[] arguments) {
 				if (arguments.length == 1) {
 					String id = (String) arguments[0];
-					JointJS.this.selection = new StructuredSelection(id);
+					Object selectedItem = selectionConverter != null ? selectionConverter
+							.convert(id) : id;
+					JointJS.this.selection = selectedItem != null ? new StructuredSelection(
+							selectedItem) : new StructuredSelection();
 					JointJS.this
 							.fireSelectionChanged(new SelectionChangedEvent(
 									JointJS.this, JointJS.this.selection));
