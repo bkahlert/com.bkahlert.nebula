@@ -518,7 +518,7 @@ public final class JSONUtils {
 	 */
 	public static String enquote(String s) {
 		if (s == null) {
-			return null;
+			return "null";
 		}
 
 		StringBuffer sb = new StringBuffer();
