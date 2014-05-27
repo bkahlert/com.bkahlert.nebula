@@ -3,15 +3,11 @@ package com.bkahlert.nebula.widgets.browser.extended.extensions;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 
-import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 
-import com.bkahlert.nebula.utils.ExecUtils;
-import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.widgets.browser.IBrowser;
 
 /**
@@ -30,55 +26,12 @@ import com.bkahlert.nebula.widgets.browser.IBrowser;
  */
 public class BrowserExtension implements IBrowserExtension {
 
-	private static final Logger LOGGER = Logger
-			.getLogger(BrowserExtension.class);
-
 	private final String name;
 	private final String verificationScript;
-	private final File[] jsExtensions;
-	private final URI[] cssExtensions;
+	private final List<File> jsExtensions;
+	private final List<URI> cssExtensions;
 
 	private final List<Class<? extends IBrowserExtension>> dependencies;
-
-	/**
-	 * This constructor allows adding a single JS file.
-	 * 
-	 * @param name
-	 * @param verificationScript
-	 * @param jsExtensions
-	 * @param arrayList
-	 */
-	public BrowserExtension(String name, String verificationScript,
-			File jsExtension,
-			ArrayList<Class<? extends IBrowserExtension>> dependencies) {
-		Assert.isLegal(name != null && verificationScript != null
-				&& jsExtension != null);
-		this.name = name;
-		this.verificationScript = verificationScript;
-		this.jsExtensions = new File[] { jsExtension };
-		this.cssExtensions = new URI[0];
-		this.dependencies = dependencies;
-	}
-
-	/**
-	 * This constructor allows adding a single JS and a single CSS file.
-	 * 
-	 * @param name
-	 * @param verificationScript
-	 * @param jsExtensions
-	 * @param arrayList
-	 */
-	public BrowserExtension(String name, String verificationScript,
-			File jsExtension, URI cssExtension,
-			ArrayList<Class<? extends IBrowserExtension>> dependencies) {
-		Assert.isLegal(name != null && verificationScript != null
-				&& jsExtension != null && cssExtension != null);
-		this.name = name;
-		this.verificationScript = verificationScript;
-		this.jsExtensions = new File[] { jsExtension };
-		this.cssExtensions = new URI[] { cssExtension };
-		this.dependencies = dependencies;
-	}
 
 	/**
 	 * This constructor allows adding a multiple JS and CSS files.
@@ -89,86 +42,46 @@ public class BrowserExtension implements IBrowserExtension {
 	 * @param arrayList
 	 */
 	public BrowserExtension(String name, String verificationScript,
-			File[] jsExtensions, URI[] cssExtensions,
+			List<File> jsExtensions, List<URI> cssExtensions,
 			ArrayList<Class<? extends IBrowserExtension>> dependencies) {
-		Assert.isLegal(name != null && verificationScript != null
-				&& jsExtensions != null && cssExtensions != null);
+		Assert.isLegal(name != null && verificationScript != null);
 		this.name = name;
 		this.verificationScript = verificationScript;
-		this.jsExtensions = jsExtensions;
-		this.cssExtensions = cssExtensions;
-		this.dependencies = dependencies;
+		this.jsExtensions = Collections
+				.unmodifiableList(jsExtensions != null ? new ArrayList<File>(
+						jsExtensions) : new ArrayList<File>(0));
+		this.cssExtensions = Collections
+				.unmodifiableList(cssExtensions != null ? new ArrayList<URI>(
+						cssExtensions) : new ArrayList<URI>(0));
+		this.dependencies = Collections
+				.unmodifiableList(dependencies != null ? new ArrayList<Class<? extends IBrowserExtension>>(
+						dependencies)
+						: new ArrayList<Class<? extends IBrowserExtension>>(0));
 	}
 
 	@Override
-	public Boolean hasExtension(IBrowser browser) throws Exception {
-		return browser.runImmediately(this.verificationScript,
-				IConverter.CONVERTER_BOOLEAN);
+	public String getName() {
+		return this.name;
 	}
 
 	@Override
-	public Future<Boolean> addExtension(final IBrowser browser) {
-		return ExecUtils.nonUISyncExec(BrowserExtension.class,
-				"Adding Extension", new Callable<Boolean>() {
-					@Override
-					public Boolean call() throws Exception {
-						if (BrowserExtension.this.dependencies != null) {
-							for (Class<? extends IBrowserExtension> dependencyClass : BrowserExtension.this.dependencies) {
-								try {
-									IBrowserExtension dependency = dependencyClass
-											.newInstance();
-									if (!dependency.addExtensionOnce(browser)
-											.get()) {
-										LOGGER.error("Dependency "
-												+ dependency
-												+ " could not be loaded. Still trying to add extension "
-												+ BrowserExtension.this);
-									}
-								} catch (Exception e) {
-									LOGGER.warn(
-											"Cannot instantiate dependency "
-													+ dependencyClass
-															.getSimpleName()
-													+ ". Skipping.", e);
-								}
-							}
-						}
-
-						boolean success = true;
-						for (File jsExtension : BrowserExtension.this.jsExtensions) {
-							try {
-								browser.runImmediately(jsExtension);
-							} catch (Exception e) {
-								LOGGER.error(
-										"Could not load the JS extension \""
-												+ BrowserExtension.this.name
-												+ "\".", e);
-								success = false;
-							}
-						}
-
-						for (URI cssExtension : BrowserExtension.this.cssExtensions) {
-							browser.injectCssFile(cssExtension);
-						}
-
-						return success;
-					}
-				});
+	public String getVerificationScript() {
+		return this.verificationScript;
 	}
 
 	@Override
-	public Future<Boolean> addExtensionOnce(final IBrowser browser) {
-		return ExecUtils.nonUISyncExec(BrowserExtension.class,
-				"Adding Extension Once", new Callable<Boolean>() {
-					@Override
-					public Boolean call() throws Exception {
-						if (!BrowserExtension.this.hasExtension(browser)) {
-							return BrowserExtension.this.addExtension(browser)
-									.get();
-						}
-						return true;
-					}
-				});
+	public List<File> getJsExtensions() {
+		return this.jsExtensions;
+	}
+
+	@Override
+	public List<URI> getCssExtensions() {
+		return this.cssExtensions;
+	}
+
+	@Override
+	public List<Class<? extends IBrowserExtension>> getDependencies() {
+		return this.dependencies;
 	}
 
 }

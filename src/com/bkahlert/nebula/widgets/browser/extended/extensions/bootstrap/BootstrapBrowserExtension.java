@@ -15,10 +15,12 @@ public class BootstrapBrowserExtension extends BrowserExtension {
 		super(
 				"Bootstrap 3.0.0",
 				"return (typeof jQuery !== 'undefined') && (typeof $().modal == 'function');",
-				BrowserUtils.getFile(BootstrapBrowserExtension.class,
-						"bootstrap/js/bootstrap.min.js"), BrowserUtils
-						.getFileUrl(BootstrapBrowserExtension.class,
-								"bootstrap/css/bootstrap.min.css"),
+				Arrays.asList(BrowserUtils.getFile(
+						BootstrapBrowserExtension.class,
+						"bootstrap/js/bootstrap.min.js")), Arrays
+						.asList(BrowserUtils.getFileUrl(
+								BootstrapBrowserExtension.class,
+								"bootstrap/css/bootstrap.min.css")),
 				new ArrayList<Class<? extends IBrowserExtension>>(
 						Arrays.asList(JQueryBrowserExtension.class)));
 	}

@@ -1,5 +1,6 @@
 package com.bkahlert.nebula.widgets.browser.extended;
 
+import java.io.File;
 import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -8,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.widgets.browser.Browser;
 import com.bkahlert.nebula.widgets.browser.IBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.extensions.IBrowserExtension;
@@ -36,27 +38,74 @@ public class ExtendedBrowser extends Browser implements IBrowser {
 	@Override
 	public Future<Void> beforeCompletion(String uri) {
 		/*
-		 * TODO FIX BUG: afterCompletion is called after the pageLoadScript. Two
-		 * problems can occur: (1) pageLoadNeeds to access something loaded
-		 * through extensions; (2) queued scripts get executed before extensions
-		 * are loaded
+		 * TODO FIX BUG: afterCompletion is called after the DOMReady scripts.
+		 * PageLoad might need to access something loaded through extensions.
 		 */
-		return ExecUtils.nonUIAsyncExec(ExtendedBrowser.class,
-				"After Completion Extensions", new Callable<Void>() {
-					@Override
-					public Void call() throws Exception {
-						for (IBrowserExtension extension : ExtendedBrowser.this.extensions) {
-							try {
-								if (!extension.addExtensionOnce(
-										ExtendedBrowser.this).get()) {
-									LOGGER.error("Error loading " + extension);
-								}
-							} catch (Exception e) {
-								LOGGER.error(e);
-							}
+		return ExecUtils.asyncExec(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				for (IBrowserExtension extension : ExtendedBrowser.this.extensions) {
+					try {
+						if (!ExtendedBrowser.this.addExtensionOnce(extension)) {
+							LOGGER.error("Error loading " + extension);
 						}
-						return null;
+					} catch (Exception e) {
+						LOGGER.error(e);
 					}
-				});
+				}
+				return null;
+			}
+		});
+	}
+
+	private Boolean hasExtension(IBrowserExtension extension) throws Exception {
+		return this.runImmediately(extension.getVerificationScript(),
+				IConverter.CONVERTER_BOOLEAN);
+	}
+
+	private Boolean addExtension(IBrowserExtension extension) {
+		for (Class<? extends IBrowserExtension> dependencyClass : extension
+				.getDependencies()) {
+			try {
+				IBrowserExtension dependency = dependencyClass.newInstance();
+				if (!this.addExtension(dependency)) {
+					LOGGER.error("Dependency "
+							+ dependency.getName()
+							+ " could not be loaded. Still trying to add extension "
+							+ extension.getName());
+				}
+			} catch (Exception e) {
+				LOGGER.warn(
+						"Cannot instantiate dependency "
+								+ dependencyClass.getSimpleName()
+								+ ". Skipping.", e);
+			}
+		}
+
+		boolean success = true;
+		for (File jsExtension : extension.getJsExtensions()) {
+			try {
+				this.runImmediately(jsExtension);
+			} catch (Exception e) {
+				LOGGER.error(
+						"Could not load the JS extension \""
+								+ extension.getName() + "\".", e);
+				success = false;
+			}
+		}
+
+		for (URI cssExtension : extension.getCssExtensions()) {
+			this.injectCssFile(cssExtension);
+		}
+
+		return success;
+	}
+
+	private Boolean addExtensionOnce(IBrowserExtension extension)
+			throws Exception {
+		if (!this.hasExtension(extension)) {
+			return this.addExtension(extension);
+		}
+		return true;
 	}
 }

@@ -1,13 +1,14 @@
 package com.bkahlert.nebula.widgets.browser.extended.extensions;
 
-import java.util.concurrent.Future;
+import java.io.File;
+import java.net.URI;
+import java.util.List;
 
 import com.bkahlert.nebula.widgets.browser.IBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.ExtendedBrowser;
 
 /**
- * Interface for extension that can be used with
- * {@link ExtendedBrowser}s.
+ * Interface for extension that can be used with {@link ExtendedBrowser}s.
  * <p>
  * Examples are jQuery and Bootstrap.
  * 
@@ -17,35 +18,39 @@ import com.bkahlert.nebula.widgets.browser.extended.ExtendedBrowser;
 public interface IBrowserExtension {
 
 	/**
-	 * Checks if this extension is already loaded.
+	 * Returns this extension's name.
 	 * 
-	 * @param extendedBrowserComposite
-	 * @return true if this extension is already loaded.
-	 * @throws Exception
-	 */
-	public Boolean hasExtension(IBrowser extendedBrowserComposite)
-			throws Exception;
-
-	/**
-	 * Loads this extension independently of its current loading state.
-	 * <p>
-	 * Check {@link #hasExtension(IExtendedBrowserComposite)} if you don't want
-	 * to load this extension twice or use
-	 * {@link #addExtensionOnce(IExtendedBrowserComposite)}.
-	 * 
-	 * @param extendedBrowserComposite
 	 * @return
 	 */
-	public Future<Boolean> addExtension(
-			IBrowser extendedBrowserComposite);
+	public String getName();
 
 	/**
-	 * Loads this extension if not already loaded.
+	 * Returns the script that must return a boolean which tells if the
+	 * {@link IBrowser} had loaded the extensions successfully.
 	 * 
-	 * @param extendedBrowserComposite
 	 * @return
 	 */
-	public Future<Boolean> addExtensionOnce(
-			IBrowser extendedBrowserComposite);
+	public String getVerificationScript();
+
+	/**
+	 * Returns the paths to the JS files that make up this extension.
+	 * 
+	 * @return immutable list that is never <code>null</code>
+	 */
+	public List<File> getJsExtensions();
+
+	/**
+	 * Returns the paths to the CSS files that make up this extension.
+	 * 
+	 * @return immutable list that is never <code>null</code>
+	 */
+	public List<URI> getCssExtensions();
+
+	/**
+	 * Returns the {@link IBrowserExtension}s this extension requires.
+	 * 
+	 * @return immutable list that is never <code>null</code>
+	 */
+	public List<Class<? extends IBrowserExtension>> getDependencies();
 
 }
