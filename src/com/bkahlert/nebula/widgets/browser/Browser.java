@@ -2,12 +2,12 @@ package com.bkahlert.nebula.widgets.browser;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -463,10 +463,14 @@ public class Browser extends Composite implements IBrowser {
 	}
 
 	@Override
-	public Future<Boolean> openAboutBlank() {
+	public Future<Boolean> openBlank() {
 		try {
-			return this.open(new URI("about:blank"), 5000);
-		} catch (URISyntaxException e) {
+			File empty = File.createTempFile("blank", ".html");
+			FileUtils.writeStringToFile(empty,
+					"<html><head></head><body></body></html>", "UTF-8");
+			return this.open(new URI("file://" + empty.getAbsolutePath()),
+					60000);
+		} catch (Exception e) {
 			return new CompletedFuture<Boolean>(false, e);
 		}
 	}

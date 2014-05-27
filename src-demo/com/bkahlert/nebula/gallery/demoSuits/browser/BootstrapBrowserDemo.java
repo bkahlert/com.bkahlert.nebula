@@ -97,7 +97,7 @@ public class BootstrapBrowserDemo extends AbstractDemo {
 				log("RETN: " + returnValue);
 			}
 		};
-		final Future<Boolean> loaded = this.bootstrapBrowser.openAboutBlank();
+		final Future<Boolean> loaded = this.bootstrapBrowser.openBlank();
 		this.bootstrapBrowser.addAnkerListener(new IAnkerListener() {
 			@Override
 			public void ankerHovered(IAnker anker, boolean entered) {

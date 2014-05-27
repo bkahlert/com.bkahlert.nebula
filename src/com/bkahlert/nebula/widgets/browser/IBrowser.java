@@ -88,7 +88,7 @@ public interface IBrowser extends IBrowserScriptRunner, IWidget {
 	 * @return true if page could be successfully loaded; false if an error
 	 *         occurred
 	 */
-	public Future<Boolean> openAboutBlank();
+	public Future<Boolean> openBlank();
 
 	/**
 	 * Sets if {@link IBrowser} may change its location by actions now invoked

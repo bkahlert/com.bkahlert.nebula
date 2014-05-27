@@ -1,5 +1,6 @@
 package com.bkahlert.nebula.widgets.browser.exception;
 
+import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 
 public class ScriptExecutionException extends Exception {
 
@@ -10,7 +11,7 @@ public class ScriptExecutionException extends Exception {
 	}
 
 	public ScriptExecutionException(String script, Throwable e) {
-		super("Could not run script: " + script, e);
+		super("Could not run script: " + BrowserUtils.shortenScript(script), e);
 	}
 
 }
