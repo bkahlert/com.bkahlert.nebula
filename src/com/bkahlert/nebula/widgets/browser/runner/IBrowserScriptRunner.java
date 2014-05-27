@@ -127,12 +127,6 @@ public interface IBrowserScriptRunner {
 	/**
 	 * Runs the given script in the browser immediately and returns the
 	 * evaluation's converted return value.
-	 * <p>
-	 * <strong>WARNING!<br>
-	 * The {@link Future#get()} must not be called from the UI thread without
-	 * checking {@link Future#isDone()}. Because the UI thread itself is needed
-	 * for the {@link Future} to finish its computation, calling
-	 * {@link Future#get()} before it is done results in a deadlock!</strong>.
 	 * 
 	 * @param script
 	 * @param converter

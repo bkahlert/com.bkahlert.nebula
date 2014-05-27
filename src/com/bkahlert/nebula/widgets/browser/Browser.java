@@ -326,7 +326,7 @@ public class Browser extends Composite implements IBrowser {
 									.runImmediately(pageLoadCheckScript,
 											IConverter.CONVERTER_BOOLEAN))) {
 
-						String uri = Browser.this.browser.getUrl();
+						final String uri = Browser.this.browser.getUrl();
 						final Future<Void> finished = Browser.this
 								.beforeCompletion(uri);
 						ExecUtils.nonUISyncExec(Browser.class,
