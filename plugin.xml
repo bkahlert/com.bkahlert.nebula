@@ -27,7 +27,7 @@
          point="org.eclipse.ui.views">
       <view
             class="com.bkahlert.nebula.views.SampleEditorView"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.nebula.ui.views.SampleEditorView"
+            id="com.bkahlert.nebula.ui.views.SampleEditorView"
             name="Sample Editor"
             restorable="true">
       </view>

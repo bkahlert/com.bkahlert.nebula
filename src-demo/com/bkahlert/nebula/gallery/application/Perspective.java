@@ -14,7 +14,7 @@ public class Perspective implements IPerspectiveFactory {
 			folderLayout
 					.addView("com.bkahlert.nebula.gallery.views.GalleryView");
 			folderLayout
-					.addView("de.fu_berlin.imp.seqan.usability_analyzer.nebula.ui.views.SampleEditorView");
+					.addView("com.bkahlert.nebula.ui.views.SampleEditorView");
 		}
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_1",
