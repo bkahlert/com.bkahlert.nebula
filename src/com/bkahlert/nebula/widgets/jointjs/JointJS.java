@@ -72,6 +72,8 @@ public class JointJS extends Browser implements ISelectionProvider {
 
 	private final ListenerList selectionChangedListeners = new ListenerList();
 	private ISelection selection = null;
+	private IConverter<String, ?> selectionConverter;
+	private String lastHovered = null;
 
 	private String nodeCreationPrefix;
 	private String linkCreationPrefix;
@@ -100,6 +102,8 @@ public class JointJS extends Browser implements ISelectionProvider {
 			final IConverter<String, ?> selectionConverter) {
 		super(parent, style);
 		this.deactivateNativeMenu();
+
+		this.selectionConverter = selectionConverter;
 
 		Assert.isNotNull(nodeCreationPrefix);
 		Assert.isNotNull(linkCreationPrefix);
@@ -149,16 +153,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 			public Object function(Object[] arguments) {
 				if (arguments.length == 1) {
 					String id = (String) arguments[0];
-					Object selectedItem = selectionConverter != null ? selectionConverter
-							.convert(id) : id;
-					JointJS.this.selection = selectedItem != null ? new StructuredSelection(
-							selectedItem) : new StructuredSelection();
-					JointJS.this
-							.fireSelectionChanged(new SelectionChangedEvent(
-									JointJS.this, JointJS.this.selection));
-					for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
-						jointJSListener.hovered(id, true);
-					}
+					JointJS.this.fireHoveredIn(id);
 				}
 				return null;
 			}
@@ -169,13 +164,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 			public Object function(Object[] arguments) {
 				if (arguments.length == 1) {
 					String id = (String) arguments[0];
-					JointJS.this.selection = new StructuredSelection();
-					JointJS.this
-							.fireSelectionChanged(new SelectionChangedEvent(
-									JointJS.this, JointJS.this.selection));
-					for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
-						jointJSListener.hovered(id, false);
-					}
+					JointJS.this.fireHoveredOut(id);
 				}
 				return null;
 			}
@@ -379,9 +368,13 @@ public class JointJS extends Browser implements ISelectionProvider {
 	}
 
 	public Future<Boolean> remove(String id) {
-		return this.run(
+		Future<Boolean> rt = this.run(
 				"return com.bkahlert.jointjs.removeCell('" + id + "');",
 				IConverter.CONVERTER_BOOLEAN);
+		if (id != null && id.equals(this.lastHovered)) {
+			this.fireHoveredOut(id);
+		}
+		return rt;
 	}
 
 	public Future<List<String>> getNodes() {
@@ -495,6 +488,29 @@ public class JointJS extends Browser implements ISelectionProvider {
 				}
 			});
 		}
+	}
+
+	private void fireHoveredIn(String id) {
+		this.lastHovered = id;
+		Object selectedItem = this.selectionConverter != null ? this.selectionConverter
+				.convert(id) : id;
+		JointJS.this.selection = selectedItem != null ? new StructuredSelection(
+				selectedItem) : new StructuredSelection();
+		JointJS.this.fireSelectionChanged(new SelectionChangedEvent(
+				JointJS.this, JointJS.this.selection));
+		for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
+			jointJSListener.hovered(id, true);
+		}
+	}
+
+	private void fireHoveredOut(String id) {
+		JointJS.this.selection = new StructuredSelection();
+		JointJS.this.fireSelectionChanged(new SelectionChangedEvent(
+				JointJS.this, JointJS.this.selection));
+		for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
+			jointJSListener.hovered(id, false);
+		}
+		this.lastHovered = null;
 	}
 
 }
