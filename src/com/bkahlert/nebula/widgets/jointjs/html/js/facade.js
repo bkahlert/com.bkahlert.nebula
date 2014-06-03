@@ -66,8 +66,11 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 				delete json.pan;
 			}
 			
-			com.bkahlert.jointjs.graph.fromJSON(json);
-			if(title) com.bkahlert.jointjs.setTitle(title);
+			try {
+				com.bkahlert.jointjs.graph.fromJSON(json);
+			} catch(e) {
+			}
+			com.bkahlert.jointjs.setTitle(title);
 			com.bkahlert.jointjs.setZoom(zoom);
 			com.bkahlert.jointjs.setPan(pan.x, pan.y);
 			
@@ -105,7 +108,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		
 		setTitle: function(title) {
 			var visible = title && title.trim() != "";
-			$('.title').text(title).css("display", visible ? "block" : "none");
+			$('.title').text(title || "").css("display", visible ? "block" : "none");
 		},
 
 		autoLayout: function () {
