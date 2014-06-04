@@ -706,10 +706,12 @@ public class Browser extends Composite implements IBrowser {
 	public Future<Object> pasteHtmlAtCaret(String html) {
 		String escapedHtml = this.escape(html);
 		return this
-				.run("var t,n;if(window.getSelection){t=window.getSelection();if(t.getRangeAt&&t.rangeCount){n=t.getRangeAt(0);n.deleteContents();var r=document.createElement(\"div\");r.innerHTML='"
+				.run("if(['input','textarea'].indexOf(document.activeElement.tagName.toLowerCase()) != -1) { document.activeElement.value = '"
+						+ escapedHtml
+						+ "';} else { var t,n;if(window.getSelection){t=window.getSelection();if(t.getRangeAt&&t.rangeCount){n=t.getRangeAt(0);n.deleteContents();var r=document.createElement(\"div\");r.innerHTML='"
 						+ escapedHtml
 						+ "';var i=document.createDocumentFragment(),s,o;while(s=r.firstChild){o=i.appendChild(s)}n.insertNode(i);if(o){n=n.cloneRange();n.setStartAfter(o);n.collapse(true);t.removeAllRanges();t.addRange(n)}}}else if(document.selection&&document.selection.type!=\"Control\"){document.selection.createRange().pasteHTML('"
-						+ escapedHtml + "')}");
+						+ escapedHtml + "')}}");
 	}
 
 	@Override
