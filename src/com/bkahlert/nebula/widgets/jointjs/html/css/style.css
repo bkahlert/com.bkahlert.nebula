@@ -5824,6 +5824,13 @@ body.disabled:before {
 .jointjs svg .link .marker-arrowhead-group-target {
   cursor: move !important;
 }
+.jointjs svg .link[abandoned-source] .marker-source,
+.jointjs svg .link[abandoned-target] .marker-target {
+  fill-opacity: 1;
+  fill: #f0ad4e;
+  stroke: #ec971f;
+  stroke-width: 2px;
+}
 .title {
   position: fixed;
   left: 0;

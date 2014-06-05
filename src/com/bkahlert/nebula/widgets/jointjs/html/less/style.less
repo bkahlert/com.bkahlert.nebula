@@ -58,6 +58,14 @@ body.disabled {
 		.marker-arrowhead-group-target {
 			cursor: move !important;
 		}
+		
+		&[abandoned-source] .marker-source,
+		&[abandoned-target] .marker-target {
+			fill-opacity: 1;
+			fill: darken(@brand-warning, 0%);
+			stroke: darken(@brand-warning, 10%);
+			stroke-width: 2px;
+		}
 	}
 }
 

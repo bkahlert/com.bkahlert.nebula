@@ -32,14 +32,14 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			com.bkahlert.jointjs.activateZoomControls();
 			com.bkahlert.jointjs.activatePanCapability(com.bkahlert.jointjs.paper);
 			com.bkahlert.jointjs.activateLinkCreationCapability(com.bkahlert.jointjs.graph, com.bkahlert.jointjs.paper);
+			com.bkahlert.jointjs.activateLinkAbandonCapability(com.bkahlert.jointjs.graph, com.bkahlert.jointjs.paper);
 			com.bkahlert.jointjs.activateLinkTools();
 			com.bkahlert.jointjs.activateSelections();
 			
 			var internal = /[?&]internal=true/.test(location.href);
 			if (!internal) {
 				com.bkahlert.jointjs.openDemo();
-				com.bkahlert.jointjs.autoLayout();
-				com.bkahlert.jointjs.setTitle('test');
+				com.bkahlert.jointjs.setTitle('Demo');
 			} else {
 			}
 		},
@@ -65,6 +65,36 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 				pan = json.pan;
 				delete json.pan;
 			}
+			
+			/**
+			 * JointJS stops loading links if one has an invalid source or target
+			 * Source and target are replaced with a random position in this case.
+			 */
+			function sanityCheck(json, cell, prop) {
+				if(!cell) {
+					json.cells = $(json.cells).filter(function() {
+						return sanityCheck(json, this, "source") && sanityCheck(json, this, "target");
+					});
+				} else {
+					if(cell.type == "link" && (prop == "source" || prop == "target")) {
+						var id = cell[prop].id;
+						if(id && $(json.cells).filter(function() { return this.type != "link" && this.id == id; }).length == 0) {
+							if(cell.permanent) {
+								return false;
+							} else {
+								cell[prop] = {
+									x: Math.random()*300,
+									y: Math.random()*300
+								}
+								cell["abandoned-" + prop] = true;
+							}
+						}
+					}
+					return true;
+				}
+			}
+			
+			sanityCheck(json);
 			
 			try {
 				com.bkahlert.jointjs.graph.fromJSON(json);
@@ -431,6 +461,22 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			);
 		},
 		
+		activateLinkAbandonCapability: function(graph, paper) {
+			var shiftKey = false;
+			$(document).bind('keyup keydown', function(e){shiftKey = e.shiftKey || e.metaKey});
+			
+			graph.on('change:target', 
+				function(link, pos) {
+					if(link.get('abandoned-source')) {
+						link.set('abandoned-source', false);
+					}
+					if(link.get('abandoned-target')) {
+						link.set('abandoned-target', false);
+					}
+				}
+			);
+		},
+		
 		activateLinkTools: function() {
 			$(document).on('mouseenter', '.link[model-id]:not(.permanent)', function() {
 				com.bkahlert.jointjs.showTextChangePopup($(this).attr('model-id'));
@@ -585,7 +631,28 @@ joint.shapes.LinkView = joint.dia.LinkView.extend({
         this._toolCache = tool;
 
         return this;
-    }
+    },
+    
+    initialize: function() {
+        _.bindAll(this, 'updateBox');
+        joint.dia.LinkView.prototype.initialize.apply(this, arguments);
+        this.model.on('change', this.updateBox, this);
+        this.updateBox();
+    },
+    
+    updateBox: function() {
+		if(this.model.get('abandoned-source')) {
+			$(this.el).attr('abandoned-source', true);
+		} else {
+			$(this.el).attr('abandoned-source', null);
+		}
+		
+		if(this.model.get('abandoned-target')) {
+			$(this.el).attr('abandoned-target', true);
+		} else {
+			$(this.el).attr('abandoned-target', null);
+		}
+    },
 
 });
 
