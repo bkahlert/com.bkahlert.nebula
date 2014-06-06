@@ -1,5 +1,17 @@
 return (function(){
 
+/*
+ * Forwards the events
+ * - window.resize
+ * - :focusable.focus
+ * - :focusable.blur
+ * - a.mouseenter
+ * - a.mouseleave
+ * - mousemove
+ * - mousedown
+ * - mouseup
+ */
+
 if(window["__eventsCatchInjected"]) return true;
 else window["__eventsCatchInjected"] = true;
 
@@ -10,7 +22,10 @@ if(k&&j[k]&&(e||j[k].data)||void 0!==d||"string"!=typeof b)return k||(k=i?a[h]=c
 
 var $ = window.$.noConflict(true);
 
-// selectors
+/*
+ * Allows :focusable and :visible pseudo css selectors
+ * Copied from jQuery UI
+ */
 function focusable( element, isTabIndexNotNaN ) {
 	var map, mapName, img,
 		nodeName = element.nodeName.toLowerCase();
@@ -76,22 +91,22 @@ function clone(e) {
 }
 
 window["__hoveredAnker"] = null;
-var t = null;
+var lastHoveredElement = null;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
 $(document).on("mouseenter", "a", function () {
     var r = clone(this);
     window["__hoveredAnker"] = r;
-    t = r;
+    lastHoveredElement = r;
     if (window["__mouseenter"] && typeof window["__mouseenter"]) window["__mouseenter"](r)
 });
 $(document).on("mouseleave", "a", function () {
     var r = clone(this);
-    t = null;
+    lastHoveredElement = null;
     if (window["__mouseleave"] && typeof window["__mouseleave"]) window["__mouseleave"](r)
 });
 $(document).on("click", "a", function () {
     var r = clone(this);
-    t = null;
+    lastHoveredElement = null;
     if (window["__click"] && typeof window["__click"]) window["__click"](r)
 });
 
@@ -137,9 +152,9 @@ $(document).on("blur", ":focusable", function () {
 });
 
 var n = function (e) {
-    if (t != null) {
-        var n = t;
-        t = null;
+    if (lastHoveredElement != null) {
+        var n = lastHoveredElement;
+        lastHoveredElement = null;
         if (window["__mouseleave"] && typeof window["__mouseleave"]) window["__mouseleave"](n)
     }
     if (focusElement != null) {
@@ -152,6 +167,29 @@ var n = function (e) {
 window.addEventListener("DOMSubtreeModified", n, true);
 window.addEventListener("beforeunload", n, true);
 window.addEventListener("unload", n, true);
+
+
+
+if (window["__mousemove"] && typeof window["__mousemove"]) {
+	$(document).mousemove(function(e) {
+		window["__mousemove"](event.pageX, event.pageY);
+	});
+}
+
+if (window["__mousedown"] && typeof window["__mousedown"]) {
+	$(window).mousedown(function(e) {
+		window["__mousedown"](event.pageX, event.pageY);
+	});
+}
+
+if (window["__mouseup"] && typeof window["__mouseup"]) {
+	$(window).mouseup(function(e) {
+		window["__mouseup"](event.pageX, event.pageY);
+	});
+}
+
+
+
 window["__eventCatchInjected"] = true;
 
 return true;

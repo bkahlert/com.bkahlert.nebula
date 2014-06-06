@@ -10,6 +10,7 @@ import com.bkahlert.nebula.widgets.IWidget;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.IDropListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
+import com.bkahlert.nebula.widgets.browser.listener.IMouseListener;
 import com.bkahlert.nebula.widgets.browser.runner.IBrowserScriptRunner;
 
 /**
@@ -159,6 +160,10 @@ public interface IBrowser extends IBrowserScriptRunner, IWidget {
 	public void addAnkerListener(IAnkerListener ankerListener);
 
 	public void removeAnkerListener(IAnkerListener ankerListener);
+
+	public void addMouseListener(IMouseListener mouseListener);
+
+	public void removeMouseListener(IMouseListener mouseListener);
 
 	public void addFocusListener(IFocusListener focusListener);
 

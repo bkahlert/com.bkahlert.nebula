@@ -10,6 +10,8 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
@@ -25,6 +27,7 @@ import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
+import com.bkahlert.nebula.widgets.browser.listener.IMouseListener;
 import com.bkahlert.nebula.widgets.decoration.EmptyText;
 
 @Demo
@@ -46,9 +49,8 @@ public class BrowserDemo extends AbstractDemo {
 					public void run() {
 						log("alerting");
 						try {
-							BrowserDemo.this.browser
-									.run("alert(\""
-											+ BrowserDemo.this.alertString
+							BrowserDemo.this.browser.run(
+									"alert(\"" + BrowserDemo.this.alertString
 											+ "\");").get();
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
@@ -74,13 +76,10 @@ public class BrowserDemo extends AbstractDemo {
 						log("alerting using external file");
 						try {
 							File jsFile = File.createTempFile(
-									BrowserDemo.class.getSimpleName(),
-									".js");
+									BrowserDemo.class.getSimpleName(), ".js");
 							FileUtils.write(jsFile, "alert(\""
-									+ BrowserDemo.this.alertString
-									+ "\");");
-							BrowserDemo.this.browser
-									.run(jsFile);
+									+ BrowserDemo.this.alertString + "\");");
+							BrowserDemo.this.browser.run(jsFile);
 						} catch (Exception e) {
 							log(e.toString());
 						}
@@ -95,8 +94,7 @@ public class BrowserDemo extends AbstractDemo {
 		text.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
-				BrowserDemo.this.alertString = ((Text) e.getSource())
-						.getText();
+				BrowserDemo.this.alertString = ((Text) e.getSource()).getText();
 			}
 		});
 
@@ -105,8 +103,7 @@ public class BrowserDemo extends AbstractDemo {
 		timeout.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
-				BrowserDemo.timeoutString = ((Text) e.getSource())
-						.getText();
+				BrowserDemo.timeoutString = ((Text) e.getSource()).getText();
 			}
 		});
 
@@ -159,6 +156,28 @@ public class BrowserDemo extends AbstractDemo {
 			@Override
 			public void focusGained(IElement element) {
 				log("focus gained " + element);
+			}
+		});
+		this.browser.addMouseMoveListener(new MouseMoveListener() {
+			@Override
+			public void mouseMove(MouseEvent e) {
+				log("relative mouse pos " + e.x + "," + e.y);
+			}
+		});
+		this.browser.addMouseListener(new IMouseListener() {
+			@Override
+			public void mouseMove(double x, double y) {
+				log("absolute mouse pos " + x + "," + y);
+			}
+
+			@Override
+			public void mouseDown(double x, double y) {
+				log("mouse down " + x + "," + y);
+			}
+
+			@Override
+			public void mouseUp(double x, double y) {
+				log("mouse up " + x + "," + y);
 			}
 		});
 		try {

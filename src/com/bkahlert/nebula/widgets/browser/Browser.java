@@ -41,6 +41,7 @@ import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.IDropListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
+import com.bkahlert.nebula.widgets.browser.listener.IMouseListener;
 import com.bkahlert.nebula.widgets.browser.runner.BrowserScriptRunner;
 import com.bkahlert.nebula.widgets.browser.runner.BrowserScriptRunner.BrowserStatus;
 
@@ -71,6 +72,7 @@ public class Browser extends Composite implements IBrowser {
 	private Rectangle cachedContentBounds = null;
 
 	private final List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
+	private final List<IMouseListener> mouseListeners = new ArrayList<IMouseListener>();
 	private final List<IFocusListener> focusListeners = new ArrayList<IFocusListener>();
 	private final List<IDropListener> dropListeners = new ArrayList<IDropListener>();
 
@@ -105,6 +107,42 @@ public class Browser extends Composite implements IBrowser {
 			public Object function(Object[] arguments) {
 				if (arguments.length == 1 && arguments[0] instanceof String) {
 					Browser.this.fireAnkerHover((String) arguments[0], false);
+				}
+				return null;
+			}
+		};
+		new BrowserFunction(this.browser, "__mousemove") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length == 2
+						&& (arguments[0] == null || arguments[0] instanceof Double)
+						&& (arguments[1] == null || arguments[1] instanceof Double)) {
+					Browser.this.fireMouseMove((Double) arguments[0],
+							(Double) arguments[1]);
+				}
+				return null;
+			}
+		};
+		new BrowserFunction(this.browser, "__mousedown") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length == 2
+						&& (arguments[0] == null || arguments[0] instanceof Double)
+						&& (arguments[1] == null || arguments[1] instanceof Double)) {
+					Browser.this.fireMouseDown((Double) arguments[0],
+							(Double) arguments[1]);
+				}
+				return null;
+			}
+		};
+		new BrowserFunction(this.browser, "__mouseup") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length == 2
+						&& (arguments[0] == null || arguments[0] instanceof Double)
+						&& (arguments[1] == null || arguments[1] instanceof Double)) {
+					Browser.this.fireMouseUp((Double) arguments[0],
+							(Double) arguments[1]);
 				}
 				return null;
 			}
@@ -605,6 +643,16 @@ public class Browser extends Composite implements IBrowser {
 		this.ankerListeners.remove(ankerListener);
 	}
 
+	@Override
+	public void addMouseListener(IMouseListener mouseListener) {
+		this.mouseListeners.add(mouseListener);
+	}
+
+	@Override
+	public void removeMouseListener(IMouseListener mouseListener) {
+		this.mouseListeners.remove(mouseListener);
+	}
+
 	/**
 	 * 
 	 * @param string
@@ -615,6 +663,39 @@ public class Browser extends Composite implements IBrowser {
 		IAnker anker = BrowserUtils.extractAnker(html);
 		for (IAnkerListener ankerListener : Browser.this.ankerListeners) {
 			ankerListener.ankerHovered(anker, mouseEnter);
+		}
+	}
+
+	/**
+	 * 
+	 * @param x
+	 * @param y
+	 */
+	protected void fireMouseMove(double x, double y) {
+		for (IMouseListener mouseListener : Browser.this.mouseListeners) {
+			mouseListener.mouseMove(x, y);
+		}
+	}
+
+	/**
+	 * 
+	 * @param x
+	 * @param y
+	 */
+	protected void fireMouseDown(double x, double y) {
+		for (IMouseListener mouseListener : Browser.this.mouseListeners) {
+			mouseListener.mouseDown(x, y);
+		}
+	}
+
+	/**
+	 * 
+	 * @param x
+	 * @param y
+	 */
+	protected void fireMouseUp(double x, double y) {
+		for (IMouseListener mouseListener : Browser.this.mouseListeners) {
+			mouseListener.mouseUp(x, y);
 		}
 	}
 
