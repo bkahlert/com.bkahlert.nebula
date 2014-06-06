@@ -23,6 +23,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 				el: $('.jointjs'),
 				width: $window.width(),
 				height: $window.height(),
+				gridSize: 1,
 				model: com.bkahlert.jointjs.graph,
 				elementView: joint.shapes.html.ElementView,
 				linkView: joint.shapes.LinkView
