@@ -6,6 +6,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Point;
@@ -48,8 +49,16 @@ public class JQueryBrowser extends ExtendedBrowser implements IJQueryBrowser {
 					JQueryBrowser.this.disposedScrollPositon = JQueryBrowser.this
 							.getScrollPosition().get();
 				} catch (Exception e1) {
-					LOGGER.error("Error saving state of " + JQueryBrowser.this,
-							e1);
+					Throwable ex = e1;
+					while (ex.getCause() != null) {
+						ex = ex.getCause();
+					}
+					if (ex instanceof SWTException) {
+						// very propably widget disposed
+					} else {
+						LOGGER.error("Error saving state of "
+								+ JQueryBrowser.this, e1);
+					}
 				}
 			}
 		});

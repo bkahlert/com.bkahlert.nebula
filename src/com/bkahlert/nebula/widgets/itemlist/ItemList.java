@@ -85,7 +85,7 @@ public class ItemList extends BootstrapBrowser {
 			}
 		});
 		this.open(BrowserUtils.getFileUrl(ItemList.class, "html/index.html",
-				"?internal=true"), 5000);
+				"?internal=true"), 60000);
 	}
 
 	public void addItem(String id, String title) {
