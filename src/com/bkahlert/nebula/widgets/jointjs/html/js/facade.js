@@ -122,7 +122,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			json.zoom = com.bkahlert.jointjs.getZoom();
 			var pan = com.bkahlert.jointjs.getPan();
 			json.pan = { x: pan[0], y: pan[1] };
-			return JSON.stringify(json);
+			return JSON.stringify(json, null, "\t");
 		},
 		
 		setEnabled: function (enabled) {
