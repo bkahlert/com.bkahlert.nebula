@@ -1,19 +1,18 @@
 package com.bkahlert.nebula.utils.colors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.bkahlert.nebula.utils.colors.ColorUtils;
-import com.bkahlert.nebula.utils.colors.HLS;
-import com.bkahlert.nebula.utils.colors.RGB;
 
 ;
 
@@ -27,8 +26,8 @@ public class ColorUtilsTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		this.colorBlack = new RGB(0, 0, 0);
-		this.colorWhite = new RGB(1, 1, 1);
+		this.colorBlack = new RGB(0.0, 0.0, 0.0);
+		this.colorWhite = new RGB(1.0, 1.0, 1.0);
 	}
 
 	/**
@@ -47,13 +46,13 @@ public class ColorUtilsTest {
 	@Test
 	public void testAddLightnessRGBFloat() {
 		RGB colorTest = new RGB(0.5, 0.5, 0.5);
-		RGB shouldBeWhite = ColorUtils.addLightness(colorTest, +1);
-		RGB shouldBeBlack = ColorUtils.addLightness(colorTest, -1);
-		RGB shouldBeSame = ColorUtils.addLightness(colorTest, 0);
+		RGB white = ColorUtils.addLightness(colorTest, +1);
+		RGB black = ColorUtils.addLightness(colorTest, -1);
+		RGB grey = ColorUtils.addLightness(colorTest, 0);
 
-		assertTrue("should be White", shouldBeWhite.equals(this.colorWhite));
-		assertTrue("should be Black", shouldBeBlack.equals(this.colorBlack));
-		assertTrue("should be Same", shouldBeSame.equals(colorTest));
+		assertEquals(this.colorWhite, white);
+		assertEquals(this.colorBlack, black);
+		assertEquals(colorTest, grey);
 	}
 
 	/**
@@ -154,6 +153,14 @@ public class ColorUtilsTest {
 				ColorUtils.getBestComplementColorHLS(
 						Arrays.asList(new HLS(0.2, 0.5, 0.5), new HLS(0.4, 0.5,
 								0.5))).getHue(), 0.05);
+
+		List<HLS> generatedColors = new ArrayList<HLS>();
+		for (int i = 0; i < 1000; i++) {
+			HLS generatedColor = ColorUtils
+					.getBestComplementColorHLS(generatedColors);
+			assertFalse(generatedColors.contains(generatedColor));
+			generatedColors.add(generatedColor);
+		}
 
 	}
 }
