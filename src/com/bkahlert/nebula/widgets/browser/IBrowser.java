@@ -1,5 +1,6 @@
 package com.bkahlert.nebula.widgets.browser;
 
+import java.io.File;
 import java.net.URI;
 import java.util.concurrent.Future;
 
@@ -124,6 +125,8 @@ public interface IBrowser extends IBrowserScriptRunner, IWidget {
 	 */
 	public Future<Void> beforeCompletion(String uri);
 
+	Future<Void> injectJsFile(File file);
+
 	/**
 	 * Includes the given path as a cascading style sheet.
 	 * 
@@ -198,5 +201,5 @@ public interface IBrowser extends IBrowserScriptRunner, IWidget {
 	 * 
 	 * @return
 	 */
-	public Future<Object> pasteHtmlAtCaret(String html);
+	public Future<Void> pasteHtmlAtCaret(String html);
 }

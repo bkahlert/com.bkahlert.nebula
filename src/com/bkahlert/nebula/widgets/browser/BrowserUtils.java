@@ -136,7 +136,7 @@ public class BrowserUtils {
 
 	public static String shortenScript(String script) {
 		String shortened = script.length() > 100 ? script.substring(0, 100)
-				+ "..." : script;
+				.intern() + "..." : script;
 		return shortened.replace("\n", " ").replace("\r", " ")
 				.replace("\t", " ");
 	}

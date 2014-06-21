@@ -74,6 +74,7 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 	private static <DEST> Callable<DEST> createScriptRunner(
 			final BrowserScriptRunner browserScriptRunner, final String script,
 			final IConverter<Object, DEST> converter) {
+		final String label = BrowserUtils.shortenScript(script);
 		return ExecUtils.createThreadLabelingCode(new Callable<DEST>() {
 			@Override
 			public DEST call() throws Exception {
@@ -81,7 +82,7 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 						|| browserScriptRunner.browser.isDisposed()) {
 					return null;
 				}
-				LOGGER.info("Running " + BrowserUtils.shortenScript(script));
+				LOGGER.info("Running " + label);
 				try {
 					browserScriptRunner.scriptAboutToBeSentToBrowser(script);
 					Object returnValue = browserScriptRunner.browser
@@ -97,7 +98,7 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 					throw e;
 				}
 			}
-		}, Browser.class, "Running " + script);
+		}, Browser.class, "Running " + label);
 	}
 
 	private final org.eclipse.swt.browser.Browser browser;

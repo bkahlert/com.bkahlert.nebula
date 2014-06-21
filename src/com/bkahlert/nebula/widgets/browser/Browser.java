@@ -1,6 +1,7 @@
 package com.bkahlert.nebula.widgets.browser;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -615,6 +617,16 @@ public class Browser extends Composite implements IBrowser {
 	}
 
 	@Override
+	public Future<Void> injectJsFile(File file) {
+		return this
+				.run("var script=document.createElement(\"script\"); script.type=\"text/javascript\"; script.src=\""
+						+ "file://"
+						+ file
+						+ "\"; document.getElementsByTagName(\"head\")[0].appendChild(script);",
+						IConverter.CONVERTER_VOID);
+	}
+
+	@Override
 	public Future<Void> injectCssFile(URI uri) {
 		return this
 				.run("if(document.createStyleSheet){document.createStyleSheet(\""
@@ -784,15 +796,27 @@ public class Browser extends Composite implements IBrowser {
 	}
 
 	@Override
-	public Future<Object> pasteHtmlAtCaret(String html) {
+	public Future<Void> pasteHtmlAtCaret(String html) {
 		String escapedHtml = this.escape(html);
-		return this
-				.run("if(['input','textarea'].indexOf(document.activeElement.tagName.toLowerCase()) != -1) { document.activeElement.value = '"
-						+ escapedHtml
-						+ "';} else { var t,n;if(window.getSelection){t=window.getSelection();if(t.getRangeAt&&t.rangeCount){n=t.getRangeAt(0);n.deleteContents();var r=document.createElement(\"div\");r.innerHTML='"
-						+ escapedHtml
-						+ "';var i=document.createDocumentFragment(),s,o;while(s=r.firstChild){o=i.appendChild(s)}n.insertNode(i);if(o){n=n.cloneRange();n.setStartAfter(o);n.collapse(true);t.removeAllRanges();t.addRange(n)}}}else if(document.selection&&document.selection.type!=\"Control\"){document.selection.createRange().pasteHTML('"
-						+ escapedHtml + "')}}");
+		try {
+			File js = File.createTempFile("paste", ".js");
+			FileUtils
+					.write(js,
+							"if(['input','textarea'].indexOf(document.activeElement.tagName.toLowerCase()) != -1) { document.activeElement.value = '");
+			FileOutputStream outStream = new FileOutputStream(js, true);
+			IOUtils.copy(IOUtils.toInputStream(escapedHtml), outStream);
+			IOUtils.copy(
+					IOUtils.toInputStream("';} else { var t,n;if(window.getSelection){t=window.getSelection();if(t.getRangeAt&&t.rangeCount){n=t.getRangeAt(0);n.deleteContents();var r=document.createElement(\"div\");r.innerHTML='"),
+					outStream);
+			IOUtils.copy(IOUtils.toInputStream(escapedHtml), outStream);
+			IOUtils.copy(
+					IOUtils.toInputStream("';var i=document.createDocumentFragment(),s,o;while(s=r.firstChild){o=i.appendChild(s)}n.insertNode(i);if(o){n=n.cloneRange();n.setStartAfter(o);n.collapse(true);t.removeAllRanges();t.addRange(n)}}}else if(document.selection&&document.selection.type!=\"Control\"){document.selection.createRange().pasteHTML('"),
+					outStream);
+			IOUtils.copy(IOUtils.toInputStream(escapedHtml + "')}}"), outStream);
+			return this.injectJsFile(js);
+		} catch (Exception e) {
+			return new CompletedFuture<Void>(null, e);
+		}
 	}
 
 	@Override

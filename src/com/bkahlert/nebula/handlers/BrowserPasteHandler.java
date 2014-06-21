@@ -7,9 +7,12 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.InputStream;
+import java.util.List;
 import java.util.concurrent.Future;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import org.apache.commons.io.IOUtils;
@@ -50,22 +53,40 @@ public class BrowserPasteHandler extends AbstractHandler {
 		return bufimg;
 	}
 
-	private Future<Object> paste(Browser browser) {
+	private Future<Void> paste(Browser browser) {
 		String html = null;
 		DataFlavor htmlFlavor = new DataFlavor("text/html",
 				"Hypertext Markup Language");
 		DataFlavor rtfFlavor = new DataFlavor("text/rtf", "Rich Formatted Text");
+		DataFlavor fileFlavor = null;
+		try {
+			fileFlavor = new DataFlavor(
+					"application/x-java-file-list;class=java.util.List");
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		}
 
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		try {
-			if (clipboard.isDataFlavorAvailable(DataFlavor.imageFlavor)) {
-				ImageIcon IMG = new ImageIcon(
+			if (clipboard.isDataFlavorAvailable(fileFlavor)) {
+				@SuppressWarnings("unchecked")
+				List<File> files = (List<File>) clipboard.getData(fileFlavor);
+				for (File file : files) {
+					try {
+						BufferedImage image = ImageIO.read(file);
+						html = "<img src=\""
+								+ ImageUtils.convertToInlineSrc(image) + "\"/>";
+						break;
+					} catch (Exception e) {
+					}
+				}
+			} else if (clipboard.isDataFlavorAvailable(DataFlavor.imageFlavor)) {
+				ImageIcon image = new ImageIcon(
 						(BufferedImage) clipboard
 								.getData(DataFlavor.imageFlavor));
-				BufferedImage bImage = getBufferedImage(IMG.getImage());
+				BufferedImage bImage = getBufferedImage(image.getImage());
 				html = "<img src=\"" + ImageUtils.convertToInlineSrc(bImage)
 						+ "\"/>";
-
 			} else if (clipboard.isDataFlavorAvailable(htmlFlavor)) {
 				html = StringUtils.join(
 						IOUtils.readLines((InputStream) clipboard
@@ -81,13 +102,13 @@ public class BrowserPasteHandler extends AbstractHandler {
 				html = plainText;
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error pasting clipboard into browser");
+			LOGGER.error("Error pasting clipboard into browser", e);
 		}
 
 		if (html != null) {
 			return browser.pasteHtmlAtCaret(html);
 		}
-		return new CompletedFuture<Object>(null, null);
+		return new CompletedFuture<Void>(null, null);
 	}
 
 	@Override

@@ -236,8 +236,7 @@ public class ImageUtils {
 		try {
 			ImageIO.write(image, "png", baos);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		byte[] encodedImage = Base64.encode(baos.toByteArray());
 		try {
