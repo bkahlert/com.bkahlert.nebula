@@ -131,6 +131,54 @@ public class BrowserDemo extends AbstractDemo {
 				}).start();
 			}
 		});
+
+		Button loadingOn = new Button(composite, SWT.PUSH);
+		loadingOn.setText("loading on");
+		loadingOn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						log("turning loading on");
+						try {
+							BrowserDemo.this.browser.loading(true).get();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (ExecutionException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						log("turned loading on");
+					}
+				}).start();
+			}
+		});
+
+		Button loadingOff = new Button(composite, SWT.PUSH);
+		loadingOff.setText("turning loading off");
+		loadingOff.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						log("turning loading off");
+						try {
+							BrowserDemo.this.browser.loading(false).get();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (ExecutionException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						log("turned loading off");
+					}
+				}).start();
+			}
+		});
 	}
 
 	@Override

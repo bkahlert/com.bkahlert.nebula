@@ -37,6 +37,15 @@ public class ExtendedBrowser extends Browser implements IBrowser {
 
 	@Override
 	public Future<Void> beforeCompletion(String uri) {
+		try {
+			Future<Void> rt = super.beforeCompletion(uri);
+			if (rt != null) {
+				rt.get();
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+
 		/*
 		 * TODO FIX BUG: afterCompletion is called after the DOMReady scripts.
 		 * PageLoad might need to access something loaded through extensions.
