@@ -1,5 +1,6 @@
 package com.bkahlert.nebula.utils;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 
@@ -104,5 +105,16 @@ public class MathUtils {
 	public static double calcScaleFactor(Point rectangle, Rectangle limits) {
 		Rectangle resizedRectangle = resizeRectangle(rectangle, limits);
 		return (double) resizedRectangle.width / (double) rectangle.x;
+	}
+
+	public static int min(int... numbers) {
+		Assert.isTrue(numbers != null && numbers.length > 0);
+		int min = numbers[0];
+		for (int number : numbers) {
+			if (number < min) {
+				min = number;
+			}
+		}
+		return min;
 	}
 }
