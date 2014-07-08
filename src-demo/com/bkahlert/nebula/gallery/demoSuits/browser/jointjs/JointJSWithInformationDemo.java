@@ -382,7 +382,7 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 						@Override
 						public void hovered(String id, boolean hoveredIn) {
 							if (hoveredIn && id != null && !id.contains("|")
-									&& id.startsWith("sua://")) {
+									&& id.startsWith("apiua://")) {
 								try {
 									hovered = new URI(id);
 								} catch (URISyntaxException e) {
@@ -422,16 +422,16 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 			@Override
 			public Void call() throws Exception {
 				String node1 = JointJSWithInformationDemo.this.jointjs
-						.createNode("sua://test3", "Hello Java",
+						.createNode("apiua://test3", "Hello Java",
 								"bla<b> b</b>la", new Point(150, 300),
 								new Point(200, 100)).get();
 
 				String node2 = JointJSWithInformationDemo.this.jointjs
-						.createNode("sua://test4", "Hello Java", "bla bla",
+						.createNode("apiua://test4", "Hello Java", "bla bla",
 								new Point(50, 30), new Point(120, 80)).get();
 
 				String node3 = JointJSWithInformationDemo.this.jointjs
-						.createNode("sua://test40", "Hello Java", "bla bla",
+						.createNode("apiua://test40", "Hello Java", "bla bla",
 								new Point(50, 30), new Point(220, 180)).get();
 
 				String link1 = JointJSWithInformationDemo.this.jointjs
@@ -446,12 +446,12 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 				JointJSWithInformationDemo.this.jointjs.setLinkTitle(link2,
 						"perm link ").get();
 
-				JointJSWithInformationDemo.this.jointjs.setColor("sua://test3",
+				JointJSWithInformationDemo.this.jointjs.setColor("apiua://test3",
 						new RGB(255, 0, 0));
 				JointJSWithInformationDemo.this.jointjs.setBackgroundColor(
-						"sua://test3", new RGB(255, 0, 255));
+						"apiua://test3", new RGB(255, 0, 255));
 				JointJSWithInformationDemo.this.jointjs.setBorderColor(
-						"sua://test3", new RGB(255, 128, 0));
+						"apiua://test3", new RGB(255, 128, 0));
 
 				return null;
 			}

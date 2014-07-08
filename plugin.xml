@@ -20,7 +20,7 @@
       <perspective
             name="RCP Perspective"
             class="com.bkahlert.nebula.gallery.application.Perspective"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.nebula.perspective">
+            id="com.bkahlert.nebula.perspective">
       </perspective>
    </extension>
    <extension

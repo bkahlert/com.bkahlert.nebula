@@ -207,22 +207,22 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 				com.bkahlert.jointjs.setEnabled(false);
 			}))
 			.append($('<button>Custom</button>').click(function () {
-				var x = {"cells":[{"type":"html.Element","position":{"x":270,"y":142},"size":{"width":"242","height":"30"},"angle":"0","id":"sua://code/-9223372036854775640","content":"","title":"Offensichtliche Usability-Probleme","z":"0","color":"rgb(0, 0, 0)","background-color":"rgba(255, 102, 102, 0.27450980392156865)","border-color":"rgba(255, 48, 48, 0.39215686274509803)","attrs":{}}],"title":"New Model","zoom":"1","pan":{"x":"0","y":"0"}};
+				var x = {"cells":[{"type":"html.Element","position":{"x":270,"y":142},"size":{"width":"242","height":"30"},"angle":"0","id":"apiua://code/-9223372036854775640","content":"","title":"Offensichtliche Usability-Probleme","z":"0","color":"rgb(0, 0, 0)","background-color":"rgba(255, 102, 102, 0.27450980392156865)","border-color":"rgba(255, 48, 48, 0.39215686274509803)","attrs":{}}],"title":"New Model","zoom":"1","pan":{"x":"0","y":"0"}};
 				console.log(x);
 				com.bkahlert.jointjs.graph.clear();
 				com.bkahlert.jointjs.graph.fromJSON(x);
 			}));
 			
-			var a = com.bkahlert.jointjs.createNode('sua://test', { position: { x: 100, y: 300 }, title: 'my box', content: '<ul><li>jkjk</li></ul>' });
-			var b = com.bkahlert.jointjs.createNode('sua://test2', { title: 'my box233333' });
-			var linkid = com.bkahlert.jointjs.createPermanentLink(null, { id: 'sua://test' }, { id: 'sua://test2' });
-			var c = com.bkahlert.jointjs.createNode('sua://test3', { title: 'my box233333', position: { x: 300, y: 300 },  });
-			var linkid2 = com.bkahlert.jointjs.createLink(null, { id: 'sua://test3' }, { id: 'sua://test2' });
+			var a = com.bkahlert.jointjs.createNode('apiua://test', { position: { x: 100, y: 300 }, title: 'my box', content: '<ul><li>jkjk</li></ul>' });
+			var b = com.bkahlert.jointjs.createNode('apiua://test2', { title: 'my box233333' });
+			var linkid = com.bkahlert.jointjs.createPermanentLink(null, { id: 'apiua://test' }, { id: 'apiua://test2' });
+			var c = com.bkahlert.jointjs.createNode('apiua://test3', { title: 'my box233333', position: { x: 300, y: 300 },  });
+			var linkid2 = com.bkahlert.jointjs.createLink(null, { id: 'apiua://test3' }, { id: 'apiua://test2' });
 			com.bkahlert.jointjs.setText(linkid, 0, 'my_label');
-			com.bkahlert.jointjs.setText('sua://test2', 'content', 'XN dskjd sdkds dskdsdjks dskj ');
+			com.bkahlert.jointjs.setText('apiua://test2', 'content', 'XN dskjd sdkds dskdsdjks dskj ');
 			com.bkahlert.jointjs.setSize(c, 300, 100);
-			console.log(com.bkahlert.jointjs.getConnectedLinks('sua://test2'));
-			console.log(com.bkahlert.jointjs.getConnectedPermanentLinks('sua://test2'));
+			console.log(com.bkahlert.jointjs.getConnectedLinks('apiua://test2'));
+			console.log(com.bkahlert.jointjs.getConnectedPermanentLinks('apiua://test2'));
 			window.setTimeout(function() {
 				com.bkahlert.jointjs.setPosition(c, 500, 500);
 			}, 1000);

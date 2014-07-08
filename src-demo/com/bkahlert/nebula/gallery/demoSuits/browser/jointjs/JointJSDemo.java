@@ -275,15 +275,15 @@ public class JointJSDemo extends AbstractDemo {
 			@Override
 			public Void call() throws Exception {
 				String node1 = JointJSDemo.this.jointjs.createNode(
-						"sua://test3", "Hello Java", "bla<b> b</b>la",
+						"apiua://test3", "Hello Java", "bla<b> b</b>la",
 						new Point(150, 300), new Point(200, 100)).get();
 
 				String node2 = JointJSDemo.this.jointjs.createNode(
-						"sua://test4", "Hello Java", "bla bla",
+						"apiua://test4", "Hello Java", "bla bla",
 						new Point(50, 30), new Point(120, 80)).get();
 
 				String node3 = JointJSDemo.this.jointjs.createNode(
-						"sua://test40", "Hello Java", "bla bla",
+						"apiua://test40", "Hello Java", "bla bla",
 						new Point(50, 30), new Point(220, 180)).get();
 
 				String link1 = JointJSDemo.this.jointjs.createLink(null, node1,
@@ -298,11 +298,11 @@ public class JointJSDemo extends AbstractDemo {
 				JointJSDemo.this.jointjs.setLinkTitle(link2, "perm link ")
 						.get();
 
-				JointJSDemo.this.jointjs.setColor("sua://test3", new RGB(255,
+				JointJSDemo.this.jointjs.setColor("apiua://test3", new RGB(255,
 						0, 0));
-				JointJSDemo.this.jointjs.setBackgroundColor("sua://test3",
+				JointJSDemo.this.jointjs.setBackgroundColor("apiua://test3",
 						new RGB(255, 0, 255));
-				JointJSDemo.this.jointjs.setBorderColor("sua://test3", new RGB(
+				JointJSDemo.this.jointjs.setBorderColor("apiua://test3", new RGB(
 						255, 128, 0));
 
 				log("initial zoom: " + JointJSDemo.this.jointjs.getZoom().get());
@@ -328,7 +328,7 @@ public class JointJSDemo extends AbstractDemo {
 						+ JointJSDemo.this.jointjs.getZoom().get());
 
 				Thread.sleep(1500);
-				JointJSDemo.this.jointjs.setPosition("sua://test40", 300, 100);
+				JointJSDemo.this.jointjs.setPosition("apiua://test40", 300, 100);
 				log("moved test40");
 
 				return null;

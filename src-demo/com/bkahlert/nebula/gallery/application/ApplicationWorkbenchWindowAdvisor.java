@@ -13,16 +13,18 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		super(configurer);
 	}
 
+	@Override
 	public ActionBarAdvisor createActionBarAdvisor(
 			IActionBarConfigurer configurer) {
 		return new ApplicationActionBarAdvisor(configurer);
 	}
 
+	@Override
 	public void preWindowOpen() {
-		IWorkbenchWindowConfigurer configurer = getWindowConfigurer();
+		IWorkbenchWindowConfigurer configurer = this.getWindowConfigurer();
 		configurer.setInitialSize(new Point(800, 700));
 		configurer.setShowCoolBar(false);
 		configurer.setShowStatusLine(false);
-		configurer.setTitle("SeqAn Usability Analyzer - Nebula"); //$NON-NLS-1$
+		configurer.setTitle("bkahlert.com - Nebula"); //$NON-NLS-1$
 	}
 }
