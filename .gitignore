@@ -7,3 +7,4 @@
 *.svn
 bin
 facade-ck.js
+/bin
