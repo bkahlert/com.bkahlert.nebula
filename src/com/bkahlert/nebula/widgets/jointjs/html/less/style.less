@@ -1,0 +1,180 @@
+@import "../lib/bootstrap/less/bootstrap.less";
+@import "../lib/jointjs/joint.css";
+
+@icon-font-path: "../lib/bootstrap/fonts/";
+
+html, body, .jointjs {
+    margin: 0;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+// set via setEnabled
+body.disabled {
+	&:before {
+		z-index: 999999; // also filters all click events
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(1,1,1,.088);
+	}
+}
+
+.jointjs {
+	.html-view, svg {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+	}
+	.html-view {
+		.transform-origin(0 0 0);
+	}
+	
+	svg {
+		cursor: pointer;
+		cursor: hand;
+		cursor: -webkit-grab;
+		cursor: -moz-grab;
+	}
+	
+	svg.grabbing {
+		cursor: pointer;
+		cursor: hand;
+		cursor: -webkit-grabbing;
+		cursor: -moz-grabbing;
+	}
+	
+	svg .link {
+		.marker-source,
+		.marker-target,
+		.marker-arrowhead-group-source,
+		.marker-arrowhead-group-target {
+			cursor: move !important;
+		}
+		
+		&[abandoned-source] .marker-source,
+		&[abandoned-target] .marker-target {
+			fill-opacity: 1;
+			fill: darken(@brand-warning, 0%);
+			stroke: darken(@brand-warning, 10%);
+			stroke-width: 2px;
+		}
+	}
+}
+
+.title {
+	position: fixed;
+	left: 0;
+	bottom: 0px;
+	width: 100%;
+	padding: 2px 5px;
+	background-color: rgba(0,0,0,.5);
+	color: white;
+	font-size: .8em;
+	font-weight: 300;
+	
+	.form-group, input {
+		width: 100% !important;
+	}
+	
+	&:empty {
+		display: none;
+	}
+}
+
+.popover {
+	position: absolute;
+}
+
+.link {
+	z-index: 2;
+	
+	.marker-source {
+        fill: #000;
+    }
+	
+	.marker-target {
+        fill: #000;
+    }
+	
+	&.permanent {
+		.link-tools .tool-remove,
+		.marker-arrowheads {
+			visibility: hidden;
+		}
+		
+		.marker-source {
+	        fill-opacity: 0;
+	    }
+	}
+}
+
+.html-element {
+	position: absolute;
+	background: #eee;
+	/* Make sure events are propagated to the JointJS element so, e.g. dragging works.*/
+	pointer-events: none;
+	-webkit-user-select: none;
+	border-radius: 4px;
+	border: 1px solid #333;
+	padding: 5px;
+	z-index: 2;
+	display: block;
+	
+	h1 {
+		margin-top: 0;
+		font-size: 1em;
+		text-align: center;
+	}
+
+	.content {
+		
+	}
+	
+	button {
+	   /* Enable interacting with inputs only. */
+	   pointer-events: auto;
+	   
+	   &.delete {
+		   color: white;
+		   border: none;
+		   background-color: #C0392B;
+		   border-radius: 20px;
+		   width: 15px;
+		   height: 15px;
+		   line-height: 15px;
+		   text-align: middle;
+		   position: absolute;
+		   top: -15px;
+		   left: -15px;
+		   padding: 0;
+		   margin: 0;
+		   font-weight: bold;
+		   cursor: pointer;
+		   &:hover {
+			   width: 20px;
+			   height: 20px;
+			   line-height: 20px;
+			}
+		}
+	}
+}
+
+
+
+[model-id=~"uri\3A\/\/im\/an\/uri"] {
+    rect {
+        fill:blue;
+        stroke:pink;
+        stroke-width:5;
+        fill-opacity:0.1;
+        stroke-opacity:0.9;
+    }
+}

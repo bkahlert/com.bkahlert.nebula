@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="com.bkahlert.nebula.information" name="Nebula Information" schema="schema/com.bkahlert.nebula.information.exsd"/>
    <extension
          id="id2"
          point="org.eclipse.core.runtime.applications">
@@ -9,7 +10,7 @@
             thread="main"
             visible="true">
          <run
-               class="com.bkahlert.devel.nebula.Application">
+               class="com.bkahlert.nebula.gallery.application.Application">
          </run>
       </application>
    </extension>
@@ -18,18 +19,205 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             name="RCP Perspective"
-            class="com.bkahlert.devel.nebula.Perspective"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.nebula.perspective">
+            class="com.bkahlert.nebula.gallery.application.Perspective"
+            id="com.bkahlert.nebula.perspective">
       </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.views">
       <view
-            class="com.bkahlert.devel.nebula.views.WidgetsView"
-            id="de.fu_berlin.imp.seqan.usability_analyzer.nebula.ui.views.WidgetsView"
-            name="Widgets"
+            class="com.bkahlert.nebula.views.SampleEditorView"
+            id="com.bkahlert.nebula.ui.views.SampleEditorView"
+            name="Sample Editor"
             restorable="true">
       </view>
+      <view
+            class="com.bkahlert.nebula.gallery.views.GalleryView"
+            id="com.bkahlert.nebula.gallery.views.GalleryView"
+            name="Gallery"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.eclipse.ui.category.edit"
+            id="com.bkahlert.nebula.paste"
+            name="Paste">
+      </command>
+      <command
+            id="com.bkahlert.devel.nebula.toggleSourceMode"
+            name="Toggle Source Mode">
+         <state
+               id="org.eclipse.ui.commands.toggleState">
+            <class
+                  class="org.eclipse.ui.handlers.RegistryToggleState">
+               <parameter
+                     name="default"
+                     value="false">
+               </parameter>
+               <parameter
+                     name="persisted"
+                     value="false">
+               </parameter>
+            </class>
+         </state>
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commandImages">
+      <image
+            commandId="com.bkahlert.devel.nebula.toggleSourceMode"
+            icon="icons/elcl16/sourceMode_tsk.png">
+      </image>
+      <image
+            commandId="org.eclipse.ui.file.refresh"
+            icon="icons/elcl16/reload.png">
+      </image>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="com.bkahlert.nebula.paste"
+            contextId="com.bkahlert.ui.browser"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+V">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            id="com.bkahlert.ui.browser"
+            name="Browser Context"
+            parentId="org.eclipse.ui.contexts.dialogAndWindow">
+      </context>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.bkahlert.nebula.handlers.BrowserPasteHandler"
+            commandId="com.bkahlert.nebula.paste">
+         <activeWhen>
+            <and>
+               <with
+                     variable="activeFocusControlId">
+                  <equals
+                        value="com.bkahlert.nebula.browser">
+                  </equals>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="com.bkahlert.nebula.handlers.BrowserPasteHandler"
+            commandId="org.eclipse.ui.edit.paste">
+         <activeWhen>
+            <and>
+               <with
+                     variable="activeFocusControlId">
+                  <equals
+                        value="com.bkahlert.nebula.browser">
+                  </equals>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="com.bkahlert.nebula.handlers.ToggleSourceModeHandler"
+            commandId="com.bkahlert.devel.nebula.toggleSourceMode">
+      </handler>
+      <handler
+            class="com.bkahlert.nebula.gallery.handlers.RefreshDemoHandler"
+            commandId="org.eclipse.ui.file.refresh">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:com.bkahlert.nebula.gallery.views.GalleryView?after=additions">
+         <command
+               commandId="org.eclipse.ui.file.refresh"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="com.bkahlert.nebula.utils.KeyboardUtils">
+      </startup>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="com.bkahlert.devel.nebula.commands.EditorDemoInformationControl"
+            name="Editor Demo InformationPopup">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.bkahlert.nebula.handlers.EditorDemoInformationControl"
+            commandId="com.bkahlert.devel.nebula.commands.EditorDemoInformationControl">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:com.bkahlert.nebula.information?after=additions">
+         <command
+               commandId="com.bkahlert.devel.nebula.commands.EditorDemoInformationControl"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="com.bkahlert.devel.nebula.with1">
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.services">
+          <sourceProvider
+            provider="com.bkahlert.nebula.SourceProvider">
+         <variable
+               name="de.fu_berlin.inf.dpp.Saros"
+               priorityLevel="workbench">
+         </variable>
+         <variable
+               name="de.fu_berlin.inf.dpp.SarosSession"
+               priorityLevel="workbench">
+         </variable>
+      </sourceProvider>
+   </extension>
+   <extension
+         point="com.bkahlert.nebula.information">
+      <extender
+            extenderClass="com.bkahlert.nebula.gallery.demoSuits.information.InformationControlExtenderDemo$InformationControlExtender">
+      </extender>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="com.bkahlert.nebula.utils.ExpressionDebugger"
+            id="com.bkahlert.nebula.propertyTesters.Debugger"
+            namespace="com.bkahlert.nebula"
+            properties="debug"
+            type="java.lang.Object">
+      </propertyTester>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="com.bkahlert.nebula.debug">
+         <test
+               forcePluginActivation="true"
+               property="com.bkahlert.nebula.debug">
+         </test>
+      </definition>
    </extension>
 
 </plugin>
