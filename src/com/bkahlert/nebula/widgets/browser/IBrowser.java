@@ -203,11 +203,4 @@ public interface IBrowser extends IBrowserScriptRunner, IWidget {
 	 */
 	public Future<Void> pasteHtmlAtCaret(String html);
 
-	/**
-	 * (De)Activates a loading animation
-	 * 
-	 * @param on
-	 * @return
-	 */
-	public Future<Void> loading(boolean on);
 }

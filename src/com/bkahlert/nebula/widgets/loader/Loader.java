@@ -3,17 +3,24 @@ package com.bkahlert.nebula.widgets.loader;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -21,17 +28,21 @@ import org.eclipse.swt.widgets.Shell;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.utils.MathUtils;
+import com.bkahlert.nebula.widgets.browser.Browser;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 
 public class Loader {
 
 	private static final Logger LOGGER = Logger.getLogger(Loader.class);
 
+	private static final Color SPINNER_BACKGROUND = Display.getCurrent()
+			.getSystemColor(SWT.COLOR_BLACK);
+	private static final int SPINNER_BACKGROUND_ALPHA = 127;
 	private static final File SPINNER_FILE = BrowserUtils.getFile(Loader.class,
 			"spinner.png");
 	private static final Image SPINNER = new Image(Display.getCurrent(),
 			SPINNER_FILE.getAbsolutePath());
-	private static final int NUM_SPINNER_SPRITES = 12;
+	static final int NUM_SPINNER_SPRITES = 12;
 
 	private static Dimension SPINNER_DIMENSIONS;
 	static {
@@ -42,21 +53,42 @@ public class Loader {
 		}
 	}
 
-	private final Shell shell = null;
-	private final Control control;
+	/**
+	 * This timer is used to schedule {@link #redrawSpinnerTimerTask}.
+	 */
+	private Timer timer = null;
 
-	private final ControlListener controlListener = new ControlListener() {
+	/**
+	 * The {@link TimerTask}
+	 */
+	private final TimerTask redrawSpinnerTimerTask = new TimerTask() {
 		@Override
-		public void controlResized(ControlEvent e) {
-			Loader.this.updateBounds();
-		}
-
-		@Override
-		public void controlMoved(ControlEvent e) {
-			Loader.this.updateBounds();
+		public void run() {
+			try {
+				ExecUtils.syncExec(new Runnable() {
+					@Override
+					public void run() {
+						if (Loader.this.control != null
+								&& !Loader.this.control.isDisposed()) {
+							Loader.this.control.redraw();
+						}
+					}
+				});
+			} catch (Exception e) {
+				LOGGER.error(e);
+			}
 		}
 	};
-	private final PaintListener paintListener = new PaintListener() {
+
+	/**
+	 * The {@link Control} that this {@link Loader} is decorating.
+	 */
+	private final Control control;
+
+	/**
+	 * This {@link PaintListener} is responsible to draw the spinner.
+	 */
+	private final PaintListener spinnerDrawingPaintListener = new PaintListener() {
 		private int sprite = 0;
 
 		@Override
@@ -64,7 +96,11 @@ public class Loader {
 			Point controlSize = Loader.this.control.getSize();
 			int size = MathUtils.min(SPINNER_DIMENSIONS.height, controlSize.x,
 					controlSize.y) / 2;
-
+			e.gc.setClipping(Loader.this.control.getRegion());
+			e.gc.setAlpha(SPINNER_BACKGROUND_ALPHA);
+			e.gc.setBackground(SPINNER_BACKGROUND);
+			e.gc.fillRectangle(new Rectangle(0, 0, controlSize.x, controlSize.y));
+			e.gc.setAlpha(255);
 			e.gc.drawImage(SPINNER, SPINNER_DIMENSIONS.height * this.sprite, 0,
 					SPINNER_DIMENSIONS.height, SPINNER_DIMENSIONS.height,
 					(controlSize.x - size) / 2, (controlSize.y - size) / 2,
@@ -76,64 +112,80 @@ public class Loader {
 		}
 	};
 
+	/**
+	 * Due to a bug in SWT it is not possible to paint on a
+	 * {@link org.eclipse.swt.browser.Browser}. A shell containing a
+	 * {@link Loader} decorated {@link Composite} is used to overlay the
+	 * {@link org.eclipse.swt.browser.Browser}.
+	 */
+	private Shell shell;
+
+	/**
+	 * The {@link Loader} that is used within the {@link #shell}.
+	 */
+	private Loader loader;
+
 	public Loader(Control control) {
 		super();
 		Assert.isNotNull(control);
 		this.control = control;
+		this.control.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				Loader.this.dispose();
+			}
+		});
 	}
 
 	public void start() {
-		// if (this.shell == null) {
-		// this.shell = new Shell(SWT.NO_TRIM | SWT.ON_TOP);
-		// this.shell.setLayout(new FillLayout());
-		// new LoaderComposite(this.shell);
-		// }
-		this.activate();
-		// this.updateBounds();
-		// this.shell.setAlpha(125);
-		// this.shell.open();
-	}
-
-	protected void updateBounds() {
-		this.shell.setSize(this.control.getSize());
-		this.shell.setLocation(this.control.toDisplay(0, 0));
-	}
-
-	protected void activate() {
-		// Control control = this.control;
-		// while (control != null) {
-		// control.addControlListener(this.controlListener);
-		// control = control.getParent();
-		// }
-
-		this.control.addPaintListener(this.paintListener);
-		this.control.redraw();
-	}
-
-	protected void deactivate() {
-		this.control.removePaintListener(this.paintListener);
-		this.control.redraw();
-
-		// Control control = this.control;
-		// while (control != null) {
-		// control.removeControlListener(this.controlListener);
-		// control = control.getParent();
-		// }
+		this.stop();
+		if (this.control instanceof Browser
+				|| this.control instanceof org.eclipse.swt.browser.Browser) {
+			Loader.this.shell = new Shell(this.control.getDisplay(),
+					SWT.NO_TRIM | SWT.ON_TOP);
+			Composite composite = new Composite(this.shell, SWT.NONE);
+			this.shell.setLayout(new FillLayout());
+			this.loader = new Loader(composite);
+			this.loader.start();
+			this.shell.setSize(this.control.getSize());
+			this.shell.setLocation(this.control.toDisplay(0, 0));
+			this.shell.setRegion(this.control.getRegion());
+			this.shell.open();
+		} else {
+			this.control.addPaintListener(this.spinnerDrawingPaintListener);
+			this.control.redraw();
+			this.timer = new Timer();
+			this.timer.scheduleAtFixedRate(this.redrawSpinnerTimerTask, 0, 80);
+			this.control.update();
+		}
 	}
 
 	public void stop() {
-		this.deactivate();
-		// if (this.shell != null && !this.shell.isDisposed()) {
-		// this.shell.setVisible(false);
-		// }
+		if (this.control instanceof Browser
+				|| this.control instanceof org.eclipse.swt.browser.Browser) {
+			if (this.loader != null) {
+				this.loader.stop();
+			}
+			if (this.shell != null && !this.shell.isDisposed()) {
+				this.shell.dispose();
+				this.shell = null;
+			}
+		} else {
+			if (this.timer != null) {
+				this.timer.cancel();
+				this.timer = null;
+			}
+			if (this.control != null && !this.control.isDisposed()) {
+				this.control
+						.removePaintListener(this.spinnerDrawingPaintListener);
+				this.control.redraw();
+				this.control.update();
+			}
+		}
 	}
 
 	public void dispose() {
-		this.deactivate();
-		// if (this.shell != null && !this.shell.isDisposed()) {
-		// this.shell.close();
-		// this.shell.dispose();
-		// }
+		this.stop();
 	}
 
 	/**
@@ -144,22 +196,40 @@ public class Loader {
 	 * @return
 	 */
 	public <T> Future<T> run(final Callable<T> callable) {
+		return this.run(callable, true);
+	}
+
+	/**
+	 * Runs the given callable in a non-UI thread and shows a loader while the
+	 * computation is running.
+	 * 
+	 * @param callable
+	 * @return
+	 */
+	// TODO: move future.isDone() to a queue and check all futures; otherwise
+	// only the most recently called run is doind the readAndDispatch which will
+	// pause the other runs
+	public <T> Future<T> run(final Callable<T> callable,
+			final boolean animationEnabled) {
 		return ExecUtils.asyncExec(new Callable<T>() {
 			@Override
 			public T call() throws Exception {
-				Loader.this.start();
+				if (animationEnabled) {
+					Loader.this.start();
+				}
 				Future<T> future = ExecUtils.nonUIAsyncExec(callable);
 
 				Display display = Display.getCurrent();
 				while (!display.isDisposed() && !future.isDone()) {
-					Loader.this.control.redraw();
 					if (!display.readAndDispatch()) {
 						display.sleep();
 					}
 				}
 
 				T rs = future.get();
-				Loader.this.stop();
+				if (animationEnabled) {
+					Loader.this.stop();
+				}
 				return rs;
 			}
 		});

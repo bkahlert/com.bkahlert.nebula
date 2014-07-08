@@ -1,5 +1,7 @@
 package com.bkahlert.nebula.gallery.demoSuits.basic.loader;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -13,8 +15,9 @@ import org.eclipse.swt.widgets.Composite;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
+import com.bkahlert.nebula.widgets.browser.Browser;
+import com.bkahlert.nebula.widgets.browser.listener.MouseAdapter;
 import com.bkahlert.nebula.widgets.loader.Loader;
-import com.bkahlert.nebula.widgets.loader.LoaderComposite;
 import com.bkahlert.nebula.widgets.timeline.impl.TimePassed;
 
 @Demo
@@ -26,22 +29,19 @@ public class LoaderDemo extends AbstractDemo {
 		composite.setLayout(GridLayoutFactory.fillDefaults().margins(10, 10)
 				.equalWidth(true).spacing(10, 10).numColumns(4).create());
 
-		Button button = new Button(composite, SWT.PUSH);
-		button.setText("Click me...");
-		button.setLayoutData(GridDataFactory.fillDefaults().grab(true, true)
+		Button btn1 = new Button(composite, SWT.PUSH);
+		btn1.setText("Click me...");
+		btn1.setLayoutData(GridDataFactory.fillDefaults().grab(true, true)
 				.span(4, 2).create());
-		final Loader buttonLoader = new Loader(button);
-		button.addSelectionListener(new SelectionAdapter() {
+		final Loader btn1Loader = new Loader(btn1);
+		btn1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				buttonLoader.run(new Callable<Void>() {
+				btn1Loader.run(new Callable<Void>() {
 					@Override
 					public Void call() throws Exception {
-						System.err.println(Thread.currentThread());
 						TimePassed timePassed = new TimePassed();
 						while (timePassed.getTimePassed() < 3000) {
-							System.err.println(timePassed.getTimePassed()
-									+ "ms passed");
 							log(timePassed.getTimePassed() + "ms passed");
 						}
 						return null;
@@ -50,25 +50,102 @@ public class LoaderDemo extends AbstractDemo {
 			}
 		});
 
-		LoaderComposite lc2 = new LoaderComposite(composite);
+		Browser lc2 = new Browser(composite, SWT.NONE);
 		lc2.setLayoutData(GridDataFactory.fillDefaults().grab(true, true)
 				.span(2, 2).create());
+		try {
+			lc2.open(new URI("http://color.hailpixel.com"), 60000);
+		} catch (URISyntaxException e1) {
+			log(e1.getMessage());
+		}
 
-		LoaderComposite lc3 = new LoaderComposite(composite);
+		Browser lc3 = new Browser(composite, SWT.NONE);
 		lc3.setLayoutData(GridDataFactory.fillDefaults().grab(true, true)
 				.span(2, 4).create());
+		final Loader loader3 = new Loader(lc3);
+		lc3.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseUp(double x, double y) {
+				loader3.run(new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+						TimePassed timePassed = new TimePassed();
+						while (timePassed.getTimePassed() < 3000) {
+							log(timePassed.getTimePassed() + "ms passed");
+						}
+						return null;
+					}
+				});
+			}
+		});
+		try {
+			lc3.open(new URI("http://wikipedia.com"), 60000);
+		} catch (URISyntaxException e1) {
+			log(e1.getMessage());
+		}
 
-		LoaderComposite lc4 = new LoaderComposite(composite);
-		lc4.setLayoutData(GridDataFactory.fillDefaults().grab(true, true)
-				.span(1, 2).create());
+		Button btn4 = new Button(composite, SWT.PUSH);
+		btn4.setText("Click me...");
+		btn4.setLayoutData(GridDataFactory.fillDefaults().grab(true, true)
+				.span(2, 1).create());
+		final Loader btn4Loader = new Loader(btn4);
+		btn4.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				btn4Loader.run(new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+						TimePassed timePassed = new TimePassed();
+						while (timePassed.getTimePassed() < 3000) {
+							log(timePassed.getTimePassed() + "ms passed");
+						}
+						return null;
+					}
+				});
+			}
+		});
 
-		LoaderComposite lc5 = new LoaderComposite(composite);
-		lc5.setLayoutData(GridDataFactory.fillDefaults().grab(true, true)
+		Button btn5 = new Button(composite, SWT.PUSH);
+		btn5.setText("Click me...");
+		btn5.setLayoutData(GridDataFactory.fillDefaults().grab(true, true)
 				.span(1, 1).create());
+		final Loader btn5Loader = new Loader(btn5);
+		btn5.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				btn5Loader.run(new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+						TimePassed timePassed = new TimePassed();
+						while (timePassed.getTimePassed() < 3000) {
+							log(timePassed.getTimePassed() + "ms passed");
+						}
+						return null;
+					}
+				});
+			}
+		});
 
-		LoaderComposite lc6 = new LoaderComposite(composite);
-		lc6.setLayoutData(GridDataFactory.fillDefaults().grab(true, true)
+		Button btn6 = new Button(composite, SWT.PUSH);
+		btn6.setText("Click me...");
+		btn6.setLayoutData(GridDataFactory.fillDefaults().grab(true, true)
 				.span(1, 1).create());
+		final Loader btn6Loader = new Loader(btn6);
+		btn6.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				btn6Loader.run(new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+						TimePassed timePassed = new TimePassed();
+						while (timePassed.getTimePassed() < 3000) {
+							log(timePassed.getTimePassed() + "ms passed");
+						}
+						return null;
+					}
+				});
+			}
+		});
 
 		log("");
 

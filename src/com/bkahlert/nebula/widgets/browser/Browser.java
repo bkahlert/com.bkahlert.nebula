@@ -46,7 +46,6 @@ import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 import com.bkahlert.nebula.widgets.browser.listener.IMouseListener;
 import com.bkahlert.nebula.widgets.browser.runner.BrowserScriptRunner;
 import com.bkahlert.nebula.widgets.browser.runner.BrowserScriptRunner.BrowserStatus;
-import com.bkahlert.nebula.widgets.loader.Loader;
 
 public class Browser extends Composite implements IBrowser {
 
@@ -79,10 +78,8 @@ public class Browser extends Composite implements IBrowser {
 	private final List<IFocusListener> focusListeners = new ArrayList<IFocusListener>();
 	private final List<IDropListener> dropListeners = new ArrayList<IDropListener>();
 
-	private Loader loader = null;
-
 	public Browser(Composite parent, int style) {
-		super(parent, style);
+		super(parent, style | SWT.EMBEDDED);
 		this.setLayout(new FillLayout());
 
 		this.browser = new org.eclipse.swt.browser.Browser(this, SWT.NONE);
@@ -525,7 +522,6 @@ public class Browser extends Composite implements IBrowser {
 
 	@Override
 	public void beforeLoad(String uri) {
-		this.loading(true);
 	}
 
 	@Override
@@ -534,7 +530,6 @@ public class Browser extends Composite implements IBrowser {
 
 	@Override
 	public Future<Void> beforeCompletion(String uri) {
-		this.loading(false);
 		return null;
 	}
 
@@ -822,30 +817,6 @@ public class Browser extends Composite implements IBrowser {
 		} catch (Exception e) {
 			return new CompletedFuture<Void>(null, e);
 		}
-	}
-
-	@Override
-	public Future<Void> loading(final boolean on) {
-		return ExecUtils.asyncExec(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				if (on) {
-					if (Browser.this.loader == null) {
-						Browser.this.loader = new Loader(Browser.this);
-						Browser.this.addDisposeListener(new DisposeListener() {
-							@Override
-							public void widgetDisposed(DisposeEvent e) {
-								Browser.this.loader.dispose();
-							}
-						});
-					}
-					Browser.this.loader.start();
-				} else if (Browser.this.loader != null) {
-					Browser.this.loader.stop();
-				}
-				return null;
-			}
-		});
 	}
 
 	@Override
