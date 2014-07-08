@@ -13,10 +13,9 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
-
-import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
 import com.bkahlert.nebula.gallery.util.deprecated.LayoutUtils;
 import com.bkahlert.nebula.gallery.util.deprecated.ViewerComposite;
+import com.bkahlert.nebula.utils.selection.ArrayUtils;
 
 /**
  * This {@link Composite} displays all {@link IProject}s within the

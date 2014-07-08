@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 
-import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
+import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.viewer.FileListViewer;
 
 public class DirectoryListDialog extends TitleAreaDialog {

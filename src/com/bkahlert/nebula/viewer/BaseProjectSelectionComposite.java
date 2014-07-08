@@ -18,7 +18,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Table;
 
-import com.bkahlert.devel.rcp.selectionUtils.ArrayUtils;
+import com.bkahlert.nebula.utils.selection.ArrayUtils;
 
 
 /**

@@ -9,10 +9,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 
-import com.bkahlert.devel.rcp.selectionUtils.SelectionUtils;
-import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.utils.selection.SelectionUtils;
+import com.bkahlert.nebula.utils.selection.retriever.SelectionRetrieverFactory;
 import com.bkahlert.nebula.viewer.ProjectSelectionComposite;
 
 @Demo(title = "This demo shows a Composite that reflects the currently selected projects in the workbench.")

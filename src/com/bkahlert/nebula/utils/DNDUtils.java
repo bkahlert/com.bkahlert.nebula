@@ -7,7 +7,7 @@ import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.dnd.Transfer;
 
-import com.bkahlert.devel.rcp.selectionUtils.retriever.SelectionRetrieverFactory;
+import com.bkahlert.nebula.utils.selection.retriever.SelectionRetrieverFactory;
 
 public class DNDUtils {
 
