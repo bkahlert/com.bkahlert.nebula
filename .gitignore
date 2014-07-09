@@ -1,9 +1,0 @@
-*.class
-
-# Package Files #
-*.war
-*.ear
-*.svn
-bin
-facade-ck.js
-/bin
