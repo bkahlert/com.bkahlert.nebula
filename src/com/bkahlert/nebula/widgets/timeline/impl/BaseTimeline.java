@@ -111,10 +111,10 @@ public class BaseTimeline extends Browser implements IBaseTimeline {
 		// final String escapedJson = TimelineJsonGenerator.enquote(json);
 		final String js;
 		if (startAnimationDuration <= 0 || endAnimationDuration <= 0) {
-			js = "com.bkahlert.devel.nebula.timeline.loadJSON(\"file://"
+			js = "com.bkahlert.nebula.timeline.loadJSON(\"file://"
 					+ json.getAbsolutePath() + "\");";
 		} else {
-			js = "com.bkahlert.devel.nebula.timeline.loadJSONAnimated(\"file://"
+			js = "com.bkahlert.nebula.timeline.loadJSONAnimated(\"file://"
 					+ json.getAbsolutePath()
 					+ "\", null, "
 					+ startAnimationDuration
@@ -171,20 +171,20 @@ public class BaseTimeline extends Browser implements IBaseTimeline {
 
 	@Override
 	public void setMinVisibleDate(Calendar calendar) {
-		this.run("com.bkahlert.devel.nebula.timeline.setMinVisibleDate('"
+		this.run("com.bkahlert.nebula.timeline.setMinVisibleDate('"
 				+ calendar + "');");
 	}
 
 	@Override
 	public void setCenterVisibleDate(Calendar calendar) {
-		this.run("com.bkahlert.devel.nebula.timeline.setCenterVisibleDate('"
+		this.run("com.bkahlert.nebula.timeline.setCenterVisibleDate('"
 				+ CalendarUtils.toISO8601(calendar) + "');");
 	}
 
 	@Override
 	public Future<Calendar> getCenterVisibleDate() {
 		return this
-				.run("return com.bkahlert.devel.nebula.timeline.getCenterVisibleDate();",
+				.run("return com.bkahlert.nebula.timeline.getCenterVisibleDate();",
 						new IConverter<Object, Calendar>() {
 							@Override
 							public Calendar convert(Object returnValue) {
@@ -201,20 +201,20 @@ public class BaseTimeline extends Browser implements IBaseTimeline {
 
 	@Override
 	public void setMaxVisibleDate(Calendar calendar) {
-		this.run("com.bkahlert.devel.nebula.timeline.setMaxVisibleDate('"
+		this.run("com.bkahlert.nebula.timeline.setMaxVisibleDate('"
 				+ calendar + "');");
 	}
 
 	@Override
 	public void setZoomIndex(final int index) {
-		this.run("com.bkahlert.devel.nebula.timeline.setZoomIndex(" + index
+		this.run("com.bkahlert.nebula.timeline.setZoomIndex(" + index
 				+ ");");
 	}
 
 	@Override
 	public Future<Integer> getZoomIndex() {
 		return this.run(
-				"return com.bkahlert.devel.nebula.timeline.getZoomIndex();",
+				"return com.bkahlert.nebula.timeline.getZoomIndex();",
 				new IConverter<Object, Integer>() {
 					@Override
 					public Integer convert(Object returnValue) {
@@ -237,7 +237,7 @@ public class BaseTimeline extends Browser implements IBaseTimeline {
 		final String decoratorJSON = TimelineJsonGenerator.toJson(decorators,
 				false);
 
-		this.run("com.bkahlert.devel.nebula.timeline.setDecorators("
+		this.run("com.bkahlert.nebula.timeline.setDecorators("
 				+ JSONUtils.enquote(decoratorJSON) + ");");
 	}
 

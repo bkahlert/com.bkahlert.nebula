@@ -3,7 +3,7 @@
 <plugin>
    <extension-point id="com.bkahlert.nebula.information" name="Nebula Information" schema="schema/com.bkahlert.nebula.information.exsd"/>
    <extension
-         id="id2"
+         id="com.bkahlert.nebula.gallery.application.Application"
          point="org.eclipse.core.runtime.applications">
       <application
             cardinality="singleton-global"
@@ -46,7 +46,7 @@
             name="Paste">
       </command>
       <command
-            id="com.bkahlert.devel.nebula.toggleSourceMode"
+            id="com.bkahlert.nebula.toggleSourceMode"
             name="Toggle Source Mode">
          <state
                id="org.eclipse.ui.commands.toggleState">
@@ -67,7 +67,7 @@
    <extension
          point="org.eclipse.ui.commandImages">
       <image
-            commandId="com.bkahlert.devel.nebula.toggleSourceMode"
+            commandId="com.bkahlert.nebula.toggleSourceMode"
             icon="icons/elcl16/sourceMode_tsk.png">
       </image>
       <image
@@ -124,7 +124,7 @@
       </handler>
       <handler
             class="com.bkahlert.nebula.handlers.ToggleSourceModeHandler"
-            commandId="com.bkahlert.devel.nebula.toggleSourceMode">
+            commandId="com.bkahlert.nebula.toggleSourceMode">
       </handler>
       <handler
             class="com.bkahlert.nebula.gallery.handlers.RefreshDemoHandler"
@@ -151,7 +151,7 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            id="com.bkahlert.devel.nebula.commands.EditorDemoInformationControl"
+            id="com.bkahlert.nebula.commands.EditorDemoInformationControl"
             name="Editor Demo InformationPopup">
       </command>
    </extension>
@@ -159,7 +159,7 @@
          point="org.eclipse.ui.handlers">
       <handler
             class="com.bkahlert.nebula.handlers.EditorDemoInformationControl"
-            commandId="com.bkahlert.devel.nebula.commands.EditorDemoInformationControl">
+            commandId="com.bkahlert.nebula.commands.EditorDemoInformationControl">
       </handler>
    </extension>
    <extension
@@ -168,12 +168,12 @@
             allPopups="false"
             locationURI="toolbar:com.bkahlert.nebula.information?after=additions">
          <command
-               commandId="com.bkahlert.devel.nebula.commands.EditorDemoInformationControl"
+               commandId="com.bkahlert.nebula.commands.EditorDemoInformationControl"
                style="push">
             <visibleWhen
                   checkEnabled="false">
                <with
-                     variable="com.bkahlert.devel.nebula.with1">
+                     variable="com.bkahlert.nebula.with1">
                </with>
             </visibleWhen>
          </command>

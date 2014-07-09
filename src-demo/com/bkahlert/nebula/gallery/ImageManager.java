@@ -37,7 +37,7 @@ public class ImageManager {
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return AbstractUIPlugin.imageDescriptorFromPlugin(
-				"com.bkahlert.devel.nebula", path);
+				"com.bkahlert.nebula", path);
 	}
 
 }

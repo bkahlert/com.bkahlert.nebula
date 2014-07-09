@@ -461,7 +461,7 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 	@Test
 	public void testLoadSaveSeveralTimes() throws Exception {
 		DOMConfigurator
-				.configure("/Users/bkahlert/development/reps/com.bkahlert.devel.nebula/log4j.xml");
+				.configure("/Users/bkahlert/development/reps/com.bkahlert.nebula/log4j.xml");
 		ShellUtils.runInSeparateShell(500, 300,
 				new ParametrizedCallable<Shell, Future<String>>() {
 					@Override

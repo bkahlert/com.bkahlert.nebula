@@ -176,29 +176,29 @@ public class JointJS extends Browser implements ISelectionProvider {
 
 	public Future<String> load(String json) {
 		return JointJS.this.run(
-				"return com.bkahlert.jointjs.load(" + JSONUtils.enquote(json)
+				"return com.bkahlert.nebula.jointjs.load(" + JSONUtils.enquote(json)
 						+ ")", IConverter.CONVERTER_STRING);
 	}
 
 	public Future<String> save() {
-		return this.run("return com.bkahlert.jointjs.save();",
+		return this.run("return com.bkahlert.nebula.jointjs.save();",
 				IConverter.CONVERTER_STRING);
 	}
 
 	@Override
 	public void setEnabled(boolean isEnabled) {
-		this.run("return com.bkahlert.jointjs.setEnabled("
+		this.run("return com.bkahlert.nebula.jointjs.setEnabled("
 				+ (isEnabled ? "true" : "false") + ");",
 				IConverter.CONVERTER_BOOLEAN);
 	}
 
 	public Future<String> getTitle() {
-		return this.run("return com.bkahlert.jointjs.getTitle();",
+		return this.run("return com.bkahlert.nebula.jointjs.getTitle();",
 				IConverter.CONVERTER_STRING);
 	}
 
 	public Future<Void> setTitle(String title) {
-		return this.run("com.bkahlert.jointjs.setTitle(\"" + title + "\");",
+		return this.run("com.bkahlert.nebula.jointjs.setTitle(\"" + title + "\");",
 				IConverter.CONVERTER_VOID);
 	}
 
@@ -207,7 +207,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 			id = this.nodeCreationPrefix + UUID.randomUUID().toString();
 		}
 		return this
-				.run("return com.bkahlert.jointjs.createNode('" + id + "', "
+				.run("return com.bkahlert.nebula.jointjs.createNode('" + id + "', "
 						+ JSONUtils.buildJson(json) + ");",
 						IConverter.CONVERTER_STRING);
 	}
@@ -244,7 +244,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 			id = this.linkCreationPrefix + UUID.randomUUID().toString();
 		}
 		return this.run(
-				"return com.bkahlert.jointjs.createLink('" + id + "', "
+				"return com.bkahlert.nebula.jointjs.createLink('" + id + "', "
 						+ JSONUtils.buildJson(source) + ", "
 						+ JSONUtils.buildJson(target) + ");",
 				IConverter.CONVERTER_STRING);
@@ -256,7 +256,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 			id = this.linkCreationPrefix + UUID.randomUUID().toString();
 		}
 		return this.run(
-				"return com.bkahlert.jointjs.createPermanentLink('" + id
+				"return com.bkahlert.nebula.jointjs.createPermanentLink('" + id
 						+ "', " + JSONUtils.buildJson(source) + ", "
 						+ JSONUtils.buildJson(target) + ");",
 				IConverter.CONVERTER_STRING);
@@ -297,7 +297,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 		} else if (index instanceof String) {
 			indexParam = "'" + index + "'";
 		}
-		return this.run("return com.bkahlert.jointjs.setText('" + id + "', "
+		return this.run("return com.bkahlert.nebula.jointjs.setText('" + id + "', "
 				+ indexParam + ", '" + text + "');", IConverter.CONVERTER_VOID);
 	}
 
@@ -308,7 +308,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 		} else if (index instanceof String) {
 			indexParam = "'" + index + "'";
 		}
-		return this.run("return com.bkahlert.jointjs.getText('" + id + "', "
+		return this.run("return com.bkahlert.nebula.jointjs.getText('" + id + "', "
 				+ indexParam + ");", IConverter.CONVERTER_STRING);
 	}
 
@@ -339,37 +339,37 @@ public class JointJS extends Browser implements ISelectionProvider {
 	public Future<Void> setColor(String id, RGB rgb) {
 		String color = rgb != null ? "'" + rgb.toCssString() + "'"
 				: "'initial'";
-		return this.run("return com.bkahlert.jointjs.setColor('" + id + "', "
+		return this.run("return com.bkahlert.nebula.jointjs.setColor('" + id + "', "
 				+ color + ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Void> setBackgroundColor(String id, RGB rgb) {
 		String color = rgb != null ? "'" + rgb.toCssString() + "'"
 				: "'initial'";
-		return this.run("return com.bkahlert.jointjs.setBackgroundColor('" + id
+		return this.run("return com.bkahlert.nebula.jointjs.setBackgroundColor('" + id
 				+ "', " + color + ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Void> setBorderColor(String id, RGB rgb) {
 		String color = rgb != null ? "'" + rgb.toCssString() + "'"
 				: "'initial'";
-		return this.run("return com.bkahlert.jointjs.setBorderColor('" + id
+		return this.run("return com.bkahlert.nebula.jointjs.setBorderColor('" + id
 				+ "', " + color + ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Void> setPosition(String id, int x, int y) {
-		return this.run("return com.bkahlert.jointjs.setPosition('" + id
+		return this.run("return com.bkahlert.nebula.jointjs.setPosition('" + id
 				+ "', " + x + ", " + y + ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Void> setSize(String id, int width, int height) {
-		return this.run("return com.bkahlert.jointjs.setSize('" + id + "', "
+		return this.run("return com.bkahlert.nebula.jointjs.setSize('" + id + "', "
 				+ width + ", " + height + ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Boolean> remove(String id) {
 		Future<Boolean> rt = this.run(
-				"return com.bkahlert.jointjs.removeCell('" + id + "');",
+				"return com.bkahlert.nebula.jointjs.removeCell('" + id + "');",
 				IConverter.CONVERTER_BOOLEAN);
 		if (id != null && id.equals(this.lastHovered)) {
 			this.fireHoveredOut(id);
@@ -378,63 +378,63 @@ public class JointJS extends Browser implements ISelectionProvider {
 	}
 
 	public Future<List<String>> getNodes() {
-		return this.run("return com.bkahlert.jointjs.getNodes();",
+		return this.run("return com.bkahlert.nebula.jointjs.getNodes();",
 				IConverter.CONVERTER_STRINGLIST);
 	}
 
 	public Future<List<String>> getLinks() {
-		return this.run("return com.bkahlert.jointjs.getLinks();",
+		return this.run("return com.bkahlert.nebula.jointjs.getLinks();",
 				IConverter.CONVERTER_STRINGLIST);
 	}
 
 	public Future<List<String>> getPermanentLinks() {
-		return this.run("return com.bkahlert.jointjs.getPermanentLinks();",
+		return this.run("return com.bkahlert.nebula.jointjs.getPermanentLinks();",
 				IConverter.CONVERTER_STRINGLIST);
 	}
 
 	public Future<List<String>> getConnectedLinks(String id) {
-		return this.run("return com.bkahlert.jointjs.getConnectedLinks(\"" + id
+		return this.run("return com.bkahlert.nebula.jointjs.getConnectedLinks(\"" + id
 				+ "\");", IConverter.CONVERTER_STRINGLIST);
 	}
 
 	public Future<List<String>> getConnectedPermanentLinks(String id) {
 		return this.run(
-				"return com.bkahlert.jointjs.getConnectedPermanentLinks(\""
+				"return com.bkahlert.nebula.jointjs.getConnectedPermanentLinks(\""
 						+ id + "\");", IConverter.CONVERTER_STRINGLIST);
 	}
 
 	public Future<Double> getZoom() {
-		return this.run("return com.bkahlert.jointjs.getZoom();",
+		return this.run("return com.bkahlert.nebula.jointjs.getZoom();",
 				IConverter.CONVERTER_DOUBLE);
 	}
 
 	public Future<Void> setZoom(Double zoom) {
-		return this.run("return com.bkahlert.jointjs.setZoom(" + zoom + ");",
+		return this.run("return com.bkahlert.nebula.jointjs.setZoom(" + zoom + ");",
 				IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Double> zoomIn() {
-		return this.run("return com.bkahlert.jointjs.zoomIn();",
+		return this.run("return com.bkahlert.nebula.jointjs.zoomIn();",
 				IConverter.CONVERTER_DOUBLE);
 	}
 
 	public Future<Double> zoomOut() {
-		return this.run("return com.bkahlert.jointjs.zoomOut();",
+		return this.run("return com.bkahlert.nebula.jointjs.zoomOut();",
 				IConverter.CONVERTER_DOUBLE);
 	}
 
 	public Future<Point> getPan() {
-		return this.run("return com.bkahlert.jointjs.getPan();",
+		return this.run("return com.bkahlert.nebula.jointjs.getPan();",
 				IConverter.CONVERTER_POINT);
 	}
 
 	public Future<Void> setPan(int x, int y) {
-		return this.run("return com.bkahlert.jointjs.setPan(" + x + ", " + y
+		return this.run("return com.bkahlert.nebula.jointjs.setPan(" + x + ", " + y
 				+ ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Void> autoLayout() {
-		return this.run("return com.bkahlert.jointjs.autoLayout();",
+		return this.run("return com.bkahlert.nebula.jointjs.autoLayout();",
 				IConverter.CONVERTER_VOID);
 	}
 

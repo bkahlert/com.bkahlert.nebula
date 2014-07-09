@@ -5,9 +5,9 @@
 var com = com || {};
 com.bkahlert = com.bkahlert || {};
 com.bkahlert.nebula = com.bkahlert.nebula || {};
-com.bkahlert.jointjs = com.bkahlert.jointjs || {};
+com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 (function ($) {
-    $.extend(com.bkahlert.jointjs, {
+    $.extend(com.bkahlert.nebula.jointjs, {
 
         graph: null,
         paper: null,
@@ -18,35 +18,35 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			$("html").addClass("ready");
 			var $window = $(window);
 			
-			com.bkahlert.jointjs.graph = new joint.dia.Graph();
-			com.bkahlert.jointjs.paper = new joint.dia.Paper({
+			com.bkahlert.nebula.jointjs.graph = new joint.dia.Graph();
+			com.bkahlert.nebula.jointjs.paper = new joint.dia.Paper({
 				el: $('.jointjs'),
 				width: $window.width(),
 				height: $window.height(),
 				gridSize: 1,
-				model: com.bkahlert.jointjs.graph,
+				model: com.bkahlert.nebula.jointjs.graph,
 				elementView: joint.shapes.html.ElementView,
 				linkView: joint.shapes.LinkView
 			});
-			com.bkahlert.jointjs.setTitle(null);
+			com.bkahlert.nebula.jointjs.setTitle(null);
 			
-			com.bkahlert.jointjs.activateZoomControls();
-			com.bkahlert.jointjs.activatePanCapability(com.bkahlert.jointjs.paper);
-			com.bkahlert.jointjs.activateLinkCreationCapability(com.bkahlert.jointjs.graph, com.bkahlert.jointjs.paper);
-			com.bkahlert.jointjs.activateLinkAbandonCapability(com.bkahlert.jointjs.graph, com.bkahlert.jointjs.paper);
-			com.bkahlert.jointjs.activateLinkTools();
-			com.bkahlert.jointjs.activateSelections();
+			com.bkahlert.nebula.jointjs.activateZoomControls();
+			com.bkahlert.nebula.jointjs.activatePanCapability(com.bkahlert.nebula.jointjs.paper);
+			com.bkahlert.nebula.jointjs.activateLinkCreationCapability(com.bkahlert.nebula.jointjs.graph, com.bkahlert.nebula.jointjs.paper);
+			com.bkahlert.nebula.jointjs.activateLinkAbandonCapability(com.bkahlert.nebula.jointjs.graph, com.bkahlert.nebula.jointjs.paper);
+			com.bkahlert.nebula.jointjs.activateLinkTools();
+			com.bkahlert.nebula.jointjs.activateSelections();
 			
 			var internal = /[?&]internal=true/.test(location.href);
 			if (!internal) {
-				com.bkahlert.jointjs.openDemo();
-				com.bkahlert.jointjs.setTitle('Demo');
+				com.bkahlert.nebula.jointjs.openDemo();
+				com.bkahlert.nebula.jointjs.setTitle('Demo');
 			} else {
 			}
 		},
 
 		load: function (json) {
-			com.bkahlert.jointjs.graph.clear();
+			com.bkahlert.nebula.jointjs.graph.clear();
 			if(typeof json === 'string') json = JSON.parse(json);
 			
 			var title = null;
@@ -98,29 +98,29 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			sanityCheck(json);
 			
 			try {
-				com.bkahlert.jointjs.graph.fromJSON(json);
+				com.bkahlert.nebula.jointjs.graph.fromJSON(json);
 			} catch(e) {
 			}
-			com.bkahlert.jointjs.setTitle(title);
-			com.bkahlert.jointjs.setZoom(zoom);
-			com.bkahlert.jointjs.setPan(pan.x, pan.y);
+			com.bkahlert.nebula.jointjs.setTitle(title);
+			com.bkahlert.nebula.jointjs.setZoom(zoom);
+			com.bkahlert.nebula.jointjs.setPan(pan.x, pan.y);
 			
-			var json = com.bkahlert.jointjs.serialize()
+			var json = com.bkahlert.nebula.jointjs.serialize()
 			if (typeof window.loaded === 'function') { window.loaded(json); }
 			return json;
 		},
 
 		save: function () {
-			var json = com.bkahlert.jointjs.serialize();
+			var json = com.bkahlert.nebula.jointjs.serialize();
 			if (typeof window.save === 'function') { window.save(json); }
 			return json;
 		},
 		
 		serialize: function () {
-			var json = JSON.parse(JSON.stringify(com.bkahlert.jointjs.graph));
-			json.title = com.bkahlert.jointjs.getTitle();
-			json.zoom = com.bkahlert.jointjs.getZoom();
-			var pan = com.bkahlert.jointjs.getPan();
+			var json = JSON.parse(JSON.stringify(com.bkahlert.nebula.jointjs.graph));
+			json.title = com.bkahlert.nebula.jointjs.getTitle();
+			json.zoom = com.bkahlert.nebula.jointjs.getZoom();
+			var pan = com.bkahlert.nebula.jointjs.getPan();
 			json.pan = { x: pan[0], y: pan[1] };
 			return JSON.stringify(json, null, "\t");
 		},
@@ -143,7 +143,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		},
 
 		autoLayout: function () {
-			var graph = com.bkahlert.jointjs.graph;
+			var graph = com.bkahlert.nebula.jointjs.graph;
 			joint.layout.DirectedGraph.layout(graph, {
 				setLinkVertices: false,
 				nodeSep: 0.1,
@@ -154,9 +154,9 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		},
 
         onresize: function () {
-            if (com.bkahlert.jointjs.paper) {
+            if (com.bkahlert.nebula.jointjs.paper) {
                 var $window = $(window);
-                com.bkahlert.jointjs.paper.setDimensions($window.width(), $window.height());
+                com.bkahlert.nebula.jointjs.paper.setDimensions($window.width(), $window.height());
             }
         },
 
@@ -167,64 +167,64 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 				right: 0
 			})
 			.append($('<button>Load</a>').prop('disabled', true).click(function () {
-				com.bkahlert.jointjs.load(window.saved);
+				com.bkahlert.nebula.jointjs.load(window.saved);
 			}))
 			.append($('<button>Save</a>').click(function () {
 				$('.buttons > :first-child').prop('disabled', false);
-				window.saved = com.bkahlert.jointjs.save();
+				window.saved = com.bkahlert.nebula.jointjs.save();
 				console.log(window.saved);
 			}))
 			.append($('<button>Add Node</button>').click(function () {
-				com.bkahlert.jointjs.createNode();
+				com.bkahlert.nebula.jointjs.createNode();
 			}))
 			.append($('<button>Add Link</button>').click(function () {
-				com.bkahlert.jointjs.createLink();
+				com.bkahlert.nebula.jointjs.createLink();
 			}))
 			.append($('<button>Layout</button>').click(function () {
-				com.bkahlert.jointjs.autoLayout();
+				com.bkahlert.nebula.jointjs.autoLayout();
 			}))
 			.append($('<button>Zoom In</button>').click(function () {
-				com.bkahlert.jointjs.zoomIn();
+				com.bkahlert.nebula.jointjs.zoomIn();
 			}))
 			.append($('<button>Zoom Out</button>').click(function () {
-				com.bkahlert.jointjs.zoomOut();
+				com.bkahlert.nebula.jointjs.zoomOut();
 			}))
 			.append($('<button>Get Pan</button>').click(function () {
-				console.log(com.bkahlert.jointjs.getPan());
+				console.log(com.bkahlert.nebula.jointjs.getPan());
 			}))
 			.append($('<button>Set Pan</button>').click(function () {
-				com.bkahlert.jointjs.setPan(100, 100);
+				com.bkahlert.nebula.jointjs.setPan(100, 100);
 			}))
 			.append($('<button>Log Nodes/Links</button>').click(function () {
-				console.log(com.bkahlert.jointjs.getNodes());
-				console.log(com.bkahlert.jointjs.getLinks());
-				console.log(com.bkahlert.jointjs.getPermanentLinks());
+				console.log(com.bkahlert.nebula.jointjs.getNodes());
+				console.log(com.bkahlert.nebula.jointjs.getLinks());
+				console.log(com.bkahlert.nebula.jointjs.getPermanentLinks());
 			}))
 			.append($('<button>Enable</button>').click(function () {
-				com.bkahlert.jointjs.setEnabled(true);
+				com.bkahlert.nebula.jointjs.setEnabled(true);
 			}))
 			.append($('<button>Disable</button>').click(function () {
-				com.bkahlert.jointjs.setEnabled(false);
+				com.bkahlert.nebula.jointjs.setEnabled(false);
 			}))
 			.append($('<button>Custom</button>').click(function () {
 				var x = {"cells":[{"type":"html.Element","position":{"x":270,"y":142},"size":{"width":"242","height":"30"},"angle":"0","id":"apiua://code/-9223372036854775640","content":"","title":"Offensichtliche Usability-Probleme","z":"0","color":"rgb(0, 0, 0)","background-color":"rgba(255, 102, 102, 0.27450980392156865)","border-color":"rgba(255, 48, 48, 0.39215686274509803)","attrs":{}}],"title":"New Model","zoom":"1","pan":{"x":"0","y":"0"}};
 				console.log(x);
-				com.bkahlert.jointjs.graph.clear();
-				com.bkahlert.jointjs.graph.fromJSON(x);
+				com.bkahlert.nebula.jointjs.graph.clear();
+				com.bkahlert.nebula.jointjs.graph.fromJSON(x);
 			}));
 			
-			var a = com.bkahlert.jointjs.createNode('apiua://test', { position: { x: 100, y: 300 }, title: 'my box', content: '<ul><li>jkjk</li></ul>' });
-			var b = com.bkahlert.jointjs.createNode('apiua://test2', { title: 'my box233333' });
-			var linkid = com.bkahlert.jointjs.createPermanentLink(null, { id: 'apiua://test' }, { id: 'apiua://test2' });
-			var c = com.bkahlert.jointjs.createNode('apiua://test3', { title: 'my box233333', position: { x: 300, y: 300 },  });
-			var linkid2 = com.bkahlert.jointjs.createLink(null, { id: 'apiua://test3' }, { id: 'apiua://test2' });
-			com.bkahlert.jointjs.setText(linkid, 0, 'my_label');
-			com.bkahlert.jointjs.setText('apiua://test2', 'content', 'XN dskjd sdkds dskdsdjks dskj ');
-			com.bkahlert.jointjs.setSize(c, 300, 100);
-			console.log(com.bkahlert.jointjs.getConnectedLinks('apiua://test2'));
-			console.log(com.bkahlert.jointjs.getConnectedPermanentLinks('apiua://test2'));
+			var a = com.bkahlert.nebula.jointjs.createNode('apiua://test', { position: { x: 100, y: 300 }, title: 'my box', content: '<ul><li>jkjk</li></ul>' });
+			var b = com.bkahlert.nebula.jointjs.createNode('apiua://test2', { title: 'my box233333' });
+			var linkid = com.bkahlert.nebula.jointjs.createPermanentLink(null, { id: 'apiua://test' }, { id: 'apiua://test2' });
+			var c = com.bkahlert.nebula.jointjs.createNode('apiua://test3', { title: 'my box233333', position: { x: 300, y: 300 },  });
+			var linkid2 = com.bkahlert.nebula.jointjs.createLink(null, { id: 'apiua://test3' }, { id: 'apiua://test2' });
+			com.bkahlert.nebula.jointjs.setText(linkid, 0, 'my_label');
+			com.bkahlert.nebula.jointjs.setText('apiua://test2', 'content', 'XN dskjd sdkds dskdsdjks dskj ');
+			com.bkahlert.nebula.jointjs.setSize(c, 300, 100);
+			console.log(com.bkahlert.nebula.jointjs.getConnectedLinks('apiua://test2'));
+			console.log(com.bkahlert.nebula.jointjs.getConnectedPermanentLinks('apiua://test2'));
 			window.setTimeout(function() {
-				com.bkahlert.jointjs.setPosition(c, 500, 500);
+				com.bkahlert.nebula.jointjs.setPosition(c, 500, 500);
 			}, 1000);
 		},
 		
@@ -233,24 +233,24 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		},
 		
 		setZoom: function(val) {
-			com.bkahlert.jointjs.paper.scale(val);
+			com.bkahlert.nebula.jointjs.paper.scale(val);
 		},
 		
 		zoomIn: function(val) {
-			com.bkahlert.jointjs.setZoom(com.bkahlert.jointjs.getZoom()*1.2);
+			com.bkahlert.nebula.jointjs.setZoom(com.bkahlert.nebula.jointjs.getZoom()*1.2);
 		},
 		
 		zoomOut: function(val) {
-			com.bkahlert.jointjs.setZoom(com.bkahlert.jointjs.getZoom()*0.8);
+			com.bkahlert.nebula.jointjs.setZoom(com.bkahlert.nebula.jointjs.getZoom()*0.8);
 		},
 		
 		getPan: function() {
-			var translate = com.bkahlert.jointjs.paper.getTranslate();
+			var translate = com.bkahlert.nebula.jointjs.paper.getTranslate();
 			return [translate.tx, translate.ty];
 		},
 		
 		setPan: function(x, y) {
-			com.bkahlert.jointjs.paper.translate(x, y);
+			com.bkahlert.nebula.jointjs.paper.translate(x, y);
 		},	
 		
 		createNode: function(id, attrs) {
@@ -258,7 +258,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			_.extend(config, attrs);
 			
 			var rect = new joint.shapes.html.Element(config);
-			com.bkahlert.jointjs.graph.addCell(rect);
+			com.bkahlert.nebula.jointjs.graph.addCell(rect);
 			return rect.id;
 		},
 		
@@ -275,7 +275,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 				'.marker-source': {  },
 				'.marker-target': { d: 'M 10 0 L 0 5 L 10 10 z' }
 			}).set('smooth', true);
-			com.bkahlert.jointjs.graph.addCell(link);
+			com.bkahlert.nebula.jointjs.graph.addCell(link);
 			return link.id;
 		},
 		
@@ -295,13 +295,13 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 				'.connection': { 'stroke-dasharray': '1,4' }
 			}).set('smooth', true).set('permanent', true);
 			
-			com.bkahlert.jointjs.graph.addCell(link);
+			com.bkahlert.nebula.jointjs.graph.addCell(link);
 			
 			return link.id;			
 		},
 		
 		removeCell: function(id) {
-			var cell = com.bkahlert.jointjs.graph.getCell(id);
+			var cell = com.bkahlert.nebula.jointjs.graph.getCell(id);
 			if(cell) {
 				cell.remove();
 				return true;
@@ -312,7 +312,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		
 		getNodes: function() {
 			var nodes = [];
-			_.each(com.bkahlert.jointjs.graph.getElements(), function(element) {
+			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
 				nodes.push(element.id);
 			});
 			return nodes;
@@ -320,7 +320,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		
 		getLinks: function() {
 			var links = [];
-			_.each(com.bkahlert.jointjs.graph.getLinks(), function(link) {
+			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
 				if(!link.get('permanent')) links.push(link.id);
 			});
 			return links;
@@ -328,25 +328,25 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		
 		getPermanentLinks: function() {
 			var links = [];
-			_.each(com.bkahlert.jointjs.graph.getLinks(), function(link) {
+			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
 				if(link.get('permanent')) links.push(link.id);
 			});
 			return links;
 		},
 		
 		getConnectedLinks: function(id) {
-			var cell = com.bkahlert.jointjs.graph.getCell(id);
+			var cell = com.bkahlert.nebula.jointjs.graph.getCell(id);
 			var links = [];
-			_.each(com.bkahlert.jointjs.graph.getConnectedLinks(cell, {}), function(link) {
+			_.each(com.bkahlert.nebula.jointjs.graph.getConnectedLinks(cell, {}), function(link) {
 				if(!link.get('permanent')) links.push(link.id);
 			});
 			return links;
 		},
 		
 		getConnectedPermanentLinks: function(id) {
-			var cell = com.bkahlert.jointjs.graph.getCell(id);
+			var cell = com.bkahlert.nebula.jointjs.graph.getCell(id);
 			var links = [];
-			_.each(com.bkahlert.jointjs.graph.getConnectedLinks(cell, {}), function(link) {
+			_.each(com.bkahlert.nebula.jointjs.graph.getConnectedLinks(cell, {}), function(link) {
 				if(link.get('permanent')) links.push(link.id);
 			});
 			return links;
@@ -367,7 +367,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 					case 107:
 					/* laptop keyboard, + */
 					case 187:
-						com.bkahlert.jointjs.zoomIn();
+						com.bkahlert.nebula.jointjs.zoomIn();
 						event.preventDefault();
 						event.stopPropagation();
 						break;
@@ -380,17 +380,17 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 					case 109:
 					/* laptop keyboard, - */
 					case 189:
-						com.bkahlert.jointjs.zoomOut();
+						com.bkahlert.nebula.jointjs.zoomOut();
 						event.preventDefault();
 						event.stopPropagation();
 						break;
 				}
 			});
 			
-			com.bkahlert.jointjs.paper.on('blank:pointerdblclick', 
+			com.bkahlert.nebula.jointjs.paper.on('blank:pointerdblclick', 
 				function(evt, x, y) {
-					if(shiftKey) com.bkahlert.jointjs.zoomOut();
-					else com.bkahlert.jointjs.zoomIn();
+					if(shiftKey) com.bkahlert.nebula.jointjs.zoomOut();
+					else com.bkahlert.nebula.jointjs.zoomIn();
 				}
 			);
         },
@@ -398,45 +398,45 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
         activatePanCapability: function(paper) {
         	paper.on('blank:pointerdown', function(e) {
         		if(e.which != 1) return;
-        		com.bkahlert.jointjs.mouseX = e.offsetX;
-        		com.bkahlert.jointjs.mouseY = e.offsetY;
-				com.bkahlert.jointjs.mousePan($(this.viewport).parents('svg'), true);
+        		com.bkahlert.nebula.jointjs.mouseX = e.offsetX;
+        		com.bkahlert.nebula.jointjs.mouseY = e.offsetY;
+				com.bkahlert.nebula.jointjs.mousePan($(this.viewport).parents('svg'), true);
 			});
 			paper.on('blank:pointerup', function() {
-				com.bkahlert.jointjs.mousePan($(this.viewport).parents('svg'), false);
+				com.bkahlert.nebula.jointjs.mousePan($(this.viewport).parents('svg'), false);
 			});
 			$(document).on('mouseleave', '.jointjs svg', function() {
-				com.bkahlert.jointjs.mousePan(this, false);
+				com.bkahlert.nebula.jointjs.mousePan(this, false);
 			});
         },
         
         // is called if mouse is moved with a down button
         // used to pan
         mousePanTracker: function(e) {
-        	var deltaX = e.offsetX - com.bkahlert.jointjs.mouseX;
-        	var deltaY = e.offsetY - com.bkahlert.jointjs.mouseY;
+        	var deltaX = e.offsetX - com.bkahlert.nebula.jointjs.mouseX;
+        	var deltaY = e.offsetY - com.bkahlert.nebula.jointjs.mouseY;
         	
-        	var scale = com.bkahlert.jointjs.paper.getScale();
+        	var scale = com.bkahlert.nebula.jointjs.paper.getScale();
         	
-        	var translate = com.bkahlert.jointjs.paper.getTranslate();
+        	var translate = com.bkahlert.nebula.jointjs.paper.getTranslate();
         	var newX = translate.tx + deltaX/scale.sx;
         	var newY = translate.ty + deltaY/scale.sy;
 			
-			com.bkahlert.jointjs.paper.translate(newX, newY);
+			com.bkahlert.nebula.jointjs.paper.translate(newX, newY);
         	
-        	com.bkahlert.jointjs.mouseX = e.offsetX;
-        	com.bkahlert.jointjs.mouseY = e.offsetY;
+        	com.bkahlert.nebula.jointjs.mouseX = e.offsetX;
+        	com.bkahlert.nebula.jointjs.mouseY = e.offsetY;
         },
         
         // (de)activates mouse panning
         mousePan: function(svg, activate) {
         	$svg = $(svg);
         	if(activate) {
-        		$svg.bind('mousemove', com.bkahlert.jointjs.mousePanTracker);
+        		$svg.bind('mousemove', com.bkahlert.nebula.jointjs.mousePanTracker);
         		$svg.attr('class', 'grabbing');
         	} else {
         		$svg.attr('class', '');
-        		$svg.unbind('mousemove', com.bkahlert.jointjs.mousePanTracker);
+        		$svg.unbind('mousemove', com.bkahlert.nebula.jointjs.mousePanTracker);
         	}
         },
 		
@@ -457,7 +457,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 						source = { x: bounds.x-100, y: y };
 					}
 					
-					com.bkahlert.jointjs.createLink(null, source, target);
+					com.bkahlert.nebula.jointjs.createLink(null, source, target);
 				}
 			);
 		},
@@ -480,9 +480,9 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		
 		activateLinkTools: function() {
 			$(document).on('mouseenter', '.link[model-id]:not(.permanent)', function() {
-				com.bkahlert.jointjs.showTextChangePopup($(this).attr('model-id'));
+				com.bkahlert.nebula.jointjs.showTextChangePopup($(this).attr('model-id'));
 			}).on('mouseleave', '.link[model-id]', function() {
-				com.bkahlert.jointjs.hideTextChangePopup($(this).attr('model-id'));
+				com.bkahlert.nebula.jointjs.hideTextChangePopup($(this).attr('model-id'));
 			});
 		},
 		
@@ -491,7 +491,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 			
 			// we use a filter to not have to deal with escaping (e.g. [model-id=abc-def] does not work because of the hyphen in the selector)
 			var $el = $('[model-id]').filter(function() { return $(this).attr('model-id') == id; });
-			com.bkahlert.jointjs.graph.getCell(id).on('remove', com.bkahlert.jointjs.hideTextChangePopup);
+			com.bkahlert.nebula.jointjs.graph.getCell(id).on('remove', com.bkahlert.nebula.jointjs.hideTextChangePopup);
 			$el.popover({
 				trigger: 'manual',
 				container: 'body',
@@ -502,11 +502,11 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 						<form class="form-inline" role="form">\
 							<div class="form-group">\
 								<label class="sr-only" for="linkTitle">Title</label>\
-								<input type="text" class="form-control input-sm" id="linkTitle" placeholder="Title" value="' + com.bkahlert.jointjs.getText(id, 0) + '">\
+								<input type="text" class="form-control input-sm" id="linkTitle" placeholder="Title" value="' + com.bkahlert.nebula.jointjs.getText(id, 0) + '">\
 							</div>\
 						</form>\
 						').submit(function() {
-							com.bkahlert.jointjs.hideAndApplyTextChangePopup($el.attr('model-id'));
+							com.bkahlert.nebula.jointjs.hideAndApplyTextChangePopup($el.attr('model-id'));
 							return false;
 						});
 				}
@@ -531,7 +531,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 				var $el = $('[model-id]').filter(function() { return $(this).attr('model-id') == id; });
 				var title = $('#linkTitle').val();
 				$el.popover('destroy');
-				com.bkahlert.jointjs.setText(id, 0, title);
+				com.bkahlert.nebula.jointjs.setText(id, 0, title);
 			}
 		},
 		
@@ -550,7 +550,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		},
 		
 		setText: function(id, index, text) {
-			var cell = com.bkahlert.jointjs.graph.getCell(id);
+			var cell = com.bkahlert.nebula.jointjs.graph.getCell(id);
 			
 			if(cell instanceof joint.dia.Link) {
 				cell.label(index, { attrs: { text: { text: text } }});
@@ -561,7 +561,7 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		},
 		
 		getText: function(id, index) {
-			var cell = com.bkahlert.jointjs.graph.getCell(id);
+			var cell = com.bkahlert.nebula.jointjs.graph.getCell(id);
 			if(cell instanceof joint.dia.Link) {
 				return cell.get('labels')[index].attrs.text.text;
 			} else {
@@ -570,34 +570,34 @@ com.bkahlert.jointjs = com.bkahlert.jointjs || {};
 		},
 		
 		setColor: function(id, rgb) {
-			var cell = com.bkahlert.jointjs.graph.getCell(id);
+			var cell = com.bkahlert.nebula.jointjs.graph.getCell(id);
 			cell.set('color', rgb);
 		},
 		
 		setBackgroundColor: function(id, rgb) {
-			var cell = com.bkahlert.jointjs.graph.getCell(id);
+			var cell = com.bkahlert.nebula.jointjs.graph.getCell(id);
 			cell.set('background-color', rgb);
 		},
 		
 		setBorderColor: function(id, rgb) {
-			var cell = com.bkahlert.jointjs.graph.getCell(id);
+			var cell = com.bkahlert.nebula.jointjs.graph.getCell(id);
 			cell.set('border-color', rgb);
 		},
 		
 		setPosition: function(id, x, y) {
-			var cell = com.bkahlert.jointjs.graph.getCell(id);
+			var cell = com.bkahlert.nebula.jointjs.graph.getCell(id);
 			cell.set('position', { x: x, y: y });
 		},
 		
 		setSize: function(id, width, height) {
-			var cell = com.bkahlert.jointjs.graph.getCell(id);
+			var cell = com.bkahlert.nebula.jointjs.graph.getCell(id);
 			cell.set('size', { width: width, height: height });
 		}
     });
 })(jQuery);
 
-$(window).resize(com.bkahlert.jointjs.onresize);
-$(document).ready(com.bkahlert.jointjs.start);
+$(window).resize(com.bkahlert.nebula.jointjs.onresize);
+$(document).ready(com.bkahlert.nebula.jointjs.start);
 
 
 
@@ -697,7 +697,7 @@ joint.dia.Paper.prototype.getTranslate = function() {
 }
         
 joint.dia.Paper.prototype.translate = function(tx, ty) {
-	var scale = com.bkahlert.jointjs.paper.getScale();
+	var scale = com.bkahlert.nebula.jointjs.paper.getScale();
 	$(this.viewport).attr('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + tx + ', ' + ty + ')');
 	this.$el.find('.html-view').css('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + tx + 'px, ' + ty + 'px)');
 }
@@ -747,7 +747,7 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
         this.model.on('change', this.updateBox, this);
 		
 		// TODO get paper that shows this element instead of using a singleton (for some reason this.paper seems to exists but can't be accessed)
-		com.bkahlert.jointjs.paper.on('scale', this.updateBox, this);
+		com.bkahlert.nebula.jointjs.paper.on('scale', this.updateBox, this);
 		
         // Remove the box when the model gets removed from the graph.
         this.model.on('remove', this.removeBox, this);

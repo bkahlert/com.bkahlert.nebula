@@ -1,13 +1,13 @@
 var com = com || {};
 com.bkahlert = com.bkahlert || {};
 com.bkahlert.devel = com.bkahlert.devel || {};
-com.bkahlert.devel.nebula = com.bkahlert.devel.nebula || {};
-com.bkahlert.devel.nebula.timeline = com.bkahlert.devel.nebula.timeline || {};
+com.bkahlert.nebula = com.bkahlert.nebula || {};
+com.bkahlert.nebula.timeline = com.bkahlert.nebula.timeline || {};
 (function($) {
     /**
      * Façade for the core functionality of the SIMILE Timeline
      */
-    $.extend(com.bkahlert.devel.nebula.timeline, {
+    $.extend(com.bkahlert.nebula.timeline, {
 
         animate : function(runnable, timestart, timeend, callback) {
             $(".timeline").animate({
@@ -26,8 +26,8 @@ com.bkahlert.devel.nebula.timeline = com.bkahlert.devel.nebula.timeline || {};
         loadJSONAnimated : function(json, callback, timestart, timeend) {
             timestart = timestart || 300;
             timeend = timeend || 300;
-            com.bkahlert.devel.nebula.timeline.animate(function($this) {
-                com.bkahlert.devel.nebula.timeline.loadJSON(json, callback);
+            com.bkahlert.nebula.timeline.animate(function($this) {
+                com.bkahlert.nebula.timeline.loadJSON(json, callback);
             }, timestart, timeend, callback);
         },
 
@@ -35,7 +35,7 @@ com.bkahlert.devel.nebula.timeline = com.bkahlert.devel.nebula.timeline || {};
             if(typeof(json) === "string") {
                 // if string interpret as url and call again with parsed json 
                 Timeline.loadJSON(json, function(json, url) {
-                    com.bkahlert.devel.nebula.timeline.loadJSON(json, callback);
+                    com.bkahlert.nebula.timeline.loadJSON(json, callback);
                 });
             } else {
                 $(".timeline").timeline('loadJSON', json);
@@ -86,14 +86,14 @@ com.bkahlert.devel.nebula.timeline = com.bkahlert.devel.nebula.timeline || {};
             $("body").append($('<div style="position: absolute; top: 10px; right: 50px; z-index: 99999;"><input type="button" value="Custom Function" onClick="testFunction();"/></div>'));
 
             data.options = data.options || {};
-            com.bkahlert.devel.nebula.timeline.loadJSONAnimated(data, function() {
+            com.bkahlert.nebula.timeline.loadJSONAnimated(data, function() {
             });
         }
     });
 })(jQuery);
 
 function testFunction() {
-    com.bkahlert.devel.nebula.timeline.setDecorators([{
+    com.bkahlert.nebula.timeline.setDecorators([{
                 "startLabel": null,
                 "endLabel": null,
                 "startDate": "2011-09-13T06:23:16.32-05:00",
@@ -111,7 +111,7 @@ jQuery(document).ready(function($) {
                 $.colorbox.close();
             });
             $("input[name=demo]").click(function() {
-                com.bkahlert.devel.nebula.timeline.openDemo(data);
+                com.bkahlert.nebula.timeline.openDemo(data);
             }).attr("disabled", false);
             $("input[name=immediateDemo]").click(function() {
                 window.location.href = window.location.href + "?loadDemo=true";
@@ -119,7 +119,7 @@ jQuery(document).ready(function($) {
 
             // start demo instantly
             if (loadDemo)
-                com.bkahlert.devel.nebula.timeline.openDemo(data);
+                com.bkahlert.nebula.timeline.openDemo(data);
         });
 
     if (internal || loadDemo) {

@@ -305,7 +305,7 @@ public class Composer extends Browser {
 	 */
 	public Boolean isDirty() {
 		Boolean isDirty = (Boolean) this.getBrowser().evaluate(
-				"return com.bkahlert.devel.nebula.editor.isDirty();");
+				"return com.bkahlert.nebula.editor.isDirty();");
 		if (isDirty != null) {
 			return isDirty;
 		} else {
@@ -314,7 +314,7 @@ public class Composer extends Browser {
 	}
 
 	public void selectAll() {
-		this.run("com.bkahlert.devel.nebula.editor.selectAll();");
+		this.run("com.bkahlert.nebula.editor.selectAll();");
 	}
 
 	public Future<Boolean> setSource(String html) {
@@ -333,7 +333,7 @@ public class Composer extends Browser {
 			}
 		}
 		this.oldHtml = html;
-		return this.run("return com.bkahlert.devel.nebula.editor.setSource("
+		return this.run("return com.bkahlert.nebula.editor.setSource("
 				+ JSONUtils.enquote(html) + ", "
 				+ (restoreSelection ? "true" : "false") + ");",
 				IConverter.CONVERTER_BOOLEAN);
@@ -349,12 +349,12 @@ public class Composer extends Browser {
 			return null;
 		}
 		String html = (String) this.getBrowser().evaluate(
-				"return com.bkahlert.devel.nebula.editor.getSource();");
+				"return com.bkahlert.nebula.editor.getSource();");
 		return html;
 	}
 
 	public void setMode(String mode) {
-		this.run("com.bkahlert.devel.nebula.editor.setMode(\"" + mode + "\");");
+		this.run("com.bkahlert.nebula.editor.setMode(\"" + mode + "\");");
 	}
 
 	public void showSource() {
@@ -372,21 +372,21 @@ public class Composer extends Browser {
 		String html = (String) this
 				.getBrowser()
 				.evaluate(
-						"return com.bkahlert.devel.nebula.editor.getPrevCaretCharacter();");
+						"return com.bkahlert.nebula.editor.getPrevCaretCharacter();");
 		return html;
 	}
 
 	public void saveSelection() {
-		this.run("com.bkahlert.devel.nebula.editor.saveSelection();");
+		this.run("com.bkahlert.nebula.editor.saveSelection();");
 	}
 
 	public void restoreSelection() {
-		this.run("com.bkahlert.devel.nebula.editor.restoreSelection();");
+		this.run("com.bkahlert.nebula.editor.restoreSelection();");
 	}
 
 	@Override
 	public void setEnabled(boolean isEnabled) {
-		this.run("return com.bkahlert.devel.nebula.editor.setEnabled("
+		this.run("return com.bkahlert.nebula.editor.setEnabled("
 				+ (isEnabled ? "true" : "false") + ");",
 				IConverter.CONVERTER_BOOLEAN);
 	}
