@@ -9,12 +9,39 @@ The widgets include
   - loader overlays to indicate long running computations
   - ...
 - complex widgets like
-  - a highly tweaked Browser that allows encapsulating web applications to form very complex and fancy widgets
-  - timeline
+  - chats
+  - composers / editors
+  - timelines
+  - a highly tweaked Browser that allows encapsulating web applications to form very complex and utility classes like
+  - color utils (support for 32bit HSB, 32bit RGB, color conversion)
   - ...
 
 To check the exact functionality simply run the imported Eclipse plug-in as a Eclipse Application.
 The application opens interactive demos for all provided widgets.
+
+Screenshots
+-----------
+
+![Rounded Composite](images/RoundedComposite.png)
+Rounded Composite
+
+![Loader Overlay](images/Loader.png)
+Loader Overlay
+
+![Chat Control](images/ChatControl.png)
+Chat Control
+
+![Composer](images/Composer.png)
+Composer
+
+![Timeline](images/Timeline.png)
+Timeline
+
+![Bootstrap Browser](images/BootstrapBrowser.png)
+Bootstrap Browser
+
+![Color Utils](images/ColorUtils.png)
+Color Utils
 
 License
 -------
