@@ -13,6 +13,7 @@ The widgets include
   - composers / editors
   - timelines
   - a highly tweaked Browser that allows encapsulating web applications to form very complex and utility classes like
+- utility classes
   - color utils (support for 32bit HSB, 32bit RGB, color conversion)
   - ...
 
