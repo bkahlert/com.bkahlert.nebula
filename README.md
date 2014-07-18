@@ -1,5 +1,4 @@
-bkahlert.com - Nebula
-=====================
+# Nebula Widgets for Eclipse
 
 This project provides a huge bunch of widgets for Eclipse.
 
@@ -20,8 +19,7 @@ The widgets include
 To check the exact functionality simply run the imported Eclipse plug-in as a Eclipse Application.
 The application opens interactive demos for all provided widgets.
 
-Screenshots
------------
+## Screenshots
 
 ![Rounded Composite](images/RoundedComposite.png)
 Rounded Composite
@@ -44,8 +42,7 @@ Bootstrap Browser
 ![Color Utils](images/ColorUtils.png)
 Color Utils
 
-License
--------
+## License
 
 [The MIT License (MIT)](LICENSE)  
 Copyright (c) 2011-2014 [Björn Kahlert, Freie Universität Berlin](http://www.mi.fu-berlin.de/w/Main/BjoernKahlert)
