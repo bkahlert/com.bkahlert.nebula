@@ -17,6 +17,7 @@ import javax.swing.JEditorPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
+import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.rtf.RTFEditorKit;
 
 public class StringUtils {
@@ -217,5 +218,17 @@ public class StringUtils {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public static String htmlToPlain(String html) {
+		HTMLEditorKit htmlParser = new HTMLEditorKit();
+		Document document = htmlParser.createDefaultDocument();
+		try {
+			htmlParser.read(new ByteArrayInputStream(html.getBytes()),
+					document, 0);
+			return document.getText(0, document.getLength());
+		} catch (Exception e) {
+			throw new RuntimeException("Error converting HTML to plain text", e);
+		}
 	}
 }
