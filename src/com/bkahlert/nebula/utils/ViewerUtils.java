@@ -5,11 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jface.util.Policy;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.StructuredViewer;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerColumn;
@@ -718,6 +721,24 @@ public class ViewerUtils {
 
 	public static TreeColumn getColumn(Tree tree, int index) {
 		return (TreeColumn) getColumn((Control) tree, index);
+	}
+
+	public static TableViewerColumn getColumn(TableViewer tableViewer, int index) {
+		Object data = getColumn(tableViewer.getTable(), index).getData(
+				Policy.JFACE + ".columnViewer");
+		if (data instanceof TableViewerColumn) {
+			return (TableViewerColumn) data;
+		}
+		return null;
+	}
+
+	public static TreeViewerColumn getColumn(TreeViewer treeViewer, int index) {
+		Object data = getColumn(treeViewer.getTree(), index).getData(
+				Policy.JFACE + ".columnViewer");
+		if (data instanceof TreeViewerColumn) {
+			return (TreeViewerColumn) data;
+		}
+		return null;
 	}
 
 	public static void refresh(final Viewer viewer) {
