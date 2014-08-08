@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -20,12 +21,13 @@ import org.eclipse.ui.progress.WorkbenchJob;
 
 import com.bkahlert.nebula.utils.CellLabelClient;
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.IConverter;
 
 /**
  * This extensions of the existing {@link org.eclipse.ui.dialogs.FilteredTree}
  * has two advantages:
  * <ol>
- * <li>The filter takes all columns into account. The original implementation
+ * <li>The converter takes all columns into account. The original implementation
  * only considered the {@link TreeViewer}'s global {@link ILabelProvider}.</li>
  * <li>The expanded elements state is restored after search has finished.</li>
  * </ol>
@@ -34,6 +36,18 @@ import com.bkahlert.nebula.utils.ExecUtils;
  * 
  */
 public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
+
+	private static class PatternFilterWorkAround extends PatternFilter {
+		// DIRTY this field is only kept here since we need it in the
+		// construction of the viewer. This happens in the super constructor,
+		// that's why there's no chance to save the reference before it is
+		// actually used.
+		private final TreeViewerFactory factory;
+
+		public PatternFilterWorkAround(TreeViewerFactory factory) {
+			this.factory = factory;
+		}
+	}
 
 	/**
 	 * Using a {@link FilteredTree} requires the {@link TreeViewer} to return an
@@ -44,18 +58,13 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 	 * @author bkahlert
 	 * 
 	 */
-	public static class TreePatternFilter extends PatternFilter {
-
-		// DIRTY this field is only kept here since we need it in the
-		// construction of the viewer. This happens in the super constructor,
-		// that's why there's no chance to save the reference before it is
-		// actually used.
-		private final TreeViewerFactory factory;
+	public static class GenericTreePatternFilter extends
+			PatternFilterWorkAround {
 
 		private final Map<Integer, CellLabelClient> cellLabelClients = new HashMap<Integer, CellLabelClient>();
 
-		public TreePatternFilter(TreeViewerFactory factory) {
-			this.factory = factory;
+		public GenericTreePatternFilter(TreeViewerFactory factory) {
+			super(factory);
 		}
 
 		@Override
@@ -85,15 +94,72 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 		}
 	}
 
+	/**
+	 * This {@link PatternFilter} filters based on the value object behind each
+	 * row.
+	 * 
+	 * @author bkahlert
+	 * 
+	 * @param <T>
+	 */
+	public static class URITreePatternFilter<T> extends PatternFilterWorkAround {
+
+		private final IConverter<T, String> converter;
+
+		public URITreePatternFilter(TreeViewerFactory factory,
+				IConverter<T, String> converter) {
+			super(factory);
+			Assert.isNotNull(converter);
+			this.converter = converter;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		protected boolean isLeafMatch(final Viewer viewer, final Object element) {
+			if (!(viewer instanceof TreeViewer)) {
+				return true;
+			}
+
+			try {
+				String text = this.converter.convert((T) element);
+				return this.wordMatches(text);
+			} catch (ClassCastException e) {
+				return true;
+			}
+		}
+	}
+
 	public static interface TreeViewerFactory {
 		public TreeViewer create(Composite parent, int style);
 	}
 
 	private static final Logger LOGGER = Logger.getLogger(FilteredTree.class);
 
+	/**
+	 * Constructs a new instance that uses the provided converter to converter
+	 * rows. The value object of each row is passed to the converter. If the
+	 * converter returns true (or cannot be casted to <code>T</code>) the row is
+	 * part of the result.
+	 * 
+	 * @author bkahlert
+	 * 
+	 */
+	public <T> FilteredTree(Composite parent, int treeStyle,
+			TreeViewerFactory factory, IConverter<T, String> filter) {
+		super(parent, treeStyle, new URITreePatternFilter<T>(factory, filter),
+				true);
+	}
+
+	/**
+	 * Constructs a new instance that checks the text of all columns of each
+	 * row.
+	 * 
+	 * @author bkahlert
+	 * 
+	 */
 	public FilteredTree(Composite parent, int treeStyle,
 			TreeViewerFactory factory) {
-		super(parent, treeStyle, new TreePatternFilter(factory), true);
+		super(parent, treeStyle, new GenericTreePatternFilter(factory), true);
 	}
 
 	@Override
@@ -154,8 +220,8 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 
 	@Override
 	protected TreeViewer doCreateTreeViewer(Composite parent, int style) {
-		return ((TreePatternFilter) this.getPatternFilter()).factory.create(
-				parent, style);
+		return ((PatternFilterWorkAround) this.getPatternFilter()).factory
+				.create(parent, style);
 	};
 
 }
