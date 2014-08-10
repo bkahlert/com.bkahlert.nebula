@@ -127,7 +127,9 @@ window['__notifySize'] = function() {
 		bounds.h = Math.max(bounds.h, offset.top+$this.outerHeight(true));
 	});
 	if(bounds.w == Number.MIN_VALUE) bounds.w = null;
+	else bounds.w += 2; // FIXME: without scrollbars are visible
 	if(bounds.h == Number.MIN_VALUE) bounds.h = null;
+	else bounds.h += 2; // FIXME: without scrollbars are visible
 	if(bounds.x == Number.MAX_VALUE) bounds.x = null;
 	if(bounds.y == Number.MAX_VALUE) bounds.y = null;
 	if(bounds.x != null && bounds.w != null) bounds.w -= bounds.x;
