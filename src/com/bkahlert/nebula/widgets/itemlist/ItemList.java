@@ -127,7 +127,8 @@ public class ItemList extends BootstrapBrowser {
 	}
 
 	public Future<Void> setSpacing(int pixels) {
-		return this.injectCss(".btn-group { margin: " + pixels + "px; }");
+		return this.injectCss(".btn-group + .btn-group { margin-left: "
+				+ pixels + "px; }");
 	}
 
 	@Override
