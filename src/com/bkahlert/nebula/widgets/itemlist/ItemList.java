@@ -5,10 +5,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.JSONUtils;
+import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
@@ -17,26 +20,14 @@ import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 public class ItemList extends BootstrapBrowser {
 
 	public static interface IItemListListener {
-		public void itemHovered(String key, boolean entered);
-
 		public void itemHovered(String key, int i, boolean entered);
-
-		public void itemClicked(String key);
 
 		public void itemClicked(String key, int i);
 	}
 
 	public static class ItemListAdapter implements IItemListListener {
 		@Override
-		public void itemHovered(String key, boolean entered) {
-		}
-
-		@Override
 		public void itemHovered(String key, int i, boolean entered) {
-		}
-
-		@Override
-		public void itemClicked(String key) {
 		}
 
 		@Override
@@ -58,12 +49,8 @@ public class ItemList extends BootstrapBrowser {
 				}
 				String action = anker.getData("itemlist-action");
 				for (IItemListListener itemListListener : ItemList.this.itemListListeners) {
-					if (action == null) {
-						itemListListener.itemHovered(key, entered);
-					} else {
-						int num = Integer.valueOf(action);
-						itemListListener.itemHovered(key, num, entered);
-					}
+					int num = Integer.valueOf(action);
+					itemListListener.itemHovered(key, num, entered);
 				}
 			}
 
@@ -75,12 +62,8 @@ public class ItemList extends BootstrapBrowser {
 				}
 				String action = anker.getData("itemlist-action");
 				for (IItemListListener itemListListener : ItemList.this.itemListListeners) {
-					if (action == null) {
-						itemListListener.itemClicked(key);
-					} else {
-						int num = Integer.valueOf(action);
-						itemListListener.itemClicked(key, num);
-					}
+					int num = Integer.valueOf(action);
+					itemListListener.itemClicked(key, num);
 				}
 			}
 		});
@@ -99,7 +82,8 @@ public class ItemList extends BootstrapBrowser {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"btn-group\">");
 		sb.append("<a class=\"btn " + buttonOption + " " + buttonSize
-				+ "\" data-itemlist-key=\"" + id + "\">" + title + "</a>");
+				+ "\" data-itemlist-key=\"" + id
+				+ "\" data-itemlist-action=\"0\">" + title + "</a>");
 		if (secondaryActions != null && !secondaryActions.isEmpty()) {
 			if (buttonStyle == ButtonStyle.DROPDOWN) {
 				sb.append("<a class=\"btn dropdown-toggle " + buttonOption
@@ -108,7 +92,7 @@ public class ItemList extends BootstrapBrowser {
 				sb.append("<span class=\"sr-only\">Toggle Dropdown</span>");
 				sb.append("</a>");
 				sb.append("<ul class=\"dropdown-menu\" role=\"menu\">");
-				int i = 0;
+				int i = 1;
 				for (String secondaryAction : secondaryActions) {
 					if (secondaryAction == null || secondaryAction.isEmpty()
 							|| secondaryAction.equals("-")) {
@@ -122,7 +106,7 @@ public class ItemList extends BootstrapBrowser {
 				}
 				sb.append("</ul>");
 			} else {
-				int i = 0;
+				int i = 1;
 				for (String secondaryAction : secondaryActions) {
 					sb.append("<a class=\"btn " + buttonOption + " "
 							+ buttonSize + "\" data-itemlist-key=\"" + id
@@ -144,6 +128,20 @@ public class ItemList extends BootstrapBrowser {
 
 	public Future<Void> setSpacing(int pixels) {
 		return this.injectCss(".btn-group { margin: " + pixels + "px; }");
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		String hex;
+		if (enabled) {
+			hex = "transparent";
+		} else {
+			hex = new RGB(Display.getCurrent()
+					.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND).getRGB())
+					.toHexString();
+		}
+		this.injectCss("html { background-color: " + hex + "; }");
 	}
 
 	public void addListener(IItemListListener itemListListener) {

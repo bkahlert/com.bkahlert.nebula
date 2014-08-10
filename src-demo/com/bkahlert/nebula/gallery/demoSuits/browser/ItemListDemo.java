@@ -144,18 +144,8 @@ public class ItemListDemo extends AbstractDemo {
 		this.itemList = new ItemList(parent, SWT.BORDER);
 		this.itemList.addListener(new IItemListListener() {
 			@Override
-			public void itemClicked(String key) {
-				log("clicked " + key);
-			}
-
-			@Override
 			public void itemClicked(String key, int i) {
 				log("clicked " + key + " - " + i);
-			}
-
-			@Override
-			public void itemHovered(String key, boolean entered) {
-				log("hovered " + (entered ? "over" : "out") + " " + key);
 			}
 
 			@Override
