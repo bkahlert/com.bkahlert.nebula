@@ -18,13 +18,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.NamedJob;
+import com.bkahlert.nebula.utils.Pair;
+import com.bkahlert.nebula.utils.PartRenamer;
 import com.bkahlert.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.nebula.widgets.editor.AutosaveEditor;
 import com.bkahlert.nebula.widgets.editor.Editor;
@@ -40,32 +40,10 @@ import com.bkahlert.nebula.widgets.editor.Editor;
  */
 public abstract class EditorView<T> extends ViewPart {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(EditorView.class);
 
-	public static class PartInfo {
-		private final String title;
-		private final Image image;
-
-		public PartInfo(String title, Image image) {
-			super();
-			this.title = title;
-			this.image = image;
-		}
-
-		/**
-		 * @return the part's title
-		 */
-		public String getTitle() {
-			return this.title;
-		}
-
-		/**
-		 * @return the part's image
-		 */
-		public Image getImage() {
-			return this.image;
-		}
-	}
+	private final PartRenamer<T> partRenamer;
 
 	private final long delayChangeEventUpTo;
 	private final ToolbarSet toolbarSet;
@@ -84,8 +62,9 @@ public abstract class EditorView<T> extends ViewPart {
 	 *            minimal delay however defined by the wrapped {@link Image}.
 	 * @param autosave
 	 */
-	public EditorView(long delayChangeEventUpTo, ToolbarSet toolbarSet,
-			boolean autosave) {
+	public EditorView(IConverter<T, Pair<String, Image>> converter,
+			long delayChangeEventUpTo, ToolbarSet toolbarSet, boolean autosave) {
+		this.partRenamer = new PartRenamer<T>(this, converter);
 		this.delayChangeEventUpTo = delayChangeEventUpTo;
 		this.toolbarSet = toolbarSet;
 		this.autosave = autosave;
@@ -98,49 +77,9 @@ public abstract class EditorView<T> extends ViewPart {
 	}
 
 	protected void refreshHeader() {
-		final AtomicReference<PartInfo> partInfo = new AtomicReference<PartInfo>();
 		List<T> loadedObjects = this.getLoadedObjects();
-		if (loadedObjects.size() > 0) {
-			try {
-				partInfo.set(this.getPartInfo(loadedObjects));
-			} catch (Exception e) {
-				LOGGER.error("Error while refreshing header", e);
-				partInfo.set(new PartInfo("ERROR", PlatformUI.getWorkbench()
-						.getSharedImages()
-						.getImage(ISharedImages.IMG_OBJS_ERROR_TSK)));
-			}
-		} else {
-			partInfo.set(this.getDefaultPartInfo());
-		}
-
-		ExecUtils.asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				EditorView.this.setPartName(partInfo != null
-						&& partInfo.get().getTitle() != null ? partInfo.get()
-						.getTitle() : "Editor");
-				EditorView.this.setTitleImage(partInfo != null
-						&& partInfo.get().getImage() != null ? partInfo.get()
-						.getImage() : null);
-			}
-		});
+		this.partRenamer.apply(loadedObjects);
 	}
-
-	/**
-	 * Returns the {@link PartInfo} to be used when no object is loaded.
-	 * 
-	 * @return
-	 */
-	public abstract PartInfo getDefaultPartInfo();
-
-	/**
-	 * Returns the {@link PartInfo} is the given object is loaded.
-	 * 
-	 * @param loadedObject
-	 * @return
-	 */
-	public abstract PartInfo getPartInfo(List<T> loadedObjects)
-			throws Exception;
 
 	@Override
 	public final void createPartControl(Composite parent) {
