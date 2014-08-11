@@ -16,6 +16,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
@@ -154,6 +155,9 @@ public class ItemListDemo extends AbstractDemo {
 						+ i);
 			}
 		});
+
+		this.itemList.setBackground(Display.getCurrent().getSystemColor(
+				SWT.COLOR_YELLOW));
 
 		this.itemList.addItem("item1", "Item #1");
 		this.itemList.addItem("item2", "Item #2", ButtonOption.PRIMARY,

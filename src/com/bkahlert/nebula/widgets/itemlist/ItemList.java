@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
@@ -126,23 +127,35 @@ public class ItemList extends BootstrapBrowser {
 		return this.run("$('body').empty();", IConverter.CONVERTER_VOID);
 	}
 
-	public Future<Void> setSpacing(int pixels) {
-		return this.injectCss(".btn-group + .btn-group { margin-left: "
-				+ pixels + "px; }");
+	public Future<Void> setMargin(int pixels) {
+		return this.injectCss("body { padding: " + pixels + "px; }");
 	}
+
+	public Future<Void> setSpacing(int pixels) {
+		return this.injectCss(".btn-group { margin-bottom: " + pixels
+				+ "px; } .btn-group + .btn-group { margin-left: " + pixels
+				+ "px; }");
+	}
+
+	private Color enabledBackgroundColor = Display.getCurrent().getSystemColor(
+			SWT.COLOR_WIDGET_BACKGROUND);
 
 	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
-		String hex;
-		if (enabled) {
-			hex = "transparent";
-		} else {
-			hex = new RGB(Display.getCurrent()
-					.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND).getRGB())
-					.toHexString();
+		if (!enabled) {
+			this.enabledBackgroundColor = this.getBackground();
 		}
-		this.injectCss("html { background-color: " + hex + "; }");
+		this.setBackground(enabled ? this.enabledBackgroundColor : Display
+				.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+	}
+
+	@Override
+	public void setBackground(Color color) {
+		super.setBackground(color);
+		String hex = color != null ? new RGB(color.getRGB()).toHexString()
+				: "transparent";
+		this.injectCss("body { background-color: " + hex + " !important; }");
 	}
 
 	public void addListener(IItemListListener itemListListener) {

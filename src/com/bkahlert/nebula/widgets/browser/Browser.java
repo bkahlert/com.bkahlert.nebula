@@ -22,6 +22,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
@@ -37,6 +38,7 @@ import com.bkahlert.nebula.utils.CompletedFuture;
 import com.bkahlert.nebula.utils.EventDelegator;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.html.Element;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
@@ -793,6 +795,14 @@ public class Browser extends Composite implements IBrowser {
 	public Future<String> getHtml() {
 		return this.run("return document.documentElement.outerHTML",
 				IConverter.CONVERTER_STRING);
+	}
+
+	@Override
+	public void setBackground(Color color) {
+		super.setBackground(color);
+		String hex = color != null ? new RGB(color.getRGB()).toHexString()
+				: "transparent";
+		this.injectCss("body { background-color: " + hex + "; }");
 	}
 
 	@Override
