@@ -87,7 +87,7 @@ public class NebulaPreferences extends OSGIPreferenceUtil {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error loading expanded elements of " + treeViewer);
+			LOGGER.error("Error loading expanded elements of " + treeViewer, e);
 		}
 	}
 
