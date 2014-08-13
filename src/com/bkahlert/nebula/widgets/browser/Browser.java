@@ -802,7 +802,7 @@ public class Browser extends Composite implements IBrowser {
 		super.setBackground(color);
 		String hex = color != null ? new RGB(color.getRGB()).toHexString()
 				: "transparent";
-		this.injectCss("body { background-color: " + hex + "; }");
+		this.injectCss("html, body { background-color: " + hex + "; }");
 	}
 
 	@Override

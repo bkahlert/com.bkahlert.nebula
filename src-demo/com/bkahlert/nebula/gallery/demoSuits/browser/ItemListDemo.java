@@ -13,10 +13,12 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
@@ -171,6 +173,24 @@ public class ItemListDemo extends AbstractDemo {
 
 		this.itemList.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false,
 				false));
+
+		new Label(parent, SWT.NONE).setLayoutData(GridDataFactory
+				.fillDefaults().grab(true, true).create());
+
+		Group group = new Group(parent, SWT.BORDER);
+		group.setText("check background color inheritance");
+		group.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
+		group.setLayout(new FillLayout());
+
+		ItemList itemList2 = new ItemList(group, SWT.NONE);
+		itemList2.setSpacing(25);
+		itemList2.addItem("item1", "Item #1");
+		itemList2.addItem("item2", "Item #2", ButtonOption.PRIMARY,
+				ButtonSize.EXTRA_SMALL, ButtonStyle.DROPDOWN,
+				Arrays.asList("Option #1", "Option #2"));
+		itemList2.addItem("item3", "Item #3", ButtonOption.PRIMARY,
+				ButtonSize.LARGE, ButtonStyle.HORIZONTAL,
+				Arrays.asList("Option #1", "Option #2"));
 
 		new Label(parent, SWT.NONE).setLayoutData(GridDataFactory
 				.fillDefaults().grab(true, true).create());

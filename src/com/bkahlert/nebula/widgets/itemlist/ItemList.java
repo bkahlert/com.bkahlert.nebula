@@ -5,13 +5,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.JSONUtils;
+import com.bkahlert.nebula.utils.SWTUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
@@ -70,6 +69,7 @@ public class ItemList extends BootstrapBrowser {
 		});
 		this.open(BrowserUtils.getFileUrl(ItemList.class, "html/index.html",
 				"?internal=true"), 60000);
+		this.setBackground(SWTUtils.getEffectiveBackground(this));
 	}
 
 	public void addItem(String id, String title) {
@@ -135,19 +135,6 @@ public class ItemList extends BootstrapBrowser {
 		return this.injectCss(".btn-group { margin-bottom: " + pixels
 				+ "px; } .btn-group + .btn-group { margin-left: " + pixels
 				+ "px; }");
-	}
-
-	private Color enabledBackgroundColor = Display.getCurrent().getSystemColor(
-			SWT.COLOR_WIDGET_BACKGROUND);
-
-	@Override
-	public void setEnabled(boolean enabled) {
-		super.setEnabled(enabled);
-		if (!enabled) {
-			this.enabledBackgroundColor = this.getBackground();
-		}
-		this.setBackground(enabled ? this.enabledBackgroundColor : Display
-				.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 	}
 
 	@Override
