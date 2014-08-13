@@ -67,6 +67,12 @@ import com.bkahlert.nebula.widgets.explanation.exceptions.ContentControlInvalidE
  * @author bkahlert
  * 
  */
+// BUG: Only works in combination with FillLayout. The general bug is somewhere
+// in the StackLayout. The explanatory composite uses the available space for
+// the first computation and never udates its size again. So if the available
+// space is limited the explanation or the content element will have too much or
+// too less space (since it's unlickely that both composites consume the exact
+// same amount of space).
 public class ExplanatoryComposite extends Composite {
 	/**
 	 * Uses a {@link StackLayout} to allow the switch between the contents and
