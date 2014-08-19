@@ -169,6 +169,7 @@ public class ItemListDemo extends AbstractDemo {
 				ButtonSize.LARGE, ButtonStyle.HORIZONTAL,
 				Arrays.asList("Option #1", "Option #2"));
 
+		this.itemList.setMargin(0);
 		final Future<Void> rendering = this.itemList.setSpacing(30);
 
 		this.itemList.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false,
@@ -183,7 +184,8 @@ public class ItemListDemo extends AbstractDemo {
 		group.setLayout(new FillLayout());
 
 		ItemList itemList2 = new ItemList(group, SWT.NONE);
-		itemList2.setSpacing(25);
+		itemList2.setMargin(10);
+		final Future<Void> rendering2 = itemList2.setSpacing(10);
 		itemList2.addItem("item1", "Item #1");
 		itemList2.addItem("item2", "Item #2", ButtonOption.PRIMARY,
 				ButtonSize.EXTRA_SMALL, ButtonStyle.DROPDOWN,
@@ -200,6 +202,7 @@ public class ItemListDemo extends AbstractDemo {
 			public void run() {
 				try {
 					rendering.get();
+					rendering2.get();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

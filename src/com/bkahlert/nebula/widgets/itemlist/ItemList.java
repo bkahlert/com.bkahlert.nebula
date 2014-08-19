@@ -36,6 +36,8 @@ public class ItemList extends BootstrapBrowser {
 	}
 
 	private final List<IItemListListener> itemListListeners = new ArrayList<ItemList.IItemListListener>();
+	private double margin = 0.0;
+	private double spacing = 0.0;
 
 	public ItemList(Composite parent, int style) {
 		super(parent, style);
@@ -127,14 +129,22 @@ public class ItemList extends BootstrapBrowser {
 		return this.run("$('body').empty();", IConverter.CONVERTER_VOID);
 	}
 
-	public Future<Void> setMargin(int pixels) {
-		return this.injectCss("body { padding: " + pixels + "px; }");
+	public Future<Void> setMargin(double pixels) {
+		this.margin = pixels;
+		return this.updateLayout();
 	}
 
-	public Future<Void> setSpacing(int pixels) {
-		return this.injectCss(".btn-group { margin-bottom: " + pixels
-				+ "px; } .btn-group + .btn-group { margin-left: " + pixels
-				+ "px; }");
+	public Future<Void> setSpacing(double pixels) {
+		this.spacing = pixels;
+		return this.updateLayout();
+	}
+
+	private Future<Void> updateLayout() {
+		return this
+				.injectCss("body { margin: "
+						+ (this.margin - this.spacing / 2)
+						+ "px !important; padding: 0 !important; } .btn-group { margin: "
+						+ this.spacing / 2.0 + "px; }");
 	}
 
 	@Override

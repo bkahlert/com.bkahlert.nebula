@@ -188,12 +188,12 @@ public class Browser extends Composite implements IBrowser {
 						&& (arguments[1] == null || arguments[1] instanceof Double)
 						&& (arguments[2] == null || arguments[2] instanceof Double)
 						&& (arguments[3] == null || arguments[3] instanceof Double)) {
+
 					Browser.this.cachedContentBounds = new Rectangle(
 							arguments[0] != null ? (int) Math.round((Double) arguments[0])
-									: Integer.MAX_VALUE,
+									: 0,
 							arguments[1] != null ? (int) Math
-									.round((Double) arguments[1])
-									: Integer.MAX_VALUE,
+									.round((Double) arguments[1]) : 0,
 							arguments[2] != null ? (int) Math
 									.round((Double) arguments[2])
 									: Integer.MAX_VALUE,
