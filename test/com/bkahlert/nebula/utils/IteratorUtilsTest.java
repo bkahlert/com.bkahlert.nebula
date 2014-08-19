@@ -37,8 +37,9 @@ public class IteratorUtilsTest {
 				"aba", "abb", "abc", "aca", "acb", "acc", "baa", "bab", "bac",
 				"bba", "bbb", "bbc", "bca", "bcb", "bcc", "caa", "cab", "cac",
 				"cba", "cbb", "cbc", "cca", "ccb", "ccc");
-		for (String x : IteratorUtils.bfs("", getChildren)) {
-			Assert.assertEquals(expected.get(i), x);
+		for (Pair<Integer, String> x : IteratorUtils.bfs("", getChildren)) {
+			Assert.assertEquals(x.getSecond().length(), x.getFirst().intValue());
+			Assert.assertEquals(expected.get(i), x.getSecond());
 			i++;
 		}
 	}

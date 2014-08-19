@@ -23,17 +23,18 @@ public class IteratorUtils {
 		return null;
 	}
 
-	public static class BreadthFirstIterator<T> implements Iterator<T> {
+	public static class BreadthFirstIterator<T> implements
+			Iterator<Pair<Integer, T>> {
 		private IConverter<T, T[]> getChildren;
 		private Map<T, Boolean> visited;
-		private final Queue<T> q = new LinkedList<T>();
+		private final Queue<Pair<Integer, T>> q = new LinkedList<Pair<Integer, T>>();
 
 		public BreadthFirstIterator(T root, IConverter<T, T[]> getChildren,
 				boolean identity) {
 			this.getChildren = getChildren;
 			this.visited = identity ? new IdentityHashMap<T, Boolean>()
 					: new HashMap<T, Boolean>();
-			this.q.add(root);
+			this.q.add(new Pair<Integer, T>(0, root));
 			this.visited.put(root, true);
 		}
 
@@ -47,16 +48,16 @@ public class IteratorUtils {
 		}
 
 		@Override
-		public T next() {
+		public Pair<Integer, T> next() {
 			if (this.q.isEmpty()) {
 				throw new NoSuchElementException();
 			}
-			T n = this.q.remove();
+			Pair<Integer, T> n = this.q.remove();
 			T child = null;
-			while ((child = getUnvisitedChildNode(n, this.getChildren,
-					this.visited)) != null) {
+			while ((child = getUnvisitedChildNode(n.getSecond(),
+					this.getChildren, this.visited)) != null) {
 				this.visited.put(child, true);
-				this.q.add(child);
+				this.q.add(new Pair<Integer, T>(n.getFirst() + 1, child));
 			}
 			return n;
 		}
@@ -124,11 +125,11 @@ public class IteratorUtils {
 		}
 	}
 
-	public static <T> Iterable<T> bfs(final T root,
+	public static <T> Iterable<Pair<Integer, T>> bfs(final T root,
 			final IConverter<T, T[]> getChildren) {
-		return new Iterable<T>() {
+		return new Iterable<Pair<Integer, T>>() {
 			@Override
-			public Iterator<T> iterator() {
+			public Iterator<Pair<Integer, T>> iterator() {
 				return new BreadthFirstIterator<T>(root, getChildren);
 			}
 		};

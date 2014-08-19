@@ -18,6 +18,11 @@ public class Pair<F, S> {
 	}
 
 	@Override
+	public String toString() {
+		return "{" + this.getFirst() + ", " + this.getSecond() + "}";
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
