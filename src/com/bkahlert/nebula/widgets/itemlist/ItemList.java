@@ -5,12 +5,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.JSONUtils;
 import com.bkahlert.nebula.utils.SWTUtils;
+import com.bkahlert.nebula.utils.colors.ColorSpaceConverter;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
@@ -82,15 +84,49 @@ public class ItemList extends BootstrapBrowser {
 	public void addItem(String id, String title, ButtonOption buttonOption,
 			ButtonSize buttonSize, ButtonStyle buttonStyle,
 			Collection<String> secondaryActions) {
+		this.addItem(id, title, buttonOption.toString(), buttonSize,
+				buttonStyle, secondaryActions);
+	}
+
+	public void addItem(String id, String title, RGB backgroundColor,
+			ButtonSize buttonSize, ButtonStyle buttonStyle,
+			Collection<String> secondaryActions) {
+		RGB fontColor = ColorSpaceConverter.RGBtoHLS(backgroundColor)
+				.getLightness() > .7 ? new RGB(51, 51, 51) : RGB.WHITE;
+		RGB borderColor = BootstrapBrowser.getBorderColor(backgroundColor);
+		RGB hoverColor = BootstrapBrowser.getHoverColor(backgroundColor);
+		RGB hoverborderColor = BootstrapBrowser
+				.getHoverBorderColor(backgroundColor);
+
+		// FIXME: Would be better to use the button-variant mixin in Bootstrap's
+		// mixins.less
+
+		String className = RandomStringUtils.randomAlphabetic(8);
+		String css = "." + className + " {color: " + fontColor.toCssString()
+				+ "; background-color: " + backgroundColor.toCssString()
+				+ "; border-color: " + borderColor.toCssString() + ";} ."
+				+ className + ":hover, ." + className + ":focus, ." + className
+				+ ":active, ." + className + ".active, .open>.dropdown-toggle."
+				+ className + " { color: " + fontColor.toCssString()
+				+ "; background-color: " + hoverColor.toCssString()
+				+ "; border-color: " + hoverborderColor.toCssString() + ";}";
+		this.injectCss(css);
+		this.addItem(id, title, className, buttonSize, buttonStyle,
+				secondaryActions);
+	}
+
+	public void addItem(String id, String title, String className,
+			ButtonSize buttonSize, ButtonStyle buttonStyle,
+			Collection<String> secondaryActions) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"btn-group\">");
-		sb.append("<a class=\"btn " + buttonOption + " " + buttonSize
+		sb.append("<a class=\"btn " + className + " " + buttonSize
 				+ "\" data-itemlist-key=\"" + id
 				+ "\" data-itemlist-action=\"0\">" + title + "</a>");
 		if (secondaryActions != null && !secondaryActions.isEmpty()) {
 			if (buttonStyle == ButtonStyle.DROPDOWN) {
-				sb.append("<a class=\"btn dropdown-toggle " + buttonOption
-						+ " " + buttonSize + "\" data-toggle=\"dropdown\">");
+				sb.append("<a class=\"btn dropdown-toggle " + className + " "
+						+ buttonSize + "\" data-toggle=\"dropdown\">");
 				sb.append("<span class=\"caret\"></span>");
 				sb.append("<span class=\"sr-only\">Toggle Dropdown</span>");
 				sb.append("</a>");
@@ -111,8 +147,8 @@ public class ItemList extends BootstrapBrowser {
 			} else {
 				int i = 1;
 				for (String secondaryAction : secondaryActions) {
-					sb.append("<a class=\"btn " + buttonOption + " "
-							+ buttonSize + "\" data-itemlist-key=\"" + id
+					sb.append("<a class=\"btn " + className + " " + buttonSize
+							+ "\" data-itemlist-key=\"" + id
 							+ "\" data-itemlist-action=\"" + i + "\">"
 							+ secondaryAction + "</a>");
 					i++;

@@ -2,6 +2,8 @@ package com.bkahlert.nebula.utils.colors;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
+
 /**
  * Instances of this class describe colors in the RGB (red, green, blue) color
  * space.
@@ -16,11 +18,16 @@ public class RGB {
 	public static final RGB WHITE = new RGB(1.0, 1.0, 1.0);
 	public static final RGB BLACK = new RGB(0.0, 0.0, 0.0);
 
-	public static final RGB PRIMARY = new RGB(50, 118, 177);
-	public static final RGB SUCCESS = new RGB(71, 164, 71);
-	public static final RGB INFO = new RGB(57, 179, 215);
-	public static final RGB WARNING = new RGB(237, 156, 40);
-	public static final RGB DANGER = new RGB(210, 50, 45);
+	public static final RGB PRIMARY = BootstrapBrowser.ButtonOption.PRIMARY
+			.getColor();
+	public static final RGB SUCCESS = BootstrapBrowser.ButtonOption.SUCCESS
+			.getColor();
+	public static final RGB INFO = BootstrapBrowser.ButtonOption.INFO
+			.getColor();
+	public static final RGB WARNING = BootstrapBrowser.ButtonOption.WARNING
+			.getColor();
+	public static final RGB DANGER = BootstrapBrowser.ButtonOption.DANGER
+			.getColor();
 
 	public static final RGB IMPORTANCE_HIGH = new RGB(127, 64, 195);
 	public static final RGB IMPORTANCE_LOW = new RGB(179, 179, 179);

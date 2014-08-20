@@ -26,6 +26,7 @@ import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
+import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonOption;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonSize;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonStyle;
@@ -183,16 +184,18 @@ public class ItemListDemo extends AbstractDemo {
 		group.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
 		group.setLayout(new FillLayout());
 
+		RGB bootstrapRed = RGB.DANGER;
 		ItemList itemList2 = new ItemList(group, SWT.NONE);
 		itemList2.setMargin(10);
 		final Future<Void> rendering2 = itemList2.setSpacing(10);
 		itemList2.addItem("item1", "Item #1");
-		itemList2.addItem("item2", "Item #2", ButtonOption.PRIMARY,
+		itemList2.addItem("item2", "Item #2", bootstrapRed,
 				ButtonSize.EXTRA_SMALL, ButtonStyle.DROPDOWN,
 				Arrays.asList("Option #1", "Option #2"));
-		itemList2.addItem("item3", "Item #3", ButtonOption.PRIMARY,
-				ButtonSize.LARGE, ButtonStyle.HORIZONTAL,
-				Arrays.asList("Option #1", "Option #2"));
+		itemList2
+				.addItem("item3", "Item #3", bootstrapRed, ButtonSize.LARGE,
+						ButtonStyle.HORIZONTAL,
+						Arrays.asList("Option #1", "Option #2"));
 
 		new Label(parent, SWT.NONE).setLayoutData(GridDataFactory
 				.fillDefaults().grab(true, true).create());
