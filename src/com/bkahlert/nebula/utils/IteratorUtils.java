@@ -68,21 +68,22 @@ public class IteratorUtils {
 		}
 	}
 
-	public static class DepthFirstIterator<T> implements Iterator<T> {
+	public static class DepthFirstIterator<T> implements
+			Iterator<Pair<Integer, T>> {
 		private IConverter<T, T[]> getChildren;
 		private Map<T, Boolean> visited;
-		private final Stack<T> s = new Stack<T>();
+		private final Stack<Pair<Integer, T>> s = new Stack<Pair<Integer, T>>();
 
-		private T next;
+		private Pair<Integer, T> next;
 
 		public DepthFirstIterator(T root, IConverter<T, T[]> getChildren,
 				boolean identity) {
 			this.getChildren = getChildren;
 			this.visited = identity ? new IdentityHashMap<T, Boolean>()
 					: new HashMap<T, Boolean>();
-			this.s.push(root);
+			this.s.push(new Pair<Integer, T>(0, root));
 			this.visited.put(root, true);
-			this.next = root;
+			this.next = new Pair<Integer, T>(0, root);
 		}
 
 		public DepthFirstIterator(T root, IConverter<T, T[]> getChildren) {
@@ -95,18 +96,21 @@ public class IteratorUtils {
 		}
 
 		@Override
-		public T next() {
+		public Pair<Integer, T> next() {
 			if (this.next == null) {
 				throw new NoSuchElementException();
 			}
-			T rt = this.next;
+			Pair<Integer, T> rt = this.next;
 			if (!this.s.isEmpty()) {
-				T child = getUnvisitedChildNode(this.s.peek(),
+				Pair<Integer, T> parent = this.s.peek();
+				T child = getUnvisitedChildNode(parent.getSecond(),
 						this.getChildren, this.visited);
 				if (child != null) {
+					Pair<Integer, T> depthChild = new Pair<Integer, T>(
+							parent.getFirst() + 1, child);
 					this.visited.put(child, true);
-					this.s.push(child);
-					this.next = child;
+					this.s.push(depthChild);
+					this.next = depthChild;
 				} else {
 					this.s.pop();
 				}
@@ -135,11 +139,11 @@ public class IteratorUtils {
 		};
 	}
 
-	public static <T> Iterable<T> dfs(final T root,
+	public static <T> Iterable<Pair<Integer, T>> dfs(final T root,
 			final IConverter<T, T[]> getChildren) {
-		return new Iterable<T>() {
+		return new Iterable<Pair<Integer, T>>() {
 			@Override
-			public Iterator<T> iterator() {
+			public Iterator<Pair<Integer, T>> iterator() {
 				return new DepthFirstIterator<T>(root, getChildren);
 			}
 		};

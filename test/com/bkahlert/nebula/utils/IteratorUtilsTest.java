@@ -52,8 +52,8 @@ public class IteratorUtilsTest {
 				"b", "ba", "baa", "bab", "bac", "bb", "bba", "bbb", "bbc",
 				"bc", "bca", "bcb", "bcc", "c", "ca", "caa", "cab", "cac",
 				"cb", "cba", "cbb", "cbc", "cc", "cca", "ccb", "ccc");
-		for (String x : IteratorUtils.dfs("", getChildren)) {
-			Assert.assertEquals(expected.get(i), x);
+		for (Pair<Integer, String> x : IteratorUtils.dfs("", getChildren)) {
+			Assert.assertEquals(expected.get(i), x.getSecond());
 			i++;
 		}
 	}
