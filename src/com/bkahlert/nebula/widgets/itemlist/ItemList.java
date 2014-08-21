@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.eclipse.swt.graphics.Color;
+import org.apache.log4j.Logger;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.JSONUtils;
-import com.bkahlert.nebula.utils.SWTUtils;
 import com.bkahlert.nebula.utils.colors.ColorSpaceConverter;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
@@ -37,12 +37,15 @@ public class ItemList extends BootstrapBrowser {
 		}
 	}
 
+	@SuppressWarnings("unused")
+	private static final Logger LOGGER = Logger.getLogger(ItemList.class);
+
 	private final List<IItemListListener> itemListListeners = new ArrayList<ItemList.IItemListListener>();
 	private double margin = 0.0;
 	private double spacing = 0.0;
 
 	public ItemList(Composite parent, int style) {
-		super(parent, style);
+		super(parent, style | SWT.INHERIT_FORCE);
 		this.deactivateNativeMenu();
 		this.addAnkerListener(new IAnkerListener() {
 			@Override
@@ -73,7 +76,6 @@ public class ItemList extends BootstrapBrowser {
 		});
 		this.open(BrowserUtils.getFileUrl(ItemList.class, "html/index.html",
 				"?internal=true"), 60000);
-		this.setBackground(SWTUtils.getEffectiveBackground(this));
 	}
 
 	public void addItem(String id, String title) {
@@ -181,14 +183,6 @@ public class ItemList extends BootstrapBrowser {
 						+ (this.margin - this.spacing / 2)
 						+ "px !important; padding: 0 !important; } .btn-group { margin: "
 						+ this.spacing / 2.0 + "px; }");
-	}
-
-	@Override
-	public void setBackground(Color color) {
-		super.setBackground(color);
-		String hex = color != null ? new RGB(color.getRGB()).toHexString()
-				: "transparent";
-		this.injectCss("body { background-color: " + hex + " !important; }");
 	}
 
 	public void addListener(IItemListListener itemListListener) {
