@@ -103,6 +103,15 @@ public class SWTUtils {
 	private static Map<Control, Color> backgroundColor = new HashMap<Control, Color>();
 
 	// HACK
+	/**
+	 * Returns the given {@link Control}s background color. This is typically
+	 * the background color {@link Control#getBackground()} returns. In the case
+	 * of surrounding {@link Group}s the actual background color is darker on
+	 * Mac OS. This method returns the correctly darkened background color.
+	 * 
+	 * @param control
+	 * @return
+	 */
 	public static Color getEffectiveBackground(Control control) {
 		if (control == null) {
 			return null;
