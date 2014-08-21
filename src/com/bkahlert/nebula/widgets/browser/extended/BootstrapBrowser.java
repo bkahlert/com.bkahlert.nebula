@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.apache.log4j.Logger;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.nebula.utils.colors.ColorUtils;
@@ -13,7 +14,6 @@ import com.bkahlert.nebula.widgets.browser.extended.extensions.bootstrap.Bootstr
 
 public class BootstrapBrowser extends JQueryBrowser implements
 		IBootstrapBrowser {
-	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger
 			.getLogger(BootstrapBrowser.class);
 
@@ -132,6 +132,19 @@ public class BootstrapBrowser extends JQueryBrowser implements
 				}
 			}
 		}.toArray(new IBrowserExtension[0]));
+	}
+
+	@Override
+	public void setBackground(Color color) {
+		super.setBackground(color);
+		String hex = color != null ? new RGB(color.getRGB()).toHexString()
+				: "transparent";
+		try {
+			this.injectCssImmediately("body { background-color: " + hex
+					+ " !important; }");
+		} catch (Exception e) {
+			LOGGER.error("Error setting background color to " + color, e);
+		}
 	}
 
 }

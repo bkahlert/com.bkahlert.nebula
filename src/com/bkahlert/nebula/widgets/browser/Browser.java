@@ -38,6 +38,7 @@ import com.bkahlert.nebula.utils.CompletedFuture;
 import com.bkahlert.nebula.utils.EventDelegator;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.SWTUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.html.Element;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
@@ -66,11 +67,15 @@ public class Browser extends Composite implements IBrowser {
 	}
 
 	private static Logger LOGGER = Logger.getLogger(Browser.class);
+
+	private static final int STYLES = SWT.INHERIT_FORCE;
+
 	public static final String FOCUS_ID = "com.bkahlert.nebula.browser";
 
 	private org.eclipse.swt.browser.Browser browser;
 	private BrowserScriptRunner browserScriptRunner;
 
+	private boolean initWithSystemBackgroundColor;
 	private boolean settingUri = false;
 	private boolean allowLocationChange = false;
 	private Rectangle cachedContentBounds = null;
@@ -80,11 +85,21 @@ public class Browser extends Composite implements IBrowser {
 	private final List<IFocusListener> focusListeners = new ArrayList<IFocusListener>();
 	private final List<IDropListener> dropListeners = new ArrayList<IDropListener>();
 
+	/**
+	 * Constructs a new {@link Browser} with the given styles.
+	 * 
+	 * @param parent
+	 * @param style
+	 *            if {@link SWT#INHERIT_FORCE}) is set the loaded page's
+	 *            background is replaced by the inherited background color
+	 */
 	public Browser(Composite parent, int style) {
-		super(parent, style | SWT.EMBEDDED);
+		super(parent, style | SWT.EMBEDDED & ~STYLES);
 		this.setLayout(new FillLayout());
+		this.initWithSystemBackgroundColor = (style & SWT.INHERIT_FORCE) != 0;
 
 		this.browser = new org.eclipse.swt.browser.Browser(this, SWT.NONE);
+		this.browser.setVisible(false);
 		this.browserScriptRunner = new BrowserScriptRunner(this.browser) {
 			@Override
 			public void scriptAboutToBeSentToBrowser(String script) {
@@ -369,6 +384,10 @@ public class Browser extends Composite implements IBrowser {
 											IConverter.CONVERTER_BOOLEAN))) {
 
 						final String uri = Browser.this.browser.getUrl();
+						if (Browser.this.initWithSystemBackgroundColor) {
+							Browser.this.setBackground(SWTUtils
+									.getEffectiveBackground(Browser.this));
+						}
 						final Future<Void> finished = Browser.this
 								.beforeCompletion(uri);
 						ExecUtils.nonUISyncExec(Browser.class,
@@ -384,6 +403,13 @@ public class Browser extends Composite implements IBrowser {
 										}
 
 										Browser.this.injectEventCatchScript();
+										ExecUtils.asyncExec(new Runnable() {
+											@Override
+											public void run() {
+												Browser.this.browser
+														.setVisible(true);
+											}
+										});
 										synchronized (Browser.this.monitor) {
 											if (Browser.this.browserScriptRunner
 													.getBrowserStatus() != BrowserStatus.CANCELLED) {
@@ -812,7 +838,12 @@ public class Browser extends Composite implements IBrowser {
 		super.setBackground(color);
 		String hex = color != null ? new RGB(color.getRGB()).toHexString()
 				: "transparent";
-		this.injectCss("html, body { background-color: " + hex + "; }");
+		try {
+			this.injectCssImmediately("html, body { background-color: " + hex
+					+ "; }");
+		} catch (Exception e) {
+			LOGGER.error("Error setting background color to " + color, e);
+		}
 	}
 
 	@Override
