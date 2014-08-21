@@ -143,6 +143,17 @@ public interface IBrowser extends IBrowserScriptRunner, IWidget {
 	public Future<Void> injectCss(String css);
 
 	/**
+	 * Adds immediately the given CSS code to the head.
+	 * <p>
+	 * In contrast to other injection functions this does not wait for the
+	 * {@link IBrowser} to finish loading and thus running its script queue.
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	public void injectCssImmediately(String css) throws Exception;
+
+	/**
 	 * Returns a {@link Future} that tells you if an element with the given id
 	 * exists.
 	 * 

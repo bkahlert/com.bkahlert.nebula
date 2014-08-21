@@ -639,12 +639,22 @@ public class Browser extends Composite implements IBrowser {
 						IConverter.CONVERTER_VOID);
 	}
 
-	@Override
-	public Future<Void> injectCss(String css) {
-		String script = "(function(){var style=document.createElement(\"style\");style.appendChild(document.createTextNode(\""
+	private static String createCssInjectionScript(String css) {
+		return "(function(){var style=document.createElement(\"style\");style.appendChild(document.createTextNode(\""
 				+ css
 				+ "\"));(document.getElementsByTagName(\"head\")[0]||document.documentElement).appendChild(style)})()";
-		return this.run(script, IConverter.CONVERTER_VOID);
+	}
+
+	@Override
+	public Future<Void> injectCss(String css) {
+		return this.run(createCssInjectionScript(css),
+				IConverter.CONVERTER_VOID);
+	}
+
+	@Override
+	public void injectCssImmediately(String css) throws Exception {
+		this.runImmediately(createCssInjectionScript(css),
+				IConverter.CONVERTER_VOID);
 	}
 
 	@Override
