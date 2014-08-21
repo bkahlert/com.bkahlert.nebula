@@ -217,16 +217,7 @@ public class Loader {
 				if (animationEnabled) {
 					Loader.this.start();
 				}
-				Future<T> future = ExecUtils.nonUIAsyncExec(callable);
-
-				Display display = Display.getCurrent();
-				while (!display.isDisposed() && !future.isDone()) {
-					if (!display.readAndDispatch()) {
-						display.sleep();
-					}
-				}
-
-				T rs = future.get();
+				T rs = ExecUtils.safeWait(ExecUtils.nonUIAsyncExec(callable));
 				if (animationEnabled) {
 					Loader.this.stop();
 				}

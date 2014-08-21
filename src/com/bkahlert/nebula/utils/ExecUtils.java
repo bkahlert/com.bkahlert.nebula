@@ -369,7 +369,13 @@ public class ExecUtils {
 	 * @param callable
 	 * @return
 	 * 
-	 * @UIThread
+	 * @UIThread <b><span style="color: #f00;">WARNING: </span>Do not use the
+	 *           returned {@link Future} to check the finished execution while
+	 *           in the UI thread. This can result in a deadlock the computation
+	 *           has not finished but the checking UI thread blocks the
+	 *           execution.</b><br>
+	 *           Use {@link #safeWait(Future)} to avoid deadlocks if you have to
+	 *           wait in the UI thread.
 	 * @NonUIThread
 	 */
 	public static <V> Future<V> asyncExec(final Callable<V> callable) {
@@ -391,7 +397,13 @@ public class ExecUtils {
 	 * @param runnable
 	 * @return can be used to check when the code has been executed
 	 * 
-	 * @UIThread
+	 * @UIThread <b><span style="color: #f00;">WARNING: </span>Do not use the
+	 *           returned {@link Future} to check the finished execution while
+	 *           in the UI thread. This can result in a deadlock the computation
+	 *           has not finished but the checking UI thread blocks the
+	 *           execution.</b><br>
+	 *           Use {@link #safeWait(Future)} to avoid deadlocks if you have to
+	 *           wait in the UI thread.
 	 * @NonUIThread
 	 */
 	public static Future<Void> asyncExec(final Runnable runnable) {
@@ -430,9 +442,12 @@ public class ExecUtils {
 	 * @return
 	 * 
 	 * @UIThread <b><span style="color: #f00;">WARNING: </span>Do not use the
-	 *           returned {@link Future} to check the finished execution. This
-	 *           results in a deadlock if the delay has not been passed but the
-	 *           checking UI thread block the execution.</b>
+	 *           returned {@link Future} to check the finished execution while
+	 *           in the UI thread. This can result in a deadlock the computation
+	 *           has not finished or the delay has not been passed but the
+	 *           checking UI thread blocks the execution.</b><br>
+	 *           Use {@link #safeWait(Future)} to avoid deadlocks if you have to
+	 *           wait in the UI thread.
 	 * @NonUIThread
 	 * 
 	 *              TODO implement using Display.timerExec
@@ -462,9 +477,12 @@ public class ExecUtils {
 	 * @param delay
 	 * 
 	 * @UIThread <b><span style="color: #f00;">WARNING: </span>Do not use the
-	 *           returned {@link Future} to check the finished execution. This
-	 *           results in a deadlock if the delay has not been passed but the
-	 *           checking UI thread block the execution.</b>
+	 *           returned {@link Future} to check the finished execution while
+	 *           in the UI thread. This can result in a deadlock the computation
+	 *           has not finished or the delay has not been passed but the
+	 *           checking UI thread blocks the execution.</b><br>
+	 *           Use {@link #safeWait(Future)} to avoid deadlocks if you have to
+	 *           wait in the UI thread.
 	 * @NonUIThread
 	 * 
 	 *              TODO implement using Display.timerExec
@@ -485,6 +503,37 @@ public class ExecUtils {
 				return null;
 			}
 		});
+	}
+
+	/**
+	 * Securely waits in the UI thread for the completed computation of a
+	 * {@link Future} returned by he various {@link #nonUIAsyncExec(Callable)}
+	 * methods.
+	 * <p>
+	 * To avoid blocking the SWT event loop is manually run so UI thread action
+	 * within the non UI computation can still be run allowing the
+	 * {@link Future} to finish its computation.
+	 * 
+	 * @param future
+	 * @return
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * 
+	 * @UIThread securely waits and returns the computations result
+	 * @NonUIThread simply blocks until the computation finishes and returns its
+	 *              result
+	 */
+	public static <T> T safeWait(Future<T> future) throws InterruptedException,
+			ExecutionException {
+		if (isUIThread()) {
+			Display display = Display.getCurrent();
+			while (!display.isDisposed() && !future.isDone()) {
+				if (!display.readAndDispatch()) {
+					display.sleep();
+				}
+			}
+		}
+		return future.get();
 	}
 
 	/**
