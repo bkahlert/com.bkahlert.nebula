@@ -179,7 +179,7 @@ public class BrowserDemo extends AbstractDemo {
 			}
 		});
 		try {
-			final Boolean success = this.browser.open(
+			boolean success = this.browser.open(
 					new URI("http://wikipedia.com"),
 					Integer.parseInt(BrowserDemo.timeoutString)).get();
 			if (success) {
