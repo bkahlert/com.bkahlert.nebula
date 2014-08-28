@@ -23,12 +23,6 @@ public interface IBrowserScriptRunner {
 	 * <p>
 	 * In contrast to {@link #run(URI)} the reference (
 	 * <code>&lt;script src="..."&gt&lt;/script&gt</code>) is kept.
-	 * <p>
-	 * <strong>WARNING!<br>
-	 * The {@link Future#get()} must not be called from the UI thread without
-	 * checking {@link Future#isDone()}. Because the UI thread itself is needed
-	 * for the {@link Future} to finish its computation, calling
-	 * {@link Future#get()} before it is done results in a deadlock!</strong>.
 	 * 
 	 * @param script
 	 * @return
@@ -40,12 +34,6 @@ public interface IBrowserScriptRunner {
 	/**
 	 * Runs the script contained in the given {@link File} in the browser as
 	 * soon as its content is loaded.
-	 * <p>
-	 * <strong>WARNING!<br>
-	 * The {@link Future#get()} must not be called from the UI thread without
-	 * checking {@link Future#isDone()}. Because the UI thread itself is needed
-	 * for the {@link Future} to finish its computation, calling
-	 * {@link Future#get()} before it is done results in a deadlock!</strong>.
 	 * 
 	 * @param script
 	 * @return
@@ -63,12 +51,6 @@ public interface IBrowserScriptRunner {
 	 * {@link #inject(URI)} is recommended. <b>Exception: If the resource is
 	 * actually a file on the local file system, its content will be run and
 	 * therefore persist to circumvent security restrictions.
-	 * <p>
-	 * <strong>WARNING!<br>
-	 * The {@link Future#get()} must not be called from the UI thread without
-	 * checking {@link Future#isDone()}. Because the UI thread itself is needed
-	 * for the {@link Future} to finish its computation, calling
-	 * {@link Future#get()} before it is done results in a deadlock!</strong>.
 	 * 
 	 * @param script
 	 * @return
@@ -80,12 +62,6 @@ public interface IBrowserScriptRunner {
 	/**
 	 * Runs the given script in the browser as soon as its content is loaded and
 	 * returns the evaluation's return value.
-	 * <p>
-	 * <strong>WARNING!<br>
-	 * The {@link Future#get()} must not be called from the UI thread without
-	 * checking {@link Future#isDone()}. Because the UI thread itself is needed
-	 * for the {@link Future} to finish its computation, calling
-	 * {@link Future#get()} before it is done results in a deadlock!</strong>.
 	 * 
 	 * @param script
 	 * @return
@@ -97,12 +73,6 @@ public interface IBrowserScriptRunner {
 	/**
 	 * Runs the given script in the browser as soon as its content is loaded and
 	 * returns the evaluation's converted return value.
-	 * <p>
-	 * <strong>WARNING!<br>
-	 * The {@link Future#get()} must not be called from the UI thread without
-	 * checking {@link Future#isDone()}. Because the UI thread itself is needed
-	 * for the {@link Future} to finish its computation, calling
-	 * {@link Future#get()} before it is done results in a deadlock!</strong>.
 	 * 
 	 * @param script
 	 * @param converter
