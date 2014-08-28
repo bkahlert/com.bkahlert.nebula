@@ -10,7 +10,7 @@ import com.bkahlert.nebula.gallery.demoSuits.browser.jointjs.JointJSWithInformat
 import com.bkahlert.nebula.gallery.demoSuits.browser.timeline.TimelineDemoSuite;
 
 @DemoSuite(value = { BrowserDemo.class, MultipleBrowsersDemo.class,
-		ItemListDemo.class, ComposerDemo.class, ComposerReadOnlyDemo.class,
+		ItemListDemo.class, OrdinalScaleDemo.class, ComposerReadOnlyDemo.class,
 		EditorDemo.class, MultipleEditorsDemo.class, ImageDemo.class,
 		TimelineDemoSuite.class, JQueryBrowserDemo.class,
 		BootstrapBrowserDemo.class, JointJSDemo.class,
