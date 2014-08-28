@@ -11,9 +11,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.widgets.Display;
 
@@ -151,7 +154,73 @@ public class ExecUtils {
 		}
 	}
 
-	public interface ParametrizedCallable<T, V> {
+	/**
+	 * This {@link Future} implementation addresses a possible deadlock that can
+	 * occur if an UI thread call triggers a new thread that itself needs an UI
+	 * thread call. Should the outer UI thread call block for the computation to
+	 * finish this can result in a deadlock since the inner UI thread call will
+	 * wait for the outer UI thread call to unblock. The later will never happen
+	 * since computation won't ever finish (due to the outer block).
+	 * <p>
+	 * 
+	 * @author bkahlert
+	 * 
+	 * @param <V>
+	 */
+	public static class UIThreadSafeFuture<V> implements Future<V> {
+		private final Future<V> future;
+
+		public UIThreadSafeFuture(Future<V> future) {
+			Assert.isNotNull(future);
+			this.future = future;
+		}
+
+		@Override
+		public boolean cancel(boolean mayInterruptIfRunning) {
+			return this.future.cancel(mayInterruptIfRunning);
+		}
+
+		@Override
+		public V get() throws InterruptedException, ExecutionException {
+			if (isUIThread()) {
+				Display display = Display.getCurrent();
+				while (!display.isDisposed() && !this.future.isDone()) {
+					if (!display.readAndDispatch()) {
+						display.sleep();
+					}
+				}
+			}
+			return this.future.get();
+		}
+
+		/**
+		 * <b>This method is not supported, yet.</b>
+		 * 
+		 * @param timeout
+		 * @param unit
+		 * @return
+		 * @throws InterruptedException
+		 * @throws ExecutionException
+		 * @throws TimeoutException
+		 */
+		@Override
+		public V get(long timeout, TimeUnit unit) throws InterruptedException,
+				ExecutionException, TimeoutException {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean isCancelled() {
+			return this.future.isCancelled();
+		}
+
+		@Override
+		public boolean isDone() {
+			return this.future.isDone();
+		}
+	}
+
+	public static interface ParametrizedCallable<T, V> {
 		/**
 		 * Computes a result, or throws an exception if unable to do so.
 		 * 
@@ -369,13 +438,7 @@ public class ExecUtils {
 	 * @param callable
 	 * @return
 	 * 
-	 * @UIThread <b><span style="color: #f00;">WARNING: </span>Do not use the
-	 *           returned {@link Future} to check the finished execution while
-	 *           in the UI thread. This can result in a deadlock the computation
-	 *           has not finished but the checking UI thread blocks the
-	 *           execution.</b><br>
-	 *           Use {@link #safeWait(Future)} to avoid deadlocks if you have to
-	 *           wait in the UI thread.
+	 * @UIThread
 	 * @NonUIThread
 	 */
 	public static <V> Future<V> asyncExec(final Callable<V> callable) {
@@ -383,12 +446,13 @@ public class ExecUtils {
 			return new CompletedFuture<V>(callable);
 		}
 
-		return EXECUTOR_SERVICE.submit(new Callable<V>() {
-			@Override
-			public V call() throws Exception {
-				return syncExec(callable);
-			}
-		});
+		return new UIThreadSafeFuture<V>(
+				EXECUTOR_SERVICE.submit(new Callable<V>() {
+					@Override
+					public V call() throws Exception {
+						return syncExec(callable);
+					}
+				}));
 	}
 
 	/**
@@ -397,13 +461,7 @@ public class ExecUtils {
 	 * @param runnable
 	 * @return can be used to check when the code has been executed
 	 * 
-	 * @UIThread <b><span style="color: #f00;">WARNING: </span>Do not use the
-	 *           returned {@link Future} to check the finished execution while
-	 *           in the UI thread. This can result in a deadlock the computation
-	 *           has not finished but the checking UI thread blocks the
-	 *           execution.</b><br>
-	 *           Use {@link #safeWait(Future)} to avoid deadlocks if you have to
-	 *           wait in the UI thread.
+	 * @UIThread
 	 * @NonUIThread
 	 */
 	public static Future<Void> asyncExec(final Runnable runnable) {
@@ -411,26 +469,27 @@ public class ExecUtils {
 			return new CompletedFuture<Void>(runnable);
 		}
 
-		return EXECUTOR_SERVICE.submit(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				final AtomicReference<Exception> exception = new AtomicReference<Exception>();
-				Display.getDefault().syncExec(new Runnable() {
+		return new UIThreadSafeFuture<Void>(
+				EXECUTOR_SERVICE.submit(new Callable<Void>() {
 					@Override
-					public void run() {
-						try {
-							runnable.run();
-						} catch (Exception e) {
-							exception.set(e);
+					public Void call() throws Exception {
+						final AtomicReference<Exception> exception = new AtomicReference<Exception>();
+						Display.getDefault().syncExec(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									runnable.run();
+								} catch (Exception e) {
+									exception.set(e);
+								}
+							}
+						});
+						if (exception.get() != null) {
+							throw exception.get();
 						}
+						return null;
 					}
-				});
-				if (exception.get() != null) {
-					throw exception.get();
-				}
-				return null;
-			}
-		});
+				}));
 	}
 
 	/**
@@ -441,32 +500,27 @@ public class ExecUtils {
 	 * @param delay
 	 * @return
 	 * 
-	 * @UIThread <b><span style="color: #f00;">WARNING: </span>Do not use the
-	 *           returned {@link Future} to check the finished execution while
-	 *           in the UI thread. This can result in a deadlock the computation
-	 *           has not finished or the delay has not been passed but the
-	 *           checking UI thread blocks the execution.</b><br>
-	 *           Use {@link #safeWait(Future)} to avoid deadlocks if you have to
-	 *           wait in the UI thread.
+	 * @UIThread
 	 * @NonUIThread
 	 * 
 	 *              TODO implement using Display.timerExec
 	 */
 	public static <V> Future<V> asyncExec(final Callable<V> callable,
 			final long delay) {
-		return EXECUTOR_SERVICE.submit(new Callable<V>() {
-			@Override
-			public V call() throws Exception {
-				try {
-					Thread.sleep(delay);
-				} catch (InterruptedException e) {
-					LOGGER.error("Could not execute with a delay callable "
-							+ callable);
-				}
+		return new UIThreadSafeFuture<V>(
+				EXECUTOR_SERVICE.submit(new Callable<V>() {
+					@Override
+					public V call() throws Exception {
+						try {
+							Thread.sleep(delay);
+						} catch (InterruptedException e) {
+							LOGGER.error("Could not execute with a delay callable "
+									+ callable);
+						}
 
-				return syncExec(callable);
-			}
-		});
+						return syncExec(callable);
+					}
+				}));
 	}
 
 	/**
@@ -476,64 +530,28 @@ public class ExecUtils {
 	 * @param runnable
 	 * @param delay
 	 * 
-	 * @UIThread <b><span style="color: #f00;">WARNING: </span>Do not use the
-	 *           returned {@link Future} to check the finished execution while
-	 *           in the UI thread. This can result in a deadlock the computation
-	 *           has not finished or the delay has not been passed but the
-	 *           checking UI thread blocks the execution.</b><br>
-	 *           Use {@link #safeWait(Future)} to avoid deadlocks if you have to
-	 *           wait in the UI thread.
+	 * @UIThread
 	 * @NonUIThread
 	 * 
 	 *              TODO implement using Display.timerExec
 	 */
 	public static Future<Void> asyncExec(final Runnable runnable,
 			final long delay) {
-		return EXECUTOR_SERVICE.submit(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				try {
-					Thread.sleep(delay);
-				} catch (InterruptedException e) {
-					LOGGER.error("Could not execute with a delay runnable "
-							+ runnable);
-				}
+		return new UIThreadSafeFuture<Void>(
+				EXECUTOR_SERVICE.submit(new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+						try {
+							Thread.sleep(delay);
+						} catch (InterruptedException e) {
+							LOGGER.error("Could not execute with a delay runnable "
+									+ runnable);
+						}
 
-				syncExec(runnable);
-				return null;
-			}
-		});
-	}
-
-	/**
-	 * Securely waits in the UI thread for the completed computation of a
-	 * {@link Future} returned by he various {@link #nonUIAsyncExec(Callable)}
-	 * methods.
-	 * <p>
-	 * To avoid blocking the SWT event loop is manually run so UI thread action
-	 * within the non UI computation can still be run allowing the
-	 * {@link Future} to finish its computation.
-	 * 
-	 * @param future
-	 * @return
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * 
-	 * @UIThread securely waits and returns the computations result
-	 * @NonUIThread simply blocks until the computation finishes and returns its
-	 *              result
-	 */
-	public static <T> T safeWait(Future<T> future) throws InterruptedException,
-			ExecutionException {
-		if (isUIThread()) {
-			Display display = Display.getCurrent();
-			while (!display.isDisposed() && !future.isDone()) {
-				if (!display.readAndDispatch()) {
-					display.sleep();
-				}
-			}
-		}
-		return future.get();
+						syncExec(runnable);
+						return null;
+					}
+				}));
 	}
 
 	/**
@@ -549,7 +567,7 @@ public class ExecUtils {
 	 */
 	public static <V> Future<V> nonUISyncExec(Callable<V> callable) {
 		if (ExecUtils.isUIThread()) {
-			return EXECUTOR_SERVICE.submit(callable);
+			return new UIThreadSafeFuture<V>(EXECUTOR_SERVICE.submit(callable));
 		} else {
 			return new CompletedFuture<V>(callable);
 		}
@@ -567,13 +585,14 @@ public class ExecUtils {
 	 */
 	public static Future<Void> nonUISyncExec(final Runnable runnable) {
 		if (ExecUtils.isUIThread()) {
-			return EXECUTOR_SERVICE.submit(new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
-					runnable.run();
-					return null;
-				}
-			});
+			return new UIThreadSafeFuture<Void>(
+					EXECUTOR_SERVICE.submit(new Callable<Void>() {
+						@Override
+						public Void call() throws Exception {
+							runnable.run();
+							return null;
+						}
+					}));
 		} else {
 			return new CompletedFuture<Void>(runnable);
 		}
@@ -727,7 +746,7 @@ public class ExecUtils {
 	 * @NonUIThread
 	 */
 	public static <V> Future<V> nonUIAsyncExec(final Callable<V> callable) {
-		return EXECUTOR_SERVICE.submit(callable);
+		return new UIThreadSafeFuture<V>(EXECUTOR_SERVICE.submit(callable));
 	}
 
 	/**
@@ -743,30 +762,34 @@ public class ExecUtils {
 	 * @NonUIThread
 	 */
 	public static Future<Void> nonUIAsyncExec(final Runnable runnable) {
-		return EXECUTOR_SERVICE.submit(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				runnable.run();
-				return null;
-			}
-		});
+		return new UIThreadSafeFuture<Void>(
+				EXECUTOR_SERVICE.submit(new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+						runnable.run();
+						return null;
+					}
+				}));
 	}
 
 	public static <V> Future<V> nonUIAsyncExec(final Class<?> clazz,
 			final String purpose, final Callable<V> callable) {
-		return EXECUTOR_SERVICE.submit(createThreadLabelingCode(callable,
-				clazz, purpose));
+		return new UIThreadSafeFuture<V>(
+				EXECUTOR_SERVICE.submit(createThreadLabelingCode(callable,
+						clazz, purpose)));
 	}
 
 	public static Future<Void> nonUIAsyncExec(final Class<?> clazz,
 			final String purpose, final Runnable runnable) {
-		return EXECUTOR_SERVICE.submit(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				createThreadLabelingCode(runnable, clazz, purpose).run();
-				return null;
-			}
-		});
+		return new UIThreadSafeFuture<Void>(
+				EXECUTOR_SERVICE.submit(new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+						createThreadLabelingCode(runnable, clazz, purpose)
+								.run();
+						return null;
+					}
+				}));
 	}
 
 	/**

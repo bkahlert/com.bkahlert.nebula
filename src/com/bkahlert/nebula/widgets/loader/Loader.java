@@ -217,7 +217,7 @@ public class Loader {
 				if (animationEnabled) {
 					Loader.this.start();
 				}
-				T rs = ExecUtils.safeWait(ExecUtils.nonUIAsyncExec(callable));
+				T rs = ExecUtils.nonUIAsyncExec(callable).get();
 				if (animationEnabled) {
 					Loader.this.stop();
 				}
