@@ -1,13 +1,16 @@
 package com.bkahlert.nebula.widgets.browser;
 
 import java.io.File;
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.security.SecureRandom;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.swt.browser.BrowserFunction;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -139,5 +142,15 @@ public class BrowserUtils {
 				.intern() + "..." : script;
 		return shortened.replace("\n", " ").replace("\r", " ")
 				.replace("\t", " ");
+	}
+
+	/**
+	 * Creates a random name for a JavaScript function. This is especially handy
+	 * for callback functions injected by {@link BrowserFunction}.
+	 * 
+	 * @return
+	 */
+	public static String createRandomFunctionName() {
+		return "_" + new BigInteger(130, new SecureRandom()).toString(32);
 	}
 }

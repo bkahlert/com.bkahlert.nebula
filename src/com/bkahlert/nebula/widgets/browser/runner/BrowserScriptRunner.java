@@ -2,10 +2,8 @@ package com.bkahlert.nebula.widgets.browser.runner;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.SecureRandom;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
@@ -267,9 +265,8 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 					"Script Runner for: " + script, new Callable<Boolean>() {
 						@Override
 						public Boolean call() throws Exception {
-							final String callbackFunctionName = "_"
-									+ new BigInteger(130, new SecureRandom())
-											.toString(32);
+							final String callbackFunctionName = BrowserUtils
+									.createRandomFunctionName();
 
 							final Semaphore mutex = new Semaphore(0);
 							ExecUtils.syncExec(new Runnable() {
