@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -18,6 +19,7 @@ import org.eclipse.swt.browser.LocationAdapter;
 import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
+import org.eclipse.swt.browser.ProgressListener;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusEvent;
@@ -336,14 +338,111 @@ public class Browser extends Composite implements IBrowser {
 		Browser.this.eventCatchScriptInjected = true;
 	}
 
-	@Override
-	public Future<Boolean> open(String address, Integer timeout) {
-		return this.open(address, timeout, null);
+	/**
+	 * This method waits for the {@link Browser} to complete loading.
+	 * <p>
+	 * It has been observed that the
+	 * {@link ProgressListener#completed(ProgressEvent)} fires to early. This
+	 * method uses JavaScript to reliably detect the completed state.
+	 * 
+	 * @param pageLoadCheckExpression
+	 */
+	private void waitAndComplete(String pageLoadCheckExpression) {
+		if (Browser.this.browser == null || Browser.this.browser.isDisposed()) {
+			return;
+		}
+
+		if (Browser.this.browserScriptRunner.getBrowserStatus() != BrowserStatus.LOADING) {
+			if (Browser.this.browserScriptRunner.getBrowserStatus() != BrowserStatus.CANCELLED) {
+				LOGGER.error("State Error: "
+						+ Browser.this.browserScriptRunner.getBrowserStatus());
+			}
+			return;
+		}
+
+		String completedCallbackFunctionName = BrowserUtils
+				.createRandomFunctionName();
+
+		String completedCheckScript = "(function() { "
+				+ "function test() { if(document.readyState == 'complete'"
+				+ (pageLoadCheckExpression != null ? " && ("
+						+ pageLoadCheckExpression + ")" : "") + ") { "
+				+ completedCallbackFunctionName
+				+ "(); } else { window.setTimeout(test, 50); } } "
+				+ "test(); })()";
+
+		final AtomicReference<BrowserFunction> completedCallback = new AtomicReference<BrowserFunction>();
+		completedCallback.set(new BrowserFunction(this.browser,
+				completedCallbackFunctionName) {
+			@Override
+			public Object function(Object[] arguments) {
+				Browser.this.complete();
+				completedCallback.get().dispose();
+				return null;
+			}
+		});
+
+		try {
+			this.runImmediately(completedCheckScript, IConverter.CONVERTER_VOID);
+		} catch (Exception e) {
+			LOGGER.error(
+					"An error occurred while checking the page load state", e);
+			synchronized (Browser.this.monitor) {
+				Browser.this.monitor.notifyAll();
+			}
+		}
+	}
+
+	/**
+	 * This method is called by {@link #waitAndComplete(String)} and post
+	 * processes the loaded page.
+	 * <ol>
+	 * <li>calls {@link #beforeCompletion(String)}</li>
+	 * <li>injects necessary scripts</li>
+	 * <li>runs the scheduled user scripts</li>
+	 * </ol>
+	 */
+	private void complete() {
+		final String uri = Browser.this.browser.getUrl();
+		if (Browser.this.initWithSystemBackgroundColor) {
+			Browser.this.setBackground(SWTUtils
+					.getEffectiveBackground(Browser.this));
+		}
+		final Future<Void> finished = Browser.this.beforeCompletion(uri);
+		ExecUtils.nonUISyncExec(Browser.class, "Progress Check for " + uri,
+				new Runnable() {
+					@Override
+					public void run() {
+						try {
+							if (finished != null) {
+								finished.get();
+							}
+						} catch (Exception e) {
+							LOGGER.error(e);
+						}
+
+						Browser.this.injectEventCatchScript();
+						ExecUtils.asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								Browser.this.browser.setVisible(true);
+							}
+						});
+						synchronized (Browser.this.monitor) {
+							if (Browser.this.browserScriptRunner
+									.getBrowserStatus() != BrowserStatus.CANCELLED) {
+								Browser.this.browserScriptRunner
+										.setBrowserStatus(BrowserStatus.LOADED);
+							}
+							Browser.this.monitor.notifyAll();
+						}
+					}
+				});
 	}
 
 	@Override
 	public Future<Boolean> open(final String uri, final Integer timeout,
-			final String pageLoadCheckScript) {
+			final String pageLoadCheckExpression) {
 		if (this.browser.isDisposed()) {
 			throw new SWTException(SWT.ERROR_WIDGET_DISPOSED);
 		}
@@ -354,88 +453,7 @@ public class Browser extends Composite implements IBrowser {
 		this.browser.addProgressListener(new ProgressAdapter() {
 			@Override
 			public void completed(ProgressEvent event) {
-				if (Browser.this.browser == null
-						|| Browser.this.browser.isDisposed()) {
-					return;
-				}
-
-				if (Browser.this.browserScriptRunner.getBrowserStatus() != BrowserStatus.LOADING) {
-					if (Browser.this.browserScriptRunner.getBrowserStatus() != BrowserStatus.CANCELLED) {
-						LOGGER.error("State Error: "
-								+ Browser.this.browserScriptRunner
-										.getBrowserStatus());
-					}
-					return;
-				}
-
-				try {
-					/*
-					 * WORKAROUND: If multiple browsers are instantiated it can
-					 * occur that some have not loaded, yet. Therefore we poll
-					 * the page until it is really loaded. Optionally a user
-					 * provided pageLoadCheckScript is executed.
-					 */
-					String readyState = Browser.this.browserScriptRunner
-							.runImmediately("return document.readyState;",
-									IConverter.CONVERTER_STRING);
-					if (readyState.equals("complete")
-							&& (pageLoadCheckScript == null || Browser.this.browserScriptRunner
-									.runImmediately(pageLoadCheckScript,
-											IConverter.CONVERTER_BOOLEAN))) {
-
-						final String uri = Browser.this.browser.getUrl();
-						if (Browser.this.initWithSystemBackgroundColor) {
-							Browser.this.setBackground(SWTUtils
-									.getEffectiveBackground(Browser.this));
-						}
-						final Future<Void> finished = Browser.this
-								.beforeCompletion(uri);
-						ExecUtils.nonUISyncExec(Browser.class,
-								"Progress Check for " + uri, new Runnable() {
-									@Override
-									public void run() {
-										try {
-											if (finished != null) {
-												finished.get();
-											}
-										} catch (Exception e) {
-											LOGGER.error(e);
-										}
-
-										Browser.this.injectEventCatchScript();
-										ExecUtils.asyncExec(new Runnable() {
-											@Override
-											public void run() {
-												Browser.this.browser
-														.setVisible(true);
-											}
-										});
-										synchronized (Browser.this.monitor) {
-											if (Browser.this.browserScriptRunner
-													.getBrowserStatus() != BrowserStatus.CANCELLED) {
-												Browser.this.browserScriptRunner
-														.setBrowserStatus(BrowserStatus.LOADED);
-											}
-											Browser.this.monitor.notifyAll();
-										}
-									}
-								});
-					} else {
-						ExecUtils.asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								completed(null);
-							}
-						}, 50);
-					}
-				} catch (Exception e) {
-					LOGGER.error(
-							"An error occurred while checking the page load state",
-							e);
-					synchronized (Browser.this.monitor) {
-						Browser.this.monitor.notifyAll();
-					}
-				}
+				Browser.this.waitAndComplete(pageLoadCheckExpression);
 			}
 		});
 
@@ -520,14 +538,19 @@ public class Browser extends Composite implements IBrowser {
 	}
 
 	@Override
+	public Future<Boolean> open(String address, Integer timeout) {
+		return this.open(address, timeout, null);
+	}
+
+	@Override
 	public Future<Boolean> open(URI uri, Integer timeout) {
 		return this.open(uri.toString(), timeout, null);
 	}
 
 	@Override
 	public Future<Boolean> open(URI uri, Integer timeout,
-			String pageLoadCheckScript) {
-		return this.open(uri.toString(), timeout, pageLoadCheckScript);
+			String pageLoadCheckExpression) {
+		return this.open(uri.toString(), timeout, pageLoadCheckExpression);
 	}
 
 	@Override

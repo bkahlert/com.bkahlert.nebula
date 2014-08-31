@@ -87,11 +87,9 @@ public class BaseTimeline extends Browser implements IBaseTimeline {
 	public BaseTimeline(Composite parent, int style) {
 		super(parent, style);
 		this.deactivateNativeMenu();
-		this.open(
-				BrowserUtils.getFileUrl(BaseTimeline.class,
-						"../html/timeline.html", "?internal=true"),
-				30000,
-				"return typeof jQuery != \"undefined\" && jQuery('html').hasClass('timeline-ready')");
+		this.open(BrowserUtils.getFileUrl(BaseTimeline.class,
+				"../html/timeline.html", "?internal=true"), 30000,
+				"typeof jQuery != \"undefined\" && jQuery('html').hasClass('timeline-ready')");
 	}
 
 	/**
@@ -115,11 +113,8 @@ public class BaseTimeline extends Browser implements IBaseTimeline {
 					+ json.getAbsolutePath() + "\");";
 		} else {
 			js = "com.bkahlert.nebula.timeline.loadJSONAnimated(\"file://"
-					+ json.getAbsolutePath()
-					+ "\", null, "
-					+ startAnimationDuration
-					+ ", "
-					+ endAnimationDuration
+					+ json.getAbsolutePath() + "\", null, "
+					+ startAnimationDuration + ", " + endAnimationDuration
 					+ ");";
 		}
 		this.run(js).get();
@@ -171,8 +166,8 @@ public class BaseTimeline extends Browser implements IBaseTimeline {
 
 	@Override
 	public void setMinVisibleDate(Calendar calendar) {
-		this.run("com.bkahlert.nebula.timeline.setMinVisibleDate('"
-				+ calendar + "');");
+		this.run("com.bkahlert.nebula.timeline.setMinVisibleDate('" + calendar
+				+ "');");
 	}
 
 	@Override
@@ -183,38 +178,35 @@ public class BaseTimeline extends Browser implements IBaseTimeline {
 
 	@Override
 	public Future<Calendar> getCenterVisibleDate() {
-		return this
-				.run("return com.bkahlert.nebula.timeline.getCenterVisibleDate();",
-						new IConverter<Object, Calendar>() {
-							@Override
-							public Calendar convert(Object returnValue) {
-								String centerVisibleDate = (String) returnValue;
-								if (centerVisibleDate != null) {
-									return CalendarUtils
-											.fromISO8601(centerVisibleDate);
-								} else {
-									return null;
-								}
-							}
-						});
+		return this.run(
+				"return com.bkahlert.nebula.timeline.getCenterVisibleDate();",
+				new IConverter<Object, Calendar>() {
+					@Override
+					public Calendar convert(Object returnValue) {
+						String centerVisibleDate = (String) returnValue;
+						if (centerVisibleDate != null) {
+							return CalendarUtils.fromISO8601(centerVisibleDate);
+						} else {
+							return null;
+						}
+					}
+				});
 	}
 
 	@Override
 	public void setMaxVisibleDate(Calendar calendar) {
-		this.run("com.bkahlert.nebula.timeline.setMaxVisibleDate('"
-				+ calendar + "');");
+		this.run("com.bkahlert.nebula.timeline.setMaxVisibleDate('" + calendar
+				+ "');");
 	}
 
 	@Override
 	public void setZoomIndex(final int index) {
-		this.run("com.bkahlert.nebula.timeline.setZoomIndex(" + index
-				+ ");");
+		this.run("com.bkahlert.nebula.timeline.setZoomIndex(" + index + ");");
 	}
 
 	@Override
 	public Future<Integer> getZoomIndex() {
-		return this.run(
-				"return com.bkahlert.nebula.timeline.getZoomIndex();",
+		return this.run("return com.bkahlert.nebula.timeline.getZoomIndex();",
 				new IConverter<Object, Integer>() {
 					@Override
 					public Integer convert(Object returnValue) {

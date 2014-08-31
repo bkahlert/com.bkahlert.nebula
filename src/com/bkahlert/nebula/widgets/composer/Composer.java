@@ -94,7 +94,7 @@ public class Composer extends Browser {
 		this.open(BrowserUtils.getFileUrl(Composer.class, "html/index.html",
 				"?internal=true&toolbarSet="
 						+ toolbarSet.toString().toLowerCase()), 30000,
-				"return typeof jQuery != \"undefined\" && jQuery(\"html\").hasClass(\"ready\")");
+				"typeof jQuery != \"undefined\" && jQuery(\"html\").hasClass(\"ready\")");
 
 		this.addDisposeListener(new DisposeListener() {
 			@Override
@@ -369,10 +369,8 @@ public class Composer extends Browser {
 		if (!this.isLoadingCompleted()) {
 			return null;
 		}
-		String html = (String) this
-				.getBrowser()
-				.evaluate(
-						"return com.bkahlert.nebula.editor.getPrevCaretCharacter();");
+		String html = (String) this.getBrowser().evaluate(
+				"return com.bkahlert.nebula.editor.getPrevCaretCharacter();");
 		return html;
 	}
 
