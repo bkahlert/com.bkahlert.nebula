@@ -74,7 +74,7 @@ public abstract class PopupDialog extends org.eclipse.jface.dialogs.PopupDialog 
 
 	private Composite composite;
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	protected List getBackgroundColorExclusions() {
 		return Arrays.asList(this.composite);
