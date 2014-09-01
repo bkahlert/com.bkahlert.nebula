@@ -157,10 +157,7 @@ public class ExecUtils {
 	/**
 	 * This {@link Future} implementation addresses a possible deadlock that can
 	 * occur if an UI thread call triggers a new thread that itself needs an UI
-	 * thread call. Should the outer UI thread call block for the computation to
-	 * finish this can result in a deadlock since the inner UI thread call will
-	 * wait for the outer UI thread call to unblock. The later will never happen
-	 * since computation won't ever finish (due to the outer block).
+	 * thread call.
 	 * <p>
 	 * 
 	 * @author bkahlert
@@ -182,31 +179,35 @@ public class ExecUtils {
 
 		@Override
 		public V get() throws InterruptedException, ExecutionException {
-			if (isUIThread()) {
-				Display display = Display.getCurrent();
-				while (!display.isDisposed() && !this.future.isDone()) {
-					if (!display.readAndDispatch()) {
-						display.sleep();
-					}
-				}
+			if (isUIThread() && !this.isDone()) {
+				throw new ExecutionException(
+						"Waiting is not allowed from the UI thread. Should the calculation include UI thread code, this could lead to a deadlock.\nWait in another thread or check isDone() before calling get().",
+						null);
+				// Display display = Display.getCurrent();
+				// while (!display.isDisposed() && !this.future.isDone()) {
+				// if (!display.readAndDispatch()) {
+				// display.sleep();
+				// }
+				// }
 			}
 			return this.future.get();
 		}
 
-		/**
-		 * <b>This method is not supported, yet.</b>
-		 * 
-		 * @param timeout
-		 * @param unit
-		 * @return
-		 * @throws InterruptedException
-		 * @throws ExecutionException
-		 * @throws TimeoutException
-		 */
 		@Override
 		public V get(long timeout, TimeUnit unit) throws InterruptedException,
 				ExecutionException, TimeoutException {
-			throw new UnsupportedOperationException();
+			if (isUIThread() && !this.isDone()) {
+				throw new ExecutionException(
+						"Waiting is not allowed from the UI thread. Should the calculation include UI thread code, this could lead to a deadlock.\nWait in another thread or check isDone() before calling get(...).",
+						null);
+				// Display display = Display.getCurrent();
+				// while (!display.isDisposed() && !this.future.isDone()) {
+				// if (!display.readAndDispatch()) {
+				// display.sleep();
+				// }
+				// }
+			}
+			return this.future.get(timeout, unit);
 		}
 
 		@Override
@@ -438,7 +439,8 @@ public class ExecUtils {
 	 * @param callable
 	 * @return
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static <V> Future<V> asyncExec(final Callable<V> callable) {
@@ -461,7 +463,8 @@ public class ExecUtils {
 	 * @param runnable
 	 * @return can be used to check when the code has been executed
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static Future<Void> asyncExec(final Runnable runnable) {
@@ -500,7 +503,8 @@ public class ExecUtils {
 	 * @param delay
 	 * @return
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 * 
 	 *              TODO implement using Display.timerExec
@@ -530,7 +534,8 @@ public class ExecUtils {
 	 * @param runnable
 	 * @param delay
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 * 
 	 *              TODO implement using Display.timerExec
@@ -562,7 +567,8 @@ public class ExecUtils {
 	 * @param callable
 	 * @return
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static <V> Future<V> nonUISyncExec(Callable<V> callable) {
@@ -580,7 +586,8 @@ public class ExecUtils {
 	 * 
 	 * @param runnable
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static Future<Void> nonUISyncExec(final Runnable runnable) {
@@ -614,7 +621,8 @@ public class ExecUtils {
 	 * 
 	 * @return
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static <V> Future<V> nonUISyncExec(final Class<?> clazz,
@@ -637,7 +645,8 @@ public class ExecUtils {
 	 * @param runnable
 	 * @return
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static Future<?> nonUISyncExec(final Class<?> clazz,
@@ -656,7 +665,8 @@ public class ExecUtils {
 	 * @param delay
 	 * @return
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static <V> Future<V> nonUISyncExec(final Callable<V> callable,
@@ -673,7 +683,8 @@ public class ExecUtils {
 	 * @param delay
 	 * @return
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static Future<Void> nonUISyncExec(final Runnable runnable,
@@ -698,7 +709,8 @@ public class ExecUtils {
 	 * 
 	 * @return
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static <V> Future<V> nonUISyncExec(final Class<?> clazz,
@@ -724,7 +736,8 @@ public class ExecUtils {
 	 * 
 	 * @return
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static Future<?> nonUISyncExec(final Class<?> clazz,
@@ -742,7 +755,8 @@ public class ExecUtils {
 	 * @param callable
 	 * @return
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static <V> Future<V> nonUIAsyncExec(final Callable<V> callable) {
@@ -758,7 +772,8 @@ public class ExecUtils {
 	 * @param callable
 	 * @return
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static Future<Void> nonUIAsyncExec(final Runnable runnable) {
@@ -802,7 +817,8 @@ public class ExecUtils {
 	 * @param delay
 	 * @return
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static <V> Future<V> nonUIAsyncExec(final Callable<V> callable,
@@ -830,7 +846,8 @@ public class ExecUtils {
 	 * @param delay
 	 * @return
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static Future<Void> nonUIAsyncExec(final Runnable runnable,
@@ -894,7 +911,8 @@ public class ExecUtils {
 	 *            to be called n times
 	 * @return a list of {@link Future}s
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static <INPUT, OUTPUT> List<Future<OUTPUT>> nonUIAsyncExec(
@@ -936,7 +954,8 @@ public class ExecUtils {
 	 *            to be called n times
 	 * @return a {@link Future} that contains the results
 	 * 
-	 * @UIThread
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static <INPUT, OUTPUT> Iterable<OUTPUT> nonUIAsyncExecMerged(

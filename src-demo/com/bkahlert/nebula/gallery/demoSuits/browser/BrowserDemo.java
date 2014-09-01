@@ -2,7 +2,9 @@ package com.bkahlert.nebula.gallery.demoSuits.browser;
 
 import java.io.File;
 import java.net.URI;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.swt.SWT;
@@ -18,6 +20,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
 import com.bkahlert.nebula.widgets.browser.Browser;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
@@ -179,17 +182,28 @@ public class BrowserDemo extends AbstractDemo {
 			}
 		});
 		try {
-			boolean success = this.browser.open(
-					new URI("http://wikipedia.com"),
-					Integer.parseInt(BrowserDemo.timeoutString)).get();
-			if (success) {
-				log("Page loaded successfully");
-			} else {
-				log("Page load timed out");
-			}
+			final Future<Boolean> success = this.browser.open(new URI(
+					"http://wikipedia.com"), Integer
+					.parseInt(BrowserDemo.timeoutString));
+			ExecUtils.nonUIAsyncExec(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					try {
+						if (success.get()) {
+							log("Page loaded successfully");
+						} else {
+							log("Page load timed out");
+						}
+					} catch (Exception e) {
+						log(e.getMessage());
+					}
+					log(BrowserDemo.this.browser.getBrowser().getUrl());
+					return null;
+				}
+
+			});
 		} catch (Exception e) {
-			log(e.getMessage());
+			log(e);
 		}
-		log(this.browser.getBrowser().getUrl());
 	}
 }
