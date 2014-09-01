@@ -78,6 +78,7 @@ public class Browser extends Composite implements IBrowser {
 	private BrowserScriptRunner browserScriptRunner;
 
 	private boolean initWithSystemBackgroundColor;
+	private boolean textSelectionsDisabled = false;
 	private boolean settingUri = false;
 	private boolean allowLocationChange = false;
 	private Rectangle cachedContentBounds = null;
@@ -404,9 +405,15 @@ public class Browser extends Composite implements IBrowser {
 	 */
 	private void complete() {
 		final String uri = Browser.this.browser.getUrl();
-		if (Browser.this.initWithSystemBackgroundColor) {
-			Browser.this.setBackground(SWTUtils
-					.getEffectiveBackground(Browser.this));
+		if (this.initWithSystemBackgroundColor) {
+			this.setBackground(SWTUtils.getEffectiveBackground(Browser.this));
+		}
+		if (this.textSelectionsDisabled) {
+			try {
+				this.injectCssImmediately("* { -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }");
+			} catch (Exception e) {
+				LOGGER.error(e);
+			}
 		}
 		final Future<Void> finished = Browser.this.beforeCompletion(uri);
 		ExecUtils.nonUISyncExec(Browser.class, "Progress Check for " + uri,
@@ -607,6 +614,10 @@ public class Browser extends Composite implements IBrowser {
 				event.doit = false;
 			}
 		});
+	}
+
+	public void deactivateTextSelections() {
+		this.textSelectionsDisabled = true;
 	}
 
 	@Override
