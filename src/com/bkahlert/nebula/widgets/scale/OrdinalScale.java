@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.BrowserFunction;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.nebula.dialogs.RenameDialog;
@@ -437,6 +438,15 @@ public class OrdinalScale extends BootstrapBrowser {
 				return null;
 			}
 		});
+	}
+
+	@Override
+	public Point computeSize(int wHint, int hHint, boolean changed) {
+		Point xx = super.computeSize(wHint, hHint, changed);
+		System.err.println(xx);
+		xx.x += 100;
+		xx.y += 100;
+		return xx;
 	}
 
 	public String getValue() {

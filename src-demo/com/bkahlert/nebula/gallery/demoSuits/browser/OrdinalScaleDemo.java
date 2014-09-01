@@ -69,31 +69,31 @@ public class OrdinalScaleDemo extends AbstractDemo {
 
 	@Override
 	public void createDemo(final Composite parent) {
-		parent.setLayout(GridLayoutFactory.fillDefaults().numColumns(2)
+		parent.setLayout(GridLayoutFactory.fillDefaults().numColumns(3)
 				.create());
 
-		Label label1 = new Label(parent, SWT.WRAP);
-		label1.setLayoutData(GridDataFactory.fillDefaults().grab(true, false)
-				.create());
-		label1.setText("Change the order of the ordinals here:");
-
-		Label label2 = new Label(parent, SWT.WRAP);
-		label2.setLayoutData(GridDataFactory.fillDefaults().grab(true, false)
-				.create());
-		label2.setText("Change the value of the ordinal scale here:");
-
-		// log("Order can be changed on the left. Value can be changed on the right.");
-
+		// Label label1 = new Label(parent, SWT.WRAP);
+		// label1.setLayoutData(GridDataFactory.fillDefaults().grab(false,
+		// false)
+		// .create());
+		// label1.setText("Change the order of the ordinals here:");
+		//
+		// Label label2 = new Label(parent, SWT.WRAP);
+		// label2.setLayoutData(GridDataFactory.fillDefaults().grab(false,
+		// false)
+		// .create());
+		// label2.setText("Change the value of the ordinal scale here:");
+		//
 		// new Label(parent, SWT.NONE).setLayoutData(GridDataFactory
-		// .fillDefaults().grab(true, true).create());
+		// .fillDefaults().grab(true, false).create());
 
 		String[] ordinals = new String[] { "Value #1", "Value #2",
 				"Third Value" };
 
-		this.ordinalScale1 = new OrdinalScale(parent, SWT.NONE,
+		this.ordinalScale1 = new OrdinalScale(parent, SWT.BORDER,
 				EditType.CHANGE_ORDER);
 		this.ordinalScale1.setLayoutData(GridDataFactory.fillDefaults()
-				.grab(true, true).create());
+				.create());
 		this.ordinalScale1.addListener(new OrdinalScaleAdapter() {
 			@Override
 			public void orderChanged(String[] oldOrdinals, String[] newOrdinals) {
@@ -125,10 +125,10 @@ public class OrdinalScaleDemo extends AbstractDemo {
 		this.ordinalScale1.setMargin(0);
 		this.ordinalScale1.setOrdinals(ordinals);
 
-		this.ordinalScale2 = new OrdinalScale(parent, SWT.NONE,
+		this.ordinalScale2 = new OrdinalScale(parent, SWT.BORDER,
 				EditType.CHANGE_VALUE);
 		this.ordinalScale2.setLayoutData(GridDataFactory.fillDefaults()
-				.grab(true, true).create());
+				.create());
 		this.ordinalScale2.addListener(new OrdinalScaleAdapter() {
 			@Override
 			public void valueChanged(String oldValue, String newValue) {
@@ -140,7 +140,10 @@ public class OrdinalScaleDemo extends AbstractDemo {
 		this.ordinalScale2.setMargin(0);
 		this.ordinalScale2.setOrdinals(ordinals);
 
-		// new Label(parent, SWT.NONE).setLayoutData(GridDataFactory
-		// .fillDefaults().grab(true, true).create());
+		new Label(parent, SWT.NONE).setLayoutData(GridDataFactory
+				.fillDefaults().grab(true, false).create());
+
+		new Label(parent, SWT.NONE).setLayoutData(GridDataFactory
+				.fillDefaults().span(3, 1).grab(true, true).create());
 	}
 }
