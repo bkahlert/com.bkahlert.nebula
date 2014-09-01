@@ -65,7 +65,7 @@ public class OrdinalScale extends BootstrapBrowser {
 
 	private static final Logger LOGGER = Logger.getLogger(OrdinalScale.class);
 
-	private static String UNSET_LABEL = "[unset]";
+	public static String UNSET_LABEL = "[unset]";
 
 	private final List<IOrdinalScaleListener> ordinalScaleListeners = new ArrayList<OrdinalScale.IOrdinalScaleListener>();
 	private EditType editType;
@@ -182,31 +182,43 @@ public class OrdinalScale extends BootstrapBrowser {
 		};
 
 		try {
-			this.open(
-					BrowserUtils.getFileUrl(OrdinalScale.class,
-							"html/index.html", "?internal=true"), 60000).get();
-			this.inject(
-					BrowserUtils.getFileUrl(OrdinalScale.class,
-							"html/js/jquery-sortable.js")).get();
-			StringBuilder css = new StringBuilder();
-			css.append("body.dragging, body.dragging * { cursor: move !important; } ");
-			css.append(".dragged { position: absolute; opacity: 0.5; z-index: 2000; } ");
-			css.append("ol { padding-left: 0; border: 1px solid transparent; /* otherwise radio buttons are cut off on Mac OS */ } ");
-			css.append("ol li .glyphicon { font-size: 0.8em; } ");
-			css.append("ol li .action { display: none; } ");
-			css.append("ol li:hover .action { display: inline-block; } ");
-			css.append("ol li.placeholder { position: relative; } ");
-			css.append("ol li > * { margin-right: .5em; } ");
-			css.append("input + label { margin-left: .5em; } "); // FIXME input
-																	// should
-																	// render
-																	// margin,
-																	// making
-																	// this rule
-																	// not
-																	// necessary
-			css.append("ol li.placeholder:before { position: absolute; left: 0; top: 0; width: 10px; height: 10px; border: 1px solid #f00;");
-			this.injectCss(css.toString());
+			final Future<Boolean> opened = this.open(BrowserUtils.getFileUrl(
+					OrdinalScale.class, "html/index.html", "?internal=true"),
+					60000);
+			ExecUtils.nonUIAsyncExec(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						opened.get();
+						OrdinalScale.this.inject(
+								BrowserUtils.getFileUrl(OrdinalScale.class,
+										"html/js/jquery-sortable.js")).get();
+						StringBuilder css = new StringBuilder();
+						css.append("body.dragging, body.dragging * { cursor: move !important; } ");
+						css.append(".dragged { position: absolute; opacity: 0.5; z-index: 2000; } ");
+						css.append("ol { padding-left: 0; border: 1px solid transparent; /* otherwise radio buttons are cut off on Mac OS */ } ");
+						css.append("ol li .glyphicon { font-size: 0.8em; } ");
+						css.append("ol li .action { display: none; } ");
+						css.append("ol li:hover .action { display: inline-block; } ");
+						css.append("ol li.placeholder { position: relative; } ");
+						css.append("ol li > * { margin-right: .5em; } ");
+						css.append("input + label { margin-left: .5em; } "); // FIXME
+																				// input
+																				// should
+																				// render
+																				// margin,
+																				// making
+																				// this
+																				// rule
+																				// not
+																				// necessary
+						css.append("ol li.placeholder:before { position: absolute; left: 0; top: 0; width: 10px; height: 10px; border: 1px solid #f00;");
+						OrdinalScale.this.injectCss(css.toString());
+					} catch (Exception e) {
+						LOGGER.error(e);
+					}
+				}
+			});
 		} catch (Exception e) {
 			LOGGER.error(e);
 		}
