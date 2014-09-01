@@ -113,6 +113,10 @@ public abstract class AbstractDemo {
 		}
 	}
 
+	public static void log(Throwable e) {
+		log(e.getMessage());
+	}
+
 	/**
 	 * Creates the controls for this demo.
 	 * <p>
