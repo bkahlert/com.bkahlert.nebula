@@ -529,8 +529,10 @@ public class Browser extends Composite implements IBrowser {
 								LOGGER.debug("Successfully loaded " + uri);
 								break;
 							case CANCELLED:
-								LOGGER.warn("Aborted loading " + uri
-										+ " due to timeout");
+								if (!Browser.this.browser.isDisposed()) {
+									LOGGER.warn("Aborted loading " + uri
+											+ " due to timeout");
+								}
 								break;
 							default:
 								throw new RuntimeException(
