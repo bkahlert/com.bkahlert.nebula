@@ -432,7 +432,9 @@ public class Browser extends Composite implements IBrowser {
 						ExecUtils.asyncExec(new Runnable() {
 							@Override
 							public void run() {
-								Browser.this.browser.setVisible(true);
+								if (!Browser.this.browser.isDisposed()) {
+									Browser.this.browser.setVisible(true);
+								}
 							}
 						});
 						synchronized (Browser.this.monitor) {
@@ -498,7 +500,9 @@ public class Browser extends Composite implements IBrowser {
 							@Override
 							public void run() {
 								Browser.this.settingUri = true;
-								Browser.this.browser.setUrl(uri.toString());
+								if (!Browser.this.browser.isDisposed()) {
+									Browser.this.browser.setUrl(uri.toString());
+								}
 								Browser.this.settingUri = false;
 							}
 						});
