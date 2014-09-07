@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JEditorPane;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
 import javax.swing.text.html.HTMLEditorKit;
@@ -226,9 +227,35 @@ public class StringUtils {
 		try {
 			htmlParser.read(new ByteArrayInputStream(html.getBytes()),
 					document, 0);
-			return document.getText(0, document.getLength());
+			String plain = document.getText(0, document.getLength());
+			return plain;
 		} catch (Exception e) {
 			throw new RuntimeException("Error converting HTML to plain text", e);
 		}
+	}
+
+	public static String plainToHtml(String plain) {
+		DefaultEditorKit plainParser = new DefaultEditorKit();
+		Document document = plainParser.createDefaultDocument();
+		try {
+			plainParser.read(new ByteArrayInputStream(plain.getBytes()),
+					document, 0);
+			String html = document.getText(0, document.getLength());
+			return html;
+		} catch (Exception e) {
+			throw new RuntimeException("Error converting plain text to HTML", e);
+		}
+	}
+
+	public static String shorten(String script, int length) {
+		String shortened = script.length() > length ? script.substring(0,
+				length).intern()
+				+ "..." : script;
+		return shortened.replace("\n", " ").replace("\r", " ")
+				.replace("\t", " ");
+	}
+
+	public static String shorten(String script) {
+		return shorten(script, 100);
 	}
 }

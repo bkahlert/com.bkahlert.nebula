@@ -137,13 +137,6 @@ public class BrowserUtils {
 	private BrowserUtils() {
 	}
 
-	public static String shortenScript(String script) {
-		String shortened = script.length() > 100 ? script.substring(0, 100)
-				.intern() + "..." : script;
-		return shortened.replace("\n", " ").replace("\r", " ")
-				.replace("\t", " ");
-	}
-
 	/**
 	 * Creates a random name for a JavaScript function. This is especially handy
 	 * for callback functions injected by {@link BrowserFunction}.
