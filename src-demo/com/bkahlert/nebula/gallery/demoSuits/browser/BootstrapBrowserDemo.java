@@ -14,7 +14,7 @@ import org.eclipse.swt.widgets.Text;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.utils.ExecUtils;
-import com.bkahlert.nebula.widgets.browser.BrowserUtils;
+import com.bkahlert.nebula.utils.StringUtils;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
@@ -89,7 +89,7 @@ public class BootstrapBrowserDemo extends AbstractDemo {
 		this.bootstrapBrowser = new BootstrapBrowser(parent, SWT.BORDER) {
 			@Override
 			public void scriptAboutToBeSentToBrowser(String script) {
-				log("SENT: " + BrowserUtils.shortenScript(script));
+				log("SENT: " + StringUtils.shorten(script));
 			}
 
 			@Override

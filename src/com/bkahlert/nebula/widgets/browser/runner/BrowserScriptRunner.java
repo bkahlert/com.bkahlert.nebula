@@ -22,6 +22,7 @@ import com.bkahlert.nebula.utils.CompletedFuture;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.OffWorker;
+import com.bkahlert.nebula.utils.StringUtils;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 import com.bkahlert.nebula.widgets.browser.exception.BrowserTimeoutException;
 import com.bkahlert.nebula.widgets.browser.exception.BrowserUninitializedException;
@@ -72,7 +73,7 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 	private static <DEST> Callable<DEST> createScriptRunner(
 			final BrowserScriptRunner browserScriptRunner, final String script,
 			final IConverter<Object, DEST> converter) {
-		final String label = BrowserUtils.shortenScript(script);
+		final String label = StringUtils.shorten(script);
 		return ExecUtils.createThreadLabelingCode(new Callable<DEST>() {
 			@Override
 			public DEST call() throws Exception {
