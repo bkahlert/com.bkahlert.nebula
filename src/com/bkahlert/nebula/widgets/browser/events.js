@@ -117,13 +117,14 @@ $(window).resize(function() {
 	window['__notifySize']();
 });
 window['__notifySize'] = function() {
+  var display = $('body').css('display');
 	$('body').css({ display: 'inline-block' });
 	var bounds = {};
 	bounds.x = 0;
 	bounds.y = 0;
 	bounds.w = $('body').outerWidth(true);
 	bounds.h = $('body').outerHeight(true);
-	$('body').css({ display: 'auto' });
+	$('body').css({ display: display });
 	
 	if(false) {
 		if($('#size-debug').length == 0) $('html').append('<div id="size-debug" style="position: absolute; border: 1px solid #f00;"></div>');
