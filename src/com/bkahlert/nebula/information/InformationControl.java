@@ -76,9 +76,10 @@ public abstract class InformationControl<INFORMATION> extends
 								sameClassByOwnClassLoader = Class
 										.forName(informationClass.getName()) == targetInformationClass;
 							} catch (ClassNotFoundException e) {
+								LOGGER.error(e);
 							}
 							if (!sameClassByOwnClassLoader) {
-								LOGGER.warn(IInformationControlExtender.class
+								LOGGER.info(IInformationControlExtender.class
 										.getSimpleName()
 										+ " for type "
 										+ extender.getInformationClass()
