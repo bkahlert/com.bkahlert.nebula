@@ -23,7 +23,7 @@ import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 
-public class OrdinalScale extends BootstrapBrowser {
+public class OrdinalScale extends BootstrapBrowser implements IScale {
 
 	public static enum EditType {
 		CHANGE_ORDER, CHANGE_VALUE, BOTH;
@@ -64,8 +64,6 @@ public class OrdinalScale extends BootstrapBrowser {
 	}
 
 	private static final Logger LOGGER = Logger.getLogger(OrdinalScale.class);
-
-	public static String UNSET_LABEL = "[unset]";
 
 	private final List<IOrdinalScaleListener> ordinalScaleListeners = new ArrayList<OrdinalScale.IOrdinalScaleListener>();
 	private EditType editType;
@@ -114,7 +112,7 @@ public class OrdinalScale extends BootstrapBrowser {
 					return null;
 				}
 				String newValue = arguments[0].toString();
-				if (newValue.equals(UNSET_LABEL)) {
+				if (newValue.equals(IScale.UNSET_LABEL)) {
 					newValue = null;
 				}
 				OrdinalScale.this.fireValueChanged(newValue);
@@ -242,7 +240,7 @@ public class OrdinalScale extends BootstrapBrowser {
 					} else {
 						sb.append(" style='display: none;'/>");
 					}
-					sb.append("<label for='null'><small><em>" + UNSET_LABEL
+					sb.append("<label for='null'><small><em>" + IScale.UNSET_LABEL
 							+ "</em></small></label>");
 					sb.append("</li>");
 				}
@@ -438,7 +436,7 @@ public class OrdinalScale extends BootstrapBrowser {
 	}
 
 	public Future<Void> setValue(final String ordinal) {
-		final String label = ordinal == null ? UNSET_LABEL : ordinal;
+		final String label = ordinal == null ? IScale.UNSET_LABEL : ordinal;
 		final String js = "$('li [type=radio]').each(function() { $this = $(this); if($this.parent().text() == '"
 				+ label
 				+ "') { $this.prop('checked', true); } else { $this.prop('checked', false); } }); if($('li [type=radio]').filter(function() { return $(this).prop('checked'); }).length == 0) $('#null').prop('checked', true);";
@@ -455,7 +453,7 @@ public class OrdinalScale extends BootstrapBrowser {
 	@Override
 	public Point computeSize(int wHint, int hHint, boolean changed) {
 		Point xx = super.computeSize(wHint, hHint, changed);
-		System.err.println(xx);
+		// System.err.println(xx);
 		xx.x += 100;
 		xx.y += 100;
 		return xx;
