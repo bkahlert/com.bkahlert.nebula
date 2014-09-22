@@ -1,14 +1,44 @@
 package com.bkahlert.nebula.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Base64;
 import org.eclipse.core.runtime.Assert;
 
 public class SerializationUtils {
+	public static String serialize(Serializable object) throws IOException {
+		String encoded = null;
+
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		ObjectOutputStream objectOutputStream = new ObjectOutputStream(
+				byteArrayOutputStream);
+		objectOutputStream.writeObject(object);
+		objectOutputStream.close();
+		encoded = new String(Base64.encodeBase64(byteArrayOutputStream
+				.toByteArray()));
+		return encoded;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T extends Serializable> T deserialize(String string,
+			Class<T> clazz) throws IOException, ClassNotFoundException {
+		byte[] bytes = Base64.decodeBase64(string.getBytes());
+		T object = null;
+		ObjectInputStream objectInputStream = new ObjectInputStream(
+				new ByteArrayInputStream(bytes));
+		object = (T) objectInputStream.readObject();
+		return object;
+	}
+
 	public static <T> String serialize(Collection<T> collection,
 			IConverter<T, String> converter) {
 		Assert.isNotNull(collection);
@@ -20,9 +50,7 @@ public class SerializationUtils {
 			strings.add(converter.convert(object));
 		}
 		try {
-			byte[] pref = org.apache.commons.lang.SerializationUtils
-					.serialize((Serializable) strings);
-			return new String(pref);
+			return serialize((Serializable) strings);
 		} catch (Exception e) {
 			throw new RuntimeException("Error serializing: " + collection, e);
 		}
@@ -36,8 +64,8 @@ public class SerializationUtils {
 
 		try {
 			@SuppressWarnings("unchecked")
-			List<String> strings = (List<String>) org.apache.commons.lang.SerializationUtils
-					.deserialize(serialized.getBytes());
+			List<String> strings = (List<String>) deserialize(serialized,
+					Serializable.class);
 			List<T> uris = new ArrayList<T>(strings.size());
 			for (String string : strings) {
 				uris.add(converter.convert(string));

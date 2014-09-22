@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide;bundle-version="3.7.0",
  org.apache.commons.io;bundle-version="2.0.1",
  org.eclipse.swt,
- org.hamcrest.core
+ org.hamcrest.core,
+ org.apache.commons.codec
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.bkahlert.nebula,

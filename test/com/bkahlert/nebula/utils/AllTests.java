@@ -10,7 +10,8 @@ import org.junit.runners.Suite.SuiteClasses;
 		CalendarUtilsTest.class, CollectionUtilsTest.class,
 		DateUtilsTest.class, DistributionUtilsTest.class, ExecUtilsTest.class,
 		JSONUtilsTest.class, MathUtilsTest.class, OffWorkerTest.class,
-		StringUtilsTest.class, IteratorUtilsTest.class })
+		StringUtilsTest.class, IteratorUtilsTest.class,
+		SerializationUtilsTest.class })
 public class AllTests {
 
 }
