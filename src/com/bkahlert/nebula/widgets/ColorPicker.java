@@ -1,12 +1,14 @@
 package com.bkahlert.nebula.widgets;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
@@ -14,6 +16,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.bkahlert.nebula.utils.colors.ColorUtils;
+import com.bkahlert.nebula.utils.colors.RGB;
 
 /**
  * @author Björn Kahlert
@@ -24,31 +27,42 @@ import com.bkahlert.nebula.utils.colors.ColorUtils;
  */
 public class ColorPicker extends CLabel {
 
+	public static interface IModificationListener {
+		public void colorChanged(RGB rgb);
+	}
+
+	private final List<IModificationListener> modificationListeners = new ArrayList<IModificationListener>();
+
 	private Color color;
 	private RGB rgb;
 
 	public ColorPicker(Composite parent, final RGB rgb) {
 		super(parent, SWT.SHADOW_OUT);
-		update(rgb);
-		addMouseListener(new MouseAdapter() {
+		this.update(rgb);
+		this.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
-				ColorDialog dialog = new ColorDialog(new Shell(
-						Display.getDefault(), SWT.SHELL_TRIM));
-				dialog.setRGB(color.getRGB());
-				RGB selected = dialog.open();
+				ColorDialog dialog = new ColorDialog(new Shell(Display
+						.getDefault(), SWT.SHELL_TRIM));
+				dialog.setRGB(ColorPicker.this.color.getRGB());
+				RGB selected = new RGB(dialog.open());
 				if (selected != null) {
-					update(selected);
+					ColorPicker.this.update(selected);
 				}
 			}
 		});
 	}
 
+	public ColorPicker(Composite parent) {
+		this(parent, null);
+	}
+
 	@Override
 	public Point computeSize(int wHint, int hHint, boolean changed) {
 		Point size = super.computeSize(wHint, hHint, changed);
-		if (size.x < 40)
+		if (size.x < 40) {
 			size.x = 40;
+		}
 		return size;
 	}
 
@@ -60,14 +74,33 @@ public class ColorPicker extends CLabel {
 	}
 
 	private void update(RGB rgb) {
-		if (this.color != null && !this.color.isDisposed())
+		if (this.color != null && !this.color.isDisposed()) {
 			this.color.dispose();
+		}
 
-		if (rgb == null)
-			rgb = ColorUtils.getRandomRGB().toClassicRGB();
-		this.color = new Color(Display.getDefault(), rgb);
+		if (rgb == null) {
+			rgb = ColorUtils.getRandomRGB();
+		}
+		this.color = new Color(Display.getDefault(), rgb.toClassicRGB());
 		this.rgb = rgb;
 		this.setBackground(this.color);
+		this.notifyChanged(rgb);
+	}
+
+	public void addModificationListener(
+			IModificationListener modificationListener) {
+		this.modificationListeners.add(modificationListener);
+	}
+
+	public void removeModificationListener(
+			IModificationListener modificationListener) {
+		this.modificationListeners.remove(modificationListener);
+	}
+
+	private void notifyChanged(RGB rgb) {
+		for (IModificationListener modificationListener : this.modificationListeners) {
+			modificationListener.colorChanged(rgb);
+		}
 	}
 
 	/**
@@ -85,8 +118,9 @@ public class ColorPicker extends CLabel {
 
 	@Override
 	public void dispose() {
-		if (this.color != null && !this.color.isDisposed())
+		if (this.color != null && !this.color.isDisposed()) {
 			this.color.dispose();
+		}
 		super.dispose();
 	}
 }
