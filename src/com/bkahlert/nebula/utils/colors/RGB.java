@@ -245,6 +245,40 @@ public class RGB {
 		this.setAlpha(alpha / 255.0);
 	}
 
+	/**
+	 * Mixes the given {@link RGB} with the current {@link RGB} and returns the
+	 * resulting {@link RGB}. This instance stays untouched.
+	 * 
+	 * @param rgb
+	 * @param weight
+	 *            by which the colors should be mixed. Use 0.5 for an equals mix
+	 *            and 1.0 for the given color to completely overlay this color.
+	 * @return
+	 * 
+	 * @author Copyright (c) 2006-2009 Hampton Catlin, Nathan Weizenbaum, and
+	 *         Chris Eppstein, http://sass-lang.com
+	 */
+	public RGB mix(RGB rgb, double weight) {
+		if (weight < 0 || weight > 1) {
+			throw new IllegalArgumentException("Alpha must be between 0 and 1");
+		}
+
+		double p = weight;
+		double w = p * 2.0 - 1.0;
+		double a = this.alpha - rgb.alpha;
+
+		double w1 = (((w * a == -1.0) ? w : (w + a) / (1.0 + w * a)) + 1.0) / 2.0;
+		double w2 = 1.0 - w1;
+
+		double red = this.red * w1 + rgb.red * w2;
+		double green = this.green * w1 + rgb.green * w2;
+		double blue = this.blue * w1 + rgb.blue * w2;
+
+		double alpha = this.alpha * p + rgb.alpha * (1 - p);
+
+		return new RGB(red, green, blue, alpha);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

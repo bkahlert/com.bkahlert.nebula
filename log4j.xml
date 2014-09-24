@@ -4,6 +4,9 @@
 	<appender class="org.apache.log4j.ConsoleAppender" name="com.bkahlert.nebula.ConsoleAppender">
 		<layout class="org.apache.log4j.PatternLayout" />
 	</appender>
+	<logger name="com.bkahlert.nebula.utils">
+		<level value="debug" />
+	</logger>
 	<logger name="com.bkahlert.nebula.widgets.browser">
 		<level value="warn" />
 	</logger>
