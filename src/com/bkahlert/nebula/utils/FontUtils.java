@@ -3,6 +3,7 @@ package com.bkahlert.nebula.utils;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
@@ -21,6 +22,8 @@ import org.eclipse.swt.widgets.Shell;
 
 public class FontUtils {
 
+	private static final Logger LOGGER = Logger.getLogger(FontUtils.class);
+
 	public static final LocalResourceManager RESOURCES = new LocalResourceManager(
 			JFaceResources.getResources());
 
@@ -33,14 +36,14 @@ public class FontUtils {
 	 * The system's default font in bold.
 	 */
 	public static final Font BOLD_FONT = FontUtils.RESOURCES
-			.createFont(FontDescriptor.createFrom(getModifiedFontData(
+			.createFont(FontDescriptor.createFrom(addStyle(
 					SYSTEM_FONT.getFontData(), SWT.BOLD)));
 
 	/**
 	 * The system's default font in italic.
 	 */
 	public static final Font ITALIC_FONT = FontUtils.RESOURCES
-			.createFont(FontDescriptor.createFrom(getModifiedFontData(
+			.createFont(FontDescriptor.createFrom(addStyle(
 					SYSTEM_FONT.getFontData(), SWT.ITALIC)));
 
 	/**
@@ -59,14 +62,14 @@ public class FontUtils {
 	 * A smaller font compared to the system's default font.
 	 */
 	public static final Font SMALL_FONT = FontUtils.RESOURCES
-			.createFont(FontDescriptor.createFrom(getResizedFontData(
+			.createFont(FontDescriptor.createFrom(resize(
 					SYSTEM_FONT.getFontData(), SMALL_TEXT_FACTOR)));
 
 	/**
 	 * A larger font compared to the system's default font.
 	 */
 	public static final Font LARGE_FONT = FontUtils.RESOURCES
-			.createFont(FontDescriptor.createFrom(getResizedFontData(
+			.createFont(FontDescriptor.createFrom(resize(
 					SYSTEM_FONT.getFontData(), LARGE_TEXT_FACTOR)));
 
 	/**
@@ -119,7 +122,14 @@ public class FontUtils {
 		});
 	}
 
-	public static FontData[] getModifiedFontData(FontData[] originalData,
+	/**
+	 * Adds the given style bitmask to the one's of the given {@link FontData}.
+	 * 
+	 * @param originalData
+	 * @param additionalStyle
+	 * @return
+	 */
+	public static FontData[] addStyle(FontData[] originalData,
 			int additionalStyle) {
 		FontData[] styledData = new FontData[originalData.length];
 		for (int i = 0; i < originalData.length; i++) {
@@ -130,14 +140,31 @@ public class FontUtils {
 		return styledData;
 	}
 
-	public static Font getModifiedFont(Font originalFont, int additionalStyle) {
-		FontData[] modified = getModifiedFontData(originalFont.getFontData(),
+	/**
+	 * Adds the given style bitmask to the onf of the given {@link Font}.
+	 * <p>
+	 * <strong>Attention:</strong> A new object is created that must be manually
+	 * disposed.
+	 * 
+	 * @param originalFont
+	 * @param additionalStyle
+	 * @return
+	 */
+	public static Font addStyle(Font originalFont, int additionalStyle) {
+		FontData[] modified = addStyle(originalFont.getFontData(),
 				additionalStyle);
 		return new Font(Display.getDefault(), modified);
 	}
 
-	public static FontData[] getResizedFontData(FontData[] originalData,
-			double resizeBy) {
+	/**
+	 * Returns new {@link FontData} with the scaled size based on the given
+	 * {@link FontData} and the given scale factor.
+	 * 
+	 * @param originalData
+	 * @param resizeBy
+	 * @return
+	 */
+	public static FontData[] resize(FontData[] originalData, double resizeBy) {
 		FontData[] styledData = new FontData[originalData.length];
 		for (int i = 0; i < originalData.length; i++) {
 			styledData[i] = new FontData(originalData[i].getName(),
@@ -145,6 +172,69 @@ public class FontUtils {
 					originalData[i].getStyle());
 		}
 		return styledData;
+	}
+
+	/**
+	 * Merges the given {@link FontData} to form a new set of {@link FontData}
+	 * representing a mixture out of both {@link FontData}.
+	 * <p>
+	 * Merging rules:
+	 * <dl>
+	 * <dt>Name</dt>
+	 * <dd>... originates from the second font.</dd>
+	 * <dt>Locale</dt>
+	 * <dd>... originates from the second font.</dd>
+	 * <dt>Size</dt>
+	 * <dd>... is the product of the fonts's derivations from the system font
+	 * size.<br/>
+	 * Examples:
+	 * <ul>
+	 * <li>normal + small = small</li>
+	 * <li>large + small = normal</li>
+	 * <li>small + small = even smaller</li>
+	 * </ul>
+	 * </dd>
+	 * <dt>Style</dt>
+	 * <dd>... uses all defined flags. As soon as at least one font is bold or
+	 * italic (or both) the resulting font has the same style.</dd>
+	 * </dl>
+	 * 
+	 * @param font1
+	 * @param font2
+	 * @return
+	 */
+	public static FontData[] merge(FontData[] font1, FontData[] font2) {
+		LOGGER.info("Merging fonts:\n\t\t" + font1[0] + "\n\t\t" + font2[0]);
+		if (font1 == null || font1.length == 0) {
+			LOGGER.info("\tUsing: " + font2[0]);
+			return font2;
+		}
+		if (font2 == null || font2.length == 0) {
+			LOGGER.info("\ttUsing: " + font1[0]);
+			return font1;
+		}
+		FontData fontData[] = new FontData[font1.length];
+		for (int i = 0; i < font1.length; i++) {
+			FontData fontData1 = font1[i];
+			FontData fontData2 = font2[i];
+			FontData merged = new FontData();
+
+			merged.setName(fontData2.getName());
+			merged.setLocale(fontData2.getLocale());
+			LOGGER.debug("\tSizes: font1(" + fontData1.getHeight() + ") font2("
+					+ fontData2.getHeight() + ") sys("
+					+ FontUtils.SYSTEM_FONT.getFontData()[0].getHeight() + ")");
+			merged.setHeight((int) Math.round(((double) fontData1.getHeight() / (double) FontUtils.SYSTEM_FONT
+					.getFontData()[0].getHeight()) * fontData2.getHeight()));
+			if (SMALL_FONT.getFontData()[0].getHeight() == fontData1
+					.getHeight()
+					&& fontData1.getHeight() == fontData2.getHeight()) {
+			}
+			merged.setStyle(fontData1.getStyle() | fontData2.getStyle());
+			fontData[i] = merged;
+		}
+		LOGGER.info("\tMerged: " + fontData[0]);
+		return fontData;
 	}
 
 	private static Shell shell = null;
