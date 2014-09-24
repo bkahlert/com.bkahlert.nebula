@@ -224,14 +224,54 @@ public class Stylers {
 		}
 		return fonts.get(fontData[0]);
 	}
+
+	/**
+	 * Formats the given string as if not the system's default was the base
+	 * style but the one defined by the given {@link Styler}.
+	 * <p>
+	 * Example: if the {@link Styler}'s format was bold and blue, the string
+	 * will be bold and blue tinted.
 	 * 
 	 * @param string
 	 * @param baseStyler
 	 * @return
 	 */
+	public static StyledString rebase(StyledString string, Styler baseStyler) {
+		if (baseStyler == null) {
+			return string;
+		}
+		StyleRange[] styleRanges = getExpandedStyleRanges(string);
+		for (StyleRange styleRange : styleRanges) {
+			string.setStyle(styleRange.start, styleRange.length,
 					combine(baseStyler, createFrom(styleRange)));
 		}
-		return baseString;
+		return string;
+	}
+
+	private static StyleRange[] getExpandedStyleRanges(StyledString string) {
+		StyleRange[] styleRanges = string.getStyleRanges();
+		List<StyleRange> expandedStyleRanges = new ArrayList<StyleRange>();
+		int filledUntil = 0;
+		for (StyleRange styleRange : styleRanges) {
+			// fill gaps
+			if (styleRange.start > filledUntil) {
+				StyleRange gap = new StyleRange(DEFAULT_STYLE_RANGE);
+				gap.start = filledUntil;
+				gap.length = styleRange.start - filledUntil;
+				gap.font = FontUtils.SYSTEM_FONT;
+				expandedStyleRanges.add(gap);
+			}
+			expandedStyleRanges.add(styleRange);
+			filledUntil = styleRange.start + styleRange.length;
+		}
+		// fill up string
+		if (filledUntil < string.length()) {
+			StyleRange gap = new StyleRange(DEFAULT_STYLE_RANGE);
+			gap.start = filledUntil;
+			gap.length = string.length() - filledUntil;
+			expandedStyleRanges.add(gap);
+		}
+		return expandedStyleRanges.toArray(new StyleRange[0]);
 	}
 
 	/**
