@@ -92,6 +92,9 @@ public class GalleryView extends ViewPart {
 		Demo meta = demoElement.getDemo().getAnnotation(Demo.class);
 		String title = (meta != null && !meta.title().isEmpty()) ? meta.title()
 				: "Demo: " + demoElement.getStyledText().toString();
+		if (!meta.description().isEmpty()) {
+			title += "\n" + meta.description();
+		}
 		this.demoAreaBanner.setContent(new IllustratedText(ImageManager.DEMO,
 				title));
 
