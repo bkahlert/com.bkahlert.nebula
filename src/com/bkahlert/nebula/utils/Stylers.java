@@ -6,10 +6,10 @@ import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.TextStyle;
 import org.eclipse.swt.widgets.Display;
 
+import com.bkahlert.nebula.utils.colors.RGB;
 public class Stylers {
 
 	private static final StyleRange DEFAULT_STYLE_RANGE = new StyledString(
@@ -20,19 +20,17 @@ public class Stylers {
 			}).getStyleRanges()[0];
 
 	private static final Color COUNTER_COLOR = new Color(Display.getCurrent(),
-			new RGB(0, 128, 170));
+			new org.eclipse.swt.graphics.RGB(0, 128, 170));
 	private static final Color MINOR_COLOR = new Color(Display.getCurrent(),
-			new RGB(179, 179, 179));
+			new org.eclipse.swt.graphics.RGB(179, 179, 179));
 
 	public static final Color ATTENTION_COLOR = new Color(Display.getDefault(),
-			com.bkahlert.nebula.utils.colors.RGB.DANGER.toClassicRGB());
+			RGB.DANGER.toClassicRGB());
 
 	public static final Color IMPORTANCE_HIGH_COLOR = new Color(
-			Display.getDefault(),
-			com.bkahlert.nebula.utils.colors.RGB.IMPORTANCE_HIGH.toClassicRGB());
+			Display.getDefault(), RGB.IMPORTANCE_HIGH.toClassicRGB());
 	public static final Color IMPORTANCE_LOW_COLOR = new Color(
-			Display.getDefault(),
-			com.bkahlert.nebula.utils.colors.RGB.IMPORTANCE_LOW.toClassicRGB());
+			Display.getDefault(), RGB.IMPORTANCE_LOW.toClassicRGB());
 
 	public static final Styler DEFAULT_STYLER = new Styler() {
 		@Override
