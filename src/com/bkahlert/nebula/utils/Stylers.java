@@ -1,16 +1,28 @@
 package com.bkahlert.nebula.utils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.TextStyle;
 import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.nebula.utils.colors.RGB;
+
 public class Stylers {
+
+	@SuppressWarnings("unused")
+	private static final Logger LOGGER = Logger.getLogger(Stylers.class);
 
 	private static final StyleRange DEFAULT_STYLE_RANGE = new StyledString(
 			"default", new Styler() {
@@ -95,21 +107,116 @@ public class Stylers {
 		}
 	};
 
+	/**
+	 * Creates a {@link Styler} that combines the styles of the given
+	 * {@link Styler}s.
+	 * <p>
+	 * The combination is smart. For example a bold {@link Styler} will make the
+	 * resulting {@link Styler} bold without affecting the font size or italic
+	 * style. Colors are mixed and a {@link Styler} making the font smaller will
+	 * make the resulting font smaller.
+	 * 
+	 * @param stylers
+	 * @return
+	 */
 	public static Styler combine(final Styler... stylers) {
 		return new Styler() {
 			@Override
 			public void applyStyles(TextStyle textStyle) {
 				for (Styler styler : stylers) {
-					styler.applyStyles(textStyle);
+					// styler.applyStyles(textStyle);
+					mergeApplyStyles(styler, textStyle);
 				}
 			}
 		};
 	}
 
 	/**
-	 * Appends the given append {@link StyledString} to the base
-	 * {@link StyledString}. Format wise the baseStyler is used but is
-	 * overwritten by the append {@link StyledString}'s styles.
+	 * Applies the {@link Styler} to the {@link TextStyle} is a smart fashion.
+	 * Settings are not simply overwritten but really combined. E.g. small +
+	 * large text will result is normal size font.
+	 * 
+	 * @param styler
+	 * @param textStyle
+	 */
+	private static void mergeApplyStyles(Styler styler, TextStyle textStyle) {
+		TextStyle reference = new TextStyle();
+		TextStyle dummy = new TextStyle();
+		styler.applyStyles(dummy);
+		if (!ObjectUtils.equals(reference.background, dummy.background)) {
+			textStyle.background = merge(textStyle.background, dummy.background);
+		}
+		if (!ObjectUtils.equals(reference.borderColor, dummy.borderColor)) {
+			textStyle.borderColor = merge(textStyle.borderColor,
+					dummy.borderColor);
+		}
+		if (!ObjectUtils.equals(reference.borderStyle, dummy.borderStyle)) {
+			textStyle.borderStyle = dummy.borderStyle;
+		}
+		if (!ObjectUtils.equals(reference.font, dummy.font)) {
+			textStyle.font = merge(textStyle.font, dummy.font);
+		}
+		if (!ObjectUtils.equals(reference.foreground, dummy.foreground)) {
+			textStyle.foreground = merge(textStyle.foreground, dummy.foreground);
+		}
+		if (!ObjectUtils.equals(reference.metrics, dummy.metrics)) {
+			textStyle.metrics = dummy.metrics;
+		}
+		if (!ObjectUtils.equals(reference.rise, dummy.rise)) {
+			textStyle.rise = (textStyle.rise + dummy.rise) / 2;
+		}
+		if (!ObjectUtils.equals(reference.strikeout, dummy.strikeout)) {
+			textStyle.strikeout = dummy.strikeout;
+		}
+		if (!ObjectUtils.equals(reference.strikeoutColor, dummy.strikeoutColor)) {
+			textStyle.strikeoutColor = merge(textStyle.strikeoutColor,
+					dummy.strikeoutColor);
+		}
+		if (!ObjectUtils.equals(reference.underline, dummy.underline)) {
+			textStyle.underline = dummy.underline;
+		}
+		if (!ObjectUtils.equals(reference.underlineColor, dummy.underlineColor)) {
+			textStyle.underlineColor = merge(textStyle.underlineColor,
+					dummy.underlineColor);
+		}
+		if (!ObjectUtils.equals(reference.underlineStyle, dummy.underlineStyle)) {
+			textStyle.underlineStyle = dummy.underlineStyle;
+		}
+	}
+
+	private static final Map<RGB, Color> colors = new HashMap<RGB, Color>();
+
+	private static Color merge(Color color1, Color color2) {
+		if (color1 == null) {
+			return color2;
+		}
+		if (color2 == null) {
+			return color1;
+		}
+		RGB merged = new RGB(color1.getRGB()).mix(new RGB(color2.getRGB()), .5);
+		if (!colors.containsKey(merged)) {
+			colors.put(merged,
+					new Color(Display.getCurrent(), merged.toClassicRGB()));
+		}
+		return colors.get(merged);
+	}
+
+	private static final Map<FontData, Font> fonts = new HashMap<FontData, Font>();
+
+	private static Font merge(Font font1, Font font2) {
+		if (font1 == null) {
+			return font2;
+		}
+		if (font2 == null) {
+			return font1;
+		}
+		FontData fontData[] = FontUtils.merge(font1.getFontData(),
+				font2.getFontData());
+		if (!fonts.containsKey(fontData[0])) {
+			fonts.put(fontData[0], new Font(Display.getCurrent(), fontData));
+		}
+		return fonts.get(fontData[0]);
+	}
 	 * 
 	 * @param string
 	 * @param baseStyler
