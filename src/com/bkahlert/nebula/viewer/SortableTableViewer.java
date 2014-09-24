@@ -39,7 +39,7 @@ public class SortableTableViewer extends TableViewer {
 		final TableViewerColumn viewerColumn = new TableViewerColumn(this,
 				SWT.NONE);
 		final TableColumn column = viewerColumn.getColumn();
-		column.setText(title != null ? title : "");
+		column.setText(title);
 		this.fullWidthResizer.setWidth(this.getTable().getColumnCount() - 1,
 				width);
 		column.setResizable(isResizable);
