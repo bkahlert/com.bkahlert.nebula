@@ -5,7 +5,7 @@
 		<layout class="org.apache.log4j.PatternLayout" />
 	</appender>
 	<logger name="com.bkahlert.nebula.utils">
-		<level value="debug" />
+		<level value="warn" />
 	</logger>
 	<logger name="com.bkahlert.nebula.widgets.browser">
 		<level value="warn" />

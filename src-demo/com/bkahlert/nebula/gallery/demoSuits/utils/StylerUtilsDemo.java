@@ -29,6 +29,15 @@ import com.bkahlert.nebula.viewer.SortableTableViewer;
 @Demo
 public class StylerUtilsDemo extends AbstractDemo {
 
+	public static StyledString FANCY_STYLED_STRING = new StyledString("Lorem ",
+			Stylers.DEFAULT_STYLER).append("ipsum ", Stylers.BOLD_STYLER)
+			.append("dolor ", Stylers.COUNTER_STYLER)
+			.append("sit ", Stylers.SMALL_STYLER)
+			.append("amet, ", Stylers.MINOR_STYLER)
+			.append("consectetur", Stylers.ATTENTION_STYLER)
+			.append(" adipiscing ", Stylers.IMPORTANCE_HIGH_STYLER)
+			.append("elit.", Stylers.IMPORTANCE_LOW_STYLER);
+
 	private static class LabelProvider extends ColumnLabelProvider implements
 			IStyledLabelProvider {
 		@Override
@@ -85,39 +94,65 @@ public class StylerUtilsDemo extends AbstractDemo {
 		}
 
 		final List<StyledString> data = new ArrayList<StyledString>();
-
-		data.add(new StyledString("Complex Stylers", null));
-		StyledString fancy = new StyledString("Lorem ", Stylers.DEFAULT_STYLER)
-				.append("ipsum ", Stylers.BOLD_STYLER)
-				.append("dolor ", Stylers.COUNTER_STYLER)
-				.append("sit ", Stylers.SMALL_STYLER)
-				.append("amet, ", Stylers.MINOR_STYLER)
-				.append("consectetur", Stylers.ATTENTION_STYLER)
-				.append(" adipiscing ", Stylers.IMPORTANCE_HIGH_STYLER)
-				.append("elit.", Stylers.IMPORTANCE_LOW_STYLER);
-		data.add(Stylers.clone(fancy).append(" -- I'm a copy.",
-				Stylers.MINOR_STYLER));
-		data.add(fancy);
-		for (Pair<String, Styler> styler : stylers) {
-			data.add(Stylers.append(
-					new StyledString(styler.getFirst(), styler.getSecond())
-							.append(" + "), fancy));
-			data.add(Stylers.append(
-					new StyledString(styler.getFirst(), styler.getSecond())
-							.append(" + "), fancy, styler.getSecond()));
+		data.add(new StyledString("Custom Designs", null));
+		{
+			StyledString string = new StyledString("Lorem ipsum");
+			string.append("  (", Stylers.MINOR_STYLER);
+			Stylers.append(string, new StyledString("minor, minor, ").append(
+					"minor bold", Stylers.BOLD_STYLER));
+			string.append(")", Stylers.MINOR_STYLER);
+			data.add(string);
+		}
+		{
+			StyledString string = new StyledString("Lorem ipsum");
+			string.append("  (", Stylers.MINOR_STYLER);
+			Stylers.append(
+					string,
+					new StyledString("minor, minor, ")
+							.append("minor bold", Stylers.BOLD_STYLER)
+							.append(", ")
+							.append("mini",
+									Stylers.combine(Stylers.MINOR_STYLER,
+											Stylers.ITALIC_STYLER,
+											Stylers.BOLD_STYLER)));
+			string.append(")", Stylers.MINOR_STYLER);
+			data.add(string);
 		}
 
-		data.add(new StyledString("Simple Stylers", null));
-		for (Pair<String, Styler> styler : stylers) {
-			data.add(new StyledString(styler.getFirst(), styler.getSecond()));
-		}
+		if (true) {
+			data.add(new StyledString("Simple Stylers", null));
+			for (Pair<String, Styler> styler : stylers) {
+				data.add(new StyledString(styler.getFirst(), styler.getSecond()));
+			}
 
-		data.add(new StyledString("Combined Stylers", null));
-		for (Pair<String, Styler> styler : stylers) {
-			for (Pair<String, Styler> styler2 : stylers) {
-				data.add(new StyledString(styler.getFirst() + " and "
-						+ styler2.getFirst(), Stylers.combine(
-						styler.getSecond(), styler2.getSecond())));
+			data.add(new StyledString("Combined Stylers", null));
+			for (Pair<String, Styler> styler : stylers) {
+				for (Pair<String, Styler> styler2 : stylers) {
+					data.add(new StyledString(styler.getFirst() + " and "
+							+ styler2.getFirst(), Stylers.combine(
+							styler.getSecond(), styler2.getSecond())));
+				}
+			}
+
+			data.add(new StyledString("Clonded Stylers", null));
+			data.add(Stylers.clone(FANCY_STYLED_STRING).append(
+					" -- I'm a copy.", Stylers.MINOR_STYLER));
+			data.add(FANCY_STYLED_STRING);
+
+			data.add(new StyledString("Appended Stylers", null));
+			for (Pair<String, Styler> styler : stylers) {
+				data.add(Stylers.append(new StyledString(styler.getFirst(),
+						styler.getSecond()).append(" + "), FANCY_STYLED_STRING));
+			}
+
+			data.add(new StyledString("ReBased Stylers", null));
+			for (Pair<String, Styler> styler : stylers) {
+				StyledString string = Stylers.clone(FANCY_STYLED_STRING);
+				Stylers.rebase(string, styler.getSecond());
+				string.append("        (base: ");
+				string.append(styler.getFirst(), styler.getSecond());
+				string.append(")");
+				data.add(string);
 			}
 		}
 
