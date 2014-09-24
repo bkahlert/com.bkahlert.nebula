@@ -37,6 +37,13 @@ public class FontUtils {
 					SYSTEM_FONT.getFontData(), SWT.BOLD)));
 
 	/**
+	 * The system's default font in italic.
+	 */
+	public static final Font ITALIC_FONT = FontUtils.RESOURCES
+			.createFont(FontDescriptor.createFrom(getModifiedFontData(
+					SYSTEM_FONT.getFontData(), SWT.ITALIC)));
+
+	/**
 	 * Factor by which the small font is actually smaller than the system's
 	 * default font.
 	 */
@@ -121,6 +128,12 @@ public class FontUtils {
 							| additionalStyle);
 		}
 		return styledData;
+	}
+
+	public static Font getModifiedFont(Font originalFont, int additionalStyle) {
+		FontData[] modified = getModifiedFontData(originalFont.getFontData(),
+				additionalStyle);
+		return new Font(Display.getDefault(), modified);
 	}
 
 	public static FontData[] getResizedFontData(FontData[] originalData,
