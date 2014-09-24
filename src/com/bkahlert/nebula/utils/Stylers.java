@@ -112,17 +112,9 @@ public class Stylers {
 	 * overwritten by the append {@link StyledString}'s styles.
 	 * 
 	 * @param string
-	 * @param append
 	 * @param baseStyler
 	 * @return
 	 */
-	public static StyledString append(StyledString baseString,
-			StyledString appendString, Styler baseStyler) {
-		int originalLength = baseString.length();
-		baseString.append(appendString.getString());
-		for (StyleRange styleRange : appendString.getStyleRanges()) {
-			baseString.setStyle(originalLength + styleRange.start,
-					styleRange.length,
 					combine(baseStyler, createFrom(styleRange)));
 		}
 		return baseString;
@@ -144,7 +136,11 @@ public class Stylers {
 				: null;
 		Styler baseStyler = lastUsedStyleRange != null ? createFrom(lastUsedStyleRange)
 				: null;
-		return append(baseString, appendString, baseStyler);
+		if (baseStyler != null) {
+			return baseString.append(rebase(clone(appendString), baseStyler));
+		} else {
+			return baseString.append(appendString);
+		}
 	}
 
 	/**
