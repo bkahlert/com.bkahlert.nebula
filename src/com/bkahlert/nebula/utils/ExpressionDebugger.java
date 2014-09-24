@@ -33,6 +33,7 @@ public class ExpressionDebugger extends PropertyTester {
 		LOGGER.debug("Evaluation:\n\tReceiver: " + receiver + "\n\tProperty: "
 				+ property + "\n\tArguments: " + argsString
 				+ "\n\tExpected Value: " + expectedValue);
+
 		return true;
 	}
 
