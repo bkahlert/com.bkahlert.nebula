@@ -147,6 +147,12 @@ public class Stylers {
 		return append(baseString, appendString, baseStyler);
 	}
 
+	/**
+	 * Clones a {@link StyledString}.
+	 * 
+	 * @param string
+	 * @return
+	 */
 	public static StyledString clone(StyledString string) {
 		StyledString clone = new StyledString(string.getString());
 		for (StyleRange styleRange : string.getStyleRanges()) {
