@@ -57,6 +57,13 @@ public class Stylers {
 		}
 	};
 
+	public static Styler ITALIC_STYLER = new Styler() {
+		@Override
+		public void applyStyles(TextStyle textStyle) {
+			textStyle.font = FontUtils.ITALIC_FONT;
+		}
+	};
+
 	public static final Styler COUNTER_STYLER = new Styler() {
 		@Override
 		public void applyStyles(TextStyle textStyle) {
