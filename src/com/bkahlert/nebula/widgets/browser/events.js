@@ -104,10 +104,8 @@ $(document).on("mouseleave", "a", function () {
     lastHoveredElement = null;
     if (window["__mouseleave"] && typeof window["__mouseleave"]) window["__mouseleave"](r)
 });
-$(document).on("click", "a", function () {
-    var r = clone(this);
+$(document).on("click", "a", function(e) {
     lastHoveredElement = null;
-    if (window["__click"] && typeof window["__click"]) window["__click"](r)
 });
 
 $(document).ready(function() {
@@ -177,13 +175,19 @@ if (window["__mousemove"] && typeof window["__mousemove"]) {
 
 if (window["__mousedown"] && typeof window["__mousedown"]) {
 	$(window).mousedown(function(e) {
-		window["__mousedown"](event.pageX, event.pageY);
+		window["__mousedown"](event.pageX, event.pageY, clone(e.target));
 	});
 }
 
 if (window["__mouseup"] && typeof window["__mouseup"]) {
 	$(window).mouseup(function(e) {
-		window["__mouseup"](event.pageX, event.pageY);
+		window["__mouseup"](event.pageX, event.pageY, clone(e.target));
+	});
+}
+
+if (window["__click"] && typeof window["__click"]) {
+	$(document).click(function(e) {
+	    window["__click"](event.pageX, event.pageY, clone(e.target))
 	});
 }
 

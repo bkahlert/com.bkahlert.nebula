@@ -1,5 +1,7 @@
 package com.bkahlert.nebula.widgets.browser.extended.html;
 
+import java.util.Map;
+
 /**
  * Abstractions of an HTML tag like &lt;a
  * href=&quot;http://bkahlert.com&quot;&gt;bkahlert.com&lt;/a&gt;.
@@ -15,6 +17,8 @@ public interface IElement {
 	 * @return
 	 */
 	public String getName();
+
+	public Map<String, String> getAttributes();
 
 	/**
 	 * Returns the attribute with the given name.
@@ -47,4 +51,5 @@ public interface IElement {
 	 * @return
 	 */
 	public String toHtml();
+
 }

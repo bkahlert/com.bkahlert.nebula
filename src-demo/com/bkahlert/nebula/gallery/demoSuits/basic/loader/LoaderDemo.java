@@ -16,6 +16,7 @@ import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
 import com.bkahlert.nebula.widgets.browser.Browser;
+import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.nebula.widgets.browser.listener.MouseAdapter;
 import com.bkahlert.nebula.widgets.loader.Loader;
 import com.bkahlert.nebula.widgets.timeline.impl.TimePassed;
@@ -65,7 +66,7 @@ public class LoaderDemo extends AbstractDemo {
 		final Loader loader3 = new Loader(lc3);
 		lc3.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseUp(double x, double y) {
+			public void mouseUp(double x, double y, IElement element) {
 				loader3.run(new Callable<Void>() {
 					@Override
 					public Void call() throws Exception {

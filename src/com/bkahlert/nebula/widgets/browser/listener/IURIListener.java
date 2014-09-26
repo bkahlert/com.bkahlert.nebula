@@ -3,11 +3,13 @@ package com.bkahlert.nebula.widgets.browser.listener;
 import java.net.URI;
 
 public interface IURIListener {
-	/**
+/**
 	 * This method is called if an {@link URI} was clicked.
+	 * <p><strong>REPLACED BY {@link IMouseListener#clicked(double, double, com.bkahlert.nebula.widgets.browser.extended.html.Element)</strong>
 	 * 
 	 * @param uri
 	 */
+	@Deprecated
 	public void uriClicked(URI uri);
 
 	/**

@@ -5,6 +5,7 @@ import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 public class AnkerAdapter implements IAnkerListener {
 
 	@Override
+	@Deprecated
 	public void ankerClicked(IAnker anker) {
 		return;
 	}

@@ -42,6 +42,7 @@ import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.SWTUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
+import com.bkahlert.nebula.widgets.browser.extended.html.Anker;
 import com.bkahlert.nebula.widgets.browser.extended.html.Element;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
@@ -148,11 +149,12 @@ public class Browser extends Composite implements IBrowser {
 		new BrowserFunction(this.browser, "__mousedown") {
 			@Override
 			public Object function(Object[] arguments) {
-				if (arguments.length == 2
+				if (arguments.length == 3
 						&& (arguments[0] == null || arguments[0] instanceof Double)
-						&& (arguments[1] == null || arguments[1] instanceof Double)) {
+						&& (arguments[1] == null || arguments[1] instanceof Double)
+						&& (arguments[2] == null || arguments[2] instanceof String)) {
 					Browser.this.fireMouseDown((Double) arguments[0],
-							(Double) arguments[1]);
+							(Double) arguments[1], (String) arguments[2]);
 				}
 				return null;
 			}
@@ -160,11 +162,12 @@ public class Browser extends Composite implements IBrowser {
 		new BrowserFunction(this.browser, "__mouseup") {
 			@Override
 			public Object function(Object[] arguments) {
-				if (arguments.length == 2
+				if (arguments.length == 3
 						&& (arguments[0] == null || arguments[0] instanceof Double)
-						&& (arguments[1] == null || arguments[1] instanceof Double)) {
+						&& (arguments[1] == null || arguments[1] instanceof Double)
+						&& (arguments[2] == null || arguments[2] instanceof String)) {
 					Browser.this.fireMouseUp((Double) arguments[0],
-							(Double) arguments[1]);
+							(Double) arguments[1], (String) arguments[2]);
 				}
 				return null;
 			}
@@ -172,8 +175,12 @@ public class Browser extends Composite implements IBrowser {
 		new BrowserFunction(this.browser, "__click") {
 			@Override
 			public Object function(Object[] arguments) {
-				if (arguments.length == 1 && arguments[0] instanceof String) {
-					Browser.this.fireAnkerClicked((String) arguments[0]);
+				if (arguments.length == 3
+						&& (arguments[0] == null || arguments[0] instanceof Double)
+						&& (arguments[1] == null || arguments[1] instanceof Double)
+						&& (arguments[2] == null || arguments[2] instanceof String)) {
+					Browser.this.fireClicked((Double) arguments[0],
+							(Double) arguments[1], (String) arguments[2]);
 				}
 				return null;
 			}
@@ -750,7 +757,8 @@ public class Browser extends Composite implements IBrowser {
 	 *            true if mouseenter; false otherwise
 	 */
 	protected void fireAnkerHover(String html, boolean mouseEnter) {
-		IAnker anker = BrowserUtils.extractAnker(html);
+		IElement element = BrowserUtils.extractElement(html);
+		IAnker anker = new Anker(element.getAttributes(), element.getContent());
 		for (IAnkerListener ankerListener : Browser.this.ankerListeners) {
 			ankerListener.ankerHovered(anker, mouseEnter);
 		}
@@ -771,10 +779,13 @@ public class Browser extends Composite implements IBrowser {
 	 * 
 	 * @param x
 	 * @param y
+	 * @param element
+	 *            on which the mouse went down
 	 */
-	protected void fireMouseDown(double x, double y) {
+	protected void fireMouseDown(double x, double y, String html) {
+		IElement element = BrowserUtils.extractElement(html);
 		for (IMouseListener mouseListener : Browser.this.mouseListeners) {
-			mouseListener.mouseDown(x, y);
+			mouseListener.mouseDown(x, y, element);
 		}
 	}
 
@@ -782,21 +793,33 @@ public class Browser extends Composite implements IBrowser {
 	 * 
 	 * @param x
 	 * @param y
+	 * @param arguments
+	 *            on which the mouse went up
 	 */
-	protected void fireMouseUp(double x, double y) {
+	protected void fireMouseUp(double x, double y, String html) {
+		IElement element = BrowserUtils.extractElement(html);
 		for (IMouseListener mouseListener : Browser.this.mouseListeners) {
-			mouseListener.mouseUp(x, y);
+			mouseListener.mouseUp(x, y, element);
 		}
 	}
 
 	/**
 	 * 
+	 * @param y
+	 * @param x
 	 * @param string
 	 */
-	protected void fireAnkerClicked(String html) {
-		IAnker anker = BrowserUtils.extractAnker(html);
-		for (IAnkerListener ankerListener : Browser.this.ankerListeners) {
-			ankerListener.ankerClicked(anker);
+	protected void fireClicked(Double x, Double y, String html) {
+		IElement element = BrowserUtils.extractElement(html);
+		for (IMouseListener mouseListener : Browser.this.mouseListeners) {
+			mouseListener.clicked(x, y, element);
+		}
+		if (element.getName().equals("a")) {
+			IAnker anker = new Anker(element.getAttributes(),
+					element.getContent());
+			for (IAnkerListener ankerListener : Browser.this.ankerListeners) {
+				ankerListener.ankerClicked(anker);
+			}
 		}
 	}
 

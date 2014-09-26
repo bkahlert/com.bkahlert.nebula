@@ -46,6 +46,10 @@ public class Element implements IElement {
 		return this.name;
 	}
 
+	public Map<String, String> getAttributes() {
+		return new HashMap<String, String>(this.attributes);
+	}
+
 	@Override
 	public String getAttribute(String name) {
 		return this.attributes.get(name);

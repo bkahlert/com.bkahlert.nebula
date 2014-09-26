@@ -11,7 +11,7 @@ import org.junit.runners.Suite.SuiteClasses;
 		DateUtilsTest.class, DistributionUtilsTest.class, ExecUtilsTest.class,
 		JSONUtilsTest.class, MathUtilsTest.class, OffWorkerTest.class,
 		StringUtilsTest.class, IteratorUtilsTest.class,
-		SerializationUtilsTest.class })
+		SerializationUtilsTest.class, BrowserUtilsTest.class })
 public class AllTests {
 
 }

@@ -1,16 +1,20 @@
 package com.bkahlert.nebula.widgets.browser.listener;
 
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 
 public interface IAnkerListener {
-	/**
+/**
 	 * This method is called if an {@link IElement} was clicked.
 	 * <p>
 	 * <strong>Warning:</strong> Only {@link IElement#getHref()} returns a value.
 	 * The other methods return null; FIXME: Fill other values
+	 * <p><strong>REPLACED BY {@link IMouseListener#clicked(double, double, com.bkahlert.nebula.widgets.browser.extended.html.Element)</strong>
 	 * 
 	 * @param anker
+	 * 
 	 */
+	@Deprecated
 	public void ankerClicked(IAnker anker);
 
 	/**

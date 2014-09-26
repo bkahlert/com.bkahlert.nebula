@@ -172,13 +172,18 @@ public class BrowserDemo extends AbstractDemo {
 			}
 
 			@Override
-			public void mouseDown(double x, double y) {
-				log("mouse down " + x + "," + y);
+			public void mouseDown(double x, double y, IElement element) {
+				log("mouse down " + x + "," + y + " - " + element);
 			}
 
 			@Override
-			public void mouseUp(double x, double y) {
-				log("mouse up " + x + "," + y);
+			public void mouseUp(double x, double y, IElement element) {
+				log("mouse up " + x + "," + y + " - " + element);
+			}
+
+			@Override
+			public void clicked(double x, double y, IElement element) {
+				log("clicked " + x + "," + y + " - " + element);
 			}
 		});
 		try {

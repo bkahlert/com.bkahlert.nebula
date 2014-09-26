@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.security.SecureRandom;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
@@ -16,10 +17,32 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.bkahlert.nebula.widgets.browser.extended.html.Anker;
-import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
+import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 
 public class BrowserUtils {
+
+	private static Pattern TAG_NAME_PATTERN = Pattern.compile(
+			"^[^<]*<(\\w+)[^<>]*\\/?>.*", Pattern.DOTALL);
+
+	/**
+	 * Returns the first tag name that could be found in the given HTML code.
+	 * 
+	 * @param html
+	 * @return
+	 */
+	public static String getFirstTagName(String html) {
+		if (html == null) {
+			return null;
+		}
+		Matcher matcher = TAG_NAME_PATTERN.matcher(html);
+		if (!matcher.matches()) {
+			return null;
+		}
+		if (matcher.groupCount() != 1) {
+			return null;
+		}
+		return matcher.group(1);
+	}
 
 	public static File getFile(Class<?> clazz, String clazzRelativePath) {
 		String uri = getFileUrl(clazz, clazzRelativePath).toString();
@@ -119,17 +142,22 @@ public class BrowserUtils {
 		return false;
 	}
 
-	public static IAnker extractAnker(String html) {
+	public static IElement extractElement(String html) {
 		if (html == null) {
 			return null;
 		}
+		String tagName = getFirstTagName(html);
+		if (tagName == null) {
+			return null;
+		}
 		Document document = Jsoup.parse(html);
-		Elements elements = document.getElementsByTag("a");
+		Elements elements = document.getElementsByTag(tagName);
 		for (Element element : elements) {
 			if (element.attr("href") == null) {
 				element.attr("href", element.attr("data-cke-saved-href"));
 			}
-			return new Anker(element);
+			return new com.bkahlert.nebula.widgets.browser.extended.html.Element(
+					element);
 		}
 		return null;
 	}
