@@ -178,7 +178,7 @@ public class Composer extends Browser {
 		});
 	}
 
-	protected void modifiedCallback(String html, long delayChangeEventTo) {
+	protected void modifiedCallback(String html, final long delayChangeEventTo) {
 		String newHtml = (html == null || html.replace("&nbsp;", " ").trim()
 				.isEmpty()) ? "" : html.trim();
 
@@ -206,39 +206,49 @@ public class Composer extends Browser {
 		}
 
 		final String saveHtml = newHtml;
-		final Runnable fireRunnable = new Runnable() {
+		ExecUtils.nonUISyncExec(new Runnable() {
 			@Override
 			public void run() {
-				Event event = new Event();
-				event.display = Display.getCurrent();
-				event.widget = Composer.this;
-				event.text = saveHtml;
-				event.data = saveHtml;
-				ModifyEvent modifyEvent = new ModifyEvent(event);
-				for (ModifyListener modifyListener : Composer.this.modifyListeners) {
-					modifyListener.modifyText(modifyEvent);
+				try {
+					final Runnable fireRunnable = new Runnable() {
+						@Override
+						public void run() {
+							Event event = new Event();
+							event.display = Display.getCurrent();
+							event.widget = Composer.this;
+							event.text = saveHtml;
+							event.data = saveHtml;
+							ModifyEvent modifyEvent = new ModifyEvent(event);
+							for (ModifyListener modifyListener : Composer.this.modifyListeners) {
+								modifyListener.modifyText(modifyEvent);
+							}
+						}
+					};
+
+					synchronized (this) {
+						if (Composer.this.delayChangeTimerTask != null) {
+							Composer.this.delayChangeTimerTask.cancel();
+						}
+						if (delayChangeEventTo > 0) {
+							Composer.this.delayChangeTimerTask = new TimerTask() {
+								@Override
+								public void run() {
+									fireRunnable.run();
+								}
+							};
+							Composer.this.delayChangeTimer.schedule(
+									Composer.this.delayChangeTimerTask,
+									delayChangeEventTo);
+						} else {
+							Composer.this.delayChangeTimerTask = null;
+							fireRunnable.run();
+						}
+					}
+				} catch (Exception e) {
+					LOGGER.error("Error saving memo", e);
 				}
 			}
-		};
-
-		synchronized (this) {
-			if (this.delayChangeTimerTask != null) {
-				this.delayChangeTimerTask.cancel();
-			}
-			if (delayChangeEventTo > 0) {
-				this.delayChangeTimerTask = new TimerTask() {
-					@Override
-					public void run() {
-						fireRunnable.run();
-					}
-				};
-				this.delayChangeTimer.schedule(this.delayChangeTimerTask,
-						delayChangeEventTo);
-			} else {
-				this.delayChangeTimerTask = null;
-				fireRunnable.run();
-			}
-		}
+		});
 	}
 
 	private String createLinks(String html) {
