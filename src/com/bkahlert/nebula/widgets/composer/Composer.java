@@ -49,7 +49,6 @@ import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
  */
 public class Composer extends Browser {
 
-	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(Composer.class);
 	private static final Pattern URL_PATTERN = Pattern
 			.compile("(.*?)(\\w+://[!#$&-;=?-\\[\\]_a-zA-Z~%]+)(.*?)");
