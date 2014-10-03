@@ -1,0 +1,16 @@
+[draggable] {
+	khtml-user-drag: element;
+	khtml-user-select: none;
+	moz-user-select: none;
+	user-select: none;
+	webkit-user-drag: element;
+	webkit-user-select: none;
+}
+
+[draggable].dragging {
+	opacity: 0.4 !important;
+}
+
+[droppable].over {
+	border: 2px dashed #000 !important;
+}

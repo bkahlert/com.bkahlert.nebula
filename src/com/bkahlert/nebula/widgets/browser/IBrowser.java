@@ -9,7 +9,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.nebula.widgets.IWidget;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
-import com.bkahlert.nebula.widgets.browser.listener.IDropListener;
+import com.bkahlert.nebula.widgets.browser.listener.IDNDListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 import com.bkahlert.nebula.widgets.browser.listener.IMouseListener;
 import com.bkahlert.nebula.widgets.browser.runner.IBrowserScriptRunner;
@@ -183,9 +183,9 @@ public interface IBrowser extends IBrowserScriptRunner, IWidget {
 
 	public void removeFocusListener(IFocusListener focusListener);
 
-	public void addDropListener(IDropListener dropListener);
+	public void addDNDListener(IDNDListener dNDListener);
 
-	public void removeDropListener(IDropListener dropListener);
+	public void removeDNDListener(IDNDListener dNDListener);
 
 	/**
 	 * Sets the body's inner HTML.

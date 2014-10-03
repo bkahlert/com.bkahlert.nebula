@@ -47,7 +47,7 @@ import com.bkahlert.nebula.widgets.browser.extended.html.Element;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
-import com.bkahlert.nebula.widgets.browser.listener.IDropListener;
+import com.bkahlert.nebula.widgets.browser.listener.IDNDListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 import com.bkahlert.nebula.widgets.browser.listener.IMouseListener;
 import com.bkahlert.nebula.widgets.browser.runner.BrowserScriptRunner;
@@ -87,7 +87,7 @@ public class Browser extends Composite implements IBrowser {
 	private final List<IAnkerListener> ankerListeners = new ArrayList<IAnkerListener>();
 	private final List<IMouseListener> mouseListeners = new ArrayList<IMouseListener>();
 	private final List<IFocusListener> focusListeners = new ArrayList<IFocusListener>();
-	private final List<IDropListener> dropListeners = new ArrayList<IDropListener>();
+	private final List<IDNDListener> dndListeners = new ArrayList<IDNDListener>();
 
 	/**
 	 * Constructs a new {@link Browser} with the given styles.
@@ -229,16 +229,35 @@ public class Browser extends Composite implements IBrowser {
 				return null;
 			}
 		};
+		new BrowserFunction(this.browser, "__dragStart") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length == 4 && arguments[0] instanceof Double
+						&& arguments[1] instanceof Double
+						&& arguments[2] instanceof String
+						&& arguments[3] instanceof String) {
+					long offsetX = Math.round((Double) arguments[0]);
+					long offsetY = Math.round((Double) arguments[1]);
+					String mimeType = (String) arguments[2];
+					String data = (String) arguments[3];
+					Browser.this
+							.fireDragStart(offsetX, offsetY, mimeType, data);
+				}
+				return null;
+			}
+		};
 		new BrowserFunction(this.browser, "__drop") {
 			@Override
 			public Object function(Object[] arguments) {
-				if (arguments.length == 3 && arguments[0] instanceof Double
+				if (arguments.length == 4 && arguments[0] instanceof Double
 						&& arguments[1] instanceof Double
-						&& arguments[2] instanceof String) {
+						&& arguments[2] instanceof String
+						&& arguments[3] instanceof String) {
 					long offsetX = Math.round((Double) arguments[0]);
 					long offsetY = Math.round((Double) arguments[1]);
-					String data = (String) arguments[2];
-					Browser.this.fireDrop(offsetX, offsetY, data);
+					String mimeType = (String) arguments[2];
+					String data = (String) arguments[3];
+					Browser.this.fireDrop(offsetX, offsetY, mimeType, data);
 				}
 				return null;
 			}
@@ -313,7 +332,7 @@ public class Browser extends Composite implements IBrowser {
 	/**
 	 * Injects the code needed for {@link #addAnkerListener(IAnkerListener)},
 	 * {@link #addFokusListener(IFocusListener)} and
-	 * {@link #addDropListener(IFocusListener)} to work.
+	 * {@link #addDNDListener(IFocusListener)} to work.
 	 * <p>
 	 * The JavaScript remembers a successful injection in case to consecutive
 	 * calls are made.
@@ -336,8 +355,10 @@ public class Browser extends Composite implements IBrowser {
 		}
 
 		File dnd = BrowserUtils.getFile(Browser.class, "dnd.js");
+		File dndCss = BrowserUtils.getFile(Browser.class, "dnd.css");
 		try {
 			Browser.this.runImmediately(dnd);
+			Browser.this.injectCssFile(new URI("file://" + dndCss));
 		} catch (Exception e) {
 			LOGGER.error("Could not inject drop catch script in "
 					+ Browser.this.getClass().getSimpleName(), e);
@@ -846,18 +867,26 @@ public class Browser extends Composite implements IBrowser {
 	}
 
 	@Override
-	public void addDropListener(IDropListener dropListener) {
-		this.dropListeners.add(dropListener);
+	public void addDNDListener(IDNDListener dndListener) {
+		this.dndListeners.add(dndListener);
 	}
 
 	@Override
-	public void removeDropListener(IDropListener dropListener) {
-		this.dropListeners.remove(dropListener);
+	public void removeDNDListener(IDNDListener dndListener) {
+		this.dndListeners.remove(dndListener);
 	}
 
-	synchronized protected void fireDrop(long offsetX, long offsetY, String data) {
-		for (IDropListener dropListener : this.dropListeners) {
-			dropListener.drop(offsetX, offsetY, data);
+	synchronized protected void fireDragStart(long offsetX, long offsetY,
+			String mimeType, String data) {
+		for (IDNDListener dndListener : this.dndListeners) {
+			dndListener.dragStart(offsetX, offsetY, mimeType, data);
+		}
+	}
+
+	synchronized protected void fireDrop(long offsetX, long offsetY,
+			String mimeType, String data) {
+		for (IDNDListener dndListener : this.dndListeners) {
+			dndListener.drop(offsetX, offsetY, mimeType, data);
 		}
 	}
 

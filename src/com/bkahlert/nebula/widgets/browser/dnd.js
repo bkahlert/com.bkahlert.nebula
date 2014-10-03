@@ -11,25 +11,67 @@ if(k&&j[k]&&(e||j[k].data)||void 0!==d||"string"!=typeof b)return k||(k=i?a[h]=c
 var $ = window.$.noConflict(true);
 
 // TODO forward all drag/drop events and fire the appropriate SWT events
-// Currently only dropped text is supported
+// Currently valid drop events can only process text
+// Draggable element are configurable
+
+// The drop event is thrown on every valid or invalid drop
+// Draggable events must have the draggable, data-dnd-mime and data-dnd-data attributes
+// e.g. <span draggable="true" data-dnd-mime="text/plain" data-dnd-data="Hello World!">Drag me</span>
 
 
+document.addEventListener("dragstart", function(e) {
+	if(e.target.getAttribute("draggable")) {
+		e.target.classList.add('dragging');
+		e.dataTransfer.effectAllowed = 'link';
+		e.dataTransfer.dropEffect = 'link';
+		e.dataTransfer.setData(e.target.getAttribute("data-dnd-mime"), e.target.getAttribute("data-dnd-data"));
+		window['__dragStart'](e.offsetX, e.offsetY, e.target.getAttribute("data-dnd-mime"), e.target.getAttribute("data-dnd-data"));
+	}
+}, false);
 
 document.addEventListener("dragenter", function(e) {
-    event.stopPropagation();
-    event.preventDefault();
+	if(e.target.getAttribute("droppable")) {
+		e.target.classList.add('over');
+		e.dataTransfer.dropEffect = 'link';
+	}
 }, false);
-document.addEventListener("dragexit", function(e) {
-    event.stopPropagation();
-    event.preventDefault();
-}, false);
+
 document.addEventListener("dragover", function(e) {
-    event.stopPropagation();
-    event.preventDefault();
+	if (e.preventDefault) {
+		e.preventDefault(); // Necessary. Allows us to drop.
+	}
+	
+	e.dataTransfer.dropEffect = 'link';
 }, false);
+
+document.addEventListener("dragleave", function(e) {
+	if(e.target.getAttribute("droppable")) {
+		e.target.classList.remove('over');
+		e.dataTransfer.dropEffect = 'none';
+	}
+}, false);
+
+document.addEventListener("dragexit", function(e) {
+}, false);
+
 document.addEventListener('drop', function(e) {
+	if (e.stopPropagation) {
+		e.stopPropagation(); // Stops some browsers from redirecting.
+	}
 	var plain = e.dataTransfer.getData('text/plain');
-	if(plain) window['__drop'](e.offsetX, e.offsetY, plain);
+	if(plain) window['__drop'](e.offsetX, e.offsetY, 'text/plain', plain);
+	
+	var html = e.dataTransfer.getData('text/html');
+	if(html) window['__drop'](e.offsetX, e.offsetY, 'text/html', html);
+}, false);
+
+document.addEventListener("dragend", function(e) {
+	if(e.target.getAttribute("draggable")) {
+		e.target.classList.remove('dragging');
+	}
+	[].forEach.call(document.querySelectorAll('[droppable]'), function(droppable) {
+		droppable.classList.remove('over');
+	});
 }, false);
 
 })();
