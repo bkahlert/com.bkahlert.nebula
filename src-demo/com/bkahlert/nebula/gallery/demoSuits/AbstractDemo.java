@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.RowLayout;
@@ -107,6 +108,8 @@ public abstract class AbstractDemo {
 					currentDemo.showConsole();
 				}
 			});
+		} catch (SWTException e) {
+			// Disposed
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new RuntimeException(e);
