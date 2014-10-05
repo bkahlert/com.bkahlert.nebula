@@ -390,9 +390,30 @@ public class ExecUtils {
 	 * @throws Exception
 	 *             thrown by the {@link Callable}
 	 */
-	public static void busyWait(Callable<Boolean> whileTrue) throws Exception {
+	public static void busyWait(final Callable<Boolean> whileTrue)
+			throws Exception {
 		Assert.isTrue(whileTrue != null);
 		Assert.isTrue(isUIThread());
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					while (whileTrue.call()) {
+						Thread.sleep(20);
+					}
+				} catch (Exception e) {
+					LOGGER.error(e);
+				}
+				ExecUtils.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						// Should the be no more events on the queue, the loop
+						// below will never stop. Let's make it work again with
+						// this Runnable.
+					}
+				});
+			}
+		}).start();
 		Display display = Display.getCurrent();
 		while (!display.isDisposed() && whileTrue.call()) {
 			if (!display.readAndDispatch()) {
