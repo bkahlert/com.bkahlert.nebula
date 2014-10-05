@@ -54,6 +54,8 @@ public class GalleryView extends ViewPart {
 
 	protected void createDemoExplorer(SashForm sashForm) {
 		this.demoExplorer = new DemoExplorer(sashForm, SWT.NONE);
+		selectionProviderIntermediate
+				.setSelectionProviderDelegate(this.demoExplorer.getViewer());
 		this.demoExplorer.getViewer().addSelectionChangedListener(
 				new ISelectionChangedListener() {
 					@Override
