@@ -14,8 +14,9 @@ import com.bkahlert.nebula.utils.ExecUtils;
 
 public class InformationManagerSourceProvider extends AbstractSourceProvider {
 
-	private static final Logger LOGGER = Logger.getLogger(InformationManagerSourceProvider.class);
-	
+	private static final Logger LOGGER = Logger
+			.getLogger(InformationManagerSourceProvider.class);
+
 	public static final Object NULL_MANAGER = new Object();
 	public static final Object NULL_CONTROL = new Object();
 	public static final Object NULL_INPUT = new Object();
@@ -114,12 +115,12 @@ public class InformationManagerSourceProvider extends AbstractSourceProvider {
 			ExecUtils.syncExec(new Runnable() {
 				@Override
 				public void run() {
-					InformationManagerSourceProvider.this.fireSourceChanged(ISources.WORKBENCH,
-							MANAGER, manager);
+					InformationManagerSourceProvider.this.fireSourceChanged(
+							ISources.WORKBENCH, MANAGER, manager);
 				}
 			});
 		} catch (Exception e) {
-			LOGGER.fatal("Error firing systemClipboardTransferable changed event", e);
+			LOGGER.fatal("Error firing manager changed event", e);
 			throw (new RuntimeException(e));
 		}
 	}
@@ -130,12 +131,12 @@ public class InformationManagerSourceProvider extends AbstractSourceProvider {
 			ExecUtils.syncExec(new Runnable() {
 				@Override
 				public void run() {
-					InformationManagerSourceProvider.this.fireSourceChanged(ISources.WORKBENCH,
-							CONTROL, control);
+					InformationManagerSourceProvider.this.fireSourceChanged(
+							ISources.WORKBENCH, CONTROL, control);
 				}
 			});
 		} catch (Exception e) {
-			LOGGER.fatal("Error firing systemClipboardTransferable changed event", e);
+			LOGGER.fatal("Error firing control changed event", e);
 			throw (new RuntimeException(e));
 		}
 	}
@@ -146,12 +147,12 @@ public class InformationManagerSourceProvider extends AbstractSourceProvider {
 			ExecUtils.syncExec(new Runnable() {
 				@Override
 				public void run() {
-					InformationManagerSourceProvider.this.fireSourceChanged(ISources.WORKBENCH,
-							INPUT, input);
+					InformationManagerSourceProvider.this.fireSourceChanged(
+							ISources.WORKBENCH, INPUT, input);
 				}
 			});
 		} catch (Exception e) {
-			LOGGER.fatal("Error firing systemClipboardTransferable changed event", e);
+			LOGGER.fatal("Error firing input changed event", e);
 			throw (new RuntimeException(e));
 		}
 	}
