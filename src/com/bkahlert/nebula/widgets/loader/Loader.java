@@ -217,14 +217,14 @@ public class Loader {
 				if (animationEnabled) {
 					Loader.this.start();
 				}
-				Future<T> future = ExecUtils.nonUIAsyncExec(callable);
+				final Future<T> future = ExecUtils.nonUIAsyncExec(callable);
 
-				Display display = Display.getCurrent();
-				while (!display.isDisposed() && !future.isDone()) {
-					if (!display.readAndDispatch()) {
-						display.sleep();
+				ExecUtils.busyWait(new Callable<Boolean>() {
+					@Override
+					public Boolean call() throws Exception {
+						return !future.isDone();
 					}
-				}
+				});
 
 				T rs = future.get();
 				if (animationEnabled) {

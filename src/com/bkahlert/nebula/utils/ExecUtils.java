@@ -361,6 +361,47 @@ public class ExecUtils {
 	}
 
 	/**
+	 * Waits in the UI thread without blocking the event queue.
+	 * 
+	 * @UIThread must not be called from a non UI thread
+	 * @param millis
+	 */
+	public static void busyWait(final long millis) {
+		final long start = System.currentTimeMillis();
+		try {
+			busyWait(new Callable<Boolean>() {
+				@Override
+				public Boolean call() throws Exception {
+					return System.currentTimeMillis() < start + millis;
+				}
+			});
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Waits until the given {@link Callable} returns <code>false</code> in the
+	 * UI thread without blocking the event queue.
+	 * 
+	 * @UIThread must not be called from a non UI thread
+	 * 
+	 * @param millis
+	 * @throws Exception
+	 *             thrown by the {@link Callable}
+	 */
+	public static void busyWait(Callable<Boolean> whileTrue) throws Exception {
+		Assert.isTrue(whileTrue != null);
+		Assert.isTrue(isUIThread());
+		Display display = Display.getCurrent();
+		while (!display.isDisposed() && whileTrue.call()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
+	}
+
+	/**
 	 * Executes the given {@link Callable}.
 	 * <p>
 	 * Checks if the caller is already in the UI thread and if so runs the
