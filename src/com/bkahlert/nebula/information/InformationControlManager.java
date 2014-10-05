@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
-import com.bkahlert.nebula.SourceProvider;
+import com.bkahlert.nebula.InformationManagerSourceProvider;
 
 /**
  * Instances of this class are watching a {@link Control} and consult a
@@ -186,7 +186,7 @@ public class InformationControlManager<CONTROL extends Control, INFORMATION>
 
 	@Override
 	protected void computeInformation() {
-		SourceProvider.managerChanged(this);
+		InformationManagerSourceProvider.managerChanged(this);
 
 		this.lastSubjectArea = this.calculateSubjectArea();
 		INFORMATION information = this.subjectInformationProvider

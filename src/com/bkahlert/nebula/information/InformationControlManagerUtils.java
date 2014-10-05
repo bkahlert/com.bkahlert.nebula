@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IEvaluationService;
 
-import com.bkahlert.nebula.SourceProvider;
+import com.bkahlert.nebula.InformationManagerSourceProvider;
 
 public class InformationControlManagerUtils {
 
@@ -29,7 +29,7 @@ public class InformationControlManagerUtils {
 		if (evaluationContext == null) {
 			return null;
 		}
-		Object manager = evaluationContext.getVariable(SourceProvider.MANAGER);
+		Object manager = evaluationContext.getVariable(InformationManagerSourceProvider.MANAGER);
 		if (manager instanceof InformationControlManager) {
 			return (InformationControlManager<Control, Object>) manager;
 		}
@@ -55,7 +55,7 @@ public class InformationControlManagerUtils {
 		if (evaluationContext == null) {
 			return null;
 		}
-		Object control = evaluationContext.getVariable(SourceProvider.CONTROL);
+		Object control = evaluationContext.getVariable(InformationManagerSourceProvider.CONTROL);
 		if (control instanceof InformationControl) {
 			return (InformationControl<?>) control;
 		} else {
@@ -68,8 +68,8 @@ public class InformationControlManagerUtils {
 		if (evaluationContext == null) {
 			return null;
 		}
-		Object input = evaluationContext.getVariable(SourceProvider.INPUT);
-		if (input != SourceProvider.NULL_INPUT) {
+		Object input = evaluationContext.getVariable(InformationManagerSourceProvider.INPUT);
+		if (input != InformationManagerSourceProvider.NULL_INPUT) {
 			return input;
 		} else {
 			return null;

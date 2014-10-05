@@ -19,7 +19,7 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.IMenuService;
 
-import com.bkahlert.nebula.SourceProvider;
+import com.bkahlert.nebula.InformationManagerSourceProvider;
 import com.bkahlert.nebula.information.extender.IInformationControlExtender;
 
 /**
@@ -189,8 +189,8 @@ public abstract class InformationControl<INFORMATION> extends
 	public final void setInput(Object input) {
 		try {
 			INFORMATION information = (INFORMATION) input;
-			SourceProvider.controlChanged(this);
-			SourceProvider.inputChanged(information);
+			InformationManagerSourceProvider.controlChanged(this);
+			InformationManagerSourceProvider.inputChanged(information);
 			this.hasContents = this.load(information);
 			for (IInformationControlExtender<INFORMATION> extender : this.extenders) {
 				extender.extend(this, information);
@@ -204,8 +204,8 @@ public abstract class InformationControl<INFORMATION> extends
 	@Override
 	public void setVisible(boolean visible) {
 		if (!visible) {
-			SourceProvider.controlChanged(null);
-			SourceProvider.inputChanged(null);
+			InformationManagerSourceProvider.controlChanged(null);
+			InformationManagerSourceProvider.inputChanged(null);
 		}
 		super.setVisible(visible);
 	}

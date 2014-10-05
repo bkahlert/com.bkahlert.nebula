@@ -12,10 +12,10 @@ import org.eclipse.ui.ISources;
 
 import com.bkahlert.nebula.utils.ExecUtils;
 
-public class SourceProvider extends AbstractSourceProvider {
+public class InformationManagerSourceProvider extends AbstractSourceProvider {
 
-	private static final Logger LOGGER = Logger.getLogger(SourceProvider.class);
-
+	private static final Logger LOGGER = Logger.getLogger(InformationManagerSourceProvider.class);
+	
 	public static final Object NULL_MANAGER = new Object();
 	public static final Object NULL_CONTROL = new Object();
 	public static final Object NULL_INPUT = new Object();
@@ -24,14 +24,14 @@ public class SourceProvider extends AbstractSourceProvider {
 	private static long lastNotNullControlChanged = 0;
 	private static long lastNotNullInputChanged = 0;
 
-	private static final List<SourceProvider> INSTANCES = new ArrayList<SourceProvider>();
+	private static final List<InformationManagerSourceProvider> INSTANCES = new ArrayList<InformationManagerSourceProvider>();
 
 	public static void managerChanged(Object manager) {
 		if (manager == null) {
 			manager = NULL_MANAGER;
 		}
-		for (SourceProvider sourceProvider : INSTANCES) {
-			sourceProvider.fireManagerChanged(manager);
+		for (InformationManagerSourceProvider informationManagerSourceProvider : INSTANCES) {
+			informationManagerSourceProvider.fireManagerChanged(manager);
 		}
 	}
 
@@ -43,8 +43,8 @@ public class SourceProvider extends AbstractSourceProvider {
 		if (control != NULL_CONTROL
 				|| now - lastNotNullControlChanged > timeForDetailedInformationControlToOpen) {
 			lastNotNullControlChanged = now;
-			for (SourceProvider sourceProvider : INSTANCES) {
-				sourceProvider.fireControlChanged(control);
+			for (InformationManagerSourceProvider informationManagerSourceProvider : INSTANCES) {
+				informationManagerSourceProvider.fireControlChanged(control);
 			}
 		}
 	}
@@ -57,8 +57,8 @@ public class SourceProvider extends AbstractSourceProvider {
 		if (input != NULL_INPUT
 				|| now - lastNotNullInputChanged > timeForDetailedInformationControlToOpen) {
 			lastNotNullInputChanged = now;
-			for (SourceProvider sourceProvider : INSTANCES) {
-				sourceProvider.fireInputChanged(input);
+			for (InformationManagerSourceProvider informationManagerSourceProvider : INSTANCES) {
+				informationManagerSourceProvider.fireInputChanged(input);
 			}
 		}
 	}
@@ -85,7 +85,7 @@ public class SourceProvider extends AbstractSourceProvider {
 	protected Object control = NULL_CONTROL;
 	protected Object input = NULL_INPUT;
 
-	public SourceProvider() {
+	public InformationManagerSourceProvider() {
 		INSTANCES.add(this);
 	}
 
@@ -114,12 +114,12 @@ public class SourceProvider extends AbstractSourceProvider {
 			ExecUtils.syncExec(new Runnable() {
 				@Override
 				public void run() {
-					SourceProvider.this.fireSourceChanged(ISources.WORKBENCH,
+					InformationManagerSourceProvider.this.fireSourceChanged(ISources.WORKBENCH,
 							MANAGER, manager);
 				}
 			});
 		} catch (Exception e) {
-			LOGGER.fatal("Error firing manager changed event", e);
+			LOGGER.fatal("Error firing systemClipboardTransferable changed event", e);
 			throw (new RuntimeException(e));
 		}
 	}
@@ -130,12 +130,12 @@ public class SourceProvider extends AbstractSourceProvider {
 			ExecUtils.syncExec(new Runnable() {
 				@Override
 				public void run() {
-					SourceProvider.this.fireSourceChanged(ISources.WORKBENCH,
+					InformationManagerSourceProvider.this.fireSourceChanged(ISources.WORKBENCH,
 							CONTROL, control);
 				}
 			});
 		} catch (Exception e) {
-			LOGGER.fatal("Error firing manager changed event", e);
+			LOGGER.fatal("Error firing systemClipboardTransferable changed event", e);
 			throw (new RuntimeException(e));
 		}
 	}
@@ -146,12 +146,12 @@ public class SourceProvider extends AbstractSourceProvider {
 			ExecUtils.syncExec(new Runnable() {
 				@Override
 				public void run() {
-					SourceProvider.this.fireSourceChanged(ISources.WORKBENCH,
+					InformationManagerSourceProvider.this.fireSourceChanged(ISources.WORKBENCH,
 							INPUT, input);
 				}
 			});
 		} catch (Exception e) {
-			LOGGER.fatal("Error firing manager changed event", e);
+			LOGGER.fatal("Error firing systemClipboardTransferable changed event", e);
 			throw (new RuntimeException(e));
 		}
 	}
