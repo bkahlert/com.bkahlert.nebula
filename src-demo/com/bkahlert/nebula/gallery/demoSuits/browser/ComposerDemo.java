@@ -26,7 +26,7 @@ public class ComposerDemo extends AbstractDemo {
 	@Override
 	public void createDemo(Composite composite) {
 		this.composer = new Composer(composite, SWT.BORDER);
-		this.composer.setSource("Hello CKEditor - Image");
+		this.composer.setSource("Hello <b>CKEditor</b>!");
 		this.composer.addAnkerLabelProvider(new IAnkerLabelProvider() {
 			@Override
 			public boolean isResponsible(IAnker anker) {

@@ -22,8 +22,6 @@ import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.browser.ProgressListener;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -31,14 +29,11 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.contexts.IContextActivation;
-import org.eclipse.ui.contexts.IContextService;
-import org.eclipse.ui.swt.IFocusService;
 
 import com.bkahlert.nebula.utils.CompletedFuture;
 import com.bkahlert.nebula.utils.EventDelegator;
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.HandlerUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.SWTUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
@@ -55,25 +50,11 @@ import com.bkahlert.nebula.widgets.browser.runner.BrowserScriptRunner.BrowserSta
 
 public class Browser extends Composite implements IBrowser {
 
-	private static IFocusService FOCUS_SERVICE = null;
-	private static IContextService CONTEXT_SERVICE = null;
-
-	static {
-		try {
-			FOCUS_SERVICE = (IFocusService) PlatformUI.getWorkbench()
-					.getService(IFocusService.class);
-			CONTEXT_SERVICE = (IContextService) PlatformUI.getWorkbench()
-					.getService(IContextService.class);
-		} catch (NoClassDefFoundError e) {
-
-		}
-	}
-
 	private static Logger LOGGER = Logger.getLogger(Browser.class);
 
 	private static final int STYLES = SWT.INHERIT_FORCE;
 
-	public static final String FOCUS_ID = "com.bkahlert.nebula.browser";
+	public static final String FOCUS_CONTROL_ID = "com.bkahlert.nebula.browser";
 
 	private org.eclipse.swt.browser.Browser browser;
 	private BrowserScriptRunner browserScriptRunner;
@@ -263,21 +244,6 @@ public class Browser extends Composite implements IBrowser {
 			}
 		};
 
-		// needed so paste action can be overwritten
-		// @see
-		// http://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fapi%2Forg%2Feclipse%2Fui%2Fswt%2FIFocusService.html
-		if (FOCUS_SERVICE != null) {
-			FOCUS_SERVICE.addFocusTracker(this.browser, FOCUS_ID);
-		}
-		this.browser.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				if (FOCUS_SERVICE != null) {
-					FOCUS_SERVICE.removeFocusTracker(Browser.this.browser);
-				}
-			}
-		});
-
 		this.browser.addLocationListener(new LocationAdapter() {
 			@Override
 			public void changing(LocationEvent event) {
@@ -287,28 +253,15 @@ public class Browser extends Composite implements IBrowser {
 									.getBrowserStatus() == BrowserStatus.LOADING;
 				}
 			}
-
-			// TODO call injectAnkerCode after a page has loaded a user clicked
-			// on (or do all the same steps on first page load on all
-			// consecutive loads)
 		});
 
-		this.browser.addFocusListener(new FocusListener() {
-			private IContextActivation activation = null;
-
+		HandlerUtils.activateCustomPasteHandlerConsideration(this.browser,
+				FOCUS_CONTROL_ID, "application/x-java-file-list", "image");
+		this.addDisposeListener(new DisposeListener() {
 			@Override
-			public void focusGained(FocusEvent e) {
-				if (CONTEXT_SERVICE != null) {
-					this.activation = CONTEXT_SERVICE
-							.activateContext("com.bkahlert.ui.browser");
-				}
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				if (CONTEXT_SERVICE != null) {
-					CONTEXT_SERVICE.deactivateContext(this.activation);
-				}
+			public void widgetDisposed(DisposeEvent e) {
+				HandlerUtils
+						.deactivateCustomPasteHandlerConsideration(Browser.this.browser);
 			}
 		});
 

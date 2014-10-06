@@ -8,14 +8,12 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.Future;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -25,7 +23,6 @@ import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.nebula.utils.CompletedFuture;
 import com.bkahlert.nebula.utils.ImageUtils;
-import com.bkahlert.nebula.utils.StringUtils;
 import com.bkahlert.nebula.widgets.browser.Browser;
 
 public class BrowserPasteHandler extends AbstractHandler {
@@ -55,9 +52,6 @@ public class BrowserPasteHandler extends AbstractHandler {
 
 	private Future<Void> paste(Browser browser) {
 		String html = null;
-		DataFlavor htmlFlavor = new DataFlavor("text/html",
-				"Hypertext Markup Language");
-		DataFlavor rtfFlavor = new DataFlavor("text/rtf", "Rich Formatted Text");
 		DataFlavor fileFlavor = null;
 		try {
 			fileFlavor = new DataFlavor(
@@ -69,6 +63,7 @@ public class BrowserPasteHandler extends AbstractHandler {
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		try {
 			if (clipboard.isDataFlavorAvailable(fileFlavor)) {
+				// inserts image files placed in the clipboard
 				@SuppressWarnings("unchecked")
 				List<File> files = (List<File>) clipboard.getData(fileFlavor);
 				for (File file : files) {
@@ -80,26 +75,15 @@ public class BrowserPasteHandler extends AbstractHandler {
 					} catch (Exception e) {
 					}
 				}
+
 			} else if (clipboard.isDataFlavorAvailable(DataFlavor.imageFlavor)) {
+				// inserts images placed in the clipboard
 				ImageIcon image = new ImageIcon(
 						(BufferedImage) clipboard
 								.getData(DataFlavor.imageFlavor));
 				BufferedImage bImage = getBufferedImage(image.getImage());
 				html = "<img src=\"" + ImageUtils.convertToInlineSrc(bImage)
 						+ "\"/>";
-			} else if (clipboard.isDataFlavorAvailable(htmlFlavor)) {
-				html = StringUtils.join(
-						IOUtils.readLines((InputStream) clipboard
-								.getData(htmlFlavor)), "\n");
-			} else if (clipboard.isDataFlavorAvailable(rtfFlavor)) {
-				String rtf = StringUtils.join(IOUtils
-						.readLines((InputStream) clipboard.getData(rtfFlavor)),
-						"\n");
-				html = StringUtils.rtfToPlain(rtf);
-			} else if (clipboard.isDataFlavorAvailable(DataFlavor.stringFlavor)) {
-				String plainText = (String) clipboard
-						.getData(DataFlavor.stringFlavor);
-				html = plainText;
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error pasting clipboard into browser", e);
