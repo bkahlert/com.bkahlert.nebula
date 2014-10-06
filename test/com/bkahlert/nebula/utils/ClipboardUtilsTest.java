@@ -5,13 +5,13 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.bkahlert.nebula.utils.ClipboardListener.IClipboardChangeListener;
+import com.bkahlert.nebula.utils.ClipboardListener.IClipboardContentChangeListener;
 
 public class ClipboardUtilsTest {
 
 	@Test
 	public void testPerformance() throws Exception {
-		IClipboardChangeListener listener = new IClipboardChangeListener() {
+		IClipboardContentChangeListener listener = new IClipboardContentChangeListener() {
 			@Override
 			public void contentChanged() {
 			}
@@ -21,7 +21,7 @@ public class ClipboardUtilsTest {
 		long tolerance = (long) (2.5 * checkEvery);
 
 		ClipboardListener clipboardListener = new ClipboardListener(checkEvery);
-		clipboardListener.addClipboardChangeListener(listener);
+		clipboardListener.addClipboardContentChangeListener(listener);
 		clipboardListener.start();
 
 		ExecUtils.busyWait(1000);
@@ -36,7 +36,7 @@ public class ClipboardUtilsTest {
 				clipboardListener.lastCheck > System.currentTimeMillis()
 						- tolerance);
 
-		clipboardListener.removeClipboardChangeListener(listener);
+		clipboardListener.removeClipboardContentChangeListener(listener);
 		ExecUtils.busyWait(300);
 		assertFalse("No listeners are registered, but the "
 				+ ClipboardListener.class.getSimpleName()
@@ -51,7 +51,7 @@ public class ClipboardUtilsTest {
 				clipboardListener.lastCheck > System.currentTimeMillis()
 						+ tolerance);
 
-		clipboardListener.addClipboardChangeListener(listener);
+		clipboardListener.addClipboardContentChangeListener(listener);
 		ExecUtils.busyWait(300);
 		assertTrue(
 				"At least one listener is registered, but the clipboard fast not checked in a timely manner",

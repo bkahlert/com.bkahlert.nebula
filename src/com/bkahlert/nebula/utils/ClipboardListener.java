@@ -1,12 +1,22 @@
 package com.bkahlert.nebula.utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.dnd.HTMLTransfer;
+import org.eclipse.swt.dnd.ImageTransfer;
+import org.eclipse.swt.dnd.RTFTransfer;
 import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.dnd.URLTransfer;
 import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.nebula.widgets.timeline.impl.TimePassed;
@@ -23,7 +33,7 @@ import com.bkahlert.nebula.widgets.timeline.impl.TimePassed;
  * changed.)</small></li>
  * <li>using the SWT instead of the AWT API, <small>(Checking by means of AWT
  * about 100ms are used. SWT consumes about 1ms.</small>)</li>
- * <li>only polling if a {@link IClipboardChangeListener} is registered
+ * <li>only polling if a {@link IClipboardContentChangeListener} is registered
  * <small>(Therefore it is recommended to unregister if possible.)</small></li>
  * </ul>
  * 
@@ -35,8 +45,27 @@ public class ClipboardListener extends Thread {
 	private static final Logger LOGGER = Logger
 			.getLogger(ClipboardListener.class);
 
-	public static interface IClipboardChangeListener {
+	public static interface IClipboardContentChangeListener {
 		public void contentChanged();
+	}
+
+	public static interface IClipboardTransferChangeListener {
+		public void transferChanged();
+	}
+
+	public static Map<String, Transfer> mimeTypeMapping;
+	static {
+		mimeTypeMapping = new HashMap<String, Transfer>();
+		mimeTypeMapping.put("text/plain", TextTransfer.getInstance());
+		mimeTypeMapping.put("text/url", URLTransfer.getInstance());
+		mimeTypeMapping.put("image", ImageTransfer.getInstance());
+		mimeTypeMapping.put("text/richtext", RTFTransfer.getInstance());
+		mimeTypeMapping.put("text/rtf", RTFTransfer.getInstance());
+		mimeTypeMapping.put("application/rtf", RTFTransfer.getInstance());
+		mimeTypeMapping.put("text/html", HTMLTransfer.getInstance());
+		mimeTypeMapping.put("application/file", FileTransfer.getInstance());
+		mimeTypeMapping.put("application/x-java-file-list",
+				FileTransfer.getInstance());
 	}
 
 	/**
@@ -46,10 +75,12 @@ public class ClipboardListener extends Thread {
 
 	final Clipboard clipboard;
 	private final long checkEvery;
-	private int lastHash = new Object().hashCode();
+	private Object lastClipboardContent = null;
+	private Object lastClipboardTransfer = null;
 	private boolean stop = false;
 
-	private final List<IClipboardChangeListener> clipboardChangeListeners = new ArrayList<IClipboardChangeListener>();
+	private final List<IClipboardContentChangeListener> clipboardContentChangeListeners = new ArrayList<IClipboardContentChangeListener>();
+	private final List<IClipboardTransferChangeListener> clipboardTransferChangeListeners = new ArrayList<IClipboardTransferChangeListener>();
 
 	public ClipboardListener(long checkEvery) {
 		this.checkEvery = checkEvery;
@@ -65,24 +96,46 @@ public class ClipboardListener extends Thread {
 		}
 	}
 
-	public void addClipboardChangeListener(
-			IClipboardChangeListener clipboardChangeListener) {
-		if (this.clipboardChangeListeners.contains(clipboardChangeListener)) {
+	public void addClipboardContentChangeListener(
+			IClipboardContentChangeListener clipboardContentChangeListener) {
+		if (this.clipboardContentChangeListeners
+				.contains(clipboardContentChangeListener)) {
 			return;
 		}
-		boolean stopHibernating = this.clipboardChangeListeners.size() == 0;
-		this.clipboardChangeListeners.add(clipboardChangeListener);
-		if (stopHibernating) {
-			this.stopHibernating();
-		}
+		this.clipboardContentChangeListeners
+				.add(clipboardContentChangeListener);
+		this.stopHibernating();
 	}
 
-	public void removeClipboardChangeListener(
-			IClipboardChangeListener clipboardChangeListener) {
-		if (!this.clipboardChangeListeners.contains(clipboardChangeListener)) {
+	public void removeClipboardContentChangeListener(
+			IClipboardContentChangeListener clipboardContentChangeListener) {
+		if (!this.clipboardContentChangeListeners
+				.contains(clipboardContentChangeListener)) {
 			return;
 		}
-		this.clipboardChangeListeners.remove(clipboardChangeListener);
+		this.clipboardContentChangeListeners
+				.remove(clipboardContentChangeListener);
+	}
+
+	public void addClipboardTransferChangeListener(
+			IClipboardTransferChangeListener clipboardTransferChangeListener) {
+		if (this.clipboardTransferChangeListeners
+				.contains(clipboardTransferChangeListener)) {
+			return;
+		}
+		this.clipboardTransferChangeListeners
+				.add(clipboardTransferChangeListener);
+		this.stopHibernating();
+	}
+
+	public void removeClipboardTransferChangeListener(
+			IClipboardTransferChangeListener clipboardTransferChangeListener) {
+		if (!this.clipboardTransferChangeListeners
+				.contains(clipboardTransferChangeListener)) {
+			return;
+		}
+		this.clipboardTransferChangeListeners
+				.remove(clipboardTransferChangeListener);
 	}
 
 	@Override
@@ -92,22 +145,51 @@ public class ClipboardListener extends Thread {
 			this.hibernateIfNecessary();
 
 			TimePassed passed = new TimePassed(true, "Clipboard Check");
-			int newHash = this.hashClipboard();
-
-			if (newHash != this.lastHash) {
-				ExecUtils.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						for (IClipboardChangeListener clipboardChangeListener : ClipboardListener.this.clipboardChangeListeners) {
-							try {
-								clipboardChangeListener.contentChanged();
-							} catch (Exception e) {
-								LOGGER.error(e);
+			if (this.clipboardContentChangeListeners.size() > 0) {
+				Object newClipboardContent = this.getClipboardContent();
+				if (!ObjectUtils.equals(newClipboardContent,
+						this.lastClipboardContent)) {
+					LOGGER.debug("Clipboard content changed from "
+							+ this.lastClipboardContent + " to "
+							+ newClipboardContent);
+					ExecUtils.asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							for (IClipboardContentChangeListener clipboardContentChangeListener : ClipboardListener.this.clipboardContentChangeListeners) {
+								try {
+									clipboardContentChangeListener
+											.contentChanged();
+								} catch (Exception e) {
+									LOGGER.error(e);
+								}
 							}
 						}
-					}
-				});
-				this.lastHash = newHash;
+					});
+					this.lastClipboardContent = newClipboardContent;
+				}
+			}
+			if (this.clipboardTransferChangeListeners.size() > 0) {
+				Transfer newClipboardTransfer = this.getClipboardTransfer();
+				if (!ObjectUtils.equals(newClipboardTransfer,
+						this.lastClipboardTransfer)) {
+					LOGGER.debug("Clipboard transfer changed from "
+							+ this.lastClipboardTransfer + " to "
+							+ newClipboardTransfer);
+					ExecUtils.asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							for (IClipboardTransferChangeListener clipboardTransferChangeListener : ClipboardListener.this.clipboardTransferChangeListeners) {
+								try {
+									clipboardTransferChangeListener
+											.transferChanged();
+								} catch (Exception e) {
+									LOGGER.error(e);
+								}
+							}
+						}
+					});
+					this.lastClipboardTransfer = newClipboardTransfer;
+				}
 			}
 			passed.finished();
 			this.lastCheck = System.currentTimeMillis();
@@ -126,7 +208,8 @@ public class ClipboardListener extends Thread {
 	}
 
 	private synchronized void hibernateIfNecessary() {
-		if (this.clipboardChangeListeners.size() == 0) {
+		if (this.clipboardContentChangeListeners.size() == 0
+				&& this.clipboardTransferChangeListeners.size() == 0) {
 			try {
 				Thread.currentThread().wait();
 			} catch (InterruptedException e) {
@@ -136,33 +219,76 @@ public class ClipboardListener extends Thread {
 	}
 
 	private synchronized void stopHibernating() {
-		this.notifyAll();
+		if (this.clipboardContentChangeListeners.size() > 0
+				|| this.clipboardTransferChangeListeners.size() > 0) {
+			this.notifyAll();
+		}
 	}
 
+	private final Transfer[] hashTransfers = new Transfer[] {
+			LocalSelectionTransfer.getTransfer(), RTFTransfer.getInstance(),
+			HTMLTransfer.getInstance(), FileTransfer.getInstance(),
+			ImageTransfer.getInstance(), URLTransfer.getInstance(),
+			TextTransfer.getInstance() };
+
 	/**
-	 * Calculates hash on the system clipboard.
-	 * <p>
-	 * TODO: Currently only uses the string representation if present.
+	 * Returns the most valuable {@link Transfer}. This is the one that should
+	 * most likely be used.
 	 * 
 	 * @return
 	 */
-	private int hashClipboard() {
+	private Transfer getClipboardTransfer() {
 		try {
-			String clipboardText = (String) ExecUtils
-					.syncExec(new Callable<Object>() {
-						@Override
-						public Object call() throws Exception {
-							return ClipboardListener.this.clipboard
-									.getContents(TextTransfer.getInstance());
+			Transfer transfer = ExecUtils.syncExec(new Callable<Transfer>() {
+				@Override
+				public Transfer call() throws Exception {
+					for (Transfer transfer : ClipboardListener.this.hashTransfers) {
+						Object content = ClipboardListener.this.clipboard
+								.getContents(transfer);
+						if (content != null) {
+							return transfer;
 						}
-					});
-			if (clipboardText != null) {
-				return clipboardText.hashCode();
+					}
+					return null;
+				}
+			});
+			return transfer;
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return null;
+	}
+
+	/**
+	 * Calculates the most valuable {@link Clipboard} content. This is the one
+	 * that should most likely be used.
+	 * 
+	 * @return
+	 */
+	private Object getClipboardContent() {
+		try {
+			Object content = ExecUtils.syncExec(new Callable<Object>() {
+				@Override
+				public Object call() throws Exception {
+					Transfer transfer = ClipboardListener.this
+							.getClipboardTransfer();
+					if (transfer != null) {
+						Object content = ClipboardListener.this.clipboard
+								.getContents(transfer);
+						if (content != null) {
+							return content;
+						}
+					}
+					return null;
+				}
+			});
+			if (content != null) {
+				return content;
 			}
 		} catch (Exception e) {
 			LOGGER.error(e);
 		}
-		return new Object().hashCode();
+		return new Object();
 	}
 
 	public void requestStop() {
