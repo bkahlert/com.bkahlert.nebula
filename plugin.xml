@@ -181,17 +181,17 @@
    </extension>
    <extension
          point="org.eclipse.ui.services">
-          <sourceProvider
-         <variable
-               name="de.fu_berlin.inf.dpp.Saros"
-               priorityLevel="workbench">
-         </variable>
-         <variable
-               name="de.fu_berlin.inf.dpp.SarosSession"
-               priorityLevel="workbench">
-         </variable>
-      </sourceProvider>
+                  <sourceProvider
                 provider="com.bkahlert.nebula.InformationManagerSourceProvider">
+             <variable
+                   name="de.fu_berlin.inf.dpp.Saros"
+                   priorityLevel="workbench">
+             </variable>
+             <variable
+                   name="de.fu_berlin.inf.dpp.SarosSession"
+                   priorityLevel="workbench">
+             </variable>
+          </sourceProvider>
    </extension>
    <extension
          point="com.bkahlert.nebula.information">
