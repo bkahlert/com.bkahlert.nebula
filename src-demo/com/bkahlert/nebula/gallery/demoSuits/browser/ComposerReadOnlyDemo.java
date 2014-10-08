@@ -21,7 +21,7 @@ public class ComposerReadOnlyDemo extends AbstractDemo {
 	@Override
 	public void createDemo(Composite composite) {
 		this.composer = new ComposerReadOnly(composite, SWT.NONE);
-		this.composer.setSource("Hello CKEditor - Image");
+		this.composer.setSource("Hello <b>CKEditor</b>!");
 	}
 
 	@Override
