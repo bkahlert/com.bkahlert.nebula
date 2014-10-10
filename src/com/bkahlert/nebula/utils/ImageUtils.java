@@ -6,11 +6,9 @@ import java.awt.image.ColorModel;
 import java.awt.image.DirectColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -23,7 +21,6 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 
 import org.apache.log4j.Logger;
-import org.eclipse.core.internal.preferences.Base64;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
@@ -200,63 +197,6 @@ public class ImageUtils {
 			}
 			return bufferedImage;
 		}
-	}
-
-	/**
-	 * Returns a Base64-encoded {@link String} data URI that can be used for the
-	 * <code>src</code> attribute of an HTML <code>img</code>.
-	 * 
-	 * @param file
-	 *            must point to a readable image file
-	 * @return
-	 */
-	public static String convertToInlineSrc(File file) throws IOException {
-		return createDataUri(ImageIO.read(file));
-	}
-
-	/**
-	 * Returns a Base64-encoded {@link String} data URI that can be used for the
-	 * <code>src</code> attribute of an HTML <code>img</code>.
-	 * 
-	 * @param image
-	 * @return
-	 */
-	public static String convertToInlineSrc(Image image) {
-		return convertToInlineSrc(image.getImageData());
-	}
-
-	/**
-	 * Returns a Base64-encoded {@link String} data URI that can be used for the
-	 * <code>src</code> attribute of an HTML <code>img</code>.
-	 * 
-	 * @param data
-	 * @return
-	 */
-	public static String convertToInlineSrc(ImageData data) {
-		return createDataUri(ImageUtils.convertToAWT(data));
-	}
-
-	/**
-	 * Returns a Base64-encoded {@link String} data URI that can be used for the
-	 * <code>src</code> attribute of an HTML <code>img</code>.
-	 * 
-	 * @param image
-	 * @return
-	 */
-	public static String createDataUri(BufferedImage image) {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		try {
-			ImageIO.write(image, "png", baos);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		byte[] encodedImage = Base64.encode(baos.toByteArray());
-		try {
-			return "data:image/png;base64," + new String(encodedImage, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 	public static Point resizeWithinArea(Point size, Point maxSize) {
