@@ -8,6 +8,9 @@ import java.util.Map;
 import org.eclipse.jface.util.Policy;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ColumnViewer;
+import org.eclipse.jface.viewers.IContentProvider;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -597,6 +600,33 @@ public class ViewerUtils {
 			}
 		}
 		return allItems;
+	}
+
+	public static List<Object> getAllItems(StructuredViewer viewer) {
+		List<Object> objects = new ArrayList<Object>();
+		IContentProvider cp = viewer.getContentProvider();
+		if (cp instanceof IStructuredContentProvider) {
+			IStructuredContentProvider scp = (IStructuredContentProvider) cp;
+			for (Object object : scp.getElements(viewer.getInput())) {
+				objects.add(object);
+				objects.addAll(getDescendants(viewer, object));
+			}
+		}
+		return objects;
+	}
+
+	public static List<Object> getDescendants(StructuredViewer viewer,
+			Object parent) {
+		List<Object> descendants = new ArrayList<Object>();
+		IContentProvider cp = viewer.getContentProvider();
+		if (cp instanceof ITreeContentProvider) {
+			ITreeContentProvider tcp = (ITreeContentProvider) cp;
+			for (Object child : tcp.getChildren(parent)) {
+				descendants.add(child);
+				descendants.addAll(getDescendants(viewer, child));
+			}
+		}
+		return descendants;
 	}
 
 	/**

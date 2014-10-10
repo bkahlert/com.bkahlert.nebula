@@ -2,11 +2,13 @@ package com.bkahlert.nebula.viewer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -170,6 +172,28 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 
 			@Override
 			public void aboutToRun(IJobChangeEvent event) {
+				Job prefetcher = FilteredTree.this
+						.prefetch(FilteredTree.this.treeViewer);
+
+				final Semaphore mutex;
+				if (prefetcher != null) {
+					mutex = new Semaphore(0);
+					prefetcher.addJobChangeListener(new JobChangeAdapter() {
+						@Override
+						public void done(IJobChangeEvent event) {
+							mutex.release();
+						}
+					});
+					prefetcher.schedule();
+				} else {
+					mutex = new Semaphore(1);
+				}
+
+				try {
+					mutex.acquire();
+				} catch (InterruptedException e1) {
+					LOGGER.error("Error prefetching", e1);
+				}
 				try {
 					ExecUtils.syncExec(new Runnable() {
 						@Override
@@ -216,6 +240,17 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 			}
 		});
 		return job;
+	}
+
+	/**
+	 * Can be overwritten if you need to preload data before the filtering takes
+	 * place and blocks the UI thread.
+	 * 
+	 * @param treeViewer
+	 * @return
+	 */
+	protected Job prefetch(TreeViewer treeViewer) {
+		return null;
 	}
 
 	@Override
