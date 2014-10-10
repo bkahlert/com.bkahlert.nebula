@@ -127,6 +127,8 @@ public interface IBrowser extends IBrowserScriptRunner, IWidget {
 
 	Future<Void> injectJsFile(File file);
 
+	void injectJsFileImmediately(File jsExtension) throws Exception;
+
 	/**
 	 * Includes the given path as a cascading style sheet.
 	 * 

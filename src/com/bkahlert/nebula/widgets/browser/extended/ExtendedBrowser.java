@@ -94,7 +94,7 @@ public class ExtendedBrowser extends Browser implements IBrowser {
 		boolean success = true;
 		for (File jsExtension : extension.getJsExtensions()) {
 			try {
-				this.runImmediately(jsExtension);
+				this.injectJsFileImmediately(jsExtension);
 			} catch (Exception e) {
 				LOGGER.error(
 						"Could not load the JS extension \""
@@ -102,9 +102,15 @@ public class ExtendedBrowser extends Browser implements IBrowser {
 				success = false;
 			}
 		}
-
 		for (URI cssExtension : extension.getCssExtensions()) {
-			this.injectCssFile(cssExtension);
+			try {
+				this.injectCssFileImmediately(cssExtension);
+			} catch (Exception e) {
+				LOGGER.error(
+						"Could not load the JS extension \""
+								+ extension.getName() + "\".", e);
+				success = false;
+			}
 		}
 
 		return success;

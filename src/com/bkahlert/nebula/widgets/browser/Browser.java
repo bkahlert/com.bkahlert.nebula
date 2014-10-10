@@ -665,25 +665,42 @@ public class Browser extends Composite implements IBrowser {
 		return;
 	}
 
+	private static String createJsFileInjectionScript(File file) {
+		return "var script=document.createElement(\"script\"); script.type=\"text/javascript\"; script.src=\""
+				+ "file://"
+				+ file
+				+ "\"; document.getElementsByTagName(\"head\")[0].appendChild(script);";
+	}
+
 	@Override
 	public Future<Void> injectJsFile(File file) {
-		return this
-				.run("var script=document.createElement(\"script\"); script.type=\"text/javascript\"; script.src=\""
-						+ "file://"
-						+ file
-						+ "\"; document.getElementsByTagName(\"head\")[0].appendChild(script);",
-						IConverter.CONVERTER_VOID);
+		return this.run(createJsFileInjectionScript(file),
+				IConverter.CONVERTER_VOID);
+	}
+
+	@Override
+	public void injectJsFileImmediately(File file) throws Exception {
+		this.runImmediately(createJsFileInjectionScript(file),
+				IConverter.CONVERTER_VOID);
+	}
+
+	private static String createCssFileInjectionScript(URI uri) {
+		return "if(document.createStyleSheet){document.createStyleSheet(\""
+				+ uri.toString()
+				+ "\")}else{ var link=document.createElement(\"link\"); link.rel=\"stylesheet\"; link.type=\"text/css\"; link.href=\""
+				+ uri.toString()
+				+ "\"; document.getElementsByTagName(\"head\")[0].appendChild(link); }";
 	}
 
 	@Override
 	public Future<Void> injectCssFile(URI uri) {
-		return this
-				.run("if(document.createStyleSheet){document.createStyleSheet(\""
-						+ uri.toString()
-						+ "\")}else{ var link=document.createElement(\"link\"); link.rel=\"stylesheet\"; link.type=\"text/css\"; link.href=\""
-						+ uri.toString()
-						+ "\"; document.getElementsByTagName(\"head\")[0].appendChild(link); }",
-						IConverter.CONVERTER_VOID);
+		return this.run(createCssFileInjectionScript(uri),
+				IConverter.CONVERTER_VOID);
+	}
+
+	public void injectCssFileImmediately(URI uri) throws Exception {
+		this.runImmediately(createCssFileInjectionScript(uri),
+				IConverter.CONVERTER_VOID);
 	}
 
 	private static String createCssInjectionScript(String css) {
