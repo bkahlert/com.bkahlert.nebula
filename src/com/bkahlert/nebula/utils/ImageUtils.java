@@ -37,7 +37,6 @@ import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.nebula.utils.colors.ColorUtils;
 
-@SuppressWarnings("restriction")
 public class ImageUtils {
 
 	private static Logger LOGGER = Logger.getLogger(ImageUtils.class);
