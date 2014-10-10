@@ -70,7 +70,7 @@ public class BrowserPasteHandler extends AbstractHandler {
 					try {
 						BufferedImage image = ImageIO.read(file);
 						html = "<img src=\""
-								+ ImageUtils.convertToInlineSrc(image) + "\"/>";
+								+ ImageUtils.createDataUri(image) + "\"/>";
 						break;
 					} catch (Exception e) {
 					}
@@ -82,7 +82,7 @@ public class BrowserPasteHandler extends AbstractHandler {
 						(BufferedImage) clipboard
 								.getData(DataFlavor.imageFlavor));
 				BufferedImage bImage = getBufferedImage(image.getImage());
-				html = "<img src=\"" + ImageUtils.convertToInlineSrc(bImage)
+				html = "<img src=\"" + ImageUtils.createDataUri(bImage)
 						+ "\"/>";
 			}
 		} catch (Exception e) {

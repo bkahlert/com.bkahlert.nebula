@@ -194,7 +194,7 @@ public class Image extends Browser {
 	 *            {@link org.eclipse.swt.graphics.Image} has been loaded.
 	 */
 	public void load(org.eclipse.swt.graphics.Image image, Runnable callback) {
-		String base64 = ImageUtils.convertToInlineSrc(image);
+		String base64 = ImageUtils.createDataUri(image);
 		this.load(base64, callback);
 	}
 

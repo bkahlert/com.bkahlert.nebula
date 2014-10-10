@@ -211,7 +211,7 @@ public class ImageUtils {
 	 * @return
 	 */
 	public static String convertToInlineSrc(File file) throws IOException {
-		return convertToInlineSrc(ImageIO.read(file));
+		return createDataUri(ImageIO.read(file));
 	}
 
 	/**
@@ -233,7 +233,7 @@ public class ImageUtils {
 	 * @return
 	 */
 	public static String convertToInlineSrc(ImageData data) {
-		return convertToInlineSrc(ImageUtils.convertToAWT(data));
+		return createDataUri(ImageUtils.convertToAWT(data));
 	}
 
 	/**
@@ -243,7 +243,7 @@ public class ImageUtils {
 	 * @param image
 	 * @return
 	 */
-	public static String convertToInlineSrc(BufferedImage image) {
+	public static String createDataUri(BufferedImage image) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
 			ImageIO.write(image, "png", baos);
