@@ -203,10 +203,22 @@ public class ImageUtils {
 	}
 
 	/**
-	 * Returns a Base64-encoded {@link String} that can be used for the
+	 * Returns a Base64-encoded {@link String} data URI that can be used for the
 	 * <code>src</code> attribute of an HTML <code>img</code>.
 	 * 
-	 * @param data
+	 * @param file
+	 *            must point to a readable image file
+	 * @return
+	 */
+	public static String convertToInlineSrc(File file) throws IOException {
+		return convertToInlineSrc(ImageIO.read(file));
+	}
+
+	/**
+	 * Returns a Base64-encoded {@link String} data URI that can be used for the
+	 * <code>src</code> attribute of an HTML <code>img</code>.
+	 * 
+	 * @param image
 	 * @return
 	 */
 	public static String convertToInlineSrc(Image image) {
@@ -214,7 +226,7 @@ public class ImageUtils {
 	}
 
 	/**
-	 * Returns a Base64-encoded {@link String} that can be used for the
+	 * Returns a Base64-encoded {@link String} data URI that can be used for the
 	 * <code>src</code> attribute of an HTML <code>img</code>.
 	 * 
 	 * @param data
@@ -225,10 +237,10 @@ public class ImageUtils {
 	}
 
 	/**
-	 * Returns a Base64-encoded {@link String} that can be used for the
+	 * Returns a Base64-encoded {@link String} data URI that can be used for the
 	 * <code>src</code> attribute of an HTML <code>img</code>.
 	 * 
-	 * @param data
+	 * @param image
 	 * @return
 	 */
 	public static String convertToInlineSrc(BufferedImage image) {
