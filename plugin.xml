@@ -46,6 +46,11 @@
             name="Paste">
       </command>
       <command
+            categoryId="org.eclipse.ui.category.edit"
+            id="com.bkahlert.nebula.showSource"
+            name="Show Source">
+      </command>
+      <command
             id="com.bkahlert.nebula.toggleSourceMode"
             name="Toggle Source Mode">
          <state
@@ -82,6 +87,12 @@
             contextId="com.bkahlert.ui.browser"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+V">
+      </key>
+      <key
+            commandId="com.bkahlert.nebula.showSource"
+            contextId="org.eclipse.ui.contexts.dialogAndWindow"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+I">
       </key>
    </extension>
    <extension
@@ -121,6 +132,10 @@
                </with>
             </and>
          </activeWhen>
+      </handler>
+      <handler
+            class="com.bkahlert.nebula.handlers.BrowserShowSourceHandler"
+            commandId="com.bkahlert.nebula.showSource">
       </handler>
       <handler
             class="com.bkahlert.nebula.handlers.ToggleSourceModeHandler"

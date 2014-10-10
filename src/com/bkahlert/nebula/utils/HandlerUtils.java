@@ -27,6 +27,12 @@ import com.bkahlert.nebula.utils.ClipboardListener.IClipboardTransferChangeListe
  * href="http://wiki.eclipse.org/Platform_Command_Framework">Eclipse Platform
  * Command Framework</a>.
  * 
+ * TODO implement a further variable so activeFocusControlId can be set
+ * everytime the control has focus and not only if it should use the custom
+ * paste handler. Because of the current state the command's
+ * (com.bkahlert.nebula.showSource) default handler is always active because it
+ * can't check activeFocusControlId
+ * 
  * @author bkahlert
  * 
  */
