@@ -22,8 +22,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.nebula.utils.CompletedFuture;
-import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.widgets.browser.Browser;
+import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 
 public class BrowserPasteHandler extends AbstractHandler {
 
@@ -70,7 +70,7 @@ public class BrowserPasteHandler extends AbstractHandler {
 					try {
 						BufferedImage image = ImageIO.read(file);
 						html = "<img src=\""
-								+ ImageUtils.createDataUri(image) + "\"/>";
+								+ BrowserUtils.createDataUri(image) + "\"/>";
 						break;
 					} catch (Exception e) {
 					}
@@ -82,7 +82,7 @@ public class BrowserPasteHandler extends AbstractHandler {
 						(BufferedImage) clipboard
 								.getData(DataFlavor.imageFlavor));
 				BufferedImage bImage = getBufferedImage(image.getImage());
-				html = "<img src=\"" + ImageUtils.createDataUri(bImage)
+				html = "<img src=\"" + BrowserUtils.createDataUri(bImage)
 						+ "\"/>";
 			}
 		} catch (Exception e) {

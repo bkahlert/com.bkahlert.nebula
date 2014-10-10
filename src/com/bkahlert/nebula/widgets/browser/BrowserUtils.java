@@ -1,6 +1,10 @@
 package com.bkahlert.nebula.widgets.browser;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
@@ -9,16 +13,23 @@ import java.security.SecureRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.imageio.ImageIO;
+
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.core.internal.preferences.Base64;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.swt.browser.BrowserFunction;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 
+@SuppressWarnings("restriction")
 public class BrowserUtils {
 
 	private static Pattern TAG_NAME_PATTERN = Pattern.compile(
@@ -173,5 +184,62 @@ public class BrowserUtils {
 	 */
 	public static String createRandomFunctionName() {
 		return "_" + new BigInteger(130, new SecureRandom()).toString(32);
+	}
+
+	/**
+	 * Returns a Base64-encoded {@link String} data URI that can be used for the
+	 * <code>src</code> attribute of an HTML <code>img</code>.
+	 * 
+	 * @param file
+	 *            must point to a readable image file
+	 * @return
+	 */
+	public static String createDataUri(File file) throws IOException {
+		return createDataUri(ImageIO.read(file));
+	}
+
+	/**
+	 * Returns a Base64-encoded {@link String} data URI that can be used for the
+	 * <code>src</code> attribute of an HTML <code>img</code>.
+	 * 
+	 * @param image
+	 * @return
+	 */
+	public static String createDataUri(Image image) {
+		return createDataUri(image.getImageData());
+	}
+
+	/**
+	 * Returns a Base64-encoded {@link String} data URI that can be used for the
+	 * <code>src</code> attribute of an HTML <code>img</code>.
+	 * 
+	 * @param data
+	 * @return
+	 */
+	public static String createDataUri(ImageData data) {
+		return createDataUri(ImageUtils.convertToAWT(data));
+	}
+
+	/**
+	 * Returns a Base64-encoded {@link String} data URI that can be used for the
+	 * <code>src</code> attribute of an HTML <code>img</code>.
+	 * 
+	 * @param image
+	 * @return
+	 */
+	public static String createDataUri(BufferedImage image) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			ImageIO.write(image, "png", baos);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		byte[] encodedImage = Base64.encode(baos.toByteArray());
+		try {
+			return "data:image/png;base64," + new String(encodedImage, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
