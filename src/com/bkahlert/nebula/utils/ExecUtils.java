@@ -381,6 +381,28 @@ public class ExecUtils {
 	}
 
 	/**
+	 * Waits in the UI thread without blocking the event queue until the time
+	 * has passed or the {@link Future} finished its computation.
+	 * 
+	 * @UIThread must not be called from a non UI thread
+	 * @param millis
+	 */
+	public static void busyWait(final Future<?> future, final long millis) {
+		final long start = System.currentTimeMillis();
+		try {
+			busyWait(new Callable<Boolean>() {
+				@Override
+				public Boolean call() throws Exception {
+					return !future.isDone()
+							|| System.currentTimeMillis() < start + millis;
+				}
+			});
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
 	 * Waits until the given {@link Callable} returns <code>false</code> in the
 	 * UI thread without blocking the event queue.
 	 * 
