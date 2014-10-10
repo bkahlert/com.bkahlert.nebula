@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 import com.bkahlert.nebula.utils.CellLabelClient;
-import com.bkahlert.nebula.utils.ViewerUtils;
+import com.bkahlert.nebula.utils.TreeTableUtils;
 
 /**
  * Generic {@link ViewerComparator} for use in conjunction with
@@ -181,7 +181,7 @@ public class GenericColumnViewerComparator extends ViewerComparator {
 			Object e) {
 		if (columnViewer.getControl() instanceof Tree) {
 			Tree tree = (Tree) columnViewer.getControl();
-			for (Item item : ViewerUtils.getAllItems(tree.getItems())) {
+			for (Item item : TreeTableUtils.getAllItems(tree.getItems())) {
 				if (dataContainsPayload(e, item)) {
 					return (TreeItem) item;
 				}

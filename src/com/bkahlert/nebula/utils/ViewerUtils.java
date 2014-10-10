@@ -27,10 +27,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeColumn;
-import org.eclipse.swt.widgets.TreeItem;
 
 import com.bkahlert.nebula.utils.DistributionUtils.AbsoluteWidth;
 import com.bkahlert.nebula.utils.DistributionUtils.Width;
@@ -480,176 +477,49 @@ public class ViewerUtils {
 	}
 
 	/**
-	 * Returns all {@link Item}s who's {@link Item#getData()} object is of the
-	 * given type.
+	 * Returns all elements contained in the given viewer. This calculation is
+	 * independent of what is currently displayed.
 	 * 
-	 * @param items
-	 * @param clazz
+	 * @param viewer
 	 * @return
 	 */
-	public static List<Item> getItemWithDataType(Item[] items, Class<?> clazz) {
-		if (items == null) {
-			return null;
-		}
-
-		List<Item> itemsWithDataType = new ArrayList<Item>();
-		for (Item item : ViewerUtils.getAllItems(items)) {
-			if (clazz.isInstance(item.getData())) {
-				itemsWithDataType.add(item);
-			}
-		}
-
-		return itemsWithDataType;
-	}
-
-	/**
-	 * Returns all {@link Item}s who's {@link Item#getData()} object is of the
-	 * given type.
-	 * 
-	 * @param items
-	 * @param clazz
-	 * @return
-	 */
-	public static List<Item> getItemWithDataType(Control control, Class<?> clazz) {
-		if (control == null) {
-			return null;
-		}
-
-		List<Item> itemsWithDataType = new ArrayList<Item>();
-		for (Item item : ViewerUtils.getAllItems(control)) {
-			if (clazz.isInstance(item.getData())) {
-				itemsWithDataType.add(item);
-			}
-		}
-
-		return itemsWithDataType;
-	}
-
-	/**
-	 * Returns all {@link Item}s who's {@link Item#getData()} object equals the
-	 * given one.
-	 * 
-	 * @param items
-	 * @param clazz
-	 * @return
-	 */
-	public static List<Item> getItemWithData(Item[] items, Object data) {
-		if (items == null) {
-			return null;
-		}
-
-		List<Item> itemsWithData = new ArrayList<Item>();
-		for (Item item : ViewerUtils.getAllItems(items)) {
-			if (data.equals(item.getData())) {
-				itemsWithData.add(item);
-			}
-		}
-
-		return itemsWithData;
-	}
-
-	/**
-	 * Returns all {@link Item}s who's {@link Item#getData()} object equals the
-	 * given one.
-	 * 
-	 * @param items
-	 * @param clazz
-	 * @return
-	 */
-	public static List<Item> getItemWithData(Control control, Object data) {
-		if (control == null) {
-			return null;
-		}
-
-		List<Item> itemsWithData = new ArrayList<Item>();
-		for (Item item : ViewerUtils.getAllItems(control)) {
-			if (data.equals(item.getData())) {
-				itemsWithData.add(item);
-			}
-		}
-		return itemsWithData;
-	}
-
-	/**
-	 * Returns a list that does not only contain the {@link Item}s themselves
-	 * but also their child, children's children, etc.
-	 * 
-	 * @param items
-	 * @return
-	 */
-	public static List<Item> getAllItems(Control control) {
-		Item[] items = (control instanceof Tree) ? ((Tree) control).getItems()
-				: ((Table) control).getItems();
-		return ViewerUtils.getAllItems(items);
-	}
-
-	/**
-	 * Returns a list that does not only contain the {@link Item}s themselves
-	 * but also their child, children's children, etc.
-	 * 
-	 * @param items
-	 * @return
-	 */
-	public static List<Item> getAllItems(Item[] items) {
-		List<Item> allItems = new ArrayList<Item>();
-		for (Item item : items) {
-			allItems.add(item);
-			if (item instanceof TreeItem) {
-				TreeItem treeItem = (TreeItem) item;
-				allItems.addAll(ViewerUtils.listTreeItems(treeItem));
-			}
-		}
-		return allItems;
-	}
-
-	public static List<Object> getAllItems(StructuredViewer viewer) {
+	public static List<Object> getAllItems(Viewer viewer) {
 		List<Object> objects = new ArrayList<Object>();
-		IContentProvider cp = viewer.getContentProvider();
-		if (cp instanceof IStructuredContentProvider) {
-			IStructuredContentProvider scp = (IStructuredContentProvider) cp;
-			for (Object object : scp.getElements(viewer.getInput())) {
-				objects.add(object);
-				objects.addAll(getDescendants(viewer, object));
+		if (viewer instanceof StructuredViewer) {
+			IContentProvider cp = ((StructuredViewer) viewer)
+					.getContentProvider();
+			if (cp instanceof IStructuredContentProvider) {
+				IStructuredContentProvider scp = (IStructuredContentProvider) cp;
+				for (Object object : scp.getElements(viewer.getInput())) {
+					objects.add(object);
+					objects.addAll(getDescendants(viewer, object));
+				}
 			}
 		}
 		return objects;
 	}
 
-	public static List<Object> getDescendants(StructuredViewer viewer,
-			Object parent) {
+	/**
+	 * Returns all descendants of the given element.
+	 * 
+	 * @param viewer
+	 * @param parent
+	 * @return
+	 */
+	public static List<Object> getDescendants(Viewer viewer, Object parent) {
 		List<Object> descendants = new ArrayList<Object>();
-		IContentProvider cp = viewer.getContentProvider();
-		if (cp instanceof ITreeContentProvider) {
-			ITreeContentProvider tcp = (ITreeContentProvider) cp;
-			for (Object child : tcp.getChildren(parent)) {
-				descendants.add(child);
-				descendants.addAll(getDescendants(viewer, child));
+		if (viewer instanceof StructuredViewer) {
+			IContentProvider cp = ((StructuredViewer) viewer)
+					.getContentProvider();
+			if (cp instanceof ITreeContentProvider) {
+				ITreeContentProvider tcp = (ITreeContentProvider) cp;
+				for (Object child : tcp.getChildren(parent)) {
+					descendants.add(child);
+					descendants.addAll(getDescendants(viewer, child));
+				}
 			}
 		}
 		return descendants;
-	}
-
-	/**
-	 * Returns a list of all elements contained in the {@link TreeItem}.
-	 * <p>
-	 * Example:
-	 * 
-	 * <code>a</code> is root and has children <code>b</code> and <code>e</code>. <code>b</code> has the children <code>c</code> and <code>d</code>.
-	 * 
-	 * The resulting list contains the elements <code>b</code>, <code>c</code>,
-	 * <code>d</code> and <code>e</code> whereas <code>a</code> was the
-	 * argument.
-	 * 
-	 * @param treeItem
-	 * @return
-	 */
-	public static List<TreeItem> listTreeItems(TreeItem treeItem) {
-		List<TreeItem> treeItems = new ArrayList<TreeItem>();
-		for (TreeItem child : treeItem.getItems()) {
-			treeItems.add(child);
-			treeItems.addAll(listTreeItems(child));
-		}
-		return treeItems;
 	}
 
 	/**
@@ -699,14 +569,14 @@ public class ViewerUtils {
 		int w;
 		if (control instanceof Table) {
 			for (int i = 0; i < index; i++) {
-				x += ViewerUtils.getColumn((Table) control, i).getWidth();
+				x += TreeTableUtils.getColumn((Table) control, i).getWidth();
 			}
-			w = ViewerUtils.getColumn((Table) control, index).getWidth();
+			w = TreeTableUtils.getColumn((Table) control, index).getWidth();
 		} else {
 			for (int i = 0; i < index; i++) {
-				x += ViewerUtils.getColumn((Tree) control, i).getWidth();
+				x += TreeTableUtils.getColumn((Tree) control, i).getWidth();
 			}
-			w = ViewerUtils.getColumn((Tree) control, index).getWidth();
+			w = TreeTableUtils.getColumn((Tree) control, index).getWidth();
 			;
 		}
 		return new Rectangle(x, 0, w, control.getBounds().height);
@@ -732,30 +602,9 @@ public class ViewerUtils {
 		return -1;
 	}
 
-	public static Item getColumn(Control control, int index) {
-		int[] order = control instanceof Table ? ((Table) control)
-				.getColumnOrder() : ((Tree) control).getColumnOrder();
-		for (int j = 0, n = order.length; j < n; j++) {
-			if (order[j] == index) {
-				Item[] columns = control instanceof Table ? ((Table) control)
-						.getColumns() : ((Tree) control).getColumns();
-				return columns[j];
-			}
-		}
-		return null;
-	}
-
-	public static TableColumn getColumn(Table table, int index) {
-		return (TableColumn) getColumn((Control) table, index);
-	}
-
-	public static TreeColumn getColumn(Tree tree, int index) {
-		return (TreeColumn) getColumn((Control) tree, index);
-	}
-
 	public static TableViewerColumn getColumn(TableViewer tableViewer, int index) {
-		Object data = getColumn(tableViewer.getTable(), index).getData(
-				Policy.JFACE + ".columnViewer");
+		Object data = TreeTableUtils.getColumn(tableViewer.getTable(), index)
+				.getData(Policy.JFACE + ".columnViewer");
 		if (data instanceof TableViewerColumn) {
 			return (TableViewerColumn) data;
 		}
@@ -763,8 +612,8 @@ public class ViewerUtils {
 	}
 
 	public static TreeViewerColumn getColumn(TreeViewer treeViewer, int index) {
-		Object data = getColumn(treeViewer.getTree(), index).getData(
-				Policy.JFACE + ".columnViewer");
+		Object data = TreeTableUtils.getColumn(treeViewer.getTree(), index)
+				.getData(Policy.JFACE + ".columnViewer");
 		if (data instanceof TreeViewerColumn) {
 			return (TreeViewerColumn) data;
 		}
