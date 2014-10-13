@@ -21,6 +21,8 @@ import javax.swing.text.EditorKit;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.rtf.RTFEditorKit;
 
+import org.eclipse.jface.viewers.StyledString;
+
 public class StringUtils {
 
 	private static final Pattern BODY_PATTERN = Pattern.compile(
@@ -48,6 +50,23 @@ public class StringUtils {
 			}
 		}
 		return sb.toString();
+	}
+
+	public static StyledString join(ArrayList<StyledString> strings,
+			StyledString separator) {
+		StyledString string = new StyledString("");
+		for (int i = 0, m = strings.size(); i < m; i++) {
+			StyledString s = strings.get(i);
+			if (string == null) {
+				string = new StyledString("");
+			}
+
+			string.append(s);
+			if (i + 1 < m) {
+				string.append(separator);
+			}
+		}
+		return string;
 	}
 
 	/**
