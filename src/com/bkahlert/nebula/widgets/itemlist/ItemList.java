@@ -17,7 +17,9 @@ import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
-import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
+import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
+import com.bkahlert.nebula.widgets.browser.listener.AnkerAdapter;
+import com.bkahlert.nebula.widgets.browser.listener.MouseAdapter;
 
 public class ItemList extends BootstrapBrowser {
 
@@ -47,7 +49,7 @@ public class ItemList extends BootstrapBrowser {
 	public ItemList(Composite parent, int style) {
 		super(parent, style | SWT.INHERIT_FORCE);
 		this.deactivateNativeMenu();
-		this.addAnkerListener(new IAnkerListener() {
+		this.addAnkerListener(new AnkerAdapter() {
 			@Override
 			public void ankerHovered(IAnker anker, boolean entered) {
 				String key = anker.getData("itemlist-key");
@@ -60,14 +62,15 @@ public class ItemList extends BootstrapBrowser {
 					itemListListener.itemHovered(key, num, entered);
 				}
 			}
-
+		});
+		this.addMouseListener(new MouseAdapter() {
 			@Override
-			public void ankerClicked(IAnker anker) {
-				String key = anker.getData("itemlist-key");
+			public void clicked(double x, double y, IElement element) {
+				String key = element.getData("itemlist-key");
 				if (key == null) {
 					return;
 				}
-				String action = anker.getData("itemlist-action");
+				String action = element.getData("itemlist-action");
 				for (IItemListListener itemListListener : ItemList.this.itemListListeners) {
 					int num = Integer.valueOf(action);
 					itemListListener.itemClicked(key, num);

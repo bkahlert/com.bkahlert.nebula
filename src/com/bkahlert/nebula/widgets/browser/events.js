@@ -166,6 +166,11 @@ window.addEventListener("beforeunload", n, true);
 window.addEventListener("unload", n, true);
 
 
+function getValidElement(element, className) {
+	if(!element) return null;
+	if(element.classList.contains(className)) return getValidElement(element.parentNode, className);
+	return element;
+}
 
 if (window["__mousemove"] && typeof window["__mousemove"]) {
 	$(document).mousemove(function(e) {
@@ -175,19 +180,19 @@ if (window["__mousemove"] && typeof window["__mousemove"]) {
 
 if (window["__mousedown"] && typeof window["__mousedown"]) {
 	$(window).mousedown(function(e) {
-		window["__mousedown"](event.pageX, event.pageY, clone(e.target));
+		window["__mousedown"](event.pageX, event.pageY, clone(getValidElement(e.target, "no_mousedown")));
 	});
 }
 
 if (window["__mouseup"] && typeof window["__mouseup"]) {
 	$(window).mouseup(function(e) {
-		window["__mouseup"](event.pageX, event.pageY, clone(e.target));
+		window["__mouseup"](event.pageX, event.pageY, clone(getValidElement(e.target, "no_mouseup")));
 	});
 }
 
 if (window["__click"] && typeof window["__click"]) {
 	$(document).click(function(e) {
-	    window["__click"](event.pageX, event.pageY, clone(e.target))
+	    window["__click"](event.pageX, event.pageY, clone(getValidElement(e.target, "no_click")))
 	});
 }
 
