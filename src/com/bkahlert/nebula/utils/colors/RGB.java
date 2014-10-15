@@ -1,6 +1,8 @@
 package com.bkahlert.nebula.utils.colors;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 
@@ -20,14 +22,24 @@ public class RGB {
 
 	public static final RGB PRIMARY = BootstrapBrowser.ButtonOption.PRIMARY
 			.getColor();
+	public static final Color PRIMARY_COLOR = new Color(Display.getCurrent(),
+			PRIMARY.toClassicRGB());
 	public static final RGB SUCCESS = BootstrapBrowser.ButtonOption.SUCCESS
 			.getColor();
+	public static final Color SUCCESS_COLOR = new Color(Display.getCurrent(),
+			SUCCESS.toClassicRGB());
 	public static final RGB INFO = BootstrapBrowser.ButtonOption.INFO
 			.getColor();
+	public static final Color INFO_COLOR = new Color(Display.getCurrent(),
+			INFO.toClassicRGB());
 	public static final RGB WARNING = BootstrapBrowser.ButtonOption.WARNING
 			.getColor();
+	public static final Color WARNING_COLOR = new Color(Display.getCurrent(),
+			WARNING.toClassicRGB());
 	public static final RGB DANGER = BootstrapBrowser.ButtonOption.DANGER
 			.getColor();
+	public static final Color DANGER_COLOR = new Color(Display.getCurrent(),
+			DANGER.toClassicRGB());
 
 	public static final RGB IMPORTANCE_HIGH = new RGB(127, 64, 195);
 	public static final RGB IMPORTANCE_LOW = new RGB(179, 179, 179);
