@@ -824,13 +824,13 @@ public class Browser extends Composite implements IBrowser {
 		this.focusListeners.remove(focusListener);
 	}
 
-	synchronized protected void fireFocusGained(IElement element) {
+	protected void fireFocusGained(IElement element) {
 		for (IFocusListener focusListener : this.focusListeners) {
 			focusListener.focusGained(element);
 		}
 	}
 
-	synchronized protected void fireFocusLost(IElement element) {
+	protected void fireFocusLost(IElement element) {
 		for (IFocusListener focusListener : this.focusListeners) {
 			focusListener.focusLost(element);
 		}
