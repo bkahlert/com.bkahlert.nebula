@@ -1,8 +1,5 @@
 package com.bkahlert.nebula.handlers;
 
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -12,12 +9,13 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.swt.dnd.ImageTransfer;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
@@ -29,26 +27,6 @@ public class BrowserPasteHandler extends AbstractHandler {
 
 	private static final Logger LOGGER = Logger
 			.getLogger(BrowserPasteHandler.class);
-
-	// @see
-	// http://blog.pengoworks.com/index.cfm/2008/2/8/The-nightmares-of-getting-images-from-the-Mac-OS-X-clipboard-using-Java
-	private static BufferedImage getBufferedImage(Image img) {
-		if (img == null) {
-			return null;
-		}
-		int w = img.getWidth(null);
-		int h = img.getHeight(null);
-		// draw original image to thumbnail image object and
-		// scale it to the new size on-the-fly
-		BufferedImage bufimg = new BufferedImage(w, h,
-				BufferedImage.TYPE_INT_RGB);
-		Graphics2D g2 = bufimg.createGraphics();
-		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-				RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		g2.drawImage(img, 0, 0, w, h, null);
-		g2.dispose();
-		return bufimg;
-	}
 
 	private Future<Void> paste(Browser browser) {
 		String html = null;
@@ -78,11 +56,11 @@ public class BrowserPasteHandler extends AbstractHandler {
 
 			} else if (clipboard.isDataFlavorAvailable(DataFlavor.imageFlavor)) {
 				// inserts images placed in the clipboard
-				ImageIcon image = new ImageIcon(
-						(BufferedImage) clipboard
-								.getData(DataFlavor.imageFlavor));
-				BufferedImage bImage = getBufferedImage(image.getImage());
-				html = "<img src=\"" + BrowserUtils.createDataUri(bImage)
+				org.eclipse.swt.dnd.Clipboard swtClipboard = new org.eclipse.swt.dnd.Clipboard(
+						Display.getCurrent());
+				ImageData imageData = (ImageData) swtClipboard
+						.getContents(ImageTransfer.getInstance());
+				html = "<img src=\"" + BrowserUtils.createDataUri(imageData)
 						+ "\"/>";
 			}
 		} catch (Exception e) {
