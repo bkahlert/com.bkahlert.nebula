@@ -12,7 +12,7 @@ import org.junit.runners.Suite.SuiteClasses;
 		JSONUtilsTest.class, MathUtilsTest.class, OffWorkerTest.class,
 		StringUtilsTest.class, IteratorUtilsTest.class,
 		SerializationUtilsTest.class, BrowserUtilsTest.class,
-		ClipboardUtilsTest.class })
+		ClipboardUtilsTest.class, ListUtilsTest.class })
 public class AllTests {
 
 }

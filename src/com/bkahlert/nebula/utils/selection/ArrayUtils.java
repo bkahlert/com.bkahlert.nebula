@@ -1,9 +1,12 @@
 package com.bkahlert.nebula.utils.selection;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.Platform;
+
+import com.bkahlert.nebula.utils.ListUtils;
 
 /**
  * @author bkahlert
@@ -20,8 +23,9 @@ public class ArrayUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> List<T> getInstances(Object[] array, Class<T> clazz) {
-		if (array == null)
+		if (array == null) {
 			return null;
+		}
 
 		List<T> instanceObjects = new ArrayList<T>();
 		for (Object object : array) {
@@ -58,6 +62,26 @@ public class ArrayUtils {
 		}
 
 		return adaptableObjects;
+	}
+
+	/**
+	 * Moves the given position before the given before position and returns the
+	 * list itself.
+	 * 
+	 * TODO make more performant
+	 * 
+	 * @param array
+	 * @param fromPos
+	 * @param beforePos
+	 * @return
+	 */
+	public static <T> T[] moveElement(T[] array, int fromPos, int beforePos) {
+		List<T> list = ListUtils.moveElement(
+				new ArrayList<T>(Arrays.asList(array)), fromPos, beforePos);
+		for (int i = 0, m = list.size(); i < m; i++) {
+			array[i] = list.get(i);
+		}
+		return array;
 	}
 
 }
