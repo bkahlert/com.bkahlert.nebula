@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import org.eclipse.jface.util.Policy;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
@@ -482,21 +483,52 @@ public class ViewerUtils {
 	 * 
 	 * @param viewer
 	 * @return
+	 * @throws Exception
 	 */
-	public static List<Object> getAllItems(Viewer viewer) {
-		List<Object> objects = new ArrayList<Object>();
-		if (viewer instanceof StructuredViewer) {
-			IContentProvider cp = ((StructuredViewer) viewer)
-					.getContentProvider();
-			if (cp instanceof IStructuredContentProvider) {
-				IStructuredContentProvider scp = (IStructuredContentProvider) cp;
-				for (Object object : scp.getElements(viewer.getInput())) {
-					objects.add(object);
-					objects.addAll(getDescendants(viewer, object));
+	public static List<Object> getAllItems(final Viewer viewer)
+			throws Exception {
+		final List<Object> objects = new ArrayList<Object>();
+		ExecUtils.syncExec(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				for (Object topLevelElement : getTopLevelItems(viewer)) {
+					objects.add(topLevelElement);
+					objects.addAll(getDescendants(viewer, topLevelElement));
 				}
+				return null;
 			}
-		}
+		});
 		return objects;
+	}
+
+	/**
+	 * Returns all top-level elements contained in the given viewer. This
+	 * calculation is independent of what is currently displayed.
+	 * 
+	 * @param viewer
+	 * @return
+	 * @throws Exception
+	 */
+	public static List<Object> getTopLevelItems(final Viewer viewer)
+			throws Exception {
+		final List<Object> topLevelElements = new ArrayList<Object>();
+		if (viewer instanceof StructuredViewer) {
+			ExecUtils.syncExec(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					IContentProvider cp = ((StructuredViewer) viewer)
+							.getContentProvider();
+					if (cp instanceof IStructuredContentProvider) {
+						IStructuredContentProvider scp = (IStructuredContentProvider) cp;
+						for (Object object : scp.getElements(viewer.getInput())) {
+							topLevelElements.add(object);
+						}
+					}
+					return null;
+				}
+			});
+		}
+		return topLevelElements;
 	}
 
 	/**
@@ -505,19 +537,27 @@ public class ViewerUtils {
 	 * @param viewer
 	 * @param parent
 	 * @return
+	 * @throws Exception
 	 */
-	public static List<Object> getDescendants(Viewer viewer, Object parent) {
-		List<Object> descendants = new ArrayList<Object>();
+	public static List<Object> getDescendants(final Viewer viewer,
+			final Object parent) throws Exception {
+		final List<Object> descendants = new ArrayList<Object>();
 		if (viewer instanceof StructuredViewer) {
-			IContentProvider cp = ((StructuredViewer) viewer)
-					.getContentProvider();
-			if (cp instanceof ITreeContentProvider) {
-				ITreeContentProvider tcp = (ITreeContentProvider) cp;
-				for (Object child : tcp.getChildren(parent)) {
-					descendants.add(child);
-					descendants.addAll(getDescendants(viewer, child));
+			ExecUtils.syncExec(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					IContentProvider cp = ((StructuredViewer) viewer)
+							.getContentProvider();
+					if (cp instanceof ITreeContentProvider) {
+						ITreeContentProvider tcp = (ITreeContentProvider) cp;
+						for (Object child : tcp.getChildren(parent)) {
+							descendants.add(child);
+							descendants.addAll(getDescendants(viewer, child));
+						}
+					}
+					return null;
 				}
-			}
+			});
 		}
 		return descendants;
 	}
