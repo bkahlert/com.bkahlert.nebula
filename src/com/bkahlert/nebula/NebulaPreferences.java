@@ -8,6 +8,7 @@ import org.apache.commons.lang.SerializationUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.TreeViewer;
 
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.OSGIPreferenceUtil;
 
@@ -66,14 +67,14 @@ public class NebulaPreferences extends OSGIPreferenceUtil {
 	 * @param key
 	 * @param treeViewer
 	 */
-	public void loadExpandedElements(String key, TreeViewer treeViewer,
+	public void loadExpandedElements(String key, final TreeViewer treeViewer,
 			IConverter<String, Object>... converters) {
 		try {
 			byte[] stored = this.getSystemPreferences().getByteArray(
 					"expandedElements." + key, null);
 			String[] serializedElements = (String[]) SerializationUtils
 					.deserialize(stored);
-			List<Object> expandedElements = new LinkedList<Object>();
+			final List<Object> expandedElements = new LinkedList<Object>();
 			for (String serializedElement : serializedElements) {
 				Object expandedElement = this.convert(serializedElement,
 						converters);
@@ -81,11 +82,16 @@ public class NebulaPreferences extends OSGIPreferenceUtil {
 					expandedElements.add(expandedElement);
 				}
 			}
-			for (Object expandedElement : expandedElements) {
-				if (expandedElement != null) {
-					treeViewer.expandToLevel(expandedElement, 1);
+			ExecUtils.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					for (Object expandedElement : expandedElements) {
+						if (expandedElement != null) {
+							treeViewer.expandToLevel(expandedElement, 1);
+						}
+					}
 				}
-			}
+			});
 		} catch (Exception e) {
 			LOGGER.error("Error loading expanded elements of " + treeViewer, e);
 		}
