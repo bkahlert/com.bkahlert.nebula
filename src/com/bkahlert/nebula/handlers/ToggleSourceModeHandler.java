@@ -5,12 +5,9 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.ui.IViewReference;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import com.bkahlert.nebula.utils.WorkbenchUtils;
 import com.bkahlert.nebula.views.EditorView;
 import com.bkahlert.nebula.widgets.editor.Editor;
 
@@ -25,21 +22,15 @@ public class ToggleSourceModeHandler extends AbstractHandler {
 		Command command = event.getCommand();
 		boolean oldValue = HandlerUtil.toggleCommandState(command);
 		boolean sourceMode = !oldValue;
-		for (IWorkbenchPage page : PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getPages()) {
-			for (IViewReference viewReference : page.getViewReferences()) {
-				IWorkbenchPart part = viewReference.getPart(true);
-				if (part instanceof EditorView<?>) {
-					EditorView<?> editorView = (EditorView<?>) part;
-					if (sourceMode) {
-						for (Editor<?> editor : editorView.getEditors()) {
-							editor.showSource();
-						}
-					} else {
-						for (Editor<?> editor : editorView.getEditors()) {
-							editor.hideSource();
-						}
-					}
+		for (EditorView<?> editorView : WorkbenchUtils
+				.getViews(EditorView.class)) {
+			if (sourceMode) {
+				for (Editor<?> editor : editorView.getEditors()) {
+					editor.showSource();
+				}
+			} else {
+				for (Editor<?> editor : editorView.getEditors()) {
+					editor.hideSource();
 				}
 			}
 		}

@@ -18,6 +18,7 @@ import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
  */
 public class RGB {
 	public static final RGB WHITE = new RGB(1.0, 1.0, 1.0);
+	public static final RGB LIGHT_GREY = new RGB(.95, .95, .95);
 	public static final RGB BLACK = new RGB(0.0, 0.0, 0.0);
 
 	public static final RGB PRIMARY = BootstrapBrowser.ButtonOption.PRIMARY
