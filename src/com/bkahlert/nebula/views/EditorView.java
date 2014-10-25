@@ -143,6 +143,9 @@ public abstract class EditorView<T> extends ViewPart {
 				});
 			}
 		}
+		if (jobCount.get() == 0 && callback != null) {
+			callback.run();
+		}
 	}
 
 	private void createEditors(int numEditorsNeeded) {
