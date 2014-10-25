@@ -176,6 +176,10 @@ public abstract class Editor<T> extends Composite {
 		this.composer.setBackground(rgb);
 	}
 
+	public RGB getBackgroundRGB() {
+		return this.composer.getBackgroundRGB();
+	}
+
 	@Override
 	public boolean setFocus() {
 		lastFocussedEditor.put(this.loadedObject, this);
@@ -320,7 +324,7 @@ public abstract class Editor<T> extends Composite {
 	 * @param html
 	 * @return the {@link Job} used to save the object.
 	 */
-	synchronized Job save(final String html) {
+	Job save(final String html) {
 		if (this.loadedObject == null) {
 			return null;
 		}

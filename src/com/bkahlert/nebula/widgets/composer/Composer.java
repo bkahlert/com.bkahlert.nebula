@@ -61,6 +61,7 @@ public class Composer extends Browser {
 
 	private final List<IAnkerLabelProvider> ankerLabelProviders = new ArrayList<IAnkerLabelProvider>();
 	private final List<ModifyListener> modifyListeners = new ArrayList<ModifyListener>();
+	private RGB background = null;
 	private String oldHtml = "";
 	private final Timer delayChangeTimer = new Timer(this.getClass()
 			.getSimpleName() + " :: Delay Change Timer", false);
@@ -404,8 +405,13 @@ public class Composer extends Browser {
 	}
 
 	public void setBackground(RGB rgb) {
+		this.background = rgb;
 		String hex = rgb != null ? rgb.toHexString() : "transparent";
 		this.injectCss("html .cke_reset { background-color: " + hex + "; }");
+	}
+
+	public RGB getBackgroundRGB() {
+		return this.background;
 	}
 
 	public void addAnkerLabelProvider(IAnkerLabelProvider ankerLabelProvider) {
