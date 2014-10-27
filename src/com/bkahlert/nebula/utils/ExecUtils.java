@@ -853,8 +853,6 @@ public class ExecUtils {
 	/**
 	 * Executes the given {@link Callable} asynchronously, meaning always in a
 	 * new thread.
-	 * <p>
-	 * The return value is returned in the calling thread.
 	 * 
 	 * @param callable
 	 * @return
@@ -864,7 +862,39 @@ public class ExecUtils {
 	 * @NonUIThread
 	 */
 	public static <V> Future<V> nonUIAsyncExec(final Callable<V> callable) {
+		Assert.isNotNull(callable);
 		return new UIThreadSafeFuture<V>(EXECUTOR_SERVICE.submit(callable));
+	}
+
+	/**
+	 * Executes the given {@link Callable}s asynchronously, meaning always in a
+	 * new thread.
+	 * 
+	 * @param callables
+	 * @return
+	 * 
+	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
+	 *           thread</b>
+	 * @NonUIThread
+	 */
+	public static <V> Future<List<V>> nonUIAsyncExec(
+			final Callable<V>... callables) {
+		Assert.isLegal(callables != null && callables.length != 0);
+		return nonUIAsyncExec(new Callable<List<V>>() {
+			@Override
+			public List<V> call() throws Exception {
+				List<V> list = new ArrayList<V>(callables.length);
+				List<Future<V>> futures = new ArrayList<Future<V>>(
+						callables.length);
+				for (Callable<V> callable : callables) {
+					futures.add(nonUIAsyncExec(callable));
+				}
+				for (Future<V> future : futures) {
+					list.add(future.get());
+				}
+				return list;
+			}
+		});
 	}
 
 	/**
