@@ -64,7 +64,7 @@ public class AdapterFactoryProxy<T> implements IAdapterFactory {
 	}
 
 	@Override
-	public Object getAdapter(Object adaptableObject,
+	synchronized public Object getAdapter(Object adaptableObject,
 			@SuppressWarnings("rawtypes") Class adapterType) {
 		Set<IAdapterFactory> adapterFactoriesToAsk = new HashSet<IAdapterFactory>();
 		if (this.sharedClasses.contains(adapterType)) {
