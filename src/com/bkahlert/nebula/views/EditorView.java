@@ -3,6 +3,7 @@ package com.bkahlert.nebula.views;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
@@ -21,6 +22,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.part.ViewPart;
 
+import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.NamedJob;
 import com.bkahlert.nebula.utils.Pair;
@@ -110,9 +112,20 @@ public abstract class EditorView<T> extends ViewPart {
 	 * @param objectsToLoad
 	 * @see Editor#load(Object)
 	 */
-	public final void load(final Runnable callback, T... objectsToLoad) {
+	public final void load(final Runnable callback, final T... objectsToLoad) {
 
-		this.createEditors(objectsToLoad.length);
+		try {
+			ExecUtils.syncExec(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					EditorView.this.createEditors(objectsToLoad.length);
+					return null;
+				}
+			});
+		} catch (Exception e) {
+			LOGGER.error("Error creating editors", e);
+			return;
+		}
 		Assert.isTrue(objectsToLoad.length == this.editors.size());
 
 		if (objectsToLoad.length == 0) {
