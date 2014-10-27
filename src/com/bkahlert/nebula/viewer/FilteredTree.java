@@ -226,7 +226,7 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 									&& text.getText().isEmpty()) {
 								if (expanded != null
 										&& (event.getResult() == Status.OK_STATUS)) {
-									FilteredTree.this.getViewer()
+									FilteredTree.this.treeViewer
 											.setExpandedTreePaths(expanded);
 									expanded = null;
 								}
