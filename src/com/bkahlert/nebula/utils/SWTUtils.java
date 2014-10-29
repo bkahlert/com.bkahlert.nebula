@@ -56,7 +56,7 @@ public class SWTUtils {
 	}
 
 	/**
-	 * Runs up the {@link Composite} hierarchy and returns the first occurence
+	 * Runs up the {@link Composite} hierarchy and returns the first occurrence
 	 * of the given type.
 	 * 
 	 * @param clazz
