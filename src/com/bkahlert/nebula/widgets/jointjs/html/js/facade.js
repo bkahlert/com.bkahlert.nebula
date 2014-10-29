@@ -118,6 +118,12 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 		
 		serialize: function () {
 			var json = JSON.parse(JSON.stringify(com.bkahlert.nebula.jointjs.graph));
+
+			// remove highlights
+			_.each(json.cells, function(cell) {
+				delete cell.highlight;
+			});
+			
 			json.title = com.bkahlert.nebula.jointjs.getTitle();
 			json.zoom = com.bkahlert.nebula.jointjs.getZoom();
 			var pan = com.bkahlert.nebula.jointjs.getPan();
@@ -206,6 +212,12 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			.append($('<button>Disable</button>').click(function () {
 				com.bkahlert.nebula.jointjs.setEnabled(false);
 			}))
+			.append($('<button>Highlight</button>').click(function () {
+				com.bkahlert.nebula.jointjs.highlight(['apiua://test']);
+			}))
+			.append($('<button>De-Highlight</button>').click(function () {
+				com.bkahlert.nebula.jointjs.highlight();
+			}))
 			.append($('<button>Custom</button>').click(function () {
 				var x = {"cells":[{"type":"html.Element","position":{"x":270,"y":142},"size":{"width":"242","height":"30"},"angle":"0","id":"apiua://code/-9223372036854775640","content":"","title":"Offensichtliche Usability-Probleme","z":"0","color":"rgb(0, 0, 0)","background-color":"rgba(255, 102, 102, 0.27450980392156865)","border-color":"rgba(255, 48, 48, 0.39215686274509803)","attrs":{}}],"title":"New Model","zoom":"1","pan":{"x":"0","y":"0"}};
 				console.log(x);
@@ -221,6 +233,9 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			com.bkahlert.nebula.jointjs.setText(linkid, 0, 'my_label');
 			com.bkahlert.nebula.jointjs.setText('apiua://test2', 'content', 'XN dskjd sdkds dskdsdjks dskj ');
 			com.bkahlert.nebula.jointjs.setSize(c, 300, 100);
+			
+			com.bkahlert.nebula.jointjs.highlight(['apiua://test', 'apiua://test3', linkid]);
+			
 			console.log(com.bkahlert.nebula.jointjs.getConnectedLinks('apiua://test2'));
 			console.log(com.bkahlert.nebula.jointjs.getConnectedPermanentLinks('apiua://test2'));
 			window.setTimeout(function() {
@@ -592,6 +607,15 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 		setSize: function(id, width, height) {
 			var cell = com.bkahlert.nebula.jointjs.graph.getCell(id);
 			cell.set('size', { width: width, height: height });
+		},
+		
+		highlight: function(ids) {
+			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
+				element.set('highlight', _.contains(ids, element.get('id')));
+			});
+			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
+				link.set('highlight', _.contains(ids, link.get('id')));
+			});
 		}
     });
 })(jQuery);
@@ -642,6 +666,13 @@ joint.shapes.LinkView = joint.dia.LinkView.extend({
     },
     
     updateBox: function() {
+    	// sets classes
+		if(this.model.get('highlight')) {
+			$(this.el).attr('class', $(this.el).attr('class') + ' highlight');
+		} else {
+			$(this.el).attr('class', $(this.el).attr('class').replace('highlight', ''));
+		}
+    
 		if(this.model.get('abandoned-source')) {
 			$(this.el).attr('abandoned-source', true);
 		} else {
@@ -766,6 +797,11 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
     updateBox: function() {
 		// Set the position and dimension of the box so that it covers the JointJS element.
 		var bbox = this.model.getBBox();
+		
+		// sets classes
+		if(this.model.get('highlight')) this.$box.addClass('highlight');
+		else this.$box.removeClass('highlight');
+		
 		// Example of updating the HTML with a data stored in the cell model.
 		this.$box.find('h1').html(this.model.get('title'));
 		this.$box.find('.content').html(this.model.get('content'));

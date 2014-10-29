@@ -175,9 +175,8 @@ public class JointJS extends Browser implements ISelectionProvider {
 	}
 
 	public Future<String> load(String json) {
-		return JointJS.this.run(
-				"return com.bkahlert.nebula.jointjs.load(" + JSONUtils.enquote(json)
-						+ ")", IConverter.CONVERTER_STRING);
+		return JointJS.this.run("return com.bkahlert.nebula.jointjs.load("
+				+ JSONUtils.enquote(json) + ")", IConverter.CONVERTER_STRING);
 	}
 
 	public Future<String> save() {
@@ -198,18 +197,17 @@ public class JointJS extends Browser implements ISelectionProvider {
 	}
 
 	public Future<Void> setTitle(String title) {
-		return this.run("com.bkahlert.nebula.jointjs.setTitle(\"" + title + "\");",
-				IConverter.CONVERTER_VOID);
+		return this.run("com.bkahlert.nebula.jointjs.setTitle(\"" + title
+				+ "\");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<String> createNode(String id, Object json) {
 		if (id == null) {
 			id = this.nodeCreationPrefix + UUID.randomUUID().toString();
 		}
-		return this
-				.run("return com.bkahlert.nebula.jointjs.createNode('" + id + "', "
-						+ JSONUtils.buildJson(json) + ");",
-						IConverter.CONVERTER_STRING);
+		return this.run("return com.bkahlert.nebula.jointjs.createNode('" + id
+				+ "', " + JSONUtils.buildJson(json) + ");",
+				IConverter.CONVERTER_STRING);
 	}
 
 	@SuppressWarnings("serial")
@@ -297,8 +295,9 @@ public class JointJS extends Browser implements ISelectionProvider {
 		} else if (index instanceof String) {
 			indexParam = "'" + index + "'";
 		}
-		return this.run("return com.bkahlert.nebula.jointjs.setText('" + id + "', "
-				+ indexParam + ", '" + text + "');", IConverter.CONVERTER_VOID);
+		return this.run("return com.bkahlert.nebula.jointjs.setText('" + id
+				+ "', " + indexParam + ", '" + text + "');",
+				IConverter.CONVERTER_VOID);
 	}
 
 	public Future<String> getText(String id, Object index) {
@@ -308,8 +307,8 @@ public class JointJS extends Browser implements ISelectionProvider {
 		} else if (index instanceof String) {
 			indexParam = "'" + index + "'";
 		}
-		return this.run("return com.bkahlert.nebula.jointjs.getText('" + id + "', "
-				+ indexParam + ");", IConverter.CONVERTER_STRING);
+		return this.run("return com.bkahlert.nebula.jointjs.getText('" + id
+				+ "', " + indexParam + ");", IConverter.CONVERTER_STRING);
 	}
 
 	public Future<Void> setNodeTitle(String id, String title) {
@@ -339,22 +338,23 @@ public class JointJS extends Browser implements ISelectionProvider {
 	public Future<Void> setColor(String id, RGB rgb) {
 		String color = rgb != null ? "'" + rgb.toCssString() + "'"
 				: "'initial'";
-		return this.run("return com.bkahlert.nebula.jointjs.setColor('" + id + "', "
-				+ color + ");", IConverter.CONVERTER_VOID);
+		return this.run("return com.bkahlert.nebula.jointjs.setColor('" + id
+				+ "', " + color + ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Void> setBackgroundColor(String id, RGB rgb) {
 		String color = rgb != null ? "'" + rgb.toCssString() + "'"
 				: "'initial'";
-		return this.run("return com.bkahlert.nebula.jointjs.setBackgroundColor('" + id
-				+ "', " + color + ");", IConverter.CONVERTER_VOID);
+		return this.run(
+				"return com.bkahlert.nebula.jointjs.setBackgroundColor('" + id
+						+ "', " + color + ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Void> setBorderColor(String id, RGB rgb) {
 		String color = rgb != null ? "'" + rgb.toCssString() + "'"
 				: "'initial'";
-		return this.run("return com.bkahlert.nebula.jointjs.setBorderColor('" + id
-				+ "', " + color + ");", IConverter.CONVERTER_VOID);
+		return this.run("return com.bkahlert.nebula.jointjs.setBorderColor('"
+				+ id + "', " + color + ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Void> setPosition(String id, int x, int y) {
@@ -363,8 +363,9 @@ public class JointJS extends Browser implements ISelectionProvider {
 	}
 
 	public Future<Void> setSize(String id, int width, int height) {
-		return this.run("return com.bkahlert.nebula.jointjs.setSize('" + id + "', "
-				+ width + ", " + height + ");", IConverter.CONVERTER_VOID);
+		return this.run("return com.bkahlert.nebula.jointjs.setSize('" + id
+				+ "', " + width + ", " + height + ");",
+				IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Boolean> remove(String id) {
@@ -388,13 +389,15 @@ public class JointJS extends Browser implements ISelectionProvider {
 	}
 
 	public Future<List<String>> getPermanentLinks() {
-		return this.run("return com.bkahlert.nebula.jointjs.getPermanentLinks();",
+		return this.run(
+				"return com.bkahlert.nebula.jointjs.getPermanentLinks();",
 				IConverter.CONVERTER_STRINGLIST);
 	}
 
 	public Future<List<String>> getConnectedLinks(String id) {
-		return this.run("return com.bkahlert.nebula.jointjs.getConnectedLinks(\"" + id
-				+ "\");", IConverter.CONVERTER_STRINGLIST);
+		return this.run(
+				"return com.bkahlert.nebula.jointjs.getConnectedLinks(\"" + id
+						+ "\");", IConverter.CONVERTER_STRINGLIST);
 	}
 
 	public Future<List<String>> getConnectedPermanentLinks(String id) {
@@ -409,8 +412,8 @@ public class JointJS extends Browser implements ISelectionProvider {
 	}
 
 	public Future<Void> setZoom(Double zoom) {
-		return this.run("return com.bkahlert.nebula.jointjs.setZoom(" + zoom + ");",
-				IConverter.CONVERTER_VOID);
+		return this.run("return com.bkahlert.nebula.jointjs.setZoom(" + zoom
+				+ ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Double> zoomIn() {
@@ -429,13 +432,19 @@ public class JointJS extends Browser implements ISelectionProvider {
 	}
 
 	public Future<Void> setPan(int x, int y) {
-		return this.run("return com.bkahlert.nebula.jointjs.setPan(" + x + ", " + y
-				+ ");", IConverter.CONVERTER_VOID);
+		return this.run("return com.bkahlert.nebula.jointjs.setPan(" + x + ", "
+				+ y + ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Void> autoLayout() {
 		return this.run("return com.bkahlert.nebula.jointjs.autoLayout();",
 				IConverter.CONVERTER_VOID);
+	}
+
+	public Future<Void> highlight(List<String> ids) {
+		String list = ids != null ? JSONUtils.buildJson(ids) : "null";
+		return this.run("return com.bkahlert.nebula.jointjs.highlight(" + list
+				+ ");", IConverter.CONVERTER_VOID);
 	}
 
 	public void addJointJSListener(IJointJSListener jointJSListener) {

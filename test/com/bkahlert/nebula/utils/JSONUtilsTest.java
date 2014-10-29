@@ -2,6 +2,7 @@ package com.bkahlert.nebula.utils;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -36,5 +37,11 @@ public class JSONUtilsTest {
 
 		String jsonStr2 = JSONUtils.buildJson(jsonObj);
 		assertEquals(jsonStr, jsonStr2);
+	}
+
+	@Test
+	public void testStringArray() {
+		assertEquals("[\"a\",\"b\",\"c\"]",
+				JSONUtils.buildJson(Arrays.asList("a", "b", "c")));
 	}
 }
