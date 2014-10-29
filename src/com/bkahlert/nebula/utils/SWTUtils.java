@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -135,4 +136,21 @@ public class SWTUtils {
 			return control.getBackground();
 		}
 	}
+
+	/**
+	 * Returns an array that evenly distributes the elements on a
+	 * {@link SashForm}.
+	 * 
+	 * @param n
+	 * @return
+	 */
+	public static int[] getEvenWeights(int n) {
+		int[] weights = new int[n];
+		int weight = 100 / n;
+		for (int i = 0; i < n; i++) {
+			weights[i] = weight;
+		}
+		return weights;
+	}
+
 }
