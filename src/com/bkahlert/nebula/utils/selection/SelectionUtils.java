@@ -151,6 +151,29 @@ public class SelectionUtils {
 	}
 
 	/**
+	 * Returns all elements in the given {@link ISelection}.
+	 * 
+	 * @param selection
+	 * @return
+	 */
+	public static List<Object> getObjects(ISelection selection) {
+		List<Object> objects = new ArrayList<Object>();
+
+		if (selection == null) {
+			// do nothing
+		} else if (selection instanceof IStructuredSelection) {
+			IStructuredSelection structuredSelection = (IStructuredSelection) selection;
+			for (Object structuredSelectionItem : structuredSelection.toArray()) {
+				objects.add(structuredSelectionItem);
+			}
+		} else {
+			objects.add(selection);
+		}
+
+		return objects;
+	}
+
+	/**
 	 * Tries to adapt each selection item to adapter and returns all adapted
 	 * items.
 	 * 
@@ -161,19 +184,7 @@ public class SelectionUtils {
 	 */
 	public static <Adapter> List<Adapter> getAdaptableObjects(
 			ISelection selection, Class<? extends Adapter> adapter) {
-		List<Object> objectsToAdapt = new ArrayList<Object>();
-
-		if (selection == null) {
-			// do nothing
-		} else if (selection instanceof IStructuredSelection) {
-			IStructuredSelection structuredSelection = (IStructuredSelection) selection;
-			for (Object structuredSelectionItem : structuredSelection.toArray()) {
-				objectsToAdapt.add(structuredSelectionItem);
-			}
-		} else {
-			objectsToAdapt.add(selection);
-		}
-
+		List<Object> objectsToAdapt = getObjects(selection);
 		return ArrayUtils
 				.getAdaptableObjects(objectsToAdapt.toArray(), adapter);
 	}
