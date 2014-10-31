@@ -139,20 +139,26 @@ public class HandlerUtils {
 			}
 			if (this.focusControl != null) {
 				List<Transfer> customTransfers = new ArrayList<Transfer>();
-				for (String mimeType : this.customIfMap.get(this.focusControl)) {
-					if (ClipboardListener.mimeTypeMapping.containsKey(mimeType)) {
-						Transfer customTransfer = ClipboardListener.mimeTypeMapping
-								.get(mimeType);
-						if (!customTransfers.contains(customTransfer)) {
-							customTransfers.add(customTransfer);
+				List<String> mimeTypes = this.customIfMap
+						.get(this.focusControl);
+				if (mimeTypes != null) {
+					for (String mimeType : mimeTypes) {
+						if (ClipboardListener.mimeTypeMapping
+								.containsKey(mimeType)) {
+							Transfer customTransfer = ClipboardListener.mimeTypeMapping
+									.get(mimeType);
+							if (!customTransfers.contains(customTransfer)) {
+								customTransfers.add(customTransfer);
+							}
+						} else {
+							LOGGER.warn("A custom paste handler is intended to be activated for "
+									+ Control.class.getSimpleName()
+									+ ". Since the registered mime type \""
+									+ mimeType
+									+ "\" is unknown, the default paste handler is used. Please double check and if correct add it to "
+									+ ClipboardListener.class.getSimpleName()
+									+ ".");
 						}
-					} else {
-						LOGGER.warn("A custom paste handler is intended to be activated for "
-								+ Control.class.getSimpleName()
-								+ ". Since the registered mime type \""
-								+ mimeType
-								+ "\" is unknown, the default paste handler is used. Please double check and if correct add it to "
-								+ ClipboardListener.class.getSimpleName() + ".");
 					}
 				}
 
