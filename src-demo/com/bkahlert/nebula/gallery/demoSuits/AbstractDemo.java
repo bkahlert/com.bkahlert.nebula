@@ -8,10 +8,14 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
 
 import com.bkahlert.nebula.gallery.util.deprecated.CompositeUtils;
@@ -130,6 +134,27 @@ public abstract class AbstractDemo {
 	public void createControls(Composite composite) {
 		this.controls.setVisible(false);
 		((GridData) this.controls.getLayoutData()).heightHint = 0;
+	}
+
+	/**
+	 * Creates a button in the control section.
+	 * {@link #createControls(Composite)} must be overwritten to make the
+	 * effects of this function visible.
+	 * 
+	 * @param caption
+	 * @param runnable
+	 * @return
+	 */
+	public Control createControlButton(String text, final Runnable runnable) {
+		Button button = new Button(this.controls, SWT.PUSH);
+		button.setText(text);
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				runnable.run();
+			}
+		});
+		return button;
 	}
 
 	/**

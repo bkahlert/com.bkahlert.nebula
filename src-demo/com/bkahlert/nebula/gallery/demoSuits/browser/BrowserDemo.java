@@ -12,9 +12,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
@@ -39,11 +36,9 @@ public class BrowserDemo extends AbstractDemo {
 
 	@Override
 	public void createControls(Composite composite) {
-		Button alert = new Button(composite, SWT.PUSH);
-		alert.setText("alert");
-		alert.addSelectionListener(new SelectionAdapter() {
+		this.createControlButton("alert", new Runnable() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void run() {
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
@@ -65,11 +60,9 @@ public class BrowserDemo extends AbstractDemo {
 			}
 		});
 
-		Button fileAlert = new Button(composite, SWT.PUSH);
-		fileAlert.setText("alert using external file");
-		fileAlert.addSelectionListener(new SelectionAdapter() {
+		this.createControlButton("alert using external file", new Runnable() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void run() {
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
@@ -109,28 +102,28 @@ public class BrowserDemo extends AbstractDemo {
 
 		new EmptyText(timeout, "Timeout for page load");
 
-		Button changeBackground = new Button(composite, SWT.PUSH);
-		changeBackground.setText("change background color using CSS injection");
-		changeBackground.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				new Thread(new Runnable() {
+		this.createControlButton("change background color using CSS injection",
+				new Runnable() {
 					@Override
 					public void run() {
-						log("changing background");
-						try {
-							BrowserDemo.this.browser
-									.injectCss("html, body { background-color: "
-											+ ColorUtils.getRandomRGB()
-													.toHexString() + "; }");
-						} catch (Exception e) {
-							log(e.toString());
-						}
-						log("changed background");
+						new Thread(new Runnable() {
+							@Override
+							public void run() {
+								log("changing background");
+								try {
+									BrowserDemo.this.browser
+											.injectCss("html, body { background-color: "
+													+ ColorUtils.getRandomRGB()
+															.toHexString()
+													+ "; }");
+								} catch (Exception e) {
+									log(e.toString());
+								}
+								log("changed background");
+							}
+						}).start();
 					}
-				}).start();
-			}
-		});
+				});
 
 	}
 
