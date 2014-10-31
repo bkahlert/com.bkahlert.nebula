@@ -125,6 +125,20 @@ public class BrowserDemo extends AbstractDemo {
 					}
 				});
 
+		this.createControlButton("add focus border", new Runnable() {
+			@Override
+			public void run() {
+				BrowserDemo.this.browser.addFocusBorder();
+			}
+		});
+
+		this.createControlButton("remove focus border", new Runnable() {
+			@Override
+			public void run() {
+				BrowserDemo.this.browser.removeFocusBorder();
+			}
+		});
+
 	}
 
 	@Override

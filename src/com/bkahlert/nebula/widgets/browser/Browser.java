@@ -933,6 +933,18 @@ public class Browser extends Composite implements IBrowser {
 	}
 
 	@Override
+	public Future<Void> addFocusBorder() {
+		return this
+				.run("window.__addFocusBorder();", IConverter.CONVERTER_VOID);
+	}
+
+	@Override
+	public Future<Void> removeFocusBorder() {
+		return this.run("window.__removeFocusBorder();",
+				IConverter.CONVERTER_VOID);
+	}
+
+	@Override
 	public Point computeSize(int wHint, int hHint, boolean changed) {
 		try {
 			this.browser

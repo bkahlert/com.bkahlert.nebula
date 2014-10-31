@@ -6,6 +6,7 @@ import java.util.concurrent.Future;
 
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
 import com.bkahlert.nebula.widgets.IWidget;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
@@ -215,5 +216,19 @@ public interface IBrowser extends IBrowserScriptRunner, IWidget {
 	 * @return
 	 */
 	public Future<Void> pasteHtmlAtCaret(String html);
+
+	/**
+	 * Adds a border that signifies the {@link Control}'s focus.
+	 * 
+	 * @return
+	 */
+	public Future<Void> addFocusBorder();
+
+	/**
+	 * Removes the border that signifies the {@link Control}'s focus.
+	 * 
+	 * @return
+	 */
+	public Future<Void> removeFocusBorder();
 
 }

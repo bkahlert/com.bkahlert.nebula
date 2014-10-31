@@ -22,6 +22,20 @@ if(k&&j[k]&&(e||j[k].data)||void 0!==d||"string"!=typeof b)return k||(k=i?a[h]=c
 
 var $ = window.$.noConflict(true);
 
+
+
+window.__addFocusBorder = function() {
+	if($('.nebulaBrowserFocusBorder').length > 0) return;
+    $('<div class="nebulaBrowserFocusBorder" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; box-sizing: border-box; border-color: #66afe9; outline: 0; -webkit-box-shadow: inset 0 0 8px rgba(102,175,233,.6); box-shadow: inset 0 0 8px rgba(102,175,233,.6);"></div>').appendTo('body');
+}
+
+window.__removeFocusBorder = function() {
+	$('.nebulaBrowserFocusBorder').remove();
+}
+
+
+
+
 /*
  * Allows :focusable and :visible pseudo css selectors
  * Copied from jQuery UI
