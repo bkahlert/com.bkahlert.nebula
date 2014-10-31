@@ -5862,6 +5862,7 @@ body.disabled:before {
   fill: #000;
 }
 .link.permanent .link-tools .tool-remove,
+.link.permanent .link-tools title,
 .link.permanent .marker-arrowheads {
   visibility: hidden;
 }
@@ -5911,16 +5912,40 @@ body.disabled:before {
   height: 20px;
   line-height: 20px;
 }
-.highlight.html-element {
+.highlighted.html-element {
+  border-color: #f0ad4e;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 5px rgba(240, 173, 78, 0.9);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 5px rgba(240, 173, 78, 0.9);
+}
+.highlighted.link text {
+  fill: #f0ad4e;
+}
+.highlighted.link .connection {
+  stroke: #f0ad4e;
+}
+.selected.html-element {
+  border-color: #5bc0de;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 5px rgba(91, 192, 222, 0.9);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 5px rgba(91, 192, 222, 0.9);
+}
+.selected.link text {
+  fill: #5bc0de;
+}
+.selected.link .connection {
+  stroke: #5bc0de;
+}
+.focused.html-element {
   border-color: #66afe9;
   outline: 0;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 30px rgba(102, 175, 233, 0.9);
-  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 30px rgba(102, 175, 233, 0.9);
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 10px rgba(102, 175, 233, 0.9);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 10px rgba(102, 175, 233, 0.9);
 }
-.highlight.link text {
+.focused.link text {
   fill: #66afe9;
 }
-.highlight.link .connection {
+.focused.link .connection {
   stroke: #66afe9;
 }
 [model-id=uri\3A\/\/im\/an\/uri] rect {

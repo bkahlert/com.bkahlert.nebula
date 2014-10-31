@@ -36,6 +36,7 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			com.bkahlert.nebula.jointjs.activateLinkAbandonCapability(com.bkahlert.nebula.jointjs.graph, com.bkahlert.nebula.jointjs.paper);
 			com.bkahlert.nebula.jointjs.activateLinkTools();
 			com.bkahlert.nebula.jointjs.activateSelections();
+			com.bkahlert.nebula.jointjs.activateHoverStates();
 			
 			var internal = /[?&]internal=true/.test(location.href);
 			if (!internal) {
@@ -119,9 +120,11 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 		serialize: function () {
 			var json = JSON.parse(JSON.stringify(com.bkahlert.nebula.jointjs.graph));
 
-			// remove highlights
+			// remove temporary states
 			_.each(json.cells, function(cell) {
-				delete cell.highlight;
+				delete cell.highlighted;
+				delete cell.selected;
+				delete cell.focused;
 			});
 			
 			json.title = com.bkahlert.nebula.jointjs.getTitle();
@@ -217,6 +220,12 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			}))
 			.append($('<button>De-Highlight</button>').click(function () {
 				com.bkahlert.nebula.jointjs.highlight();
+			}))
+			.append($('<button>Get Selection</button>').click(function () {
+				console.log(com.bkahlert.nebula.jointjs.getSelection());
+			}))
+			.append($('<button>Get Focus</button>').click(function () {
+				console.log(com.bkahlert.nebula.jointjs.getFocus());
 			}))
 			.append($('<button>Custom</button>').click(function () {
 				var x = {"cells":[{"type":"html.Element","position":{"x":270,"y":142},"size":{"width":"242","height":"30"},"angle":"0","id":"apiua://code/-9223372036854775640","content":"","title":"Offensichtliche Usability-Probleme","z":"0","color":"rgb(0, 0, 0)","background-color":"rgba(255, 102, 102, 0.27450980392156865)","border-color":"rgba(255, 48, 48, 0.39215686274509803)","attrs":{}}],"title":"New Model","zoom":"1","pan":{"x":"0","y":"0"}};
@@ -551,6 +560,28 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 		},
 		
 		activateSelections: function() {
+			var shiftKey = false;
+			$(document).bind('keyup keydown', function(e){shiftKey = e.shiftKey || e.metaKey});
+		
+			com.bkahlert.nebula.jointjs.paper.on('blank:pointerdown', 
+				function(cell, evt, x, y) { 
+			        com.bkahlert.nebula.jointjs.setSelection(null);
+			        com.bkahlert.nebula.jointjs.setFocus(null);
+			    }
+			);
+			
+			com.bkahlert.nebula.jointjs.paper.on('cell:pointerdown',
+				function(cell, evt, x, y) {
+					if(shiftKey
+					   || (evt.which == 3 /* right click */
+					       && _.contains(com.bkahlert.nebula.jointjs.getSelection(), cell.model.id))) com.bkahlert.nebula.jointjs.addSelection([cell.model.id]);
+					else com.bkahlert.nebula.jointjs.setSelection([cell.model.id]);
+			        com.bkahlert.nebula.jointjs.setFocus([cell.model.id]);
+			    }
+			);
+		},
+		
+		activateHoverStates: function() {
 			var $d = $(document);
 			if (typeof window.__cellHoveredOver === 'function') {
 				$d.on('mouseenter', '[model-id]', function() {
@@ -611,11 +642,66 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 		
 		highlight: function(ids) {
 			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
-				element.set('highlight', _.contains(ids, element.get('id')));
+				element.set('highlighted', _.contains(ids, element.get('id')));
 			});
 			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
-				link.set('highlight', _.contains(ids, link.get('id')));
+				link.set('highlighted', _.contains(ids, link.get('id')));
 			});
+		},
+		
+		addSelection: function(ids) {
+			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
+				if(_.contains(ids, element.get('id'))) element.set('selected', true);
+			});
+			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
+				if(_.contains(ids, link.get('id'))) link.set('selected', true);
+			});
+			
+			if (typeof window.__selectionChanged === 'function') { window.__selectionChanged(com.bkahlert.nebula.jointjs.getSelection()); }
+		},
+		
+		setSelection: function(ids) {
+			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
+				element.set('selected', _.contains(ids, element.get('id')));
+			});
+			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
+				link.set('selected', _.contains(ids, link.get('id')));
+			});
+			
+			if (typeof window.__selectionChanged === 'function') { window.__selectionChanged(com.bkahlert.nebula.jointjs.getSelection()); }
+		},
+		
+		getSelection: function() {
+			var selection = [];
+			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
+				if(element.get('selected')) selection.push(element.get('id'));
+			});
+			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
+				if(link.get('selected')) selection.push(link.get('id'));
+			});
+			return selection;
+		},
+		
+		setFocus: function(ids) {
+			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
+				element.set('focused', _.contains(ids, element.get('id')));
+			});
+			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
+				link.set('focused', _.contains(ids, link.get('id')));
+			});
+			
+			if (typeof window.__focusChanged === 'function') { window.__focusChanged(com.bkahlert.nebula.jointjs.getFocus()); }
+		},
+		
+		getFocus: function() {
+			var focus = [];
+			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
+				if(element.get('focused')) focus.push(element.get('id'));
+			});
+			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
+				if(link.get('focused')) focus.push(link.get('id'));
+			});
+			return focus;
 		}
     });
 })(jQuery);
@@ -667,11 +753,12 @@ joint.shapes.LinkView = joint.dia.LinkView.extend({
     
     updateBox: function() {
     	// sets classes
-		if(this.model.get('highlight')) {
-			$(this.el).attr('class', $(this.el).attr('class') + ' highlight');
+		if(this.model.get('highlighted')) {
+			$(this.el).attr('class', $(this.el).attr('class') + ' highlighted');
 		} else {
-			$(this.el).attr('class', $(this.el).attr('class').replace('highlight', ''));
+			$(this.el).attr('class', $(this.el).attr('class').replace('highlighted', ''));
 		}
+		// TODO add selected and focused support
     
 		if(this.model.get('abandoned-source')) {
 			$(this.el).attr('abandoned-source', true);
@@ -799,8 +886,12 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
 		var bbox = this.model.getBBox();
 		
 		// sets classes
-		if(this.model.get('highlight')) this.$box.addClass('highlight');
-		else this.$box.removeClass('highlight');
+		if(this.model.get('highlighted')) this.$box.addClass('highlighted');
+		else this.$box.removeClass('highlighted');
+		if(this.model.get('selected')) this.$box.addClass('selected');
+		else this.$box.removeClass('selected');
+		if(this.model.get('focused')) this.$box.addClass('focused');
+		else this.$box.removeClass('focused');
 		
 		// Example of updating the HTML with a data stored in the cell model.
 		this.$box.find('h1').html(this.model.get('title'));

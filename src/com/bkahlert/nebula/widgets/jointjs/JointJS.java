@@ -17,12 +17,18 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.browser.BrowserFunction;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.IReflexiveConverter;
 import com.bkahlert.nebula.utils.JSONUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
+import com.bkahlert.nebula.utils.selection.SelectionUtils;
 import com.bkahlert.nebula.widgets.browser.Browser;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 
@@ -35,7 +41,6 @@ import com.bkahlert.nebula.widgets.browser.BrowserUtils;
  */
 public class JointJS extends Browser implements ISelectionProvider {
 
-	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(JointJS.class);
 
 	public static interface IJointJSListener {
@@ -71,8 +76,8 @@ public class JointJS extends Browser implements ISelectionProvider {
 	private final List<IJointJSListener> jointJSListeners = new ArrayList<IJointJSListener>();
 
 	private final ListenerList selectionChangedListeners = new ListenerList();
-	private ISelection selection = null;
-	private IConverter<String, ?> selectionConverter;
+	private ISelection selection = new StructuredSelection();
+	private IReflexiveConverter<String, Object> selectionConverter;
 	private String lastHovered = null;
 
 	private String nodeCreationPrefix;
@@ -99,7 +104,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 	 */
 	public JointJS(Composite parent, int style, String nodeCreationPrefix,
 			String linkCreationPrefix,
-			final IConverter<String, ?> selectionConverter) {
+			final IReflexiveConverter<String, Object> selectionConverter) {
 		super(parent, style);
 		this.deactivateNativeMenu();
 
@@ -169,6 +174,48 @@ public class JointJS extends Browser implements ISelectionProvider {
 				return null;
 			}
 		};
+
+		new BrowserFunction(this.getBrowser(), "__selectionChanged") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length == 1 && arguments[0] instanceof Object[]) {
+					Object[] ids = (Object[]) arguments[0];
+					if (selectionConverter != null) {
+						List<Object> selection = new ArrayList<Object>();
+						for (Object id : ids) {
+							selection.add(selectionConverter
+									.convert((String) id));
+						}
+						JointJS.this.setSelection(new StructuredSelection(
+								selection));
+					} else {
+						JointJS.this.setSelection(new StructuredSelection(ids));
+					}
+				}
+				return null;
+			}
+		};
+
+		// get focus if mouse hovers over this JointJS instance
+		this.getBrowser().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				JointJS.this.getBrowser().setFocus();
+			}
+		});
+
+		this.getBrowser().addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				JointJS.this.addFocusBorder();
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				JointJS.this.removeFocusBorder();
+				JointJS.this.setFocus(null);
+			}
+		});
 
 		this.open(BrowserUtils.getFileUrl(JointJS.class, "html/index.html",
 				"?internal=true"), 60000);
@@ -447,6 +494,12 @@ public class JointJS extends Browser implements ISelectionProvider {
 				+ ");", IConverter.CONVERTER_VOID);
 	}
 
+	public Future<Void> setFocus(List<String> ids) {
+		String list = ids != null ? JSONUtils.buildJson(ids) : "null";
+		return this.run("return com.bkahlert.nebula.jointjs.setFocus(" + list
+				+ ");", IConverter.CONVERTER_VOID);
+	}
+
 	public void addJointJSListener(IJointJSListener jointJSListener) {
 		this.jointJSListeners.add(jointJSListener);
 	}
@@ -473,7 +526,27 @@ public class JointJS extends Browser implements ISelectionProvider {
 
 	@Override
 	public void setSelection(ISelection selection) {
-		return;
+		List<Object> objects = SelectionUtils.getObjects(selection);
+
+		List<String> ids = new ArrayList<String>(objects.size());
+		for (Object object : objects) {
+			ids.add(this.selectionConverter != null ? this.selectionConverter
+					.convertBack(object) : object.toString());
+		}
+
+		String list = ids != null ? JSONUtils.buildJson(ids) : "null";
+		try {
+			if (this.isLoadingCompleted()) {
+				this.run(
+						"return com.bkahlert.nebula.jointjs.highlight(" + list
+								+ ");", IConverter.CONVERTER_VOID).get();
+			}
+			this.selection = selection;
+			this.fireSelectionChanged(new SelectionChangedEvent(JointJS.this,
+					JointJS.this.selection));
+		} catch (Exception e) {
+			LOGGER.error("Error setting selection to " + selection);
+		}
 	}
 
 	/**
@@ -501,21 +574,12 @@ public class JointJS extends Browser implements ISelectionProvider {
 
 	private void fireHoveredIn(String id) {
 		this.lastHovered = id;
-		Object selectedItem = this.selectionConverter != null ? this.selectionConverter
-				.convert(id) : id;
-		JointJS.this.selection = selectedItem != null ? new StructuredSelection(
-				selectedItem) : new StructuredSelection();
-		JointJS.this.fireSelectionChanged(new SelectionChangedEvent(
-				JointJS.this, JointJS.this.selection));
 		for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
 			jointJSListener.hovered(id, true);
 		}
 	}
 
 	private void fireHoveredOut(String id) {
-		JointJS.this.selection = new StructuredSelection();
-		JointJS.this.fireSelectionChanged(new SelectionChangedEvent(
-				JointJS.this, JointJS.this.selection));
 		for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
 			jointJSListener.hovered(id, false);
 		}
