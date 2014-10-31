@@ -24,13 +24,15 @@ import org.eclipse.swt.graphics.ImageData;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import com.bkahlert.nebula.utils.ImageUtils;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 
 @SuppressWarnings("restriction")
 public class BrowserUtils {
+
+	private static final String TRACK_ATTR_NAME = "data-nebula-track";
+	private static final String TRACK_ATTR_VALUE = "true";
 
 	private static Pattern TAG_NAME_PATTERN = Pattern.compile(
 			"^[^<]*<(\\w+)[^<>]*\\/?>.*", Pattern.DOTALL);
@@ -161,16 +163,35 @@ public class BrowserUtils {
 		if (tagName == null) {
 			return null;
 		}
-		Document document = Jsoup.parse(html);
-		Elements elements = document.getElementsByTag(tagName);
-		for (Element element : elements) {
-			if (element.attr("href") == null) {
-				element.attr("href", element.attr("data-cke-saved-href"));
-			}
-			return new com.bkahlert.nebula.widgets.browser.extended.html.Element(
-					element);
+
+		// add attribute to make the element easily locatable
+		String trackAttr = " " + TRACK_ATTR_NAME + "=\"" + TRACK_ATTR_VALUE
+				+ "\"";
+		if (html.endsWith("/>")) {
+			html = html.substring(0, html.length() - 2) + trackAttr + "/>";
+		} else {
+			html = html.replaceFirst(">", trackAttr + ">");
 		}
-		return null;
+
+		// add missing tags, otherwise JSoup will simply delete those
+		// "mis-placed" tags
+		if (tagName.equals("td")) {
+			html = "<table><tbody><tr>" + html + "</tr></tbody></table>";
+		} else if (tagName.equals("tr")) {
+			html = "<table><tbody>" + html + "</tbody></table>";
+		} else if (tagName.equals("tbody")) {
+			html = "<table>" + html + "</table>";
+		}
+
+		Document document = Jsoup.parse(html);
+		Element element = document.getElementsByAttributeValue(TRACK_ATTR_NAME,
+				TRACK_ATTR_VALUE).first();
+		element.removeAttr(TRACK_ATTR_NAME);
+		if (element.attr("href") == null) {
+			element.attr("href", element.attr("data-cke-saved-href"));
+		}
+		return new com.bkahlert.nebula.widgets.browser.extended.html.Element(
+				element);
 	}
 
 	private BrowserUtils() {
