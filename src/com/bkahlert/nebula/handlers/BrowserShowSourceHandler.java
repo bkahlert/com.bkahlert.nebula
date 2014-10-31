@@ -24,12 +24,12 @@ public class BrowserShowSourceHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		Control focusControl = Display.getCurrent().getFocusControl();
-		if (!(focusControl instanceof org.eclipse.swt.browser.Browser)) {
-			focusControl = Display.getCurrent().getCursorControl();
+		Control control = Display.getCurrent().getCursorControl();
+		if (!(control instanceof org.eclipse.swt.browser.Browser)) {
+			control = Display.getCurrent().getFocusControl();
 		}
-		if (focusControl instanceof org.eclipse.swt.browser.Browser) {
-			org.eclipse.swt.browser.Browser swtBrowser = (org.eclipse.swt.browser.Browser) focusControl;
+		if (control instanceof org.eclipse.swt.browser.Browser) {
+			org.eclipse.swt.browser.Browser swtBrowser = (org.eclipse.swt.browser.Browser) control;
 			if (swtBrowser.getParent() instanceof Browser) {
 				final Browser browser = (Browser) swtBrowser.getParent();
 				try {
