@@ -202,7 +202,13 @@ public class BrowserDemo extends AbstractDemo {
 					} catch (Exception e) {
 						log(e.getMessage());
 					}
-					log(BrowserDemo.this.browser.getBrowser().getUrl());
+					log(ExecUtils.syncExec(new Callable<String>() {
+						@Override
+						public String call() throws Exception {
+							return BrowserDemo.this.browser.getBrowser()
+									.getUrl();
+						}
+					}));
 					return null;
 				}
 
