@@ -772,6 +772,11 @@ joint.shapes.LinkView = joint.dia.LinkView.extend({
 			$(this.el).attr('abandoned-target', null);
 		}
     },
+    
+    pointerdown: function(evt, x, y) {
+    	// only executes actions of left mouse button was clicked
+    	if(evt.which == 1) joint.dia.ElementView.prototype.pointermove.apply(this, arguments);
+    }
 
 });
 
@@ -908,5 +913,10 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
     },
     removeBox: function(evt) {
         this.$box.remove();
+    },
+    
+    pointermove: function(evt, x, y) {
+    	// only executes actions of left mouse button was clicked
+    	if(evt.which == 1) joint.dia.ElementView.prototype.pointermove.apply(this, arguments);
     }
 });
