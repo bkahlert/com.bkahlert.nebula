@@ -13,6 +13,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import com.bkahlert.nebula.gallery.annotations.Demo;
@@ -20,11 +21,13 @@ import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
 import com.bkahlert.nebula.widgets.browser.Browser;
+import com.bkahlert.nebula.widgets.browser.exception.JavaScriptException;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 import com.bkahlert.nebula.widgets.browser.listener.IMouseListener;
+import com.bkahlert.nebula.widgets.browser.runner.BrowserScriptRunner.JavaScriptExceptionListener;
 import com.bkahlert.nebula.widgets.decoration.EmptyText;
 
 @Demo
@@ -138,6 +141,63 @@ public class BrowserDemo extends AbstractDemo {
 				BrowserDemo.this.browser.removeFocusBorder();
 			}
 		});
+
+		new Label(composite, SWT.NONE).setText("Exception Handling:");
+
+		this.createControlButton("raise runtime exception", new Runnable() {
+			@Override
+			public void run() {
+				try {
+					BrowserDemo.this.browser.run("alert(x);").get();
+				} catch (Exception e) {
+					log(e);
+				}
+			}
+		});
+
+		this.createControlButton("raise syntax exception", new Runnable() {
+			@Override
+			public void run() {
+				try {
+					BrowserDemo.this.browser.run("alert('x);").get();
+				} catch (Exception e) {
+					log(e);
+				}
+			}
+		});
+
+		this.createControlButton("raise asynchronous runtime exception",
+				new Runnable() {
+					@Override
+					public void run() {
+						final JavaScriptExceptionListener javaScriptExceptionListener = new JavaScriptExceptionListener() {
+							@Override
+							public void thrown(
+									JavaScriptException javaScriptException) {
+								log(javaScriptException);
+							}
+						};
+						BrowserDemo.this.browser
+								.addJavaScriptExceptionListener(javaScriptExceptionListener);
+						try {
+							BrowserDemo.this.browser
+									.run("window.setTimeout(function() { alert(x); }, 50);")
+									.get();
+							ExecUtils.nonUIAsyncExec(new Callable<Void>() {
+								@Override
+								public Void call() throws Exception {
+									BrowserDemo.this.browser
+											.removeJavaScriptExceptionListener(javaScriptExceptionListener);
+									return null;
+								}
+							}, 100);
+						} catch (Exception e) {
+							log("IMPLEMENTATION ERROR - This exception should have be thrown asynchronously!");
+							log(e);
+						}
+
+					}
+				});
 
 	}
 

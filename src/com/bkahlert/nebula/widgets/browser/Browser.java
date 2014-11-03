@@ -37,6 +37,7 @@ import com.bkahlert.nebula.utils.HandlerUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.SWTUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
+import com.bkahlert.nebula.widgets.browser.exception.JavaScriptException;
 import com.bkahlert.nebula.widgets.browser.extended.html.Anker;
 import com.bkahlert.nebula.widgets.browser.extended.html.Element;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
@@ -47,6 +48,7 @@ import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 import com.bkahlert.nebula.widgets.browser.listener.IMouseListener;
 import com.bkahlert.nebula.widgets.browser.runner.BrowserScriptRunner;
 import com.bkahlert.nebula.widgets.browser.runner.BrowserScriptRunner.BrowserStatus;
+import com.bkahlert.nebula.widgets.browser.runner.BrowserScriptRunner.JavaScriptExceptionListener;
 
 public class Browser extends Composite implements IBrowser {
 
@@ -69,6 +71,7 @@ public class Browser extends Composite implements IBrowser {
 	private final List<IMouseListener> mouseListeners = new ArrayList<IMouseListener>();
 	private final List<IFocusListener> focusListeners = new ArrayList<IFocusListener>();
 	private final List<IDNDListener> dndListeners = new ArrayList<IDNDListener>();
+	private final List<JavaScriptExceptionListener> javaScriptExceptionListeners = new ArrayList<JavaScriptExceptionListener>();
 
 	/**
 	 * Constructs a new {@link Browser} with the given styles.
@@ -85,7 +88,14 @@ public class Browser extends Composite implements IBrowser {
 
 		this.browser = new org.eclipse.swt.browser.Browser(this, SWT.NONE);
 		this.browser.setVisible(false);
-		this.browserScriptRunner = new BrowserScriptRunner(this.browser) {
+		this.browserScriptRunner = new BrowserScriptRunner(this.browser,
+				new JavaScriptExceptionListener() {
+					@Override
+					public void thrown(JavaScriptException javaScriptException) {
+						Browser.this
+								.fireJavaScriptExceptionThrown(javaScriptException);
+					}
+				}) {
 			@Override
 			public void scriptAboutToBeSentToBrowser(String script) {
 				Browser.this.scriptAboutToBeSentToBrowser(script);
@@ -857,6 +867,25 @@ public class Browser extends Composite implements IBrowser {
 			String mimeType, String data) {
 		for (IDNDListener dndListener : this.dndListeners) {
 			dndListener.drop(offsetX, offsetY, mimeType, data);
+		}
+	}
+
+	@Override
+	public void addJavaScriptExceptionListener(
+			JavaScriptExceptionListener javaScriptExceptionListener) {
+		this.javaScriptExceptionListeners.add(javaScriptExceptionListener);
+	}
+
+	@Override
+	public void removeJavaScriptExceptionListener(
+			JavaScriptExceptionListener javaScriptExceptionListener) {
+		this.javaScriptExceptionListeners.remove(javaScriptExceptionListener);
+	}
+
+	synchronized protected void fireJavaScriptExceptionThrown(
+			JavaScriptException javaScriptException) {
+		for (JavaScriptExceptionListener JavaScriptExceptionListener : this.javaScriptExceptionListeners) {
+			JavaScriptExceptionListener.thrown(javaScriptException);
 		}
 	}
 

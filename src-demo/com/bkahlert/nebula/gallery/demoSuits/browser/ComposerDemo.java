@@ -109,7 +109,12 @@ public class ComposerDemo extends AbstractDemo {
 		composerGetSource.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ComposerDemo.log(ComposerDemo.this.composer.getSource());
+				try {
+					ComposerDemo.log(ComposerDemo.this.composer.getSource()
+							.get());
+				} catch (Exception ex) {
+					log(ex);
+				}
 			}
 		});
 		composerSetSource.addSelectionListener(new SelectionAdapter() {

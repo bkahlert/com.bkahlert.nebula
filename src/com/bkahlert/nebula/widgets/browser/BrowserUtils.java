@@ -15,9 +15,11 @@ import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.internal.preferences.Base64;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
@@ -26,10 +28,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import com.bkahlert.nebula.utils.ImageUtils;
+import com.bkahlert.nebula.widgets.browser.exception.JavaScriptException;
 import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 
 @SuppressWarnings("restriction")
 public class BrowserUtils {
+
+	public static final String ERROR_RETURN_MARKER = BrowserUtils.class
+			.getCanonicalName() + ".error_return";
 
 	private static final String TRACK_ATTR_NAME = "data-nebula-track";
 	private static final String TRACK_ATTR_VALUE = "true";
@@ -262,5 +268,90 @@ public class BrowserUtils {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/**
+	 * Returns a script that - if executes - forward all thrown browser script
+	 * exceptions to the given callback.
+	 * <p>
+	 * The arguments passed by the browser to the given callback function can be
+	 * processed using {@link #parseJavaScriptException(Object[])}.
+	 * 
+	 * @return
+	 */
+	public static String getExceptionForwardingScript(String callbackName) {
+		return "window.onerror = function(detail, filename, lineNumber, columnNumber) { if ( typeof window['"
+				+ callbackName
+				+ "'] !== 'function') return; return window['"
+				+ callbackName
+				+ "'](filename ? filename : 'unknown file', lineNumber ? lineNumber : null, columnNumber ? columnNumber : null, detail ? detail : 'unknown detail'); }";
+	}
+
+	/**
+	 * This method creates an {@link JavaScriptException} out of the arguments
+	 * passed by the {@link Browser} to the callback specified using
+	 * {@link #getExceptionForwardingScript(String)}.
+	 * 
+	 * @param arguments
+	 * @return
+	 */
+	public static JavaScriptException parseJavaScriptException(String script,
+			Object[] arguments) {
+		String filename = (String) arguments[0];
+		Long lineNumber = Math.round((Double) arguments[1]);
+		Long columnNumber = Math.round((Double) arguments[2]);
+		String detail = (String) arguments[3];
+
+		return new JavaScriptException(script, filename, lineNumber,
+				columnNumber, detail);
+	}
+
+	/**
+	 * Modifies the given script in the way that an eventually thrown error will
+	 * be catched and returned.
+	 * <p>
+	 * Passing the return value of {@link Browser#evaluate(String)} to
+	 * {@link #assertException(String, Object)} will raise an appropriate
+	 * {@link JavaScriptException} if such one was thrown within the
+	 * {@link Browser}.
+	 * 
+	 * @param script
+	 * @return
+	 */
+	public static String getExecutionReturningScript(String script) {
+		// script = getExceptionForwardingScript("__error_callback")
+		// + "alert('hello)";
+		return "try { return new Function('"
+				+ StringEscapeUtils.escapeJavaScript(script)
+				+ "')(); } catch(e) { return [ '"
+				+ ERROR_RETURN_MARKER
+				+ "', e.sourceURL, e.line, e.column-6/* reduce column by the exception catching code */, e.name + \": \" + e.message ]; }";
+	}
+
+	/**
+	 * Checks a the return value of {@link Browser#evaluate(String)} for a
+	 * caught exception. If an exception was found, an appropriate
+	 * JavaScriptException is thrown.
+	 * <p>
+	 * This feature only works if the evaluated script was returned by
+	 * {@link #getExecutionReturningScript}.
+	 * 
+	 * @param script
+	 * @param returnValue
+	 * @throws JavaScriptException
+	 */
+	public static void assertException(final String script, Object returnValue)
+			throws JavaScriptException {
+		// exception handling
+		if (returnValue instanceof Object[]) {
+			Object[] rt = (Object[]) returnValue;
+			if (rt.length == 5 && rt[0] != null
+					&& rt[0].equals(ERROR_RETURN_MARKER)) {
+				throw new JavaScriptException(script, (String) rt[1],
+						rt[2] != null ? Math.round((Double) rt[2]) : null,
+						rt[3] != null ? Math.round((Double) rt[3]) : null,
+						(String) rt[4]);
+			}
+		}
 	}
 }

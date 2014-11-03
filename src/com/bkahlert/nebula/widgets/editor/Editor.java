@@ -306,7 +306,7 @@ public abstract class Editor<T> extends Composite {
 		String html = ExecUtils.syncExec(new Callable<String>() {
 			@Override
 			public String call() throws Exception {
-				return Editor.this.composer.getSource();
+				return Editor.this.composer.getSource().get();
 			}
 		});
 		return this.save(html);

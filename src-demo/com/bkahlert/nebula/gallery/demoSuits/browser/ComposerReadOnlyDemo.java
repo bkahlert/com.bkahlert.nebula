@@ -40,8 +40,12 @@ public class ComposerReadOnlyDemo extends AbstractDemo {
 		composerGetSource.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ComposerReadOnlyDemo.log(ComposerReadOnlyDemo.this.composer
-						.getSource());
+				try {
+					ComposerReadOnlyDemo.log(ComposerReadOnlyDemo.this.composer
+							.getSource().get());
+				} catch (Exception ex) {
+					log(ex);
+				}
 			}
 		});
 		composerSetSource.addSelectionListener(new SelectionAdapter() {

@@ -67,6 +67,18 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 		CANCELLED;
 	}
 
+	/**
+	 * Instances of this class can handle asynchronous
+	 * {@link JavaScriptException}s, that are exceptions raised by the
+	 * {@link Browser} itself and not provoked by Java invocations.
+	 * 
+	 * @author bkahlert
+	 * 
+	 */
+	public static interface JavaScriptExceptionListener {
+		public void thrown(JavaScriptException javaScriptException);
+	}
+
 	private static final Logger LOGGER = Logger
 			.getLogger(BrowserScriptRunner.class);
 
@@ -84,13 +96,21 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 				LOGGER.info("Running " + label);
 				try {
 					browserScriptRunner.scriptAboutToBeSentToBrowser(script);
+					browserScriptRunner.currentScript = script;
 					Object returnValue = browserScriptRunner.browser
-							.evaluate(script);
+							.evaluate(BrowserUtils
+									.getExecutionReturningScript(script));
+
+					BrowserUtils.assertException(script, returnValue);
+
 					browserScriptRunner.scriptReturnValueReceived(returnValue);
 					DEST rs = converter.convert(returnValue);
 					LOGGER.info("Returned " + rs);
 					return rs;
 				} catch (SWTException e) {
+					throw e;
+				} catch (JavaScriptException e) {
+					LOGGER.error(e);
 					throw e;
 				} catch (Exception e) {
 					LOGGER.error(e);
@@ -107,26 +127,30 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 	private final OffWorker delayedScriptsWorker = new OffWorker(
 			this.getClass(), "Script Runner");
 
-	public BrowserScriptRunner(Browser browser) {
+	/**
+	 * Stores the currently executed script.
+	 */
+	private String currentScript = null;
+
+	public BrowserScriptRunner(Browser browser,
+			final JavaScriptExceptionListener javaScriptExceptionListener) {
 		Assert.isNotNull(browser);
 		this.browser = browser;
 		this.browserStatus = BrowserStatus.INITIALIZING;
 
-		new BrowserFunction(browser, "error_callback") {
+		// throws exception that arise from calls within the browser,
+		// meaning code that has not been invoked by Java but by JavaScript
+		new BrowserFunction(browser, "__error_callback") {
 			@Override
 			public Object function(Object[] arguments) {
-				String filename = (String) arguments[0];
-				Long lineNumber = Math.round((Double) arguments[1]);
-				String detail = (String) arguments[2];
-
-				JavaScriptException javaScriptException = new JavaScriptException(
-						filename, lineNumber, detail);
+				JavaScriptException javaScriptException = BrowserUtils
+						.parseJavaScriptException(
+								BrowserScriptRunner.this.currentScript,
+								arguments);
 				LOGGER.error(javaScriptException);
-				return this.fire(javaScriptException);
-			}
-
-			private boolean fire(JavaScriptException e) {
-				LOGGER.error(e);
+				if (javaScriptExceptionListener != null) {
+					javaScriptExceptionListener.thrown(javaScriptException);
+				}
 				return false;
 			}
 		};
@@ -206,8 +230,8 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 	 */
 	private void activateExceptionHandling() {
 		try {
-			this.runImmediately(
-					"window.onerror = function(detail, filename, lineNumber) { if ( typeof window['error_callback'] !== 'function') return; return window['error_callback'](filename ? filename : 'unknown file', lineNumber ? lineNumber : 'unknown line number', detail ? detail : 'unknown detail'); }",
+			this.runImmediately(BrowserUtils
+					.getExceptionForwardingScript("__error_callback"),
 					IConverter.CONVERTER_VOID);
 		} catch (Exception e) {
 			LOGGER.error(

@@ -13,6 +13,7 @@ import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.IDNDListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 import com.bkahlert.nebula.widgets.browser.listener.IMouseListener;
+import com.bkahlert.nebula.widgets.browser.runner.BrowserScriptRunner.JavaScriptExceptionListener;
 import com.bkahlert.nebula.widgets.browser.runner.IBrowserScriptRunner;
 
 /**
@@ -230,5 +231,25 @@ public interface IBrowser extends IBrowserScriptRunner, IWidget {
 	 * @return
 	 */
 	public Future<Void> removeFocusBorder();
+
+	/**
+	 * Adds a {@link JavaScriptExceptionListener} that is notified if a
+	 * exception is thrown in the {@link Browser} by code that was not invoked
+	 * from the Java but the JavaScript world (e.g. a click on a button invoking
+	 * erroneous code).
+	 * 
+	 * @param javaScriptExceptionListener
+	 */
+	public void addJavaScriptExceptionListener(
+			JavaScriptExceptionListener javaScriptExceptionListener);
+
+	/**
+	 * Removed the given {@link JavaScriptExceptionListener} from the list of
+	 * notified {@link JavaScriptExceptionListener}s.
+	 * 
+	 * @param javaScriptExceptionListener
+	 */
+	public void removeJavaScriptExceptionListener(
+			JavaScriptExceptionListener javaScriptExceptionListener);
 
 }

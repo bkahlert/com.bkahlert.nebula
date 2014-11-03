@@ -127,9 +127,13 @@ public class Composer extends Browser {
 						ExecUtils.asyncExec(new Runnable() {
 							@Override
 							public void run() {
-								Composer.this.modifiedCallback(
-										Composer.this.getSource(),
-										delayChangeEventUpTo);
+								try {
+									Composer.this.modifiedCallback(
+											Composer.this.getSource().get(),
+											delayChangeEventUpTo);
+								} catch (Exception e) {
+									LOGGER.error("Error reporting content modification");
+								}
 							}
 						});
 					}
@@ -143,9 +147,13 @@ public class Composer extends Browser {
 						ExecUtils.asyncExec(new Runnable() {
 							@Override
 							public void run() {
-								Composer.this.modifiedCallback(
-										Composer.this.getSource(),
-										delayChangeEventUpTo);
+								try {
+									Composer.this.modifiedCallback(
+											Composer.this.getSource().get(),
+											delayChangeEventUpTo);
+								} catch (Exception e) {
+									LOGGER.error("Error reporting content modification");
+								}
 							}
 						});
 					}
@@ -173,7 +181,12 @@ public class Composer extends Browser {
 		this.getBrowser().addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				Composer.this.modifiedCallback(Composer.this.getSource(), 0);
+				try {
+					Composer.this.modifiedCallback(Composer.this.getSource()
+							.get(), 0);
+				} catch (Exception e1) {
+					LOGGER.error("Error reporting last composer contents");
+				}
 			}
 		});
 	}
@@ -353,13 +366,15 @@ public class Composer extends Browser {
 	 * TODO use this.run
 	 * 
 	 * @return
+	 * @throws Exception
 	 */
-	public String getSource() {
+	public Future<String> getSource() {
 		if (!this.isLoadingCompleted()) {
 			return null;
 		}
-		String html = (String) this.getBrowser().evaluate(
-				"return com.bkahlert.nebula.editor.getSource();");
+		Future<String> html = this.run(
+				"return com.bkahlert.nebula.editor.getSource();",
+				IConverter.CONVERTER_STRING);
 		return html;
 	}
 
