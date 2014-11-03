@@ -363,7 +363,7 @@ public class ExecUtils {
 	/**
 	 * Waits in the UI thread without blocking the event queue.
 	 * 
-	 * @UIThread must not be called from a non UI thread
+	 * @UIThread must be called from the UI thread
 	 * @param millis
 	 */
 	public static void busyWait(final long millis) {
@@ -384,7 +384,7 @@ public class ExecUtils {
 	 * Waits in the UI thread without blocking the event queue until the
 	 * {@link Future} finished its computation.
 	 * 
-	 * @UIThread must not be called from a non UI thread
+	 * @UIThread must be called from the UI thread
 	 * @param millis
 	 */
 	public static void busyWait(final Future<?> future) {
@@ -404,7 +404,7 @@ public class ExecUtils {
 	 * Waits in the UI thread without blocking the event queue until the time
 	 * has passed or the {@link Future} finished its computation.
 	 * 
-	 * @UIThread must not be called from a non UI thread
+	 * @UIThreadmust be called from the UI thread
 	 * @param millis
 	 */
 	public static void busyWait(final Future<?> future, final long millis) {
@@ -426,7 +426,7 @@ public class ExecUtils {
 	 * Waits until the given {@link Callable} returns <code>false</code> in the
 	 * UI thread without blocking the event queue.
 	 * 
-	 * @UIThread must not be called from a non UI thread
+	 * @UIThread must be called from the UI thread
 	 * 
 	 * @param millis
 	 * @throws Exception

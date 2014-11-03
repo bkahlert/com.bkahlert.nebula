@@ -12,17 +12,14 @@ public class JavaScriptException extends Exception {
 
 	public JavaScriptException(String script, String filename, Long lineNumber,
 			Long columnNumber, String detail) {
-		super((script != null ? "JavaScript" + script
-				: "*Asynchronous* JavaScript")
+		super((script != null ? "JavaScript" : "*Asynchronous* JavaScript")
 				+ " error occurred"
 				+ (filename != null ? " in " + filename
-						: " at unknown location")
-				+ "\n\tLine: "
+						: " at unknown location") + "\n\tLine: "
 				+ (lineNumber != null ? lineNumber : "unknown")
 				+ "\n\tColumn: "
 				+ (columnNumber != null ? columnNumber : "unknown")
-				+ "\n\tDetail: "
-				+ detail
+				+ "\n\tDetail: " + detail
 				+ (script != null ? "\n\tScript: " + script : ""));
 		this.script = script;
 		this.filename = filename;
