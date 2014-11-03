@@ -200,7 +200,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 		this.getBrowser().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
-				JointJS.this.getBrowser().setFocus();
+				JointJS.this.setFocus();
 			}
 		});
 
@@ -584,6 +584,11 @@ public class JointJS extends Browser implements ISelectionProvider {
 			jointJSListener.hovered(id, false);
 		}
 		this.lastHovered = null;
+	}
+
+	@Override
+	public boolean setFocus() {
+		return this.getBrowser().setFocus();
 	}
 
 }
