@@ -94,7 +94,10 @@ public class ExtendedBrowser extends Browser implements IBrowser {
 		boolean success = true;
 		for (File jsExtension : extension.getJsExtensions()) {
 			try {
-				this.injectJsFileImmediately(jsExtension);
+				// by running the extension directly we execute it synchronously
+				// otherwise a loader library would be necessary to satisfy the
+				// loading dependencies
+				this.runContentsAsScriptTagImmediately(jsExtension);
 			} catch (Exception e) {
 				LOGGER.error(
 						"Could not load the JS extension \""

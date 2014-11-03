@@ -295,14 +295,14 @@ public class BrowserUtils {
 	 * @param arguments
 	 * @return
 	 */
-	public static JavaScriptException parseJavaScriptException(String script,
+	public static JavaScriptException parseJavaScriptException(
 			Object[] arguments) {
 		String filename = (String) arguments[0];
 		Long lineNumber = Math.round((Double) arguments[1]);
 		Long columnNumber = Math.round((Double) arguments[2]);
 		String detail = (String) arguments[3];
 
-		return new JavaScriptException(script, filename, lineNumber,
+		return new JavaScriptException(null, filename, lineNumber,
 				columnNumber, detail);
 	}
 
@@ -319,8 +319,6 @@ public class BrowserUtils {
 	 * @return
 	 */
 	public static String getExecutionReturningScript(String script) {
-		// script = getExceptionForwardingScript("__error_callback")
-		// + "alert('hello)";
 		return "try { return new Function('"
 				+ StringEscapeUtils.escapeJavaScript(script)
 				+ "')(); } catch(e) { return [ '"

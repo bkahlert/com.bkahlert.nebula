@@ -84,15 +84,29 @@ public interface IBrowserScriptRunner {
 			IConverter<Object, DEST> converter);
 
 	/**
-	 * Runs the script contained in the given {@link File} in the browser
-	 * immediately.
+	 * Runs the script <b>contained</b> in the given {@link File} in the browser
+	 * immediately. This means the file is not linked but its content is read
+	 * and directly executed.
 	 * 
-	 * @param script
+	 * @param scriptFile
 	 * @return
 	 * 
 	 * @ArbitraryThread may be called from whatever thread.
 	 */
-	public void runImmediately(File script) throws Exception;
+
+	public void runContentsImmediately(File scriptFile) throws Exception;
+
+	/**
+	 * Runs the script <b>contained</b> in the given {@link File} in the browser
+	 * immediately. This means the file is not linked but its content is
+	 * directly put into a <code>script</code> tag.
+	 * 
+	 * @param scriptFile
+	 * @return
+	 * 
+	 * @ArbitraryThread may be called from whatever thread.
+	 */
+	void runContentsAsScriptTagImmediately(File scriptFile) throws Exception;
 
 	/**
 	 * Runs the given script in the browser immediately and returns the

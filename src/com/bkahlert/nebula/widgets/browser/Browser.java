@@ -311,7 +311,7 @@ public class Browser extends Composite implements IBrowser {
 
 		File events = BrowserUtils.getFile(Browser.class, "events.js");
 		try {
-			Browser.this.runImmediately(events);
+			Browser.this.runContentsImmediately(events);
 		} catch (Exception e) {
 			LOGGER.error("Could not inject events catch script in "
 					+ Browser.this.getClass().getSimpleName(), e);
@@ -320,7 +320,7 @@ public class Browser extends Composite implements IBrowser {
 		File dnd = BrowserUtils.getFile(Browser.class, "dnd.js");
 		File dndCss = BrowserUtils.getFile(Browser.class, "dnd.css");
 		try {
-			Browser.this.runImmediately(dnd);
+			Browser.this.runContentsImmediately(dnd);
 			Browser.this.injectCssFile(new URI("file://" + dndCss));
 		} catch (Exception e) {
 			LOGGER.error("Could not inject drop catch script in "
@@ -661,8 +661,14 @@ public class Browser extends Composite implements IBrowser {
 	}
 
 	@Override
-	public void runImmediately(File script) throws Exception {
-		this.browserScriptRunner.runImmediately(script);
+	public void runContentsImmediately(File scriptFile) throws Exception {
+		this.browserScriptRunner.runContentsImmediately(scriptFile);
+	}
+
+	@Override
+	public void runContentsAsScriptTagImmediately(File scriptFile)
+			throws Exception {
+		this.browserScriptRunner.runContentsAsScriptTagImmediately(scriptFile);
 	}
 
 	@Override
@@ -697,7 +703,7 @@ public class Browser extends Composite implements IBrowser {
 	private static String createCssFileInjectionScript(URI uri) {
 		return "if(document.createStyleSheet){document.createStyleSheet(\""
 				+ uri.toString()
-				+ "\")}else{ var link=document.createElement(\"link\"); link.rel=\"stylesheet\"; link.type=\"text/css\"; link.href=\""
+				+ "\")}else{var link=document.createElement(\"link\"); link.rel=\"stylesheet\"; link.type=\"text/css\"; link.href=\""
 				+ uri.toString()
 				+ "\"; document.getElementsByTagName(\"head\")[0].appendChild(link); }";
 	}

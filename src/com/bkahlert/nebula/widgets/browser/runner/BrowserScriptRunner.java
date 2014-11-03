@@ -10,6 +10,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.SWT;
@@ -96,7 +97,6 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 				LOGGER.info("Running " + label);
 				try {
 					browserScriptRunner.scriptAboutToBeSentToBrowser(script);
-					browserScriptRunner.currentScript = script;
 					Object returnValue = browserScriptRunner.browser
 							.evaluate(BrowserUtils
 									.getExecutionReturningScript(script));
@@ -127,11 +127,6 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 	private final OffWorker delayedScriptsWorker = new OffWorker(
 			this.getClass(), "Script Runner");
 
-	/**
-	 * Stores the currently executed script.
-	 */
-	private String currentScript = null;
-
 	public BrowserScriptRunner(Browser browser,
 			final JavaScriptExceptionListener javaScriptExceptionListener) {
 		Assert.isNotNull(browser);
@@ -144,9 +139,7 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 			@Override
 			public Object function(Object[] arguments) {
 				JavaScriptException javaScriptException = BrowserUtils
-						.parseJavaScriptException(
-								BrowserScriptRunner.this.currentScript,
-								arguments);
+						.parseJavaScriptException(arguments);
 				LOGGER.error(javaScriptException);
 				if (javaScriptExceptionListener != null) {
 					javaScriptExceptionListener.thrown(javaScriptException);
@@ -408,9 +401,19 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 	}
 
 	@Override
-	public void runImmediately(File script) throws Exception {
+	public void runContentsImmediately(File script) throws Exception {
 		String scriptContent = FileUtils.readFileToString(script);
 		this.runImmediately(scriptContent, IConverter.CONVERTER_VOID);
+	}
+
+	@Override
+	public void runContentsAsScriptTagImmediately(File scriptFile)
+			throws Exception {
+		String scriptContent = FileUtils.readFileToString(scriptFile);
+		String script = "var script=document.createElement(\"script\"); script.type=\"text/javascript\"; script.text=\""
+				+ StringEscapeUtils.escapeJavaScript(scriptContent)
+				+ "\"; document.getElementsByTagName(\"head\")[0].appendChild(script);";
+		this.runImmediately(script, IConverter.CONVERTER_VOID);
 	}
 
 	@Override
