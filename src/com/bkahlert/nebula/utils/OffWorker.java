@@ -105,6 +105,14 @@ public class OffWorker {
 		}
 	}
 
+	/**
+	 * Removes all jobs from the queue. The currently job is still finished but
+	 * the other jobs will never be executed.
+	 */
+	public void flush() {
+		this.queue.clear();
+	}
+
 	public void shutdown() {
 		switch (this.state) {
 		case INIT:
