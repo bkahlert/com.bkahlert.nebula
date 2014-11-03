@@ -181,6 +181,9 @@ public class Composer extends Browser {
 		this.getBrowser().addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
+				if (!Composer.this.isLoadingCompleted()) {
+					return;
+				}
 				try {
 					Composer.this.modifiedCallback(Composer.this.getSource()
 							.get(), 0);

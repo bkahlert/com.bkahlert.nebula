@@ -303,6 +303,9 @@ public abstract class Editor<T> extends Composite {
 	 * @throws Exception
 	 */
 	public final Job save() throws Exception {
+		if (!this.composer.isLoadingCompleted()) {
+			return null;
+		}
 		String html = ExecUtils.syncExec(new Callable<String>() {
 			@Override
 			public String call() throws Exception {

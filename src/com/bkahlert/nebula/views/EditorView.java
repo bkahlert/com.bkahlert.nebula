@@ -42,7 +42,6 @@ import com.bkahlert.nebula.widgets.editor.Editor;
  */
 public abstract class EditorView<T> extends ViewPart {
 
-	@SuppressWarnings("unused")
 	private static final Logger LOGGER = Logger.getLogger(EditorView.class);
 
 	private final PartRenamer<T> partRenamer;
