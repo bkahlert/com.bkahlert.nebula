@@ -224,16 +224,19 @@ public class Browser extends Composite implements IBrowser {
 		new BrowserFunction(this.browser, "__dragStart") {
 			@Override
 			public Object function(Object[] arguments) {
-				if (arguments.length == 4 && arguments[0] instanceof Double
+				if (arguments.length == 5 && arguments[0] instanceof Double
 						&& arguments[1] instanceof Double
 						&& arguments[2] instanceof String
-						&& arguments[3] instanceof String) {
+						&& arguments[3] instanceof String
+						&& arguments[4] instanceof String) {
 					long offsetX = Math.round((Double) arguments[0]);
 					long offsetY = Math.round((Double) arguments[1]);
-					String mimeType = (String) arguments[2];
-					String data = (String) arguments[3];
-					Browser.this
-							.fireDragStart(offsetX, offsetY, mimeType, data);
+					IElement element = BrowserUtils
+							.extractElement((String) arguments[2]);
+					String mimeType = (String) arguments[3];
+					String data = (String) arguments[4];
+					Browser.this.fireDragStart(offsetX, offsetY, element,
+							mimeType, data);
 				}
 				return null;
 			}
@@ -241,15 +244,19 @@ public class Browser extends Composite implements IBrowser {
 		new BrowserFunction(this.browser, "__drop") {
 			@Override
 			public Object function(Object[] arguments) {
-				if (arguments.length == 4 && arguments[0] instanceof Double
+				if (arguments.length == 5 && arguments[0] instanceof Double
 						&& arguments[1] instanceof Double
 						&& arguments[2] instanceof String
-						&& arguments[3] instanceof String) {
+						&& arguments[3] instanceof String
+						&& arguments[4] instanceof String) {
 					long offsetX = Math.round((Double) arguments[0]);
 					long offsetY = Math.round((Double) arguments[1]);
-					String mimeType = (String) arguments[2];
-					String data = (String) arguments[3];
-					Browser.this.fireDrop(offsetX, offsetY, mimeType, data);
+					IElement element = BrowserUtils
+							.extractElement((String) arguments[2]);
+					String mimeType = (String) arguments[3];
+					String data = (String) arguments[4];
+					Browser.this.fireDrop(offsetX, offsetY, element, mimeType,
+							data);
 				}
 				return null;
 			}
@@ -872,16 +879,16 @@ public class Browser extends Composite implements IBrowser {
 	}
 
 	synchronized protected void fireDragStart(long offsetX, long offsetY,
-			String mimeType, String data) {
+			IElement element, String mimeType, String data) {
 		for (IDNDListener dndListener : this.dndListeners) {
-			dndListener.dragStart(offsetX, offsetY, mimeType, data);
+			dndListener.dragStart(offsetX, offsetY, element, mimeType, data);
 		}
 	}
 
 	synchronized protected void fireDrop(long offsetX, long offsetY,
-			String mimeType, String data) {
+			IElement element, String mimeType, String data) {
 		for (IDNDListener dndListener : this.dndListeners) {
-			dndListener.drop(offsetX, offsetY, mimeType, data);
+			dndListener.drop(offsetX, offsetY, element, mimeType, data);
 		}
 	}
 

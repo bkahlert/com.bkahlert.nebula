@@ -97,7 +97,7 @@ $.extend( $.expr[ ":" ], {
 
 
 
-
+// returns the HTML markup of e
 function clone(e) {
     var t = document.createElement("div");
     t.appendChild(e.cloneNode(true));

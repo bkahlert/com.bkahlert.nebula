@@ -10,6 +10,17 @@ if(k&&j[k]&&(e||j[k].data)||void 0!==d||"string"!=typeof b)return k||(k=i?a[h]=c
 
 var $ = window.$.noConflict(true);
 
+
+
+// returns the HTML markup of e
+function clone(e) {
+    var t = document.createElement("div");
+    t.appendChild(e.cloneNode(true));
+    return t.innerHTML
+}
+
+
+
 // TODO forward all drag/drop events and fire the appropriate SWT events
 // Currently valid drop events can only process text
 // Draggable element are configurable
@@ -25,7 +36,7 @@ document.addEventListener("dragstart", function(e) {
 		e.dataTransfer.effectAllowed = 'link';
 		e.dataTransfer.dropEffect = 'link';
 		e.dataTransfer.setData(e.target.getAttribute("data-dnd-mime"), e.target.getAttribute("data-dnd-data"));
-		window['__dragStart'](e.offsetX, e.offsetY, e.target.getAttribute("data-dnd-mime"), e.target.getAttribute("data-dnd-data"));
+		window['__dragStart'](e.offsetX, e.offsetY, clone(e.target), e.target.getAttribute("data-dnd-mime"), e.target.getAttribute("data-dnd-data"));
 	}
 }, false);
 
@@ -37,11 +48,11 @@ document.addEventListener("dragenter", function(e) {
 }, false);
 
 document.addEventListener("dragover", function(e) {
-	if (e.preventDefault) {
-		e.preventDefault(); // Necessary. Allows us to drop.
+	if(e.target.getAttribute("droppable")) {
+		if (e.preventDefault) {
+			e.preventDefault(); // Necessary. Allows us to drop.
+		}
 	}
-	
-	e.dataTransfer.dropEffect = 'link';
 }, false);
 
 document.addEventListener("dragleave", function(e) {
@@ -58,11 +69,15 @@ document.addEventListener('drop', function(e) {
 	if (e.stopPropagation) {
 		e.stopPropagation(); // Stops some browsers from redirecting.
 	}
-	var plain = e.dataTransfer.getData('text/plain');
-	if(plain) window['__drop'](e.offsetX, e.offsetY, 'text/plain', plain);
-	
-	var html = e.dataTransfer.getData('text/html');
-	if(html) window['__drop'](e.offsetX, e.offsetY, 'text/html', html);
+		
+	if(e.target.getAttribute("droppable")) {
+		var html = e.dataTransfer.getData('text/html');
+		if(html) window['__drop'](e.offsetX, e.offsetY, clone(e.target), 'text/html', html);
+		else {
+			var plain = e.dataTransfer.getData('text/plain');
+			if(plain) window['__drop'](e.offsetX, e.offsetY, clone(e.target), 'text/plain', plain);
+		}
+	}
 }, false);
 
 document.addEventListener("dragend", function(e) {

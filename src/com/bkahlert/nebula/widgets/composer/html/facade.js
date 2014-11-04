@@ -11,6 +11,7 @@ com.bkahlert.nebula.editor = com.bkahlert.nebula.editor || {};
         config: {
         	on: {
 		        'instanceReady' : function(evt) {
+		        	// pasting already handled by CKEditor - $(evt.editor.container.$).find('.cke_contents').attr('droppable', 'true');
 		            com.bkahlert.nebula.editor.onready(evt);
 		        },
 		        'change': function(evt) {

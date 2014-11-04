@@ -1,8 +1,11 @@
 package com.bkahlert.nebula.widgets.browser.listener;
 
-public interface IDNDListener {
-	public void dragStart(long offsetX, long offsetY, String mimeType,
-			String data);
+import com.bkahlert.nebula.widgets.browser.extended.html.IElement;
 
-	public void drop(long offsetX, long offsetY, String mimeType, String data);
+public interface IDNDListener {
+	public void dragStart(long offsetX, long offsetY, IElement element,
+			String mimeType, String data);
+
+	public void drop(long offsetX, long offsetY, IElement element,
+			String mimeType, String data);
 }
