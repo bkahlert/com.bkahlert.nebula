@@ -63,6 +63,10 @@ document.addEventListener("dragleave", function(e) {
 }, false);
 
 document.addEventListener("dragexit", function(e) {
+	if(e.target.getAttribute("droppable")) {
+		e.target.classList.remove('over');
+		e.dataTransfer.dropEffect = 'none';
+	}
 }, false);
 
 document.addEventListener('drop', function(e) {
@@ -77,6 +81,7 @@ document.addEventListener('drop', function(e) {
 			var plain = e.dataTransfer.getData('text/plain');
 			if(plain) window['__drop'](e.offsetX, e.offsetY, clone(e.target), 'text/plain', plain);
 		}
+		e.target.classList.remove('over');
 	}
 }, false);
 
