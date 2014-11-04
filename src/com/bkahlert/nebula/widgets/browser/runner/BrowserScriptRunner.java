@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
@@ -17,7 +18,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
-import org.eclipse.ui.services.IDisposable;
 
 import com.bkahlert.nebula.utils.CompletedFuture;
 import com.bkahlert.nebula.utils.ExecUtils;
@@ -37,7 +37,7 @@ import com.bkahlert.nebula.widgets.browser.exception.UnexpectedBrowserStateExcep
  * @author bkahlert
  * 
  */
-public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
+public class BrowserScriptRunner implements IBrowserScriptRunner {
 
 	/**
 	 * Relevant statuses a browser can have in terms of script execution.
@@ -63,9 +63,14 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 		LOADED,
 
 		/**
-		 * The browser cancelled loading of a resource.
+		 * The browser timed out.
 		 */
-		CANCELLED;
+		TIMEDOUT,
+
+		/**
+		 * The browser is currently disposing or already disposed.
+		 */
+		DISPOSED
 	}
 
 	/**
@@ -122,7 +127,6 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 
 	private final org.eclipse.swt.browser.Browser browser;
 	private BrowserStatus browserStatus;
-	private boolean isDisposing = false;
 
 	private final OffWorker delayedScriptsWorker = new OffWorker(
 			this.getClass(), "Script Runner");
@@ -166,7 +170,8 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 		// throw exception on invalid new status
 		switch (this.browserStatus) {
 		case INITIALIZING:
-			if (browserStatus == BrowserStatus.CANCELLED) {
+			if (Arrays.asList(BrowserStatus.TIMEDOUT, BrowserStatus.DISPOSED)
+					.contains(browserStatus)) {
 				throw new UnexpectedBrowserStateException("Cannot switch from "
 						+ this.browserStatus + " to " + browserStatus);
 			}
@@ -180,7 +185,10 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 		case LOADED:
 			throw new UnexpectedBrowserStateException("Cannot switch from "
 					+ this.browserStatus + " to " + browserStatus);
-		case CANCELLED:
+		case TIMEDOUT:
+			throw new UnexpectedBrowserStateException("Cannot switch from "
+					+ this.browserStatus + " to " + browserStatus);
+		case DISPOSED:
 			throw new UnexpectedBrowserStateException("Cannot switch from "
 					+ this.browserStatus + " to " + browserStatus);
 		default:
@@ -198,9 +206,22 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 			this.delayedScriptsWorker.start();
 			this.delayedScriptsWorker.finish();
 			break;
-		case CANCELLED:
-			// Execution of the started scripts won't take place because of a
-			// check of the browser status
+		case TIMEDOUT:
+		case DISPOSED:
+			if (this.delayedScriptsWorker != null) {
+				this.delayedScriptsWorker.submit(new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+						if (!BrowserScriptRunner.this.delayedScriptsWorker
+								.isShutdown()) {
+							BrowserScriptRunner.this.delayedScriptsWorker
+									.shutdown();
+						}
+						return null;
+					}
+				});
+			}
+
 			this.delayedScriptsWorker.start();
 			this.delayedScriptsWorker.finish();
 			break;
@@ -360,12 +381,12 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 					switch (BrowserScriptRunner.this.browserStatus) {
 					case LOADED:
 						return ExecUtils.syncExec(scriptRunner);
-					case CANCELLED:
-						Exception innerException = BrowserScriptRunner.this.isDisposing ? new SWTException(
-								SWT.ERROR_WIDGET_DISPOSED)
-								: new BrowserTimeoutException();
+					case TIMEDOUT:
 						throw new ScriptExecutionException(script,
-								innerException);
+								new BrowserTimeoutException());
+					case DISPOSED:
+						throw new ScriptExecutionException(script,
+								new SWTException(SWT.ERROR_WIDGET_DISPOSED));
 					default:
 						throw new ScriptExecutionException(script,
 								new UnexpectedBrowserStateException(
@@ -381,11 +402,14 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 			} catch (Exception e) {
 				return new CompletedFuture<DEST>(null, e);
 			}
-		case CANCELLED:
-			Exception innerException = this.isDisposing ? new SWTException(
-					SWT.ERROR_WIDGET_DISPOSED) : new BrowserTimeoutException();
+		case TIMEDOUT:
 			return new CompletedFuture<DEST>(null,
-					new ScriptExecutionException(script, innerException));
+					new ScriptExecutionException(script,
+							new BrowserTimeoutException()));
+		case DISPOSED:
+			return new CompletedFuture<DEST>(null,
+					new ScriptExecutionException(script, new SWTException(
+							SWT.ERROR_WIDGET_DISPOSED)));
 		default:
 			return new CompletedFuture<DEST>(null,
 					new ScriptExecutionException(script,
@@ -425,25 +449,4 @@ public class BrowserScriptRunner implements IBrowserScriptRunner, IDisposable {
 	public void scriptReturnValueReceived(Object returnValue) {
 		return;
 	}
-
-	@Override
-	public void dispose() {
-		if (this.isDisposing) {
-			return;
-		}
-		this.isDisposing = true;
-		if (this.delayedScriptsWorker != null) {
-			this.delayedScriptsWorker.submit(new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
-					if (!BrowserScriptRunner.this.delayedScriptsWorker
-							.isShutdown()) {
-						BrowserScriptRunner.this.delayedScriptsWorker
-								.shutdown();
-					}
-					return null;
-				}
-			});
-		}
-	};
 }

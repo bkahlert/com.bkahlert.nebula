@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -281,9 +282,8 @@ public class Browser extends Composite implements IBrowser {
 				synchronized (Browser.this.monitor) {
 					if (Browser.this.browserScriptRunner.getBrowserStatus() == BrowserStatus.LOADING) {
 						Browser.this.browserScriptRunner
-								.setBrowserStatus(BrowserStatus.CANCELLED);
+								.setBrowserStatus(BrowserStatus.DISPOSED);
 					}
-					Browser.this.browserScriptRunner.dispose();
 					Browser.this.monitor.notifyAll();
 				}
 			}
@@ -345,7 +345,10 @@ public class Browser extends Composite implements IBrowser {
 		}
 
 		if (Browser.this.browserScriptRunner.getBrowserStatus() != BrowserStatus.LOADING) {
-			if (Browser.this.browserScriptRunner.getBrowserStatus() != BrowserStatus.CANCELLED) {
+			if (!Arrays
+					.asList(BrowserStatus.TIMEDOUT, BrowserStatus.DISPOSED)
+					.contains(
+							Browser.this.browserScriptRunner.getBrowserStatus())) {
 				LOGGER.error("State Error: "
 						+ Browser.this.browserScriptRunner.getBrowserStatus());
 			}
@@ -429,8 +432,10 @@ public class Browser extends Composite implements IBrowser {
 							}
 						});
 						synchronized (Browser.this.monitor) {
-							if (Browser.this.browserScriptRunner
-									.getBrowserStatus() != BrowserStatus.CANCELLED) {
+							if (!Arrays.asList(BrowserStatus.TIMEDOUT,
+									BrowserStatus.DISPOSED).contains(
+									Browser.this.browserScriptRunner
+											.getBrowserStatus())) {
 								Browser.this.browserScriptRunner
 										.setBrowserStatus(BrowserStatus.LOADED);
 							}
@@ -474,7 +479,7 @@ public class Browser extends Composite implements IBrowser {
 												if (Browser.this.browserScriptRunner
 														.getBrowserStatus() != BrowserStatus.LOADED) {
 													Browser.this.browserScriptRunner
-															.setBrowserStatus(BrowserStatus.CANCELLED);
+															.setBrowserStatus(BrowserStatus.TIMEDOUT);
 												}
 												Browser.this.monitor
 														.notifyAll();
@@ -523,10 +528,14 @@ public class Browser extends Composite implements IBrowser {
 							case LOADED:
 								LOGGER.debug("Successfully loaded " + uri);
 								break;
-							case CANCELLED:
+							case TIMEDOUT:
+								LOGGER.warn("Aborted loading " + uri
+										+ " due to timeout");
+								break;
+							case DISPOSED:
 								if (!Browser.this.browser.isDisposed()) {
 									LOGGER.warn("Aborted loading " + uri
-											+ " due to timeout");
+											+ " due to disposal");
 								}
 								break;
 							default:
