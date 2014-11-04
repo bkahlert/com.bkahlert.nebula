@@ -771,11 +771,6 @@ joint.shapes.LinkView = joint.dia.LinkView.extend({
 		} else {
 			$(this.el).attr('abandoned-target', null);
 		}
-    },
-    
-    pointerdown: function(evt, x, y) {
-    	// only executes actions of left mouse button was clicked
-    	if(evt.which == 1) joint.dia.ElementView.prototype.pointermove.apply(this, arguments);
     }
 
 });
