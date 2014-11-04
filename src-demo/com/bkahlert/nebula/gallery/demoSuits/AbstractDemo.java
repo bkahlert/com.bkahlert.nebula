@@ -30,7 +30,7 @@ public abstract class AbstractDemo {
 	/**
 	 * Contains all controls and the demoAreaContent.
 	 */
-	protected Composite composite;
+	private Composite composite;
 	protected Composite controls;
 	protected Composite content;
 
