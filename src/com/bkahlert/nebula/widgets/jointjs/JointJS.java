@@ -183,8 +183,11 @@ public class JointJS extends Browser implements ISelectionProvider {
 					if (selectionConverter != null) {
 						List<Object> selection = new ArrayList<Object>();
 						for (Object id : ids) {
-							selection.add(selectionConverter
-									.convert((String) id));
+							Object converted = selectionConverter
+									.convert((String) id);
+							if (converted != null) {
+								selection.add(converted);
+							}
 						}
 						JointJS.this.setSelection(new StructuredSelection(
 								selection));
