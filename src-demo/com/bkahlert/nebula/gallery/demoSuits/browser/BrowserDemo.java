@@ -1,7 +1,6 @@
 package com.bkahlert.nebula.gallery.demoSuits.browser;
 
 import java.io.File;
-import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -253,35 +252,30 @@ public class BrowserDemo extends AbstractDemo {
 				log("clicked " + x + "," + y + " - " + element);
 			}
 		});
-		try {
-			final Future<Boolean> success = this.browser.open(new URI(
-					"http://wikipedia.com"), Integer
-					.parseInt(BrowserDemo.timeoutString));
-			ExecUtils.nonUIAsyncExec(new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
-					try {
-						if (success.get()) {
-							log("Page loaded successfully");
-						} else {
-							log("Page load timed out");
-						}
-					} catch (Exception e) {
-						log(e.getMessage());
-					}
-					log(ExecUtils.syncExec(new Callable<String>() {
-						@Override
-						public String call() throws Exception {
-							return BrowserDemo.this.browser.getBrowser()
-									.getUrl();
-						}
-					}));
-					return null;
-				}
 
-			});
-		} catch (Exception e) {
-			log(e);
-		}
+		final Future<Boolean> success = this.browser.open(
+				"http://wikipedia.com",
+				Integer.parseInt(BrowserDemo.timeoutString));
+		ExecUtils.nonUIAsyncExec(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				try {
+					if (success.get()) {
+						log("Page loaded successfully");
+					} else {
+						log("Page load timed out");
+					}
+				} catch (Exception e) {
+					log(e.getMessage());
+				}
+				log(ExecUtils.syncExec(new Callable<String>() {
+					@Override
+					public String call() throws Exception {
+						return BrowserDemo.this.browser.getBrowser().getUrl();
+					}
+				}));
+				return null;
+			}
+		});
 	}
 }
