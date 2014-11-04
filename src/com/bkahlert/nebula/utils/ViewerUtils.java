@@ -6,12 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.util.Policy;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -670,5 +672,80 @@ public class ViewerUtils {
 			});
 
 		}
+	}
+
+	public static TreePath[] addTreePath(TreePath[] treePaths1,
+			TreePath... treePaths2) {
+		if (treePaths1 != null) {
+			TreePath[] copy = new TreePath[treePaths1.length
+					+ treePaths2.length];
+			System.arraycopy(treePaths1, 0, copy, 0, treePaths1.length);
+			System.arraycopy(treePaths2, 0, copy, treePaths1.length,
+					treePaths2.length);
+			return copy;
+		} else {
+			return treePaths2;
+		}
+	}
+
+	/**
+	 * Creates a {@link TreePath} array that - passed to
+	 * {@link TreeViewer#setExpandedTreePaths(TreePath[])} - will not only
+	 * expand the deepest child of the given {@link TreePath} but also all of
+	 * its parents.
+	 * 
+	 * @param treePath
+	 * @return
+	 */
+	public static TreePath[] createCompletedTreePath(TreePath treePath) {
+		Assert.isNotNull(treePath);
+		TreePath[] completedTreePaths = new TreePath[treePath.getSegmentCount()];
+		for (int i = 0; i < completedTreePaths.length; i++) {
+			completedTreePaths[completedTreePaths.length - i - 1] = i == 0 ? treePath
+					: completedTreePaths[completedTreePaths.length - i]
+							.getParentPath();
+		}
+		return completedTreePaths;
+	}
+
+	/**
+	 * Creates a {@link TreePath} array that - passed to
+	 * {@link TreeViewer#setExpandedTreePaths(TreePath[])} - will not only
+	 * expand the deepest children of the given {@link TreePath}[] but also all
+	 * of its parents.
+	 * 
+	 * @param treePath
+	 * @return
+	 */
+	public static TreePath[] createCompletedTreePaths(TreePath... treePaths) {
+		Assert.isNotNull(treePaths);
+		List<TreePath> completedTreePaths = new ArrayList<TreePath>();
+		for (TreePath treePath : treePaths) {
+			for (TreePath completedTreePath : createCompletedTreePath(treePath)) {
+				if (!completedTreePaths.contains(completedTreePath)) {
+					completedTreePaths.add(completedTreePath);
+				}
+			}
+		}
+		return completedTreePaths.toArray(new TreePath[0]);
+	}
+
+	/**
+	 * Creates a {@link TreePath} array that - passed to
+	 * {@link TreeViewer#setExpandedTreePaths(TreePath[])} - will expand all
+	 * elements so the selection is visible.
+	 * 
+	 * @param treePath
+	 * @return
+	 */
+	public static TreePath[] createCompletedTreePaths(
+			ITreeSelection treeSelection) {
+		Assert.isNotNull(treeSelection);
+		List<TreePath> parentTreePaths = new ArrayList<TreePath>();
+		for (TreePath treePath : treeSelection.getPaths()) {
+			parentTreePaths.add(treePath.getParentPath());
+		}
+		return createCompletedTreePaths(parentTreePaths
+				.toArray(new TreePath[0]));
 	}
 }

@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -24,6 +25,7 @@ import org.eclipse.ui.progress.WorkbenchJob;
 import com.bkahlert.nebula.utils.CellLabelClient;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.ViewerUtils;
 
 /**
  * This extensions of the existing {@link org.eclipse.ui.dialogs.FilteredTree}
@@ -31,7 +33,8 @@ import com.bkahlert.nebula.utils.IConverter;
  * <ol>
  * <li>The converter takes all columns into account. The original implementation
  * only considered the {@link TreeViewer}'s global {@link ILabelProvider}.</li>
- * <li>The expanded elements state is restored after search has finished.</li>
+ * <li>The expanded elements state is restored after search has finished. The
+ * selected element stays also expanded.</li>
  * </ol>
  * 
  * @author bkahlert
@@ -224,6 +227,14 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 						public void run() {
 							if (text.getText() != null && !text.isDisposed()
 									&& text.getText().isEmpty()) {
+								TreeSelection selection = (TreeSelection) FilteredTree.this.treeViewer
+										.getSelection();
+								if (selection != null && selection.size() > 0) {
+									expanded = ViewerUtils.addTreePath(
+											expanded,
+											ViewerUtils
+													.createCompletedTreePaths(selection));
+								}
 								if (expanded != null
 										&& (event.getResult() == Status.OK_STATUS)) {
 									FilteredTree.this.treeViewer
