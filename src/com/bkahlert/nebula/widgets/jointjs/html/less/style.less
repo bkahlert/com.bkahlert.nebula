@@ -120,6 +120,7 @@ body.disabled {
 .html-element {
 	position: absolute;
 	background: #eee;
+  
 	/* Make sure events are propagated to the JointJS element so, e.g. dragging works.*/
 	pointer-events: none;
 	-webkit-user-select: none;
@@ -195,6 +196,7 @@ body.disabled {
 .state(highlighted, @brand-warning);
 .state(selected, @brand-info);
 .state(focused, @input-border-focus, 10px);
+.state(debugCustomClass, #f00, 30px);
 
 
 

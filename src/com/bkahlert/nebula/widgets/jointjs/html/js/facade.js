@@ -2,11 +2,29 @@
 /* global joint */
 /* global console */
 
+function addClassNames(classNames, add) {
+	if(!_.isArray(add)) add = add ? [add] : [];
+	return _.union(classNames.split(/ +/), _.toArray(add)).join(' ');
+}
+
+function removeClassNames(classNames, remove) {
+	if(!_.isArray(remove)) remove = remove ? [remove] : [];
+	return _.filter(classNames.split(/ +/), function(className) { return !_.contains(remove, className); }).join(' ');
+}
+
+if('aa bbb xxxx' != addClassNames('aa bbb', 'xxxx')) throw "Assertion Error";
+if('aa bbb xxxx yyyyy' != addClassNames('aa   bbb', ['xxxx', 'yyyyy', 'aa'])) throw "Assertion Error";
+if('a bb ccc' != removeClassNames('a bb   ccc dddd', 'dddd')) throw "Assertion Error";
+if('bb dddd' != removeClassNames('a bb ccc  dddd', ['a', 'ccc', 'xxxxx'])) throw "Assertion Error";
+
+
+
 var com = com || {};
 com.bkahlert = com.bkahlert || {};
 com.bkahlert.nebula = com.bkahlert.nebula || {};
 com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 (function ($) {
+
     $.extend(com.bkahlert.nebula.jointjs, {
 
         graph: null,
@@ -216,7 +234,7 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 				com.bkahlert.nebula.jointjs.setEnabled(false);
 			}))
 			.append($('<button>Highlight</button>').click(function () {
-				com.bkahlert.nebula.jointjs.highlight(['apiua://test']);
+				com.bkahlert.nebula.jointjs.highlight(['apiua://test', linkid]);
 			}))
 			.append($('<button>De-Highlight</button>').click(function () {
 				com.bkahlert.nebula.jointjs.highlight();
@@ -226,6 +244,10 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			}))
 			.append($('<button>Get Focus</button>').click(function () {
 				console.log(com.bkahlert.nebula.jointjs.getFocus());
+			}))
+			.append($('<button>Custom Class</button>').click(function () {
+				com.bkahlert.nebula.jointjs.addCustomClasses(['apiua://test', linkid], 'debugCustomClass');
+				window.setTimeout(function() { com.bkahlert.nebula.jointjs.removeCustomClasses(['apiua://test', linkid], 'debugCustomClass'); }, 2000);
 			}))
 			.append($('<button>Custom</button>').click(function () {
 				var x = {"cells":[{"type":"html.Element","position":{"x":270,"y":142},"size":{"width":"242","height":"30"},"angle":"0","id":"apiua://code/-9223372036854775640","content":"","title":"Offensichtliche Usability-Probleme","z":"0","color":"rgb(0, 0, 0)","background-color":"rgba(255, 102, 102, 0.27450980392156865)","border-color":"rgba(255, 48, 48, 0.39215686274509803)","attrs":{}}],"title":"New Model","zoom":"1","pan":{"x":"0","y":"0"}};
@@ -640,66 +662,67 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			cell.set('size', { width: width, height: height });
 		},
 		
-		highlight: function(ids) {
-			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
-				element.set('highlighted', _.contains(ids, element.get('id')));
+		addCustomClasses: function(ids, add) {
+			if(!_.isArray(add)) add = add ? [add] : [];
+			_.each(_.union(com.bkahlert.nebula.jointjs.graph.getElements(), com.bkahlert.nebula.jointjs.graph.getLinks()), function(cell) {
+				if(!_.contains(ids, cell.get('id'))) return;
+				
+				var customClasses = cell.get('customClasses') || [];
+				customClasses = _.union(customClasses, add);
+				cell.set('customClasses', customClasses);
 			});
-			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
-				link.set('highlighted', _.contains(ids, link.get('id')));
+		},
+		
+		removeCustomClasses: function(ids, remove) {
+			if(!_.isArray(remove)) remove = remove ? [remove] : [];
+			_.each(_.union(com.bkahlert.nebula.jointjs.graph.getElements(), com.bkahlert.nebula.jointjs.graph.getLinks()), function(cell) {
+				if(!_.contains(ids, cell.get('id'))) return;
+				
+				var customClasses = cell.get('customClasses') || [];
+				customClasses = _.difference(customClasses, remove);
+				cell.set('customClasses', customClasses);
+			});
+		},
+		
+		highlight: function(ids) {
+			_.each(_.union(com.bkahlert.nebula.jointjs.graph.getElements(), com.bkahlert.nebula.jointjs.graph.getLinks()), function(cell) {
+				cell.set('highlighted', _.contains(ids, cell.get('id')));
 			});
 		},
 		
 		addSelection: function(ids) {
-			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
-				if(_.contains(ids, element.get('id'))) element.set('selected', true);
+			_.each(_.union(com.bkahlert.nebula.jointjs.graph.getElements(), com.bkahlert.nebula.jointjs.graph.getLinks()), function(cell) {
+				if(_.contains(ids, cell.get('id'))) cell.set('selected', true);
 			});
-			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
-				if(_.contains(ids, link.get('id'))) link.set('selected', true);
-			});
-			
 			if (typeof window.__selectionChanged === 'function') { window.__selectionChanged(com.bkahlert.nebula.jointjs.getSelection()); }
 		},
 		
 		setSelection: function(ids) {
-			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
-				element.set('selected', _.contains(ids, element.get('id')));
+			_.each(_.union(com.bkahlert.nebula.jointjs.graph.getElements(), com.bkahlert.nebula.jointjs.graph.getLinks()), function(cell) {
+				cell.set('selected', _.contains(ids, cell.get('id')));
 			});
-			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
-				link.set('selected', _.contains(ids, link.get('id')));
-			});
-			
 			if (typeof window.__selectionChanged === 'function') { window.__selectionChanged(com.bkahlert.nebula.jointjs.getSelection()); }
 		},
 		
 		getSelection: function() {
 			var selection = [];
-			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
-				if(element.get('selected')) selection.push(element.get('id'));
-			});
-			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
-				if(link.get('selected')) selection.push(link.get('id'));
+			_.each(_.union(com.bkahlert.nebula.jointjs.graph.getElements(), com.bkahlert.nebula.jointjs.graph.getLinks()), function(cell) {
+				if(cell.get('selected')) selection.push(cell.get('id'));
 			});
 			return selection;
 		},
 		
 		setFocus: function(ids) {
-			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
-				element.set('focused', _.contains(ids, element.get('id')));
+			_.each(_.union(com.bkahlert.nebula.jointjs.graph.getElements(), com.bkahlert.nebula.jointjs.graph.getLinks()), function(cell) {
+				cell.set('focused', _.contains(ids, cell.get('id')));
 			});
-			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
-				link.set('focused', _.contains(ids, link.get('id')));
-			});
-			
 			if (typeof window.__focusChanged === 'function') { window.__focusChanged(com.bkahlert.nebula.jointjs.getFocus()); }
 		},
 		
 		getFocus: function() {
 			var focus = [];
-			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
-				if(element.get('focused')) focus.push(element.get('id'));
-			});
-			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
-				if(link.get('focused')) focus.push(link.get('id'));
+			_.each(_.union(com.bkahlert.nebula.jointjs.graph.getElements(), com.bkahlert.nebula.jointjs.graph.getLinks()), function(cell) {
+				if(cell.get('focused')) focus.push(cell.get('id'));
 			});
 			return focus;
 		}
@@ -720,6 +743,10 @@ joint.shapes.LinkView = joint.dia.LinkView.extend({
 	className: function() {
 		var classes = ['link'];
 		if(this.model.get('permanent')) classes.push('permanent');
+		if(this.model.get('highlighted')) classes.push('highlighted');
+		if(this.model.get('selected')) classes.push('selected');
+		if(this.model.get('focused')) classes.push('focused');
+		if(this.model.get('customClasses')) _.each(this.model.get('customClasses'), function(customClass) { classes.push(customClass); });
 		return classes.join(' ');
     },
 	
@@ -752,13 +779,8 @@ joint.shapes.LinkView = joint.dia.LinkView.extend({
     },
     
     updateBox: function() {
-    	// sets classes
-		if(this.model.get('highlighted')) {
-			$(this.el).attr('class', $(this.el).attr('class') + ' highlighted');
-		} else {
-			$(this.el).attr('class', $(this.el).attr('class').replace('highlighted', ''));
-		}
-		// TODO add selected and focused support
+    	var classNames = joint.shapes.LinkView.prototype.className.apply(this, arguments);
+		$(this.el).attr('class', classNames);
     
 		if(this.model.get('abandoned-source')) {
 			$(this.el).attr('abandoned-source', true);
@@ -885,13 +907,15 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
 		// Set the position and dimension of the box so that it covers the JointJS element.
 		var bbox = this.model.getBBox();
 		
+		var classNames = joint.shapes.html.ElementView.prototype.className.apply(this, arguments).split(/ +/);
+		classNames.push('html-element');
+		
 		// sets classes
-		if(this.model.get('highlighted')) this.$box.addClass('highlighted');
-		else this.$box.removeClass('highlighted');
-		if(this.model.get('selected')) this.$box.addClass('selected');
-		else this.$box.removeClass('selected');
-		if(this.model.get('focused')) this.$box.addClass('focused');
-		else this.$box.removeClass('focused');
+		if(this.model.get('highlighted')) classNames.push('highlighted');
+		if(this.model.get('selected')) classNames.push('selected');
+		if(this.model.get('focused')) classNames.push('focused');
+		if(this.model.get('customClasses')) classNames = _.union(classNames, this.model.get('customClasses'));
+		this.$box.attr('class', classNames.join(' '));
 		
 		// Example of updating the HTML with a data stored in the cell model.
 		this.$box.find('h1').html(this.model.get('title'));

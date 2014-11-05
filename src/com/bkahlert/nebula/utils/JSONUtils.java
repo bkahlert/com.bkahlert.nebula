@@ -2,6 +2,7 @@ package com.bkahlert.nebula.utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -236,6 +237,9 @@ public final class JSONUtils {
 		} else if (jsonObj instanceof List<?>) {
 			@SuppressWarnings("unchecked")
 			List<Object> list = (List<Object>) jsonObj;
+			topNode = buildJsonArray(list, factory);
+		} else if (jsonObj.getClass().isArray()) {
+			List<Object> list = Arrays.asList((Object[]) jsonObj);
 			topNode = buildJsonArray(list, factory);
 		} else {
 			if (jsonObj instanceof Boolean) {

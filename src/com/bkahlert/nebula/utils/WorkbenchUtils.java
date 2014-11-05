@@ -37,6 +37,8 @@ public class WorkbenchUtils {
 			} else {
 				return ExecUtils.syncExec(callable);
 			}
+		} catch (NullPointerException e) {
+			return null;
 		} catch (Exception e) {
 			LOGGER.error("Error retrieving " + IViewPart.class.getSimpleName(),
 					e);

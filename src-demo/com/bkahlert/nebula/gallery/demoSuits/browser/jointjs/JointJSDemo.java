@@ -1,5 +1,7 @@
 package com.bkahlert.nebula.gallery.demoSuits.browser.jointjs;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -36,6 +38,8 @@ public class JointJSDemo extends AbstractDemo {
 	private String json = null;
 	protected Point pan = null;
 	protected Double zoom = null;
+
+	private List<String> idsWithCustomClass;
 
 	@Override
 	public void createControls(Composite composite) {
@@ -222,6 +226,36 @@ public class JointJSDemo extends AbstractDemo {
 				}).start();
 			}
 		});
+
+		this.createControlButton("Add Custom Class", new Runnable() {
+			@Override
+			public void run() {
+				log("add class debugCustomClass");
+				try {
+					JointJSDemo.this.jointjs.addCustomClass(
+							JointJSDemo.this.idsWithCustomClass,
+							"debugCustomClass");
+				} catch (Exception e) {
+					log(e.toString());
+				}
+				log("added class debugCustomClass");
+			}
+		});
+
+		this.createControlButton("Remove Custom Class", new Runnable() {
+			@Override
+			public void run() {
+				log("remove class debugCustomClass");
+				try {
+					JointJSDemo.this.jointjs.removeCustomClass(
+							JointJSDemo.this.idsWithCustomClass,
+							"debugCustomClass");
+				} catch (Exception e) {
+					log(e.toString());
+				}
+				log("removed class debugCustomClass");
+			}
+		});
 	}
 
 	@Override
@@ -302,8 +336,8 @@ public class JointJSDemo extends AbstractDemo {
 						0, 0));
 				JointJSDemo.this.jointjs.setBackgroundColor("apiua://test3",
 						new RGB(255, 0, 255));
-				JointJSDemo.this.jointjs.setBorderColor("apiua://test3", new RGB(
-						255, 128, 0));
+				JointJSDemo.this.jointjs.setBorderColor("apiua://test3",
+						new RGB(255, 128, 0));
 
 				log("initial zoom: " + JointJSDemo.this.jointjs.getZoom().get());
 
@@ -328,8 +362,12 @@ public class JointJSDemo extends AbstractDemo {
 						+ JointJSDemo.this.jointjs.getZoom().get());
 
 				Thread.sleep(1500);
-				JointJSDemo.this.jointjs.setPosition("apiua://test40", 300, 100);
+				JointJSDemo.this.jointjs
+						.setPosition("apiua://test40", 300, 100);
 				log("moved test40");
+
+				JointJSDemo.this.idsWithCustomClass = Arrays.asList(node1,
+						node2, link1);
 
 				return null;
 			}

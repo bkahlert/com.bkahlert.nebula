@@ -29,18 +29,7 @@
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"outputStyle": 1,
-		"syntaxCheckerStyle": 1
-		},
-	"\/html\/js\/min\/facade-ck.js": {
-		"fileType": 64,
-		"ignore": 1,
-		"ignoreWasSetByUser": 0,
-		"inputAbbreviatedPath": "\/html\/js\/min\/facade-ck.js",
-		"outputAbbreviatedPath": "\/html\/js\/min\/min\/facade-ck-ck.js",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"outputStyle": 1,
-		"syntaxCheckerStyle": 1
+		"syntaxCheckerStyle": 0
 		},
 	"\/html\/less\/style.less": {
 		"allowInsecureImports": 0,
@@ -56,7 +45,7 @@
 		"outputPathIsSetByUser": 0,
 		"outputStyle": 0,
 		"relativeURLS": 0,
-		"shouldRunAutoprefixer": 0,
+		"shouldRunAutoprefixer": 1,
 		"shouldRunBless": 0,
 		"strictImports": 0,
 		"strictMath": 0,

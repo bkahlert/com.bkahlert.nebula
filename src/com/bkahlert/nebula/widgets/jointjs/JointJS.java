@@ -503,6 +503,26 @@ public class JointJS extends Browser implements ISelectionProvider {
 				+ ");", IConverter.CONVERTER_VOID);
 	}
 
+	public Future<Void> addCustomClass(List<String> ids,
+			String... customClasses) {
+		String idList = ids != null ? JSONUtils.buildJson(ids) : "[]";
+		String classList = customClasses != null ? JSONUtils
+				.buildJson(customClasses) : "[]";
+		return this.run("return com.bkahlert.nebula.jointjs.addCustomClasses("
+				+ idList + ", " + classList + ");", IConverter.CONVERTER_VOID);
+	}
+
+	public Future<Void> removeCustomClass(List<String> ids,
+			String... customClasses) {
+		String idList = ids != null ? JSONUtils.buildJson(ids) : "[]";
+		String classList = customClasses != null ? JSONUtils
+				.buildJson(customClasses) : "[]";
+		return this.run(
+				"return com.bkahlert.nebula.jointjs.removeCustomClasses("
+						+ idList + ", " + classList + ");",
+				IConverter.CONVERTER_VOID);
+	}
+
 	public void addJointJSListener(IJointJSListener jointJSListener) {
 		this.jointJSListeners.add(jointJSListener);
 	}
