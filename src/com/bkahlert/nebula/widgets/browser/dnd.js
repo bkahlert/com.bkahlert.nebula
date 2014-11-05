@@ -29,6 +29,17 @@ function clone(e) {
 // Draggable events must have the draggable, data-dnd-mime and data-dnd-data attributes
 // e.g. <span draggable="true" data-dnd-mime="text/plain" data-dnd-data="Hello World!">Drag me</span>
 
+function findDroppable(evt) {
+	var $target = $(evt.target);
+	while($target.length > 0 && !$target.attr("droppable")) {
+		$target = $target.parent();
+	}
+
+	if($target.length > 0) return $target[0];
+	return null;
+}
+
+var lastEnteredDroppable = null;
 
 document.addEventListener("dragstart", function(e) {
 	if(e.target.getAttribute("draggable")) {
@@ -41,14 +52,17 @@ document.addEventListener("dragstart", function(e) {
 }, false);
 
 document.addEventListener("dragenter", function(e) {
-	if(e.target.getAttribute("droppable")) {
-		e.target.classList.add('over');
+	var droppable = findDroppable(e);
+	if(droppable == e.target) {
+		droppable.classList.add('over');
 		e.dataTransfer.dropEffect = 'link';
 	}
+	lastEnteredDroppable = droppable != null ? e.target : null;
 }, false);
 
 document.addEventListener("dragover", function(e) {
-	if(e.target.getAttribute("droppable")) {
+	var droppable = findDroppable(e);
+	if(droppable) {
 		if (e.preventDefault) {
 			e.preventDefault(); // Necessary. Allows us to drop.
 		}
@@ -56,15 +70,11 @@ document.addEventListener("dragover", function(e) {
 }, false);
 
 document.addEventListener("dragleave", function(e) {
-	if(e.target.getAttribute("droppable")) {
-		e.target.classList.remove('over');
-		e.dataTransfer.dropEffect = 'none';
-	}
-}, false);
-
-document.addEventListener("dragexit", function(e) {
-	if(e.target.getAttribute("droppable")) {
-		e.target.classList.remove('over');
+	var droppable = findDroppable(e);
+	if(lastEnteredDroppable != null && droppable != null && droppable != lastEnteredDroppable) {
+		// left child - do nothing
+	} else if(lastEnteredDroppable != droppable && droppable != null) {
+		droppable.classList.remove('over');
 		e.dataTransfer.dropEffect = 'none';
 	}
 }, false);
@@ -73,13 +83,14 @@ document.addEventListener('drop', function(e) {
 	if (e.stopPropagation) {
 		e.stopPropagation(); // Stops some browsers from redirecting.
 	}
-		
-	if(e.target.getAttribute("droppable")) {
+	
+	var droppable = findDroppable(e);
+	if(droppable) {
 		var html = e.dataTransfer.getData('text/html');
-		if(html) window['__drop'](e.offsetX, e.offsetY, clone(e.target), 'text/html', html);
+		if(html) window['__drop'](e.offsetX, e.offsetY, clone(droppable), 'text/html', html);
 		else {
 			var plain = e.dataTransfer.getData('text/plain');
-			if(plain) window['__drop'](e.offsetX, e.offsetY, clone(e.target), 'text/plain', plain);
+			if(plain) window['__drop'](e.offsetX, e.offsetY, clone(droppable), 'text/plain', plain);
 		}
 		e.target.classList.remove('over');
 	}

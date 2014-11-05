@@ -48,8 +48,9 @@ public class DragnDropBrowserDemo extends AbstractDemo {
 
 		this.browser
 				.setBodyHtml("<p>Hello World!</p>"
-						+ "<p draggable=\"true\" data-dnd-mime=\"text/html\" data-dnd-data=\"<b>Hello</b> <em>World!</em>\">Drag me!</p>"
-						+ "<p droppable=\"true\">Drop here!</p>");
+						+ "<div draggable=\"true\" data-dnd-mime=\"text/html\" data-dnd-data=\"<b>Hello</b> <em>World!</em>\">Drag me! <p style=\"border: 1px solid #999; margin: 1em;\">Child Element</p></div>"
+						+ "<br>"
+						+ "<div droppable=\"true\">Drop here! <p style=\"border: 1px solid #999; margin: 1em;\">Child Element</p></div>");
 		this.browser.addDNDListener(new IDNDListener() {
 			@Override
 			public void dragStart(long offsetX, long offsetY, IElement element,
