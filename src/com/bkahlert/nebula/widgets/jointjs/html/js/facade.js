@@ -392,9 +392,11 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 		getConnectedPermanentLinks: function(id) {
 			var cell = com.bkahlert.nebula.jointjs.graph.getCell(id);
 			var links = [];
-			_.each(com.bkahlert.nebula.jointjs.graph.getConnectedLinks(cell, {}), function(link) {
-				if(link.get('permanent')) links.push(link.id);
-			});
+			if(cell) {
+				_.each(com.bkahlert.nebula.jointjs.graph.getConnectedLinks(cell, {}), function(link) {
+					if(link.get('permanent')) links.push(link.id);
+				});
+			}
 			return links;
 		},
 		
