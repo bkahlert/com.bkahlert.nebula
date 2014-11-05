@@ -100,7 +100,10 @@ public class JointJS extends Browser implements ISelectionProvider {
 	 *            prefix is put in front of the automatically generated id.
 	 * @param selectionConverter
 	 *            converts the model id string to a type of your choice before
-	 *            firing it as an selection
+	 *            firing it as an selection, if it converts <code>null</code> to
+	 *            something different than <code>null</code> this value will be
+	 *            used as the default selection (applies if no other element is
+	 *            selected).
 	 */
 	public JointJS(Composite parent, int style, String nodeCreationPrefix,
 			String linkCreationPrefix,
@@ -188,6 +191,10 @@ public class JointJS extends Browser implements ISelectionProvider {
 							if (converted != null) {
 								selection.add(converted);
 							}
+						}
+						if (selection.isEmpty()
+								&& selectionConverter.convert(null) != null) {
+							selection.add(selectionConverter.convert(null));
 						}
 						JointJS.this.setSelection(new StructuredSelection(
 								selection));
