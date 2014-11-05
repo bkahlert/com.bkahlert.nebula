@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -258,6 +259,20 @@ public class Browser extends Composite implements IBrowser {
 					Browser.this.fireDrop(offsetX, offsetY, element, mimeType,
 							data);
 				}
+				return null;
+			}
+		};
+		new BrowserFunction(this.browser, "__consoleLog") {
+			@Override
+			public Object function(Object[] arguments) {
+				LOGGER.debug(StringUtils.join(arguments, ", "));
+				return null;
+			}
+		};
+		new BrowserFunction(this.browser, "__consoleError") {
+			@Override
+			public Object function(Object[] arguments) {
+				LOGGER.error(StringUtils.join(arguments, ", "));
 				return null;
 			}
 		};

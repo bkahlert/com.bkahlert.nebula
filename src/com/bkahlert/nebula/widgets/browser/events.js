@@ -23,6 +23,60 @@ if(k&&j[k]&&(e||j[k].data)||void 0!==d||"string"!=typeof b)return k||(k=i?a[h]=c
 var $ = window.$.noConflict(true);
 
 
+/**
+ * Console forwarding
+ *
+ * Since the SWT Browser only supports a limited set of types to be forwarded to Java,
+ * we convert unsupported types to a JSON string.
+ */
+ 
+// http://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
+function isElement(obj) {
+	try {
+		//Using W3 DOM2 (works for FF, Opera and Chrom)
+		return obj instanceof HTMLElement;
+	} catch(e){
+		//Browsers not supporting W3 DOM2 don't have HTMLElement and
+		//an exception is thrown and we end up here. Testing some
+		//properties that all elements have. (works on IE7)
+		return (typeof obj==="object")
+			&& (obj.nodeType===1)
+			&& (typeof obj.style === "object")
+			&& (typeof obj.ownerDocument ==="object");
+	}
+}
+
+function serialize(obj) {
+    var doNotConvert = [ "undefined", "boolean", "number", "string" ];
+    var jsons = [];
+    for(var i=0; i<obj.length; i++) {
+        if(obj[i] == null || doNotConvert.indexOf(typeof obj[i]) != -1) {
+            jsons.push(obj[i]);
+        } else {
+            var json = JSON.parse(JSON.stringify(obj[i], null, "\t"));
+            if(isElement(obj[i])) {
+	            try {
+	                var html = clone(obj[i]);
+	                json['.html()'] = html;
+	            } catch(e) {
+	                json['.html(error)'] = e;
+	            }
+            }
+        	jsons.push(JSON.stringify(json, null, "\t"));
+        }
+    }
+    return jsons;
+}
+
+console.log = function() {
+    window.__consoleLog.apply(this, serialize(arguments));
+}
+
+console.error = function() {
+	window.__consoleError.apply(this, serialize(arguments));
+}
+
+
 
 window.__addFocusBorder = function() {
 	if($('.nebulaBrowserFocusBorder').length > 0) return;
