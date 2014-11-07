@@ -219,6 +219,22 @@ public class ExecUtils {
 		public boolean isDone() {
 			return this.future.isDone();
 		}
+
+		@Override
+		public String toString() {
+			String detail;
+			try {
+				if (this.isDone()) {
+					detail = "value = " + this.get();
+				} else {
+					detail = "still computing";
+				}
+			} catch (Exception e) {
+				detail = "exception = " + e;
+			}
+			return UIThreadSafeFuture.class.getSimpleName() + "(" + detail
+					+ ")";
+		}
 	}
 
 	public static interface ParametrizedCallable<T, V> {
