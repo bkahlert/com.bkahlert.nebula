@@ -465,6 +465,40 @@ public class ExecUtils {
 	}
 
 	/**
+	 * Prints an eventually thrown {@link Exception} to the console.
+	 * 
+	 * @param future
+	 */
+	public static void logException(Future<?> future) {
+		logException(future, null);
+	}
+
+	/**
+	 * Logs an eventually thrown {@link Exception} using the given
+	 * {@link Logger}.
+	 * 
+	 * @param future
+	 * @param logger
+	 */
+	public static void logException(final Future<?> future, final Logger logger) {
+		Assert.isNotNull(future);
+		ExecUtils.nonUIAsyncExec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					future.get();
+				} catch (Exception e) {
+					if (logger != null) {
+						logger.error(e);
+					} else {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+	}
+
+	/**
 	 * Executes the given {@link Callable}.
 	 * <p>
 	 * Checks if the caller is already in the UI thread and if so runs the
