@@ -556,7 +556,7 @@ public class Browser extends Composite implements IBrowser {
 								break;
 							case DISPOSED:
 								if (!Browser.this.browser.isDisposed()) {
-									LOGGER.warn("Aborted loading " + uri
+									LOGGER.info("Aborted loading " + uri
 											+ " due to disposal");
 								}
 								break;
