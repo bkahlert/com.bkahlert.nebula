@@ -243,10 +243,15 @@ public class ClipboardListener extends Thread {
 				@Override
 				public Transfer call() throws Exception {
 					for (Transfer transfer : ClipboardListener.this.hashTransfers) {
-						Object content = ClipboardListener.this.clipboard
-								.getContents(transfer);
-						if (content != null) {
-							return transfer;
+						try {
+							Object content = ClipboardListener.this.clipboard
+									.getContents(transfer);
+							if (content != null) {
+								return transfer;
+							}
+						} catch (NullPointerException e) {
+							// e.g. happens if a copied file was deleted in the
+							// mean time
 						}
 					}
 					return null;
