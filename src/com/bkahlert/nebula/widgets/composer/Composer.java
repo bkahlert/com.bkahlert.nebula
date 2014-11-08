@@ -3,13 +3,11 @@ package com.bkahlert.nebula.widgets.composer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.BrowserFunction;
@@ -17,19 +15,18 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.IModifiable;
 import com.bkahlert.nebula.utils.JSONUtils;
+import com.bkahlert.nebula.utils.ModificationNotifier;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.Browser;
 import com.bkahlert.nebula.widgets.browser.BrowserUtils;
@@ -47,7 +44,7 @@ import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
  * @author bkahlert
  * 
  */
-public class Composer extends Browser {
+public class Composer extends Browser implements IModifiable {
 
 	private static final Logger LOGGER = Logger.getLogger(Composer.class);
 	private static final Pattern URL_PATTERN = Pattern
@@ -60,15 +57,13 @@ public class Composer extends Browser {
 	private final ToolbarSet toolbarSet;
 
 	private final List<IAnkerLabelProvider> ankerLabelProviders = new ArrayList<IAnkerLabelProvider>();
-	private final List<ModifyListener> modifyListeners = new ArrayList<ModifyListener>();
+
 	private RGB background = null;
-	private String oldHtml = "";
-	private final Timer delayChangeTimer = new Timer(this.getClass()
-			.getSimpleName() + " :: Delay Change Timer", false);
-	private TimerTask delayChangeTimerTask = null;
+	private final ModificationNotifier<String> modificationNotifier;
+	private Object oldHtml;
 
 	public Composer(Composite parent, int style) {
-		this(parent, style, 0, ToolbarSet.DEFAULT);
+		this(parent, style, 1500, ToolbarSet.DEFAULT);
 	}
 
 	/**
@@ -96,14 +91,8 @@ public class Composer extends Browser {
 						+ toolbarSet.toString().toLowerCase()), 30000,
 				"typeof jQuery != \"undefined\" && jQuery(\"html\").hasClass(\"ready\")");
 
-		this.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				if (Composer.this.delayChangeTimer != null) {
-					Composer.this.delayChangeTimer.cancel();
-				}
-			}
-		});
+		this.modificationNotifier = new ModificationNotifier<String>(this,
+				delayChangeEventUpTo);
 	}
 
 	public void fixShortcuts(final long delayChangeEventUpTo) {
@@ -130,9 +119,11 @@ public class Composer extends Browser {
 								try {
 									Composer.this.modifiedCallback(
 											Composer.this.getSource().get(),
-											delayChangeEventUpTo);
+											false);
 								} catch (Exception e) {
-									LOGGER.error("Error reporting content modification");
+									LOGGER.error(
+											"Error reporting content modification",
+											e);
 								}
 							}
 						});
@@ -150,9 +141,11 @@ public class Composer extends Browser {
 								try {
 									Composer.this.modifiedCallback(
 											Composer.this.getSource().get(),
-											delayChangeEventUpTo);
+											false);
 								} catch (Exception e) {
-									LOGGER.error("Error reporting content modification");
+									LOGGER.error(
+											"Error reporting content modification",
+											e);
 								}
 							}
 						});
@@ -170,8 +163,7 @@ public class Composer extends Browser {
 				if (arguments.length >= 1) {
 					if (arguments[0] instanceof String) {
 						String newHtml = (String) arguments[0];
-						Composer.this.modifiedCallback(newHtml,
-								delayChangeEventUpTo);
+						Composer.this.modifiedCallback(newHtml, false);
 					}
 				}
 				return null;
@@ -186,26 +178,26 @@ public class Composer extends Browser {
 				}
 				try {
 					Composer.this.modifiedCallback(Composer.this.getSource()
-							.get(), 0);
+							.get(), true);
 				} catch (Exception e1) {
-					LOGGER.error("Error reporting last composer contents");
+					LOGGER.error("Error reporting last composer contents", e1);
 				}
 			}
 		});
 	}
 
-	protected void modifiedCallback(String html, final long delayChangeEventTo) {
+	protected void modifiedCallback(String html, boolean immediately) {
 		String newHtml = (html == null || html.replace("&nbsp;", " ").trim()
 				.isEmpty()) ? "" : html.trim();
 
-		if (StringUtils.equals(this.oldHtml, newHtml)) {
+		if (ObjectUtils.equals(this.oldHtml, newHtml)) {
 			return;
 		}
 
 		this.oldHtml = newHtml;
 
 		// When space entered but widget is not disposing, create links
-		if (delayChangeEventTo > 0) {
+		if (!immediately) {
 			String prevCaretCharacter = this.getPrevCaretCharacter();
 			if (prevCaretCharacter != null
 					&& this.getPrevCaretCharacter().matches("[\\s| ]")) { // space
@@ -221,50 +213,10 @@ public class Composer extends Browser {
 			}
 		}
 
-		final String saveHtml = newHtml;
-		ExecUtils.nonUISyncExec(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					final Runnable fireRunnable = new Runnable() {
-						@Override
-						public void run() {
-							Event event = new Event();
-							event.display = Display.getCurrent();
-							event.widget = Composer.this;
-							event.text = saveHtml;
-							event.data = saveHtml;
-							ModifyEvent modifyEvent = new ModifyEvent(event);
-							for (ModifyListener modifyListener : Composer.this.modifyListeners) {
-								modifyListener.modifyText(modifyEvent);
-							}
-						}
-					};
-
-					synchronized (this) {
-						if (Composer.this.delayChangeTimerTask != null) {
-							Composer.this.delayChangeTimerTask.cancel();
-						}
-						if (delayChangeEventTo > 0) {
-							Composer.this.delayChangeTimerTask = new TimerTask() {
-								@Override
-								public void run() {
-									fireRunnable.run();
-								}
-							};
-							Composer.this.delayChangeTimer.schedule(
-									Composer.this.delayChangeTimerTask,
-									delayChangeEventTo);
-						} else {
-							Composer.this.delayChangeTimerTask = null;
-							fireRunnable.run();
-						}
-					}
-				} catch (Exception e) {
-					LOGGER.error("Error saving memo", e);
-				}
-			}
-		});
+		this.modificationNotifier.modified(newHtml);
+		if (immediately) {
+			this.modificationNotifier.notifyNow();
+		}
 	}
 
 	private String createLinks(String html) {
@@ -348,16 +300,7 @@ public class Composer extends Browser {
 	}
 
 	public Future<Boolean> setSource(String html, boolean restoreSelection) {
-		/*
-		 * do not wait for the delay to pass but invoke the task immediately
-		 */
-		synchronized (this) {
-			if (this.delayChangeTimerTask != null) {
-				this.delayChangeTimerTask.cancel();
-				this.delayChangeTimerTask.run();
-				this.delayChangeTimerTask = null;
-			}
-		}
+		this.modificationNotifier.notifyNow();
 		this.oldHtml = html;
 		return this.run("return com.bkahlert.nebula.editor.setSource("
 				+ JSONUtils.enquote(html) + ", "
@@ -440,26 +383,14 @@ public class Composer extends Browser {
 		this.ankerLabelProviders.remove(ankerLabelProvider);
 	}
 
-	/**
-	 * Adds a {@link ModifyListener} to this {@link Image}.
-	 * <p>
-	 * Please note that {@link ModifyListener#modifyText(ModifyEvent)} is also
-	 * fired when the {@link Image} is being disposed. This is the last
-	 * opportunity to read the {@link Image}'s current demoAreaContent.
-	 * 
-	 * @param modifyListener
-	 */
+	@Override
 	public void addModifyListener(ModifyListener modifyListener) {
-		this.modifyListeners.add(modifyListener);
+		this.modificationNotifier.addModifyListener(modifyListener);
 	}
 
-	/**
-	 * Removes a {@link ModifyListener} from this {@link Image}.
-	 * 
-	 * @param modifyListener
-	 */
+	@Override
 	public void removeModifyListener(ModifyListener modifyListener) {
-		this.modifyListeners.remove(modifyListener);
+		this.modificationNotifier.removeModifyListener(modifyListener);
 	}
 
 }

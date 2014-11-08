@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -73,7 +74,8 @@ public class Browser extends Composite implements IBrowser {
 	private final List<IMouseListener> mouseListeners = new ArrayList<IMouseListener>();
 	private final List<IFocusListener> focusListeners = new ArrayList<IFocusListener>();
 	private final List<IDNDListener> dndListeners = new ArrayList<IDNDListener>();
-	private final List<JavaScriptExceptionListener> javaScriptExceptionListeners = new ArrayList<JavaScriptExceptionListener>();
+	private final List<JavaScriptExceptionListener> javaScriptExceptionListeners = Collections
+			.synchronizedList(new ArrayList<JavaScriptExceptionListener>());
 
 	/**
 	 * Constructs a new {@link Browser} with the given styles.
