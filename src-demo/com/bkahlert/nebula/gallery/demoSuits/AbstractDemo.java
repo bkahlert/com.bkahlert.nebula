@@ -72,6 +72,10 @@ public abstract class AbstractDemo {
 	 * Shows the console
 	 */
 	public void showConsole() {
+		if (this.console == null || this.console.getControl() == null
+				|| this.console.getControl().isDisposed()) {
+			return;
+		}
 		((GridData) this.console.getControl().getLayoutData()).heightHint = this.consoleHeight;
 		this.console.getControl().setVisible(true);
 		this.composite.layout();
@@ -81,6 +85,10 @@ public abstract class AbstractDemo {
 	 * Hides the console
 	 */
 	public void hideConsole() {
+		if (this.console == null || this.console.getControl() == null
+				|| this.console.getControl().isDisposed()) {
+			return;
+		}
 		((GridData) this.console.getControl().getLayoutData()).heightHint = 0;
 		this.console.getControl().setVisible(false);
 		this.composite.layout();

@@ -345,8 +345,12 @@ public class Browser extends Composite implements IBrowser {
 			Browser.this.runContentsImmediately(dnd);
 			Browser.this.injectCssFile(new URI("file://" + dndCss));
 		} catch (Exception e) {
-			LOGGER.error("Could not inject drop catch script in "
-					+ Browser.this.getClass().getSimpleName(), e);
+			if (e.getCause() instanceof SWTException) {
+				// disposed
+			} else {
+				LOGGER.error("Could not inject drop catch script in "
+						+ Browser.this.getClass().getSimpleName(), e);
+			}
 		}
 
 		Browser.this.eventCatchScriptInjected = true;
