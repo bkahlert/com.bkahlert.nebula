@@ -55,6 +55,7 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			com.bkahlert.nebula.jointjs.activateLinkTools();
 			com.bkahlert.nebula.jointjs.activateSelections();
 			com.bkahlert.nebula.jointjs.activateHoverStates();
+			com.bkahlert.nebula.jointjs.activateModificationNotification();
 			
 			var internal = /[?&]internal=true/.test(location.href);
 			if (!internal) {
@@ -167,6 +168,7 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 		setTitle: function(title) {
 			var visible = title && title.trim() != "";
 			$('.title').text(title || "").css("display", visible ? "block" : "none");
+			com.bkahlert.nebula.jointjs.graph.trigger('change:title');
 		},
 
 		autoLayout: function () {
@@ -188,6 +190,10 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
         },
 
 		openDemo: function () {
+			window.__modified = function(html) {
+				console.log('modified: ' + html);
+			}
+		
 			$('<div class="buttons" style="z-index: 9999999"></div>').appendTo('body').css({
 				position: 'absolute',
 				top: 0,
@@ -619,6 +625,36 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			}
 		},
 		
+		activateModificationNotification: function() {
+			var shuttingDown = false;
+			var lastJson = null;
+		
+			var modified = function() {
+				if (!shuttingDown && typeof window.__modified === 'function') {
+					var json = com.bkahlert.nebula.jointjs.serialize();
+					if(lastJson != json) {
+						lastJson = json;
+						window.__modified(json);
+					}
+				}
+			}
+			
+			var debouncingModified = _.debounce(modified, 1000);
+			
+			com.bkahlert.nebula.jointjs.graph.on('add change remove change:title', function() {
+				debouncingModified();
+			});
+			
+			com.bkahlert.nebula.jointjs.paper.on('change:translate change:zoom', function() {
+				debouncingModified();
+			});
+			
+			$(window).on('beforeunload', function() {
+                modified();
+				shuttingDown = true;
+            });
+        },
+		
 		setText: function(id, index, text) {
 			var cell = com.bkahlert.nebula.jointjs.graph.getCell(id);
 			
@@ -822,6 +858,7 @@ joint.dia.Paper.prototype.scale = function(sx, sy, ox, oy) {
 	var scale = this.getScale();
 	$(this.viewport).attr('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + translate.tx + ', ' + translate.ty + ')');
 	this.$el.find('.html-view').css('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + translate.tx + 'px, ' + translate.ty + 'px)');
+	this.trigger('change:zoom');
 }
 
 joint.dia.Paper.prototype.getTranslate = function() {
@@ -842,6 +879,7 @@ joint.dia.Paper.prototype.translate = function(tx, ty) {
 	var scale = com.bkahlert.nebula.jointjs.paper.getScale();
 	$(this.viewport).attr('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + tx + ', ' + ty + ')');
 	this.$el.find('.html-view').css('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + tx + 'px, ' + ty + 'px)');
+	this.trigger('change:translate');
 }
 
 

@@ -48,9 +48,12 @@ public class JointJS extends Browser implements ISelectionProvider {
 
 		public void save(String json);
 
+		public void modified(String json);
+
 		public void linkTitleChanged(String id, String title);
 
 		public void hovered(String id, boolean hoveredIn);
+
 	}
 
 	public static class JointJSListener implements IJointJSListener {
@@ -64,6 +67,10 @@ public class JointJS extends Browser implements ISelectionProvider {
 		}
 
 		@Override
+		public void modified(String json) {
+		}
+
+		@Override
 		public void linkTitleChanged(String id, String title) {
 		}
 
@@ -74,11 +81,12 @@ public class JointJS extends Browser implements ISelectionProvider {
 	}
 
 	private final List<IJointJSListener> jointJSListeners = new ArrayList<IJointJSListener>();
-
 	private final ListenerList selectionChangedListeners = new ListenerList();
 	private ISelection selection = new StructuredSelection();
 	private IReflexiveConverter<String, Object> selectionConverter;
 	private String lastHovered = null;
+
+	private String currentJson = null;
 
 	private String nodeCreationPrefix;
 	private String linkCreationPrefix;
@@ -123,6 +131,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 			@Override
 			public Object function(Object[] arguments) {
 				if (arguments.length == 1) {
+					JointJS.this.currentJson = (String) arguments[0];
 					for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
 						jointJSListener.loaded((String) arguments[0]);
 					}
@@ -137,6 +146,19 @@ public class JointJS extends Browser implements ISelectionProvider {
 				if (arguments.length == 1) {
 					for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
 						jointJSListener.save((String) arguments[0]);
+					}
+				}
+				return null;
+			}
+		};
+
+		new BrowserFunction(this.getBrowser(), "__modified") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length == 1) {
+					JointJS.this.currentJson = (String) arguments[0];
+					for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
+						jointJSListener.modified(JointJS.this.currentJson);
 					}
 				}
 				return null;
@@ -236,6 +258,22 @@ public class JointJS extends Browser implements ISelectionProvider {
 				+ JSONUtils.enquote(json) + ")", IConverter.CONVERTER_STRING);
 	}
 
+	/**
+	 * Returns the content since the last modification. Since the modification
+	 * event is delayed it might be that the returned value is slighty outdated.
+	 * In this case you can call {@link #save()}.
+	 * 
+	 * @return
+	 */
+	public String getJson() {
+		return this.currentJson;
+	}
+
+	/**
+	 * Returns the current content.
+	 * 
+	 * @return
+	 */
 	public Future<String> save() {
 		return this.run("return com.bkahlert.nebula.jointjs.save();",
 				IConverter.CONVERTER_STRING);

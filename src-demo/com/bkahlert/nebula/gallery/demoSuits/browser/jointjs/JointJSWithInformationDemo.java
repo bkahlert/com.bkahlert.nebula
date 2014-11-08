@@ -363,6 +363,11 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 			}
 
 			@Override
+			public void modified(String json) {
+				log("modified " + json);
+			}
+
+			@Override
 			public void linkTitleChanged(String id, String title) {
 				log("link title changed: " + id + " = " + title);
 			}
@@ -446,8 +451,8 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 				JointJSWithInformationDemo.this.jointjs.setLinkTitle(link2,
 						"perm link ").get();
 
-				JointJSWithInformationDemo.this.jointjs.setColor("apiua://test3",
-						new RGB(255, 0, 0));
+				JointJSWithInformationDemo.this.jointjs.setColor(
+						"apiua://test3", new RGB(255, 0, 0));
 				JointJSWithInformationDemo.this.jointjs.setBackgroundColor(
 						"apiua://test3", new RGB(255, 0, 255));
 				JointJSWithInformationDemo.this.jointjs.setBorderColor(

@@ -295,6 +295,11 @@ public class JointJSDemo extends AbstractDemo {
 			}
 
 			@Override
+			public void modified(String json) {
+				log("modified " + json);
+			}
+
+			@Override
 			public void linkTitleChanged(String id, String title) {
 				log("link title changed: " + id + " = " + title);
 			}
