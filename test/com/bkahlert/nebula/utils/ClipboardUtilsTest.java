@@ -66,5 +66,9 @@ public class ClipboardUtilsTest {
 						+ " is still checking",
 				clipboardListener.lastCheck > System.currentTimeMillis()
 						+ tolerance);
+		assertFalse(
+				"Although stopped the "
+						+ ClipboardListener.class.getSimpleName()
+						+ " is still running", clipboardListener.isAlive());
 	}
 }

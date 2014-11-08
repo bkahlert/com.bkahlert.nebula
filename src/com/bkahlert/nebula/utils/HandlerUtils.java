@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.dnd.TransferData;
@@ -17,6 +18,8 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Widget;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchListener;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.swt.IFocusService;
 
@@ -44,8 +47,7 @@ public class HandlerUtils {
 				.getLogger(CustomPasteHandlerManager.class);
 
 		private final Clipboard clipboard = new Clipboard(Display.getCurrent());
-		private final ClipboardListener clipboardListener = new ClipboardListener(
-				200l);
+		private ClipboardListener clipboardListener = null;
 		private final IClipboardTransferChangeListener clipboardTransferChangeListener = new IClipboardTransferChangeListener() {
 			@Override
 			public void transferChanged() {
@@ -90,12 +92,33 @@ public class HandlerUtils {
 		private Control focusControl = null;
 
 		public CustomPasteHandlerManager() {
-			this.clipboardListener.start();
+			PlatformUI.getWorkbench().addWorkbenchListener(
+					new IWorkbenchListener() {
+						@Override
+						public boolean preShutdown(IWorkbench workbench,
+								boolean forced) {
+							if (CustomPasteHandlerManager.this.clipboardListener != null) {
+								CustomPasteHandlerManager.this.clipboardListener
+										.requestStop();
+							}
+							return true;
+						}
+
+						@Override
+						public void postShutdown(IWorkbench workbench) {
+						}
+					});
 		}
 
 		public void activateCustomPasteHandlerConsideration(
 				final Control control, String focusControlId, String[] mimeTypes) {
 			this.deactivateCustomPasteHandlerConsideration(control);
+
+			if (this.focusControlIds.keySet().isEmpty()) {
+				Assert.isLegal(this.clipboardListener == null);
+				this.clipboardListener = new ClipboardListener(200l);
+				this.clipboardListener.start();
+			}
 
 			this.focusControlIds.put(control, focusControlId);
 			this.customIfMap.put(control, Arrays.asList(mimeTypes));
@@ -124,6 +147,13 @@ public class HandlerUtils {
 			if (this.focusListeners.containsKey(control)) {
 				control.removeFocusListener(this.focusListeners.get(control));
 				this.focusListeners.remove(control);
+			}
+
+			if (this.focusControlIds.keySet().isEmpty()) {
+				if (this.clipboardListener != null) {
+					this.clipboardListener.requestStop();
+					this.clipboardListener = null;
+				}
 			}
 
 			LOGGER.debug("Unregistered custom paste handler: " + control);

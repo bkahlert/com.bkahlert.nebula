@@ -143,6 +143,9 @@ public class ClipboardListener extends Thread {
 		ExecUtils.setThreadLabel(ClipboardListener.class, "Checking clipboard");
 		while (true) {
 			this.hibernateIfNecessary();
+			if (this.stop) {
+				break;
+			}
 
 			TimePassed passed = new TimePassed(true, "Clipboard Check");
 			if (this.clipboardContentChangeListeners.size() > 0) {
@@ -194,11 +197,10 @@ public class ClipboardListener extends Thread {
 			passed.finished();
 			this.lastCheck = System.currentTimeMillis();
 
+			this.hibernateIfNecessary();
 			if (this.stop) {
 				break;
 			}
-
-			this.hibernateIfNecessary();
 			try {
 				Thread.sleep(this.checkEvery);
 			} catch (InterruptedException e) {
@@ -296,7 +298,9 @@ public class ClipboardListener extends Thread {
 		return new Object();
 	}
 
-	public void requestStop() {
+	public synchronized void requestStop() {
 		this.stop = true;
+		this.notifyAll();
+		LOGGER.debug(ClipboardListener.class.getSimpleName() + " stopped.");
 	}
 }
