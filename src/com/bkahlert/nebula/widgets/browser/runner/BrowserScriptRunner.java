@@ -97,7 +97,8 @@ public class BrowserScriptRunner implements IBrowserScriptRunner {
 			public DEST call() throws Exception {
 				if (browserScriptRunner.browser == null
 						|| browserScriptRunner.browser.isDisposed()) {
-					return null;
+					throw new ScriptExecutionException(script,
+							new SWTException(SWT.ERROR_WIDGET_DISPOSED));
 				}
 				LOGGER.info("Running " + label);
 				try {
