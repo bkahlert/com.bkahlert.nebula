@@ -598,6 +598,10 @@ public class ExecUtils {
 	 * @NonUIThread
 	 */
 	public static <V> Future<V> asyncExec(final Callable<V> callable) {
+		if (ExecUtils.isUIThread()) {
+			return new CompletedFuture<V>(callable);
+		}
+
 		return new UIThreadSafeFuture<V>(
 				EXECUTOR_SERVICE.submit(new Callable<V>() {
 					@Override
@@ -618,12 +622,16 @@ public class ExecUtils {
 	 * @NonUIThread
 	 */
 	public static Future<Void> asyncExec(final Runnable runnable) {
+		if (ExecUtils.isUIThread()) {
+			return new CompletedFuture<Void>(runnable);
+		}
+
 		return new UIThreadSafeFuture<Void>(
 				EXECUTOR_SERVICE.submit(new Callable<Void>() {
 					@Override
 					public Void call() throws Exception {
 						final AtomicReference<Exception> exception = new AtomicReference<Exception>();
-						Display.getDefault().asyncExec(new Runnable() {
+						Display.getDefault().syncExec(new Runnable() {
 							@Override
 							public void run() {
 								try {
