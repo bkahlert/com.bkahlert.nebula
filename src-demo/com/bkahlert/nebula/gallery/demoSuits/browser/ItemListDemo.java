@@ -2,7 +2,6 @@ package com.bkahlert.nebula.gallery.demoSuits.browser;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.commons.io.FileUtils;
@@ -55,13 +54,9 @@ public class ItemListDemo extends AbstractDemo {
 						try {
 							ItemListDemo.this.itemList.run(
 									"alert(\"" + ItemListDemo.this.alertString
-									+ "\");").get();
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (ExecutionException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+											+ "\");").get();
+						} catch (Exception e) {
+							log(e);
 						}
 						log("alerted");
 					}
@@ -125,9 +120,9 @@ public class ItemListDemo extends AbstractDemo {
 						log("changing background");
 						try {
 							ItemListDemo.this.itemList
-							.injectCss("html, body { background-color: "
-									+ ColorUtils.getRandomRGB()
-									.toHexString() + "; }");
+									.injectCss("html, body { background-color: "
+											+ ColorUtils.getRandomRGB()
+													.toHexString() + "; }");
 						} catch (Exception e) {
 							log(e.toString());
 						}
@@ -147,7 +142,7 @@ public class ItemListDemo extends AbstractDemo {
 
 		this.itemList = new ItemList(parent, SWT.BORDER);
 		this.itemList
-				.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 		this.itemList.addListener(new IItemListListener() {
 			@Override
 			public void itemClicked(String key, int i) {
@@ -192,9 +187,9 @@ public class ItemListDemo extends AbstractDemo {
 				ButtonSize.EXTRA_SMALL, ButtonStyle.DROPDOWN,
 				Arrays.asList("Option #1", "Option #2"));
 		itemList2
-		.addItem("item3", "Item #3", bootstrapRed, ButtonSize.LARGE,
-				ButtonStyle.HORIZONTAL,
-				Arrays.asList("Option #1", "Option #2"));
+				.addItem("item3", "Item #3", bootstrapRed, ButtonSize.LARGE,
+						ButtonStyle.HORIZONTAL,
+						Arrays.asList("Option #1", "Option #2"));
 
 		new Label(parent, SWT.NONE).setLayoutData(GridDataFactory
 				.fillDefaults().grab(true, true).create());
@@ -205,12 +200,8 @@ public class ItemListDemo extends AbstractDemo {
 				try {
 					rendering.get();
 					rendering2.get();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ExecutionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (Exception e) {
+					log(e);
 				}
 				ExecUtils.asyncExec(new Runnable() {
 					@Override
