@@ -44,7 +44,7 @@ public class SWTUtils {
 
 	/**
 	 * Disposes all child {@link Control}s of the given {@link Composite}.
-	 * 
+	 *
 	 * @param control
 	 */
 	public static void clearControl(Composite composite) {
@@ -58,7 +58,7 @@ public class SWTUtils {
 	/**
 	 * Runs up the {@link Composite} hierarchy and returns the first occurrence
 	 * of the given type.
-	 * 
+	 *
 	 * @param clazz
 	 * @return
 	 */
@@ -80,9 +80,28 @@ public class SWTUtils {
 	}
 
 	/**
+	 * Returns the root {@link Composite} of the given {@link Control}, that is
+	 * running up the parent hierarchy to the top.
+	 *
+	 * @param clazz
+	 * @return
+	 */
+	public static Composite getRoot(Control control) {
+		if (control == null) {
+			return null;
+		}
+		Composite parent = control.getParent();
+		if (parent == null) {
+			return control instanceof Composite ? (Composite) control : null;
+		} else {
+			return getRoot(parent);
+		}
+	}
+
+	/**
 	 * Returns the number of objects of the given type in the parent hierarchy.
 	 * In other words: How many Ts surround the given {@link Control}.
-	 * 
+	 *
 	 * @param control
 	 * @return
 	 */
@@ -109,7 +128,7 @@ public class SWTUtils {
 	 * the background color {@link Control#getBackground()} returns. In the case
 	 * of surrounding {@link Group}s the actual background color is darker on
 	 * Mac OS. This method returns the correctly darkened background color.
-	 * 
+	 *
 	 * @param control
 	 * @return
 	 */
@@ -140,7 +159,7 @@ public class SWTUtils {
 	/**
 	 * Returns an array that evenly distributes the elements on a
 	 * {@link SashForm}.
-	 * 
+	 *
 	 * @param n
 	 * @return
 	 */

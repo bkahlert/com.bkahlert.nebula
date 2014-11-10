@@ -79,7 +79,7 @@ public class Browser extends Composite implements IBrowser {
 
 	/**
 	 * Constructs a new {@link Browser} with the given styles.
-	 * 
+	 *
 	 * @param parent
 	 * @param style
 	 *            if {@link SWT#INHERIT_FORCE}) is set the loaded page's
@@ -220,6 +220,13 @@ public class Browser extends Composite implements IBrowser {
 							arguments[3] != null ? (int) Math
 									.round((Double) arguments[3])
 									: Integer.MAX_VALUE);
+					LOGGER.debug("browser content resized to "
+							+ cachedContentBounds);
+					if (!isComputingSize) {
+						Composite root = SWTUtils.getRoot(Browser.this);
+						root.layout(true, true);
+						LOGGER.debug("layout all");
+					}
 				}
 				return null;
 			}
@@ -364,7 +371,7 @@ public class Browser extends Composite implements IBrowser {
 	 * It has been observed that the
 	 * {@link ProgressListener#completed(ProgressEvent)} fires to early. This
 	 * method uses JavaScript to reliably detect the completed state.
-	 * 
+	 *
 	 * @param pageLoadCheckExpression
 	 */
 	private void waitAndComplete(String pageLoadCheckExpression) {
@@ -795,7 +802,7 @@ public class Browser extends Composite implements IBrowser {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param string
 	 * @param mouseEnter
 	 *            true if mouseenter; false otherwise
@@ -809,7 +816,7 @@ public class Browser extends Composite implements IBrowser {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 */
@@ -820,7 +827,7 @@ public class Browser extends Composite implements IBrowser {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @param element
@@ -834,7 +841,7 @@ public class Browser extends Composite implements IBrowser {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @param arguments
@@ -848,7 +855,7 @@ public class Browser extends Composite implements IBrowser {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param y
 	 * @param x
 	 * @param string
@@ -1016,11 +1023,15 @@ public class Browser extends Composite implements IBrowser {
 				IConverter.CONVERTER_VOID);
 	}
 
+	private boolean isComputingSize = false;
+
 	@Override
 	public Point computeSize(int wHint, int hHint, boolean changed) {
+		isComputingSize = true;
 		try {
 			this.browser
-					.execute("if (window[\"__notifySize\"] && typeof window[\"__notifySize\"]) window[\"__notifySize\"]();");
+					.execute("if (window[\"__notifySize\"] && typeof window[\"__notifySize\"]) window[\"__notifySize\"]("
+							+ wHint + ", " + hHint + ");");
 		} catch (Exception e) {
 			LOGGER.error("Error computing size for "
 					+ Browser.class.getSimpleName());
@@ -1031,6 +1042,11 @@ public class Browser extends Composite implements IBrowser {
 			return super.computeSize(wHint, hHint, changed);
 		}
 
-		return new Point(bounds.x + bounds.width, bounds.y + bounds.height);
+		Point size = new Point(bounds.x + bounds.width, bounds.y
+				+ bounds.height);
+		LOGGER.debug(Browser.class.getSimpleName() + ".computeSize(" + wHint
+				+ ", " + hHint + ", " + changed + ") -> " + size);
+		isComputingSize = false;
+		return size;
 	}
 }
