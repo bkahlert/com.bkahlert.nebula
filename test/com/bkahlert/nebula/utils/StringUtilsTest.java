@@ -1,13 +1,13 @@
 package com.bkahlert.nebula.utils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.junit.Test;
-
-import com.bkahlert.nebula.utils.StringUtils;
 
 public class StringUtilsTest {
 	@Test
@@ -53,7 +53,8 @@ public class StringUtilsTest {
 		assertEquals("", StringUtils.getLongestCommonPrefix(null, "A", ""));
 		assertEquals("A", StringUtils.getLongestCommonPrefix(null, "A", "A"));
 		assertEquals("A", StringUtils.getLongestCommonPrefix(null, "A", "ABBB"));
-		assertEquals("AB", StringUtils.getLongestCommonPrefix(null, "AB", "ABBB"));
+		assertEquals("AB",
+				StringUtils.getLongestCommonPrefix(null, "AB", "ABBB"));
 		assertEquals("", StringUtils.getLongestCommonPrefix(null, "AB", "BBBB"));
 	}
 
@@ -71,23 +72,28 @@ public class StringUtilsTest {
 	public void testGetLongestCommonPrefix1() {
 		assertEquals(0, StringUtils.getLongestCommonPrefix(null, new String[0])
 				.length());
-		assertEquals(0, StringUtils.getLongestCommonPrefix(null, new String[] { "" })
+		assertEquals(0,
+				StringUtils.getLongestCommonPrefix(null, new String[] { "" })
 				.length());
-		assertEquals(1, StringUtils
-				.getLongestCommonPrefix(null, new String[] { "A" }).length());
-		assertEquals(0,
-				StringUtils.getLongestCommonPrefix(null, new String[] { "A", "B" })
-						.length());
-		assertEquals(0,
-				StringUtils.getLongestCommonPrefix(null, new String[] { "AB", "BA" })
-						.length());
-		assertEquals(0,
-				StringUtils.getLongestCommonPrefix(null, new String[] { "", "" })
-						.length());
+		assertEquals(1,
+				StringUtils.getLongestCommonPrefix(null, new String[] { "A" })
+				.length());
+		assertEquals(
+				0,
+				StringUtils.getLongestCommonPrefix(null,
+						new String[] { "A", "B" }).length());
+		assertEquals(
+				0,
+				StringUtils.getLongestCommonPrefix(null,
+						new String[] { "AB", "BA" }).length());
+		assertEquals(
+				0,
+				StringUtils.getLongestCommonPrefix(null,
+						new String[] { "", "" }).length());
 		assertEquals(
 				4,
-				StringUtils.getLongestCommonPrefix(
-						null, new String[] { "AAAAA", "AAAAA", "AAAAB" }).length());
+				StringUtils.getLongestCommonPrefix(null,
+						new String[] { "AAAAA", "AAAAA", "AAAAB" }).length());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -102,29 +108,36 @@ public class StringUtilsTest {
 
 	@Test
 	public void testGetLongestCommonPrefix2() {
-		assertEquals(0, StringUtils.getLongestCommonPrefix(null, 1, new String[0])
+		assertEquals(0,
+				StringUtils.getLongestCommonPrefix(null, 1, new String[0])
 				.keySet().size());
 		assertEquals(0,
-				StringUtils.getLongestCommonPrefix(null, 1, new String[] { "" })
-						.keySet().size());
-		assertEquals(1,
-				StringUtils.getLongestCommonPrefix(null, 1, new String[] { "A" })
-						.keySet().size());
-		assertEquals(2,
 				StringUtils
-						.getLongestCommonPrefix(null, 1, new String[] { "A", "B" })
+				.getLongestCommonPrefix(null, 1, new String[] { "" })
 						.keySet().size());
 		assertEquals(
 				1,
 				StringUtils
-						.getLongestCommonPrefix(null, 1, new String[] { "AB", "AA" })
+				.getLongestCommonPrefix(null, 1, new String[] { "A" })
 						.keySet().size());
-		assertEquals(0,
-				StringUtils.getLongestCommonPrefix(null, 1, new String[] { "", "" })
-						.keySet().size());
+		assertEquals(
+				2,
+				StringUtils
+						.getLongestCommonPrefix(null, 1,
+						new String[] { "A", "B" }).keySet().size());
+		assertEquals(
+				1,
+				StringUtils
+						.getLongestCommonPrefix(null, 1,
+						new String[] { "AB", "AA" }).keySet().size());
+		assertEquals(
+				0,
+				StringUtils
+				.getLongestCommonPrefix(null, 1,
+						new String[] { "", "" }).keySet().size());
 
-		Map<String, Integer> rs = StringUtils.getLongestCommonPrefix(null,
-				1, new String[] { "AAAAA", "AAAAA", "AAAAB", "AAA", "BBBBBB",
+		Map<String, Integer> rs = StringUtils.getLongestCommonPrefix(null, 1,
+				new String[] { "AAAAA", "AAAAA", "AAAAB", "AAA", "BBBBBB",
 						"BBBBC", "C", "CC", "CCC", "D" });
 		assertEquals(4, rs.keySet().size());
 		for (int i = 0; i < rs.keySet().size(); i++) {
@@ -146,5 +159,15 @@ public class StringUtilsTest {
 			}
 		}
 		assertEquals(0, rs.keySet().size());
+	}
+
+	@Test
+	public void testGetRandomString() {
+		Pattern pattern = Pattern.compile("^[a-z0-9]*$");
+		for (int i = 0; i < 1000; i++) {
+			String str = StringUtils.createRandomString(i);
+			assertTrue(pattern.matcher(str).matches());
+			assertEquals(i, str.length());
+		}
 	}
 }

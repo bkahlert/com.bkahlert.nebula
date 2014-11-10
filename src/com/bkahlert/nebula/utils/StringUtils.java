@@ -6,6 +6,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,7 +29,7 @@ public class StringUtils {
 
 	private static final Pattern BODY_PATTERN = Pattern.compile(
 			".*<body.*?>(.*)</body>.*", Pattern.CASE_INSENSITIVE
-					| Pattern.DOTALL);
+			| Pattern.DOTALL);
 
 	public static interface IStringAdapter<T> {
 		public String getString(T object);
@@ -71,14 +73,14 @@ public class StringUtils {
 
 	/**
 	 * Returns the longest prefix of the given strings.
-	 * 
+	 *
 	 * @param stringAdapter
 	 *            adapts a value object to a string
 	 * @param string1
 	 * @param string2
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @see <a
 	 *      href="http://stackoverflow.com/questions/8033655/java-find-longest-common-prefix-in-java">http://stackoverflow.com/questions/8033655/java-find-longest-common-prefix-in-java</a>
 	 */
@@ -97,13 +99,13 @@ public class StringUtils {
 
 	/**
 	 * Returns the longest prefix of the given strings.
-	 * 
+	 *
 	 * @param stringAdapter
 	 *            adapts a value object to a string
 	 * @param objects
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @see <a
 	 *      href="http://stackoverflow.com/questions/1916218/find-the-longest-common-starting-substring-in-a-set-of-strings">Find
 	 *      the longest common starting substring in a set of strings</a>
@@ -148,11 +150,11 @@ public class StringUtils {
 	 * Prefixes can only be of length 1 or greater.
 	 * <p>
 	 * e.g. given AAA, AAB, BBB returns prefix AA with number of occurrences 2.
-	 * 
+	 *
 	 * @param stringAdapter
 	 *            TODO
 	 * @param objects
-	 * 
+	 *
 	 * @return
 	 */
 	public static <T> Map<String, Integer> getLongestCommonPrefix(
@@ -168,17 +170,17 @@ public class StringUtils {
 			}
 			String string = stringAdapter != null ? stringAdapter
 					.getString(object) : object.toString();
-			if (string == null) {
-				throw new IllegalArgumentException();
-			}
-			if (string.length() < partitionLength) {
-				continue;
-			}
-			String key = string.substring(0, partitionLength);
-			if (!partitionedStrings.containsKey(key)) {
-				partitionedStrings.put(key, new ArrayList<String>());
-			}
-			partitionedStrings.get(key).add(string);
+					if (string == null) {
+						throw new IllegalArgumentException();
+					}
+					if (string.length() < partitionLength) {
+						continue;
+					}
+					String key = string.substring(0, partitionLength);
+					if (!partitionedStrings.containsKey(key)) {
+						partitionedStrings.put(key, new ArrayList<String>());
+					}
+					partitionedStrings.get(key).add(string);
 		}
 
 		Map<String, Integer> rs = new HashMap<String, Integer>();
@@ -189,6 +191,20 @@ public class StringUtils {
 		}
 
 		return rs;
+	}
+
+	/**
+	 * Creates a random string that only contains a-z and 0-9.
+	 *
+	 * @param length
+	 * @return
+	 */
+	public static String createRandomString(int length) {
+		String random = "";
+		while (random.length() < length) {
+			random += new BigInteger(130, new SecureRandom()).toString(32);
+		}
+		return random.substring(0, length);
 	}
 
 	public static String rtfToBody(String rtf) throws IOException {
@@ -216,7 +232,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see http 
+	 * @see http
 	 *      ://www.codeproject.com/Tips/136483/Java-How-to-convert-RTF-into-HTML
 	 * @param rtf
 	 * @return

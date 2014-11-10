@@ -5,11 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.security.SecureRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,7 +43,7 @@ public class BrowserUtils {
 
 	/**
 	 * Returns the first tag name that could be found in the given HTML code.
-	 * 
+	 *
 	 * @param html
 	 * @return
 	 */
@@ -80,7 +78,7 @@ public class BrowserUtils {
 	 * not the class files are in a zip/jar or not, so this method standardizes
 	 * that. The method may return null, if the class is a dynamically generated
 	 * class (perhaps with asm, or a proxy class)
-	 * 
+	 *
 	 * @param c
 	 *            The class to find the container for
 	 * @return
@@ -131,7 +129,7 @@ public class BrowserUtils {
 		try {
 			URI uri = new URI((new File(GetClassContainer(clazz)).getParent()
 					+ "/" + clazzRelativePath + suffix).replace("file:",
-					"file://"));
+							"file://"));
 			if (!uri.toString().contains("bundleresource:")) {
 				return uri;
 			}
@@ -206,17 +204,18 @@ public class BrowserUtils {
 	/**
 	 * Creates a random name for a JavaScript function. This is especially handy
 	 * for callback functions injected by {@link BrowserFunction}.
-	 * 
+	 *
 	 * @return
 	 */
 	public static String createRandomFunctionName() {
-		return "_" + new BigInteger(130, new SecureRandom()).toString(32);
+		return "_"
+				+ com.bkahlert.nebula.utils.StringUtils.createRandomString(32);
 	}
 
 	/**
 	 * Returns a Base64-encoded {@link String} data URI that can be used for the
 	 * <code>src</code> attribute of an HTML <code>img</code>.
-	 * 
+	 *
 	 * @param file
 	 *            must point to a readable image file
 	 * @return
@@ -228,7 +227,7 @@ public class BrowserUtils {
 	/**
 	 * Returns a Base64-encoded {@link String} data URI that can be used for the
 	 * <code>src</code> attribute of an HTML <code>img</code>.
-	 * 
+	 *
 	 * @param image
 	 * @return
 	 */
@@ -239,7 +238,7 @@ public class BrowserUtils {
 	/**
 	 * Returns a Base64-encoded {@link String} data URI that can be used for the
 	 * <code>src</code> attribute of an HTML <code>img</code>.
-	 * 
+	 *
 	 * @param data
 	 * @return
 	 */
@@ -250,7 +249,7 @@ public class BrowserUtils {
 	/**
 	 * Returns a Base64-encoded {@link String} data URI that can be used for the
 	 * <code>src</code> attribute of an HTML <code>img</code>.
-	 * 
+	 *
 	 * @param image
 	 * @return
 	 */
@@ -276,7 +275,7 @@ public class BrowserUtils {
 	 * <p>
 	 * The arguments passed by the browser to the given callback function can be
 	 * processed using {@link #parseJavaScriptException(Object[])}.
-	 * 
+	 *
 	 * @return
 	 */
 	public static String getExceptionForwardingScript(String callbackName) {
@@ -291,7 +290,7 @@ public class BrowserUtils {
 	 * This method creates an {@link JavaScriptException} out of the arguments
 	 * passed by the {@link Browser} to the callback specified using
 	 * {@link #getExceptionForwardingScript(String)}.
-	 * 
+	 *
 	 * @param arguments
 	 * @return
 	 */
@@ -314,7 +313,7 @@ public class BrowserUtils {
 	 * {@link #assertException(String, Object)} will raise an appropriate
 	 * {@link JavaScriptException} if such one was thrown within the
 	 * {@link Browser}.
-	 * 
+	 *
 	 * @param script
 	 * @return
 	 */
@@ -333,7 +332,7 @@ public class BrowserUtils {
 	 * <p>
 	 * This feature only works if the evaluated script was returned by
 	 * {@link #getExecutionReturningScript}.
-	 * 
+	 *
 	 * @param script
 	 * @param returnValue
 	 * @throws JavaScriptException
@@ -347,8 +346,8 @@ public class BrowserUtils {
 					&& rt[0].equals(ERROR_RETURN_MARKER)) {
 				throw new JavaScriptException(script, (String) rt[1],
 						rt[2] != null ? Math.round((Double) rt[2]) : null,
-						rt[3] != null ? Math.round((Double) rt[3]) : null,
-						(String) rt[4]);
+								rt[3] != null ? Math.round((Double) rt[3]) : null,
+										(String) rt[4]);
 			}
 		}
 	}
