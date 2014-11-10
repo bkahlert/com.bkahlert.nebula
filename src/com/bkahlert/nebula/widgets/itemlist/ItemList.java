@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
@@ -46,9 +47,11 @@ public class ItemList extends BootstrapBrowser {
 	private final List<IItemListListener> itemListListeners = new ArrayList<ItemList.IItemListListener>();
 	private double margin = 0.0;
 	private double spacing = 0.0;
+	private boolean noWrap;
 
 	public ItemList(Composite parent, int style) {
-		super(parent, style | SWT.INHERIT_FORCE);
+		super(parent, (style | SWT.INHERIT_FORCE) & ~SWT.HORIZONTAL);
+		noWrap = (style & SWT.HORIZONTAL) != 0;
 		this.deactivateNativeMenu();
 		this.addAnkerListener(new AnkerAdapter() {
 			@Override
@@ -80,6 +83,23 @@ public class ItemList extends BootstrapBrowser {
 		});
 		this.open(BrowserUtils.getFileUrl(ItemList.class, "html/index.html",
 				"?internal=true"), 60000);
+	}
+
+	@Override
+	public void setBackground(Color color) {
+		super.setBackground(color);
+		if (noWrap) {
+			injectCss(".content { white-space: nowrap; }");
+			RGB from = new RGB(color.getRGB());
+			RGB to = new RGB(color.getRGB());
+			from.setAlpha(0.0);
+			to.setAlpha(1.0);
+			injectCss("body:after { display: block; position: absolute; content: ''; top: 0; right: 0; bottom: 0; width: 50px; background: linear-gradient(to right, "
+					+ from.toCssString()
+					+ " 0%,"
+					+ to.toCssString()
+					+ " 80%); })");
+		}
 	}
 
 	public void addItem(String id, String title) {
