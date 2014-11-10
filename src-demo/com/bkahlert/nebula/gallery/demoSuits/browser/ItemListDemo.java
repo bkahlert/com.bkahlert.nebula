@@ -55,7 +55,7 @@ public class ItemListDemo extends AbstractDemo {
 						try {
 							ItemListDemo.this.itemList.run(
 									"alert(\"" + ItemListDemo.this.alertString
-											+ "\");").get();
+									+ "\");").get();
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -125,9 +125,9 @@ public class ItemListDemo extends AbstractDemo {
 						log("changing background");
 						try {
 							ItemListDemo.this.itemList
-									.injectCss("html, body { background-color: "
-											+ ColorUtils.getRandomRGB()
-													.toHexString() + "; }");
+							.injectCss("html, body { background-color: "
+									+ ColorUtils.getRandomRGB()
+									.toHexString() + "; }");
 						} catch (Exception e) {
 							log(e.toString());
 						}
@@ -146,6 +146,8 @@ public class ItemListDemo extends AbstractDemo {
 				.fillDefaults().grab(true, true).create());
 
 		this.itemList = new ItemList(parent, SWT.BORDER);
+		this.itemList
+				.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 		this.itemList.addListener(new IItemListListener() {
 			@Override
 			public void itemClicked(String key, int i) {
@@ -173,15 +175,12 @@ public class ItemListDemo extends AbstractDemo {
 		this.itemList.setMargin(0);
 		final Future<Void> rendering = this.itemList.setSpacing(30);
 
-		this.itemList.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false,
-				false));
-
 		new Label(parent, SWT.NONE).setLayoutData(GridDataFactory
 				.fillDefaults().grab(true, true).create());
 
 		Group group = new Group(parent, SWT.BORDER);
 		group.setText("check background color inheritance");
-		group.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
+		group.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 		group.setLayout(new FillLayout());
 
 		RGB bootstrapRed = RGB.DANGER;
@@ -193,9 +192,9 @@ public class ItemListDemo extends AbstractDemo {
 				ButtonSize.EXTRA_SMALL, ButtonStyle.DROPDOWN,
 				Arrays.asList("Option #1", "Option #2"));
 		itemList2
-				.addItem("item3", "Item #3", bootstrapRed, ButtonSize.LARGE,
-						ButtonStyle.HORIZONTAL,
-						Arrays.asList("Option #1", "Option #2"));
+		.addItem("item3", "Item #3", bootstrapRed, ButtonSize.LARGE,
+				ButtonStyle.HORIZONTAL,
+				Arrays.asList("Option #1", "Option #2"));
 
 		new Label(parent, SWT.NONE).setLayoutData(GridDataFactory
 				.fillDefaults().grab(true, true).create());

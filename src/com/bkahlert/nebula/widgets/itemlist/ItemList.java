@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.nebula.utils.IConverter;
@@ -163,11 +164,11 @@ public class ItemList extends BootstrapBrowser {
 		sb.append("</div>");
 
 		this.run("$(" + JSONUtils.enquote(sb.toString())
-				+ ").appendTo('body');");
+				+ ").appendTo('.content');");
 	}
 
 	public Future<Void> clear() {
-		return this.run("$('body').empty();", IConverter.CONVERTER_VOID);
+		return this.run("$('.content').empty();", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Void> setMargin(double pixels) {
@@ -181,11 +182,11 @@ public class ItemList extends BootstrapBrowser {
 	}
 
 	private Future<Void> updateLayout() {
-		return this
-				.injectCss("body { margin: "
-						+ (this.margin - this.spacing / 2)
-						+ "px !important; padding: 0 !important; } .btn-group { margin: "
-						+ this.spacing / 2.0 + "px; }");
+		double contentMargin = this.margin - this.spacing;
+		return this.injectCss(".content { margin-top: " + contentMargin
+				+ "px !important; margin-bottom: " + contentMargin
+				+ "px; padding: 0 !important; } .btn-group { margin-top: "
+				+ this.spacing + "px; margin-left: " + this.spacing + "px; }");
 	}
 
 	public void addListener(IItemListListener itemListListener) {
@@ -194,5 +195,12 @@ public class ItemList extends BootstrapBrowser {
 
 	public void removeListener(IItemListListener itemListListener) {
 		this.itemListListeners.remove(itemListListener);
+	}
+
+	@Override
+	public Point computeSize(int wHint, int hHint, boolean changed) {
+		Point size = super.computeSize(wHint, hHint, changed);
+		size.y -= spacing - 2 - 2 * margin;
+		return size;
 	}
 }
