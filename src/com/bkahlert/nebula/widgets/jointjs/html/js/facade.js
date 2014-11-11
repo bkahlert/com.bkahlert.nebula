@@ -2,6 +2,14 @@
 /* global joint */
 /* global console */
 
+// http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
 function addClassNames(classNames, add) {
 	if(!_.isArray(add)) add = add ? [add] : [];
 	return _.union(classNames.split(/ +/), _.toArray(add)).join(' ');
@@ -315,6 +323,8 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 		},
 		
 		createLink: function(id, source, target) {
+			if(!id) id = getParameterByName('linkCreationPrefix') + joint.util.uuid();
+			
 			var config = {
 				source: source ? source : { x: 10, y: 10 },
 				target: target ? target : { x: 100, y: 10 },

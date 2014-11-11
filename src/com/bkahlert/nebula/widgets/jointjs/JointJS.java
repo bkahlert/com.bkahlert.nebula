@@ -1,5 +1,7 @@
 package com.bkahlert.nebula.widgets.jointjs;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,9 +37,9 @@ import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 /**
  * Shows an image in a way that it always fills the {@link Composite}'s
  * available width.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public class JointJS extends Browser implements ISelectionProvider {
 
@@ -97,7 +99,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param parent
 	 * @param style
 	 * @param nodeCreationPrefix
@@ -249,8 +251,16 @@ public class JointJS extends Browser implements ISelectionProvider {
 			}
 		});
 
-		this.open(BrowserUtils.getFileUrl(JointJS.class, "html/index.html",
-				"?internal=true"), 60000);
+		try {
+			this.open(BrowserUtils.getFileUrl(
+					JointJS.class,
+					"html/index.html",
+					"?internal=true&linkCreationPrefix="
+							+ URLEncoder.encode(linkCreationPrefix, "UTF-8")),
+					60000);
+		} catch (UnsupportedEncodingException e1) {
+			LOGGER.fatal(e1);
+		}
 	}
 
 	public Future<String> load(String json) {
@@ -262,7 +272,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 	 * Returns the content since the last modification. Since the modification
 	 * event is delayed it might be that the returned value is slighty outdated.
 	 * In this case you can call {@link #save()}.
-	 * 
+	 *
 	 * @return
 	 */
 	public String getJson() {
@@ -271,7 +281,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 
 	/**
 	 * Returns the current content.
-	 * 
+	 *
 	 * @return
 	 */
 	public Future<String> save() {
@@ -621,10 +631,10 @@ public class JointJS extends Browser implements ISelectionProvider {
 	 * Notifies any selection changed listeners that the viewer's selection has
 	 * changed. Only listeners registered at the time this method is called are
 	 * notified.
-	 * 
+	 *
 	 * @param event
 	 *            a selection changed event
-	 * 
+	 *
 	 * @see ISelectionChangedListener#selectionChanged
 	 */
 	protected void fireSelectionChanged(final SelectionChangedEvent event) {
