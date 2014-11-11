@@ -342,8 +342,12 @@ public class Browser extends Composite implements IBrowser {
 		try {
 			Browser.this.runContentsImmediately(events);
 		} catch (Exception e) {
-			LOGGER.error("Could not inject events catch script in "
-					+ Browser.this.getClass().getSimpleName(), e);
+			if (e.getCause() instanceof SWTException) {
+				// disposed
+			} else {
+				LOGGER.error("Could not inject events catch script in "
+						+ Browser.this.getClass().getSimpleName(), e);
+			}
 		}
 
 		File dnd = BrowserUtils.getFile(Browser.class, "dnd.js");
