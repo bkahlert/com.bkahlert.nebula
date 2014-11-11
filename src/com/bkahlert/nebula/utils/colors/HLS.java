@@ -3,20 +3,26 @@ package com.bkahlert.nebula.utils.colors;
 /**
  * Instances of this class describe colors in the HLS (hue, saturation,
  * lightness) color space.
- * 
+ *
  * @author bkahlert
  */
 public class HLS {
 	private double hue;
 	private double lightness;
 	private double saturation;
+	private double alpha;
 
 	public HLS(double hue, double lightness, double saturation) {
+		this(hue, lightness, saturation, 1.0);
+	}
+
+	public HLS(double hue, double lightness, double saturation, double alpha) {
 		super();
 
 		this.setHue(hue);
 		this.setLightness(lightness);
 		this.setSaturation(saturation);
+		this.setAlpha(alpha);
 	}
 
 	/**
@@ -73,15 +79,32 @@ public class HLS {
 	}
 
 	/**
+	 * @return alpha
+	 */
+	public double getAlpha() {
+		return this.alpha;
+	}
+
+	/**
+	 * @param saturation
+	 */
+	public void setAlpha(double alpha) {
+		if (alpha < 0 || alpha > 1) {
+			throw new IllegalArgumentException("Alpha must be between 0 and 1");
+		}
+		this.alpha = alpha;
+	}
+
+	/**
 	 * Mixes the given {@link RGB} with the current {@link RGB} and returns the
 	 * resulting {@link RGB}. This instance stays untouched.
-	 * 
+	 *
 	 * <p>
 	 * The mixing does not consider alpha transparency! The returned color is
 	 * always fully opaque.
-	 * 
+	 *
 	 * @param weight
-	 * 
+	 *
 	 * @param rgb
 	 * @return
 	 */
@@ -109,30 +132,22 @@ public class HLS {
 				.mix(ColorSpaceConverter.HLStoRGB(hls), weight));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		long temp;
-		temp = Double.doubleToLongBits(this.hue);
+		temp = Double.doubleToLongBits(alpha);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(this.lightness);
+		temp = Double.doubleToLongBits(hue);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(this.saturation);
+		temp = Double.doubleToLongBits(lightness);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(saturation);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -141,19 +156,22 @@ public class HLS {
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof HLS)) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		HLS other = (HLS) obj;
-		if (Double.doubleToLongBits(this.hue) != Double
-				.doubleToLongBits(other.hue)) {
+		if (Double.doubleToLongBits(alpha) != Double
+				.doubleToLongBits(other.alpha)) {
 			return false;
 		}
-		if (Double.doubleToLongBits(this.lightness) != Double
+		if (Double.doubleToLongBits(hue) != Double.doubleToLongBits(other.hue)) {
+			return false;
+		}
+		if (Double.doubleToLongBits(lightness) != Double
 				.doubleToLongBits(other.lightness)) {
 			return false;
 		}
-		if (Double.doubleToLongBits(this.saturation) != Double
+		if (Double.doubleToLongBits(saturation) != Double
 				.doubleToLongBits(other.saturation)) {
 			return false;
 		}
@@ -161,9 +179,10 @@ public class HLS {
 	}
 
 	public String getDecString() {
-		return HLS.class.getSimpleName() + "(" + this.getHue() * 360 + "�, "
+		return HLS.class.getSimpleName() + "(" + this.getHue() * 360 + "°, "
 				+ Math.round(this.getLightness() * 100) + "%, "
-				+ Math.round(this.getSaturation() * 100) + "%)";
+				+ Math.round(this.getSaturation() * 100) + "%, "
+				+ this.getAlpha() + ")";
 	}
 
 	@Override

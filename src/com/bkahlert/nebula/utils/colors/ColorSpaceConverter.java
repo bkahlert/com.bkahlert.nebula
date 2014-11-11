@@ -1,13 +1,13 @@
 /**
  * This sample code is made available as part of the book "Digital Image
  * Processing - An Algorithmic Introduction using Java" by Wilhelm Burger
- * and Mark J. Burge, Copyright (C) 2005-2008 Springer-Verlag Berlin, 
+ * and Mark J. Burge, Copyright (C) 2005-2008 Springer-Verlag Berlin,
  * Heidelberg, New York.
  * Note that this code comes with absolutely no warranty of any kind.
  * See http://www.imagingbook.com for details and licensing conditions.
- * 
+ *
  * Date: 2007/11/10
- * 
+ *
  * This software is released under the terms of the GNU Lesser General Public License (LGPL).
  * http://imagingbook.com/index.php?id=98
  */
@@ -45,20 +45,22 @@ public class ColorSpaceConverter {
 			double gg = (cHi - rgb.getGreen()) / cRng;
 			double bb = (cHi - rgb.getBlue()) / cRng;
 			double hh;
-			if (rgb.getRed() == cHi) // r is highest color value
+			if (rgb.getRed() == cHi) {
 				hh = bb - gg;
-			else if (rgb.getGreen() == cHi) // g is highest color value
+			} else if (rgb.getGreen() == cHi) {
 				hh = rr - bb + 2.0f;
-			else
+			} else {
 				// b is highest color value
 				hh = gg - rr + 4.0f;
+			}
 
-			if (hh < 0)
+			if (hh < 0) {
 				hh = hh + 6;
+			}
 			H = hh / 6;
 		}
 
-		return new HLS(H, L, S);
+		return new HLS(H, L, S, rgb.getAlpha());
 	}
 
 	public static RGB HLStoRGB(HLS hls) {
@@ -66,11 +68,11 @@ public class ColorSpaceConverter {
 		// H,L,S assumed to be in [0,1]
 		double G = 0, B = 0;
 
-		if (hls.getLightness() <= 0) // black
+		if (hls.getLightness() <= 0) {
 			R = G = B = 0;
-		else if (hls.getLightness() >= 1) // white
+		} else if (hls.getLightness() >= 1) {
 			R = G = B = 1;
-		else {
+		} else {
 			double hh = (6 * hls.getHue()) % 6;
 			int c1 = (int) hh;
 			double c2 = hh - c1;
@@ -114,7 +116,7 @@ public class ColorSpaceConverter {
 				break;
 			}
 		}
-		return new RGB(R, G, B);
+		return new RGB(R, G, B, hls.getAlpha());
 	}
 
 	public static float[] RGBtoHSV(int R, int G, int B, float[] HSV) {
@@ -129,8 +131,9 @@ public class ColorSpaceConverter {
 		V = cHi / cMax;
 
 		// compute saturation S
-		if (cHi > 0)
+		if (cHi > 0) {
 			S = (float) cRng / cHi;
+		}
 
 		// compute hue H
 		if (cRng > 0) { // hue is defined only for color pixels
@@ -138,20 +141,23 @@ public class ColorSpaceConverter {
 			float gg = (float) (cHi - G) / cRng;
 			float bb = (float) (cHi - B) / cRng;
 			float hh;
-			if (R == cHi) // r is highest color value
+			if (R == cHi) {
 				hh = bb - gg;
-			else if (G == cHi) // g is highest color value
+			} else if (G == cHi) {
 				hh = rr - bb + 2.0f;
-			else
+			} else {
 				// b is highest color value
 				hh = gg - rr + 4.0f;
-			if (hh < 0)
+			}
+			if (hh < 0) {
 				hh = hh + 6;
+			}
 			H = hh / 6;
 		}
 
-		if (HSV == null) // create a new HSV array if needed
+		if (HSV == null) {
 			HSV = new float[3];
+		}
 		HSV[0] = H;
 		HSV[1] = S;
 		HSV[2] = V;
