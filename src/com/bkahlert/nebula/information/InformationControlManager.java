@@ -17,9 +17,9 @@ import com.bkahlert.nebula.InformationManagerSourceProvider;
  * Instances of this class are watching a {@link Control} and consult a
  * {@link ISubjectInformationProvider} for information to be displayed in a
  * small popup window.
- * 
+ *
  * @author bkahlert
- * 
+ *
  * @param <CONTROL>
  * @param <INFORMATION>
  */
@@ -92,12 +92,13 @@ public class InformationControlManager<CONTROL extends Control, INFORMATION>
 	@Override
 	public void showInformation() {
 		super.showInformation();
+		System.err.println(this.getInformationControl());
 	}
 
 	/**
 	 * Returns whether the standard or enriched version of the
 	 * {@link InformationControl} is shown.
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isShowingEnriched() {
@@ -110,7 +111,7 @@ public class InformationControlManager<CONTROL extends Control, INFORMATION>
 	/**
 	 * In contrast to {@link #showInformation()} this method does not show what
 	 * the {@link #subjectInformationProvider} returns but what you provide.
-	 * 
+	 *
 	 * @param information
 	 */
 	@SuppressWarnings("restriction")
@@ -197,7 +198,7 @@ public class InformationControlManager<CONTROL extends Control, INFORMATION>
 
 	/**
 	 * Calculates the subject area based on the current cursor location.
-	 * 
+	 *
 	 * @return
 	 */
 	protected Rectangle calculateSubjectArea() {

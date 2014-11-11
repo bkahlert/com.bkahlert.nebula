@@ -237,8 +237,8 @@ public abstract class InformationControl<INFORMATION> extends
 
 	@Override
 	public Point computeSizeHint() {
-		// currently ignores size constraints
-		return this.getShell().computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+		// FIXME currently ignores size constraints
+		return this.getShell().computeSize(1000, SWT.DEFAULT, true);
 		// return super.computeSizeHint();
 	}
 
