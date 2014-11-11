@@ -134,7 +134,7 @@ public class StylerUtilsDemo extends AbstractDemo {
 				}
 			}
 
-			data.add(new StyledString("Clonded Stylers", null));
+			data.add(new StyledString("Cloned Stylers", null));
 			data.add(Stylers.clone(FANCY_STYLED_STRING).append(
 					" -- I'm a copy.", Stylers.MINOR_STYLER));
 			data.add(FANCY_STYLED_STRING);
