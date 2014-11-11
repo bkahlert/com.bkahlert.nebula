@@ -543,10 +543,17 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 		},
 		
 		activateLinkTools: function() {
+			var hoveredId = null;
 			$(document).on('mouseenter', '.link[model-id]:not(.permanent)', function() {
-				com.bkahlert.nebula.jointjs.showTextChangePopup($(this).attr('model-id'));
+				hoveredId = $(this).attr('model-id');
 			}).on('mouseleave', '.link[model-id]', function() {
-				com.bkahlert.nebula.jointjs.hideTextChangePopup($(this).attr('model-id'));
+				hoveredId = null;
+			}).on('keydown', function(e) {
+				if(hoveredId != null && e.keyCode == 13) {
+					com.bkahlert.nebula.jointjs.showTextChangePopup(hoveredId);
+					hoveredId = null;
+					return false;
+				}
 			});
 		},
 		
@@ -555,7 +562,8 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			
 			// we use a filter to not have to deal with escaping (e.g. [model-id=abc-def] does not work because of the hyphen in the selector)
 			var $el = $('[model-id]').filter(function() { return $(this).attr('model-id') == id; });
-			com.bkahlert.nebula.jointjs.graph.getCell(id).on('remove', com.bkahlert.nebula.jointjs.hideTextChangePopup);
+			var cell = com.bkahlert.nebula.jointjs.graph.getCell(id);
+			if(cell) cell.on('remove', com.bkahlert.nebula.jointjs.hideTextChangePopup);
 			$el.popover({
 				trigger: 'manual',
 				container: 'body',
@@ -572,6 +580,10 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 						').submit(function() {
 							com.bkahlert.nebula.jointjs.hideAndApplyTextChangePopup($el.attr('model-id'));
 							return false;
+						}).on('keydown', function(e) {
+							if(e.keyCode == 27) {
+								com.bkahlert.nebula.jointjs.hideTextChangePopup($el.attr('model-id'));
+							}
 						});
 				}
 			}).popover('show');
