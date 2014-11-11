@@ -222,11 +222,9 @@ public class Browser extends Composite implements IBrowser {
 									: Integer.MAX_VALUE);
 					LOGGER.debug("browser content resized to "
 							+ cachedContentBounds);
-					if (!isComputingSize) {
-						Composite root = SWTUtils.getRoot(Browser.this);
-						root.layout(true, true);
-						LOGGER.debug("layout all");
-					}
+					Composite root = SWTUtils.getRoot(Browser.this);
+					LOGGER.debug("layout all");
+					root.layout(true, true);
 				}
 				return null;
 			}
@@ -1027,26 +1025,14 @@ public class Browser extends Composite implements IBrowser {
 
 	@Override
 	public Point computeSize(int wHint, int hHint, boolean changed) {
-		isComputingSize = true;
-		try {
-			this.browser
-					.execute("if (window[\"__notifySize\"] && typeof window[\"__notifySize\"]) window[\"__notifySize\"]("
-							+ wHint + ", " + hHint + ");");
-		} catch (Exception e) {
-			LOGGER.error("Error computing size for "
-					+ Browser.class.getSimpleName());
-		}
-
 		Rectangle bounds = this.cachedContentBounds;
 		if (bounds == null) {
 			return super.computeSize(wHint, hHint, changed);
 		}
-
 		Point size = new Point(bounds.x + bounds.width, bounds.y
 				+ bounds.height);
 		LOGGER.debug(Browser.class.getSimpleName() + ".computeSize(" + wHint
 				+ ", " + hHint + ", " + changed + ") -> " + size);
-		isComputingSize = false;
 		return size;
 	}
 }
