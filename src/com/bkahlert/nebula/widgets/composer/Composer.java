@@ -40,9 +40,9 @@ import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
  * on iframes like TinyMCE. Some internal browsers (verified with Webkit) do not
  * handle cut, copy and paste actions when the iframe is in focus. CKEditor can
  * operate in both modes - iframes and divs (and p tags).
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public class Composer extends Browser implements IModifiable {
 
@@ -67,7 +67,7 @@ public class Composer extends Browser implements IModifiable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param parent
 	 * @param style
 	 * @param delayChangeEventUpTo
@@ -201,10 +201,10 @@ public class Composer extends Browser implements IModifiable {
 			String prevCaretCharacter = this.getPrevCaretCharacter();
 			if (prevCaretCharacter != null
 					&& this.getPrevCaretCharacter().matches("[\\s| ]")) { // space
-																			// is
-																			// non
-																			// breaking
-																			// space
+				// is
+				// non
+				// breaking
+				// space
 				String autoLinkedHtml = this.createLinks(newHtml);
 				if (!autoLinkedHtml.equals(newHtml)) {
 					this.setSource(autoLinkedHtml, true);
@@ -278,7 +278,7 @@ public class Composer extends Browser implements IModifiable {
 	/**
 	 * Checks whether the current editor contents present changes when compared
 	 * to the contents loaded into the editor at startup.
-	 * 
+	 *
 	 * @return
 	 */
 	public Boolean isDirty() {
@@ -310,7 +310,7 @@ public class Composer extends Browser implements IModifiable {
 
 	/**
 	 * TODO use this.run
-	 * 
+	 *
 	 * @return
 	 * @throws Exception
 	 */
