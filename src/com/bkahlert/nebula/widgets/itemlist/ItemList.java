@@ -51,7 +51,7 @@ public class ItemList extends BootstrapBrowser {
 
 	public ItemList(Composite parent, int style) {
 		super(parent, (style | SWT.INHERIT_FORCE) & ~SWT.HORIZONTAL);
-		noWrap = (style & SWT.HORIZONTAL) != 0;
+		this.noWrap = (style & SWT.HORIZONTAL) != 0;
 		this.deactivateNativeMenu();
 		this.addAnkerListener(new AnkerAdapter() {
 			@Override
@@ -88,13 +88,13 @@ public class ItemList extends BootstrapBrowser {
 	@Override
 	public void setBackground(Color color) {
 		super.setBackground(color);
-		if (noWrap) {
-			injectCss(".content { white-space: nowrap; }");
+		if (this.noWrap) {
+			this.injectCss(".content { white-space: nowrap; }");
 			RGB from = new RGB(color.getRGB());
 			RGB to = new RGB(color.getRGB());
 			from.setAlpha(0.0);
 			to.setAlpha(1.0);
-			injectCss("body:after { display: block; position: absolute; content: ''; top: 0; right: 0; bottom: 0; width: 50px; background: linear-gradient(to right, "
+			this.injectCss("body:after { display: block; position: absolute; content: ''; top: 0; right: 0; bottom: 0; width: 50px; background: linear-gradient(to right, "
 					+ from.toCssString()
 					+ " 0%,"
 					+ to.toCssString()
@@ -119,26 +119,26 @@ public class ItemList extends BootstrapBrowser {
 			Collection<String> secondaryActions) {
 		RGB fontColor = ColorSpaceConverter.RGBtoHLS(backgroundColor)
 				.getLightness() > .7 ? new RGB(51, 51, 51) : RGB.WHITE;
-		RGB borderColor = BootstrapBrowser.getBorderColor(backgroundColor);
-		RGB hoverColor = BootstrapBrowser.getHoverColor(backgroundColor);
-		RGB hoverborderColor = BootstrapBrowser
-				.getHoverBorderColor(backgroundColor);
+				RGB borderColor = BootstrapBrowser.getBorderColor(backgroundColor);
+				RGB hoverColor = BootstrapBrowser.getHoverColor(backgroundColor);
+				RGB hoverborderColor = BootstrapBrowser
+						.getHoverBorderColor(backgroundColor);
 
-		// FIXME: Would be better to use the button-variant mixin in Bootstrap's
-		// mixins.less
+				// FIXME: Would be better to use the button-variant mixin in Bootstrap's
+				// mixins.less
 
-		String className = RandomStringUtils.randomAlphabetic(8);
-		String css = "." + className + " {color: " + fontColor.toCssString()
-				+ "; background-color: " + backgroundColor.toCssString()
-				+ "; border-color: " + borderColor.toCssString() + ";} ."
-				+ className + ":hover, ." + className + ":focus, ." + className
-				+ ":active, ." + className + ".active, .open>.dropdown-toggle."
-				+ className + " { color: " + fontColor.toCssString()
-				+ "; background-color: " + hoverColor.toCssString()
-				+ "; border-color: " + hoverborderColor.toCssString() + ";}";
-		this.injectCss(css);
-		this.addItem(id, title, className, buttonSize, buttonStyle,
-				secondaryActions);
+				String className = RandomStringUtils.randomAlphabetic(8);
+				String css = "." + className + " {color: " + fontColor.toCssString()
+						+ "; background-color: " + backgroundColor.toCssString()
+						+ "; border-color: " + borderColor.toCssString() + ";} ."
+						+ className + ":hover, ." + className + ":focus, ." + className
+						+ ":active, ." + className + ".active, .open>.dropdown-toggle."
+						+ className + " { color: " + fontColor.toCssString()
+						+ "; background-color: " + hoverColor.toCssString()
+						+ "; border-color: " + hoverborderColor.toCssString() + ";}";
+				this.injectCss(css);
+				this.addItem(id, title, className, buttonSize, buttonStyle,
+						secondaryActions);
 	}
 
 	public void addItem(String id, String title, String className,
@@ -220,7 +220,7 @@ public class ItemList extends BootstrapBrowser {
 	@Override
 	public Point computeSize(int wHint, int hHint, boolean changed) {
 		Point size = super.computeSize(wHint, hHint, changed);
-		size.y -= spacing - 2 - 2 * margin;
+		size.y -= this.spacing - 2 - 2 * this.margin;
 		return size;
 	}
 }

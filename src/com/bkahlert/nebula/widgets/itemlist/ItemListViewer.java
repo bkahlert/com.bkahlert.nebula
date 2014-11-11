@@ -8,6 +8,7 @@ import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Control;
@@ -44,6 +45,34 @@ public class ItemListViewer extends ContentViewer {
 		public ButtonSize getSize(Object object);
 
 		public ButtonStyle getStyle(Object object);
+	}
+
+	public static class ButtonLabelProvider extends LabelProvider implements
+	IButtonLabelProvider {
+		@Override
+		public String getText(Object element) {
+			return element.toString();
+		}
+
+		@Override
+		public ButtonOption getOption(Object object) {
+			return ButtonOption.DEFAULT;
+		}
+
+		@Override
+		public RGB getColor(Object object) {
+			return null;
+		}
+
+		@Override
+		public ButtonSize getSize(Object object) {
+			return ButtonSize.DEFAULT;
+		}
+
+		@Override
+		public ButtonStyle getStyle(Object object) {
+			return ButtonStyle.HORIZONTAL;
+		}
 	}
 
 	private ItemList itemList;

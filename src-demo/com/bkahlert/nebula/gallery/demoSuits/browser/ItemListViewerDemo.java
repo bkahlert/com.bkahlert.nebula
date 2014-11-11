@@ -13,7 +13,6 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
@@ -23,13 +22,14 @@ import org.eclipse.swt.widgets.Label;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.utils.ExecUtils;
+import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonOption;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonSize;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser.ButtonStyle;
 import com.bkahlert.nebula.widgets.itemlist.ItemList;
 import com.bkahlert.nebula.widgets.itemlist.ItemListViewer;
-import com.bkahlert.nebula.widgets.itemlist.ItemListViewer.IButtonLabelProvider;
+import com.bkahlert.nebula.widgets.itemlist.ItemListViewer.ButtonLabelProvider;
 
 @Demo
 public class ItemListViewerDemo extends AbstractDemo {
@@ -56,49 +56,22 @@ public class ItemListViewerDemo extends AbstractDemo {
 
 	@Override
 	public void createControls(Composite composite) {
-		createControlButton("set input", new Runnable() {
+		this.createControlButton("set input", new Runnable() {
 			@Override
 			public void run() {
 				log("creating input");
 				try {
-					itemListViewer.setInput(getInput());
-					itemListViewerNoWrap.setInput(getInput());
-					itemListViewer.refresh();
-					itemListViewerNoWrap.refresh();
+					ItemListViewerDemo.this.itemListViewer.setInput(getInput());
+					ItemListViewerDemo.this.itemListViewerNoWrap
+					.setInput(getInput());
+					ItemListViewerDemo.this.itemListViewer.refresh();
+					ItemListViewerDemo.this.itemListViewerNoWrap.refresh();
 				} catch (Exception e) {
 					log(e);
 				}
 				log("created input");
 			}
 		});
-	}
-
-	private class MyLabelProvider extends LabelProvider implements
-	IButtonLabelProvider {
-		@Override
-		public String getText(Object element) {
-			return element.toString();
-		}
-
-		@Override
-		public ButtonOption getOption(Object object) {
-			return getRandomEnum(ButtonOption.class);
-		}
-
-		@Override
-		public RGB getColor(Object object) {
-			return null;
-		}
-
-		@Override
-		public ButtonSize getSize(Object object) {
-			return getRandomEnum(ButtonSize.class);
-		}
-
-		@Override
-		public ButtonStyle getStyle(Object object) {
-			return getRandomEnum(ButtonStyle.class);
-		}
 	}
 
 	@Override
@@ -115,25 +88,41 @@ public class ItemListViewerDemo extends AbstractDemo {
 				.create());
 		itemList.setSpacing(10);
 
-		itemListViewer = new ItemListViewer(itemList);
-		itemListViewer.setContentProvider(ArrayContentProvider.getInstance());
-		itemListViewer.setLabelProvider(new MyLabelProvider());
-		itemListViewer.setInput(getInput());
-		itemListViewer.refresh();
-		itemListViewer
-		.addSelectionChangedListener(new ISelectionChangedListener() {
+		this.itemListViewer = new ItemListViewer(itemList);
+		this.itemListViewer.setContentProvider(ArrayContentProvider
+				.getInstance());
+		this.itemListViewer.setLabelProvider(new ButtonLabelProvider() {
 			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				log("selection changed: "
-						+ event.getSelection().toString());
-				history.add(event.getSelection());
-				itemListViewerHistory.get().setInput(history);
-				itemListViewerHistory.get().refresh();
+			public ButtonOption getOption(Object object) {
+				return getRandomEnum(ButtonOption.class);
+			}
+
+			@Override
+			public ButtonSize getSize(Object object) {
+				return getRandomEnum(ButtonSize.class);
+			}
+
+			@Override
+			public ButtonStyle getStyle(Object object) {
+				return getRandomEnum(ButtonStyle.class);
 			}
 		});
+		this.itemListViewer.setInput(getInput());
+		this.itemListViewer.refresh();
+		this.itemListViewer
+				.addSelectionChangedListener(new ISelectionChangedListener() {
+					@Override
+					public void selectionChanged(SelectionChangedEvent event) {
+						log("selection changed: "
+								+ event.getSelection().toString());
+						history.add(event.getSelection());
+						itemListViewerHistory.get().setInput(history);
+						itemListViewerHistory.get().refresh();
+					}
+				});
 
 		new Label(parent, SWT.SEPARATOR | SWT.VERTICAL)
-		.setLayoutData(GridDataFactory.fillDefaults().create());
+				.setLayoutData(GridDataFactory.fillDefaults().create());
 
 		ItemList itemListNoWrap = new ItemList(parent, SWT.NONE
 				| SWT.HORIZONTAL);
@@ -142,27 +131,27 @@ public class ItemListViewerDemo extends AbstractDemo {
 				.grab(true, false).create());
 		itemListNoWrap.setSpacing(10);
 
-		itemListViewerNoWrap = new ItemListViewer(itemListNoWrap);
-		itemListViewerNoWrap.setContentProvider(ArrayContentProvider
+		this.itemListViewerNoWrap = new ItemListViewer(itemListNoWrap);
+		this.itemListViewerNoWrap.setContentProvider(ArrayContentProvider
 				.getInstance());
-		itemListViewerNoWrap.setLabelProvider(new MyLabelProvider());
-		itemListViewerNoWrap.setInput(getInput());
-		itemListViewerNoWrap.refresh();
-		itemListViewerNoWrap
-		.addSelectionChangedListener(new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				log("selection changed: "
-						+ event.getSelection().toString());
-				history.add(event.getSelection());
-				itemListViewerHistory.get().setInput(history);
-				itemListViewerHistory.get().refresh();
-			}
-		});
+		this.itemListViewerNoWrap.setLabelProvider(new ButtonLabelProvider());
+		this.itemListViewerNoWrap.setInput(getInput());
+		this.itemListViewerNoWrap.refresh();
+		this.itemListViewerNoWrap
+				.addSelectionChangedListener(new ISelectionChangedListener() {
+					@Override
+					public void selectionChanged(SelectionChangedEvent event) {
+						log("selection changed: "
+								+ event.getSelection().toString());
+						history.add(event.getSelection());
+						itemListViewerHistory.get().setInput(history);
+						itemListViewerHistory.get().refresh();
+					}
+				});
 
 		new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL)
-		.setLayoutData(GridDataFactory.fillDefaults().span(3, 1)
-				.grab(true, false).create());
+				.setLayoutData(GridDataFactory.fillDefaults().span(3, 1)
+						.grab(true, false).create());
 
 		ItemList itemListHistory = new ItemList(parent, SWT.HORIZONTAL);
 		itemListHistory.setMargin(0);
@@ -178,12 +167,18 @@ public class ItemListViewerDemo extends AbstractDemo {
 							Object newInput) {
 					}
 
+					@SuppressWarnings("unchecked")
 					@Override
 					public Object[] getElements(Object inputElement) {
 						if (inputElement instanceof List<?>) {
-							@SuppressWarnings("unchecked")
-							List<Object> elements = new ArrayList<>(
-									(List<Object>) inputElement);
+							List<Pair<Integer, Object>> elements = new ArrayList<>();
+							for (int i = 0, m = ((List<Object>) inputElement)
+									.size(); i < m; i++) {
+								Object element = ((List<Object>) inputElement)
+										.get(i);
+								elements.add(new Pair<Integer, Object>(m - i
+										- 1, element));
+							}
 							Collections.reverse(elements);
 							return elements.subList(0,
 									Math.min(5, elements.size())).toArray();
@@ -195,7 +190,7 @@ public class ItemListViewerDemo extends AbstractDemo {
 					public void dispose() {
 					}
 				});
-		itemListViewerHistory.get().setLabelProvider(new MyLabelProvider() {
+		itemListViewerHistory.get().setLabelProvider(new ButtonLabelProvider() {
 			@Override
 			public ButtonOption getOption(Object object) {
 				return null;
@@ -203,7 +198,11 @@ public class ItemListViewerDemo extends AbstractDemo {
 
 			@Override
 			public RGB getColor(Object object) {
-				return RGB.BLACK;
+				@SuppressWarnings("unchecked")
+				Pair<Integer, Object> element = (Pair<Integer, Object>) object;
+				RGB color = RGB.BLACK;
+				color.setAlpha(1.0 - (double) element.getFirst() * 0.2);
+				return color;
 			}
 
 			@Override
@@ -223,6 +222,10 @@ public class ItemListViewerDemo extends AbstractDemo {
 					public void selectionChanged(SelectionChangedEvent event) {
 						log("selection changed: "
 								+ event.getSelection().toString());
+						itemListHistory
+						.run("var old = $('body').html(); $('body').fadeOut(100).queue(function(n) { $(this).html('"
+										+ event.getSelection().toString()
+										+ " clicked'); n(); }).fadeIn(100).delay(500).fadeOut(100).queue(function(n) { $(this).html(old); n(); }).fadeIn()");
 					}
 				});
 

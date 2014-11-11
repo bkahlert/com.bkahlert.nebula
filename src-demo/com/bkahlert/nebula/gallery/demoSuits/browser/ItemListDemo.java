@@ -159,7 +159,7 @@ public class ItemListDemo extends AbstractDemo {
 		this.itemList.setBackground(Display.getCurrent().getSystemColor(
 				SWT.COLOR_YELLOW));
 
-		this.itemList.addItem("item1", "Item #1");
+		this.itemList.addItem("item1", "<b class=\"no_click\">Item #1</b>");
 		this.itemList.addItem("item2", "Item #2", ButtonOption.PRIMARY,
 				ButtonSize.EXTRA_SMALL, ButtonStyle.DROPDOWN,
 				Arrays.asList("Option #1", "Option #2"));
