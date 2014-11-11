@@ -13,9 +13,9 @@ import org.eclipse.swt.widgets.ToolBar;
  * enhancedCreator {@link InformationControl} equals the normal version.<br>
  * In this case you don't have to override
  * {@link InformationControl#getInformationPresenterControlCreator()}.
- * 
+ *
  * @author bkahlert
- * 
+ *
  * @param <INFORMATION>
  */
 public class EnhanceableInformationControl<INFORMATION, DELEGATE extends EnhanceableInformationControl.Delegate<INFORMATION>>
@@ -25,9 +25,9 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 	 * Instances of this class create {@link Delegate}.<br>
 	 * {@link EnhanceableInformationControl} needs two delegates: one for the
 	 * normal and another one for the enhancedCreator version.
-	 * 
+	 *
 	 * @author bkahlert
-	 * 
+	 *
 	 * @param <DELEGATE>
 	 * @param <INFORMATION>
 	 */
@@ -38,15 +38,15 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 	/**
 	 * Instances of this class are responsible to create the contents of a
 	 * {@link InformationControl}.
-	 * 
+	 *
 	 * @author bkahlert
-	 * 
+	 *
 	 * @param <INFORMATION>
 	 */
 	public static interface Delegate<INFORMATION> {
 		/**
 		 * Is called when a new {@link InformationControl} is being constructed.
-		 * 
+		 *
 		 * @param parent
 		 * @return the {@link Composite} that may be extended
 		 */
@@ -55,7 +55,7 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 		/**
 		 * Is called when a constructed {@link InformationControl} needs to be
 		 * filled with information.
-		 * 
+		 *
 		 * @param information
 		 *            to be used to load
 		 * @param toolBarManager
@@ -91,7 +91,7 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 	/**
 	 * Constructs a new {@link EnhanceableInformationControl} that show a
 	 * {@link ToolBar} as soon as it becomes enhancedCreator.
-	 * 
+	 *
 	 * @param informationClass
 	 * @param parentShell
 	 * @param delegateFactory
@@ -161,7 +161,6 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 		super.dispose();
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<DELEGATE> getDelegates() {
 		if (this.enhancedDelegate != null) {
 			return Arrays.asList(this.delegate, this.enhancedDelegate);
@@ -173,7 +172,7 @@ public class EnhanceableInformationControl<INFORMATION, DELEGATE extends Enhance
 	/**
 	 * Returns true if this {@link EnhanceableInformationControl} instance is
 	 * the enhanced version.
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isEnhanced() {
