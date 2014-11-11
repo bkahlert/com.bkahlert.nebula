@@ -23,7 +23,10 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 	public void preWindowOpen() {
 		IWorkbenchWindowConfigurer configurer = this.getWindowConfigurer();
 		configurer.setInitialSize(new Point(800, 700));
-		configurer.setShowCoolBar(false);
+		configurer.setShowMenuBar(true);
+		configurer.setShowFastViewBars(false);
+		configurer.setShowCoolBar(true);
+		configurer.setShowPerspectiveBar(false);
 		configurer.setShowStatusLine(false);
 		configurer.setTitle("bkahlert.com - Nebula"); //$NON-NLS-1$
 	}
