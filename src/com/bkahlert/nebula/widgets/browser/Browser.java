@@ -221,7 +221,7 @@ public class Browser extends Composite implements IBrowser {
 									.round((Double) arguments[3])
 									: Integer.MAX_VALUE);
 					LOGGER.debug("browser content resized to "
-							+ cachedContentBounds);
+							+ Browser.this.cachedContentBounds);
 					Composite root = SWTUtils.getRoot(Browser.this);
 					LOGGER.debug("layout all");
 					root.layout(true, true);
@@ -1024,8 +1024,6 @@ public class Browser extends Composite implements IBrowser {
 		return this.run("window.__removeFocusBorder();",
 				IConverter.CONVERTER_VOID);
 	}
-
-	private boolean isComputingSize = false;
 
 	@Override
 	public Point computeSize(int wHint, int hHint, boolean changed) {
