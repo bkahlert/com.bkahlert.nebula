@@ -10,15 +10,23 @@ public class JointJSCellFactory {
 	public static JointJSCell createJointJSCell(String json) {
 		try {
 			@SuppressWarnings("unchecked")
-			HashMap<String, Object> cell = (HashMap<String, Object>) JSONUtils
+			HashMap<String, Object> map = (HashMap<String, Object>) JSONUtils
 					.parseJson(json);
-			if (cell.get("type").toString().contains("link")) {
-				return new JointJSLink(cell);
-			} else {
-				return new JointJSElement(cell);
-			}
+			return createJointJSCell(map);
 		} catch (ClassCastException | IOException | NullPointerException e) {
-			throw new RuntimeException(e);
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+	public static JointJSCell createJointJSCell(HashMap<String, Object> map) {
+		try {
+			if (map.get("type").toString().contains("link")) {
+				return new JointJSLink(map);
+			} else {
+				return new JointJSElement(map);
+			}
+		} catch (NullPointerException e) {
+			throw new IllegalArgumentException(e);
 		}
 	}
 

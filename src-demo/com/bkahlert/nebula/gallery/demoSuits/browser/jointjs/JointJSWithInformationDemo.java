@@ -46,6 +46,7 @@ import com.bkahlert.nebula.widgets.jointjs.JointJS;
 import com.bkahlert.nebula.widgets.jointjs.JointJS.IJointJSListener;
 import com.bkahlert.nebula.widgets.jointjs.JointJSCell;
 import com.bkahlert.nebula.widgets.jointjs.JointJSLink;
+import com.bkahlert.nebula.widgets.jointjs.JointJSModel;
 
 @Demo
 public class JointJSWithInformationDemo extends AbstractDemo {
@@ -355,18 +356,18 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 		});
 		this.jointjs.addJointJSListener(new IJointJSListener() {
 			@Override
-			public void loaded(String json) {
-				log("loaded  " + json);
+			public void loaded(JointJSModel model) {
+				log("loaded  " + model);
 			}
 
 			@Override
-			public void save(String json) {
-				log("save " + json);
+			public void save(JointJSModel model) {
+				log("save " + model);
 			}
 
 			@Override
-			public void modified(String json) {
-				log("modified " + json);
+			public void modified(JointJSModel model) {
+				log("modified " + model);
 			}
 
 			@Override

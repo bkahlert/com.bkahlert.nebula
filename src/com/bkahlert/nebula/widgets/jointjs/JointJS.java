@@ -45,9 +45,18 @@ public class JointJS extends Browser implements ISelectionProvider {
 
 	private static final Logger LOGGER = Logger.getLogger(JointJS.class);
 
+	private static class JointJSModelConverter implements
+			IConverter<Object, JointJSModel> {
+		private static JointJSModelConverter INSTANCE = new JointJSModelConverter();
+
+		@Override
+		public JointJSModel convert(Object json) {
+			return json != null ? new JointJSModel(json.toString()) : null;
+		}
+	}
+
 	private static class JointJSCellConverter implements
 			IConverter<Object, JointJSCell> {
-
 		private static JointJSCellConverter INSTANCE = new JointJSCellConverter();
 
 		@Override
@@ -55,15 +64,14 @@ public class JointJS extends Browser implements ISelectionProvider {
 			return returnValue != null ? JointJSCellFactory
 					.createJointJSCell(returnValue.toString()) : null;
 		}
-
 	}
 
 	public static interface IJointJSListener {
-		public void loaded(String json);
+		public void loaded(JointJSModel model);
 
-		public void save(String json);
+		public void save(JointJSModel json);
 
-		public void modified(String json);
+		public void modified(JointJSModel json);
 
 		public void linkTitleChanged(String id, String title);
 
@@ -74,15 +82,15 @@ public class JointJS extends Browser implements ISelectionProvider {
 	public static class JointJSListener implements IJointJSListener {
 
 		@Override
-		public void loaded(String json) {
+		public void loaded(JointJSModel json) {
 		}
 
 		@Override
-		public void save(String json) {
+		public void save(JointJSModel json) {
 		}
 
 		@Override
-		public void modified(String json) {
+		public void modified(JointJSModel json) {
 		}
 
 		@Override
@@ -101,7 +109,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 	private IReflexiveConverter<String, Object> selectionConverter;
 	private JointJSCell lastHovered = null;
 
-	private String currentJson = null;
+	private JointJSModel model = null;
 
 	private String nodeCreationPrefix;
 	private String linkCreationPrefix;
@@ -146,9 +154,10 @@ public class JointJS extends Browser implements ISelectionProvider {
 			@Override
 			public Object function(Object[] arguments) {
 				if (arguments.length == 1) {
-					JointJS.this.currentJson = (String) arguments[0];
+					JointJS.this.model = JointJSModelConverter.INSTANCE
+							.convert(arguments[0]);
 					for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
-						jointJSListener.loaded((String) arguments[0]);
+						jointJSListener.loaded(JointJS.this.model);
 					}
 				}
 				return null;
@@ -159,8 +168,10 @@ public class JointJS extends Browser implements ISelectionProvider {
 			@Override
 			public Object function(Object[] arguments) {
 				if (arguments.length == 1) {
+					JointJSModel model = JointJSModelConverter.INSTANCE
+							.convert(arguments[0]);
 					for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
-						jointJSListener.save((String) arguments[0]);
+						jointJSListener.save(model);
 					}
 				}
 				return null;
@@ -171,9 +182,10 @@ public class JointJS extends Browser implements ISelectionProvider {
 			@Override
 			public Object function(Object[] arguments) {
 				if (arguments.length == 1) {
-					JointJS.this.currentJson = (String) arguments[0];
+					JointJSModel model = JointJSModelConverter.INSTANCE
+							.convert(arguments[0]);
 					for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
-						jointJSListener.modified(JointJS.this.currentJson);
+						jointJSListener.modified(model);
 					}
 				}
 				return null;
@@ -290,8 +302,8 @@ public class JointJS extends Browser implements ISelectionProvider {
 	 *
 	 * @return
 	 */
-	public String getJson() {
-		return this.currentJson;
+	public JointJSModel getModel() {
+		return this.model;
 	}
 
 	/**
