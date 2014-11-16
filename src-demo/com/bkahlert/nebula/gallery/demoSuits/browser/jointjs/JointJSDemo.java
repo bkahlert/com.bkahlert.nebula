@@ -29,6 +29,7 @@ import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 import com.bkahlert.nebula.widgets.jointjs.JointJS;
 import com.bkahlert.nebula.widgets.jointjs.JointJS.IJointJSListener;
+import com.bkahlert.nebula.widgets.jointjs.JointJSCell;
 
 @Demo
 public class JointJSDemo extends AbstractDemo {
@@ -305,8 +306,8 @@ public class JointJSDemo extends AbstractDemo {
 			}
 
 			@Override
-			public void hovered(String id, boolean hoveredIn) {
-				log("hovered " + (hoveredIn ? "in" : "out") + ": " + id);
+			public void hovered(JointJSCell cell, boolean hoveredIn) {
+				log("hovered " + (hoveredIn ? "in" : "out") + ": " + cell);
 			}
 		});
 

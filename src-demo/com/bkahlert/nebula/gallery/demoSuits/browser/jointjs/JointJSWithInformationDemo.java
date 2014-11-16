@@ -44,6 +44,8 @@ import com.bkahlert.nebula.widgets.browser.listener.IAnkerListener;
 import com.bkahlert.nebula.widgets.browser.listener.IFocusListener;
 import com.bkahlert.nebula.widgets.jointjs.JointJS;
 import com.bkahlert.nebula.widgets.jointjs.JointJS.IJointJSListener;
+import com.bkahlert.nebula.widgets.jointjs.JointJSCell;
+import com.bkahlert.nebula.widgets.jointjs.JointJSLink;
 
 @Demo
 public class JointJSWithInformationDemo extends AbstractDemo {
@@ -373,8 +375,9 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 			}
 
 			@Override
-			public void hovered(String id, boolean hoveredIn) {
-				log("hovered " + (hoveredIn ? "in" : "out") + ": " + id);
+			public void hovered(JointJSCell cell, boolean hoveredIn) {
+				log("hovered " + (hoveredIn ? "in" : "out") + ": "
+						+ cell.getId());
 			}
 		});
 
@@ -385,11 +388,12 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 
 					private final JointJS.IJointJSListener listener = new JointJS.JointJSListener() {
 						@Override
-						public void hovered(String id, boolean hoveredIn) {
-							if (hoveredIn && id != null && !id.contains("|")
-									&& id.startsWith("apiua://")) {
+						public void hovered(JointJSCell cell, boolean hoveredIn) {
+							if (hoveredIn && cell != null
+									&& !(cell instanceof JointJSLink)
+									&& cell.getId().startsWith("apiua://")) {
 								try {
-									hovered = new URI(id);
+									hovered = new URI(cell.getId());
 								} catch (URISyntaxException e) {
 									hovered = null;
 								}

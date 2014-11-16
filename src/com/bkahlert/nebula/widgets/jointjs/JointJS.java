@@ -45,6 +45,19 @@ public class JointJS extends Browser implements ISelectionProvider {
 
 	private static final Logger LOGGER = Logger.getLogger(JointJS.class);
 
+	private static class JointJSCellConverter implements
+			IConverter<Object, JointJSCell> {
+
+		private static JointJSCellConverter INSTANCE = new JointJSCellConverter();
+
+		@Override
+		public JointJSCell convert(Object returnValue) {
+			return returnValue != null ? JointJSCellFactory
+					.createJointJSCell(returnValue.toString()) : null;
+		}
+
+	}
+
 	public static interface IJointJSListener {
 		public void loaded(String json);
 
@@ -54,7 +67,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 
 		public void linkTitleChanged(String id, String title);
 
-		public void hovered(String id, boolean hoveredIn);
+		public void hovered(JointJSCell jointJSCell, boolean hoveredIn);
 
 	}
 
@@ -77,7 +90,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 		}
 
 		@Override
-		public void hovered(String id, boolean hoveredIn) {
+		public void hovered(JointJSCell cell, boolean hoveredIn) {
 		}
 
 	}
@@ -86,7 +99,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 	private final ListenerList selectionChangedListeners = new ListenerList();
 	private ISelection selection = new StructuredSelection();
 	private IReflexiveConverter<String, Object> selectionConverter;
-	private String lastHovered = null;
+	private JointJSCell lastHovered = null;
 
 	private String currentJson = null;
 
@@ -184,8 +197,9 @@ public class JointJS extends Browser implements ISelectionProvider {
 			@Override
 			public Object function(Object[] arguments) {
 				if (arguments.length == 1) {
-					String id = (String) arguments[0];
-					JointJS.this.fireHoveredIn(id);
+					String json = (String) arguments[0];
+					JointJS.this.fireHoveredIn(JointJSCellFactory
+							.createJointJSCell(json));
 				}
 				return null;
 			}
@@ -195,8 +209,9 @@ public class JointJS extends Browser implements ISelectionProvider {
 			@Override
 			public Object function(Object[] arguments) {
 				if (arguments.length == 1) {
-					String id = (String) arguments[0];
-					JointJS.this.fireHoveredOut(id);
+					String json = (String) arguments[0];
+					JointJS.this.fireHoveredOut(JointJSCellFactory
+							.createJointJSCell(json));
 				}
 				return null;
 			}
@@ -393,6 +408,11 @@ public class JointJS extends Browser implements ISelectionProvider {
 		});
 	}
 
+	public Future<JointJSCell> getCell(String id) {
+		return this.run("return com.bkahlert.nebula.jointjs.getCell('" + id
+				+ "');", JointJSCellConverter.INSTANCE);
+	}
+
 	public Future<Void> setText(String id, Object index, String text) {
 		String indexParam = "null";
 		if (index instanceof Integer) {
@@ -416,19 +436,19 @@ public class JointJS extends Browser implements ISelectionProvider {
 				+ "', " + indexParam + ");", IConverter.CONVERTER_STRING);
 	}
 
-	public Future<Void> setNodeTitle(String id, String title) {
+	public Future<Void> setElementTitle(String id, String title) {
 		return this.setText(id, "title", title);
 	}
 
-	public Future<String> getNodeTitle(String id) {
+	public Future<String> getElementTitle(String id) {
 		return this.getText(id, "title");
 	}
 
-	public Future<Void> setNodeContent(String id, String content) {
+	public Future<Void> setElementContent(String id, String content) {
 		return this.setText(id, "content", content);
 	}
 
-	public Future<String> getNodeContent(String id) {
+	public Future<String> getElementContent(String id) {
 		return this.getText(id, "content");
 	}
 
@@ -473,12 +493,13 @@ public class JointJS extends Browser implements ISelectionProvider {
 				IConverter.CONVERTER_VOID);
 	}
 
-	public Future<Boolean> remove(String id) {
-		Future<Boolean> rt = this.run(
+	public Future<JointJSCell> remove(String id) {
+		Future<JointJSCell> rt = this.run(
 				"return com.bkahlert.nebula.jointjs.removeCell('" + id + "');",
-				IConverter.CONVERTER_BOOLEAN);
-		if (id != null && id.equals(this.lastHovered)) {
-			this.fireHoveredOut(id);
+				JointJSCellConverter.INSTANCE);
+		if (id != null && this.lastHovered != null
+				&& id.equals(this.lastHovered.getId())) {
+			this.fireHoveredOut(this.lastHovered);
 		}
 		return rt;
 	}
@@ -650,16 +671,16 @@ public class JointJS extends Browser implements ISelectionProvider {
 		}
 	}
 
-	private void fireHoveredIn(String id) {
-		this.lastHovered = id;
+	private void fireHoveredIn(JointJSCell jointJSCell) {
+		this.lastHovered = jointJSCell;
 		for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
-			jointJSListener.hovered(id, true);
+			jointJSListener.hovered(jointJSCell, true);
 		}
 	}
 
-	private void fireHoveredOut(String id) {
+	private void fireHoveredOut(JointJSCell jointJSCell) {
 		for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
-			jointJSListener.hovered(id, false);
+			jointJSListener.hovered(jointJSCell, false);
 		}
 		this.lastHovered = null;
 	}

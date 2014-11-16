@@ -199,7 +199,7 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 
 		openDemo: function () {
 			window.__modified = function(html) {
-				console.log('modified: ' + html);
+				console.log('modified: ' + html.length);
 			}
 		
 			$('<div class="buttons" style="z-index: 9999999"></div>').appendTo('body').css({
@@ -364,11 +364,12 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 		
 		removeCell: function(id) {
 			var cell = com.bkahlert.nebula.jointjs.graph.getCell(id);
+			var rt = com.bkahlert.nebula.jointjs.getCell(id);
 			if(cell) {
 				cell.remove();
-				return true;
+				return rt;
 			} else {
-				return false;
+				return null;
 			}
 		},
 		
@@ -637,12 +638,14 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			var $d = $(document);
 			if (typeof window.__cellHoveredOver === 'function') {
 				$d.on('mouseenter', '[model-id]', function() {
-					window.__cellHoveredOver($(this).attr('model-id'));
+					var id = $(this).attr('model-id');
+					window.__cellHoveredOver(com.bkahlert.nebula.jointjs.getCell(id));
 				});
 			}
 			if (typeof window.__cellHoveredOut === 'function') {
 				$d.on('mouseleave', '[model-id]', function() {
-					window.__cellHoveredOut($(this).attr('model-id'));
+					var id = $(this).attr('model-id');
+					window.__cellHoveredOut(com.bkahlert.nebula.jointjs.getCell(id));
 				});
 			}
 		},
@@ -675,6 +678,11 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
                 modified();
 				shuttingDown = true;
             });
+        },
+        
+        getCell: function(id) {
+        	var cell = com.bkahlert.nebula.jointjs.graph.getCell(id);
+        	return cell != null ? JSON.stringify(com.bkahlert.nebula.jointjs.graph.getCell(id).attributes) : null;
         },
 		
 		setText: function(id, index, text) {
