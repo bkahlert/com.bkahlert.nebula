@@ -56,8 +56,21 @@ public class JointJSModel {
 				.map(c -> (JointJSElement) c).collect(Collectors.toList());
 	}
 
+	public List<JointJSLink> getPermanentLinks() {
+		return this
+				.getCells()
+				.stream()
+				.filter(c -> c instanceof JointJSLink
+						&& ((JointJSLink) c).isPermanent())
+				.map(c -> (JointJSLink) c).collect(Collectors.toList());
+	}
+
 	public List<JointJSLink> getLinks() {
-		return this.getCells().stream().filter(c -> c instanceof JointJSLink)
+		return this
+				.getCells()
+				.stream()
+				.filter(c -> c instanceof JointJSLink
+						&& !((JointJSLink) c).isPermanent())
 				.map(c -> (JointJSLink) c).collect(Collectors.toList());
 	}
 

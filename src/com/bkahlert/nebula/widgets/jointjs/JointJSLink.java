@@ -145,6 +145,15 @@ public class JointJSLink extends JointJSCell {
 		return this.title;
 	}
 
+	public boolean isPermanent() {
+		Object raw = this.cell.get("permanent");
+		if (raw instanceof Boolean) {
+			return (boolean) raw;
+		} else {
+			return false;
+		}
+	}
+
 	private IEndpoint createEndpoint(HashMap<String, Object> endpoint) {
 		if (endpoint.get("id") != null) {
 			final String id = endpoint.get("id").toString();
