@@ -125,6 +125,13 @@ public class StylerUtilsDemo extends AbstractDemo {
 				data.add(new StyledString(styler.getFirst(), styler.getSecond()));
 			}
 
+			data.add(new StyledString("Shortened Stylers", null));
+			for (Pair<String, Styler> styler : stylers) {
+				data.add(Stylers.shorten(new StyledString(styler.getFirst(),
+						styler.getSecond()), styler.getFirst().length() - 10,
+						" ..."));
+			}
+
 			data.add(new StyledString("Combined Stylers", null));
 			for (Pair<String, Styler> styler : stylers) {
 				for (Pair<String, Styler> styler2 : stylers) {

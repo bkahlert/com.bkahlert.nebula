@@ -122,7 +122,7 @@ public class Stylers {
 	 * resulting {@link Styler} bold without affecting the font size or italic
 	 * style. Colors are mixed and a {@link Styler} making the font smaller will
 	 * make the resulting font smaller.
-	 * 
+	 *
 	 * @param stylers
 	 * @return
 	 */
@@ -131,8 +131,10 @@ public class Stylers {
 			@Override
 			public void applyStyles(TextStyle textStyle) {
 				for (Styler styler : stylers) {
-					// styler.applyStyles(textStyle);
-					mergeApplyStyles(styler, textStyle);
+					if (styler != null) {
+						// styler.applyStyles(textStyle);
+						mergeApplyStyles(styler, textStyle);
+					}
 				}
 			}
 		};
@@ -142,7 +144,7 @@ public class Stylers {
 	 * Applies the {@link Styler} to the {@link TextStyle} is a smart fashion.
 	 * Settings are not simply overwritten but really combined. E.g. small +
 	 * large text will result is normal size font.
-	 * 
+	 *
 	 * @param styler
 	 * @param textStyle
 	 */
@@ -231,7 +233,7 @@ public class Stylers {
 	 * <p>
 	 * Example: if the {@link Styler}'s format was bold and blue, the string
 	 * will be bold and blue tinted.
-	 * 
+	 *
 	 * @param string
 	 * @param baseStyler
 	 * @return
@@ -278,7 +280,7 @@ public class Stylers {
 	 * Appends the given append {@link StyledString} to the base
 	 * {@link StyledString}. The appended string uses a merge style based on the
 	 * the originals strings style and the appended one.
-	 * 
+	 *
 	 * @param string
 	 * @param append
 	 * @return
@@ -297,19 +299,55 @@ public class Stylers {
 		}
 	}
 
+	private static StyledString cloneSubstring(StyledString string,
+			int beginIndex, int endIndex) {
+		StyledString clone = new StyledString(string.getString().substring(
+				beginIndex, endIndex));
+		for (StyleRange styleRange : string.getStyleRanges()) {
+			if (styleRange.start < endIndex) {
+				int start = Math.max(0, styleRange.start - beginIndex);
+				int length = styleRange.length - beginIndex;
+				if (styleRange.start + styleRange.length > endIndex) {
+					length -= styleRange.start + styleRange.length - endIndex;
+				}
+				clone.setStyle(start, length, createFrom(styleRange));
+			}
+		}
+		return clone;
+	}
+
+	/**
+	 * Shortens the given string if its length exceeds the maximum length. In
+	 * this case the string is shortened and the fill string is appended (using
+	 * the string's style). The returned string will be of length max.
+	 *
+	 * @param string
+	 * @param max
+	 * @param append
+	 * @return
+	 */
+	public static StyledString shorten(StyledString string, int max,
+			String append) {
+		if (string.length() > max) {
+			if (append == null) {
+				append = "";
+			}
+			StyleRange[] ranges = getExpandedStyleRanges(string);
+			return cloneSubstring(string, 0, max - append.length()).append(
+					append, createFrom(ranges[ranges.length - 1]));
+		} else {
+			return clone(string);
+		}
+	}
+
 	/**
 	 * Clones a {@link StyledString}.
-	 * 
+	 *
 	 * @param string
 	 * @return
 	 */
 	public static StyledString clone(StyledString string) {
-		StyledString clone = new StyledString(string.getString());
-		for (StyleRange styleRange : string.getStyleRanges()) {
-			clone.setStyle(styleRange.start, styleRange.length,
-					createFrom(styleRange));
-		}
-		return clone;
+		return cloneSubstring(string, 0, string.length());
 	}
 
 	/**
@@ -319,7 +357,7 @@ public class Stylers {
 	 * Only the styles that differ from the by default styles are defined. This
 	 * way the resulting {@link Styler} can also be combined with other
 	 * {@link Styler}s using {@link #combine(Styler...)}.
-	 * 
+	 *
 	 * @param styleRange
 	 * @return
 	 */
