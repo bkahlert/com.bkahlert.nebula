@@ -58,9 +58,9 @@ import org.eclipse.swt.widgets.Display;
  * To allow asynchronous non-UI thread methods to work with a custom
  * {@link ExecutorService}, just instantiate {@link ExecUtils}. This is
  * especially practical if you want to limit the number of maximum threads.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public class ExecUtils {
 
@@ -77,9 +77,9 @@ public class ExecUtils {
 	 * <li>At 00:00:20 you started your thread.</li>
 	 * <li>The passed runnable with be called at 00:00:25.</li>
 	 * </ol>
-	 * 
+	 *
 	 * @author bkahlert
-	 * 
+	 *
 	 */
 	public static class DelayableThread extends Thread {
 
@@ -90,7 +90,7 @@ public class ExecUtils {
 		/**
 		 * Creates an {@link DelayableThread} that is delayed by the specified
 		 * delay.
-		 * 
+		 *
 		 * @param runnable
 		 *            to run when after {@link DelayableThread#start()} has been
 		 *            called and the specified delay has passed
@@ -135,7 +135,7 @@ public class ExecUtils {
 		 * </ol>
 		 * <p>
 		 * Calling this method after the runnable was executed has no effect.
-		 * 
+		 *
 		 * @param delay
 		 *            in milliseconds.
 		 */
@@ -146,7 +146,7 @@ public class ExecUtils {
 
 		/**
 		 * Returns true if this {@link DelayableThread} was already executed.
-		 * 
+		 *
 		 * @return
 		 */
 		public boolean isFinished() {
@@ -159,9 +159,9 @@ public class ExecUtils {
 	 * occur if an UI thread call triggers a new thread that itself needs an UI
 	 * thread call.
 	 * <p>
-	 * 
+	 *
 	 * @author bkahlert
-	 * 
+	 *
 	 * @param <V>
 	 */
 	public static class UIThreadSafeFuture<V> implements Future<V> {
@@ -240,7 +240,7 @@ public class ExecUtils {
 	public static interface ParametrizedCallable<T, V> {
 		/**
 		 * Computes a result, or throws an exception if unable to do so.
-		 * 
+		 *
 		 * @param given
 		 *            value
 		 * @return computed result
@@ -276,7 +276,7 @@ public class ExecUtils {
 
 	/**
 	 * Checks if the current thread is the/an UI thread.
-	 * 
+	 *
 	 * @return
 	 */
 	public static boolean isUIThread() {
@@ -378,7 +378,7 @@ public class ExecUtils {
 
 	/**
 	 * Waits in the UI thread without blocking the event queue.
-	 * 
+	 *
 	 * @UIThread must be called from the UI thread
 	 * @param millis
 	 */
@@ -399,7 +399,7 @@ public class ExecUtils {
 	/**
 	 * Waits in the UI thread without blocking the event queue until the
 	 * {@link Future} finished its computation.
-	 * 
+	 *
 	 * @UIThread must be called from the UI thread
 	 * @param millis
 	 */
@@ -419,7 +419,7 @@ public class ExecUtils {
 	/**
 	 * Waits in the UI thread without blocking the event queue until the time
 	 * has passed or the {@link Future} finished its computation.
-	 * 
+	 *
 	 * @UIThreadmust be called from the UI thread
 	 * @param millis
 	 */
@@ -441,9 +441,9 @@ public class ExecUtils {
 	/**
 	 * Waits until the given {@link Callable} returns <code>false</code> in the
 	 * UI thread without blocking the event queue.
-	 * 
+	 *
 	 * @UIThread must be called from the UI thread
-	 * 
+	 *
 	 * @param millis
 	 * @throws Exception
 	 *             thrown by the {@link Callable}
@@ -482,7 +482,7 @@ public class ExecUtils {
 
 	/**
 	 * Prints an eventually thrown {@link Exception} to the console.
-	 * 
+	 *
 	 * @param future
 	 */
 	public static void logException(Future<?> future) {
@@ -492,7 +492,7 @@ public class ExecUtils {
 	/**
 	 * Logs an eventually thrown {@link Exception} using the given
 	 * {@link Logger}.
-	 * 
+	 *
 	 * @param future
 	 * @param logger
 	 */
@@ -519,7 +519,7 @@ public class ExecUtils {
 	 * <p>
 	 * Checks if the caller is already in the UI thread and if so runs the
 	 * runnable directly in order to avoid deadlocks.
-	 * 
+	 *
 	 * @param runnable
 	 */
 	public static <V> V syncExec(final Callable<V> callable) throws Exception {
@@ -557,10 +557,10 @@ public class ExecUtils {
 	 * <p>
 	 * Checks if the caller is already in the UI thread and if so runs the
 	 * runnable directly in order to avoid deadlocks.
-	 * 
+	 *
 	 * @param runnable
 	 * @throws Exception
-	 * 
+	 *
 	 * @UIThread
 	 * @NonUIThread
 	 */
@@ -589,10 +589,10 @@ public class ExecUtils {
 	 * Executes the given {@link Callable} asynchronously in the UI thread.
 	 * <p>
 	 * The return value is returned in the calling thread.
-	 * 
+	 *
 	 * @param callable
 	 * @return
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
@@ -609,10 +609,10 @@ public class ExecUtils {
 
 	/**
 	 * Executes the given {@link Runnable} asynchronously in the UI thread.
-	 * 
+	 *
 	 * @param runnable
 	 * @return can be used to check when the code has been executed
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
@@ -644,15 +644,15 @@ public class ExecUtils {
 	/**
 	 * Executes the given {@link Callable} with a delay and asynchronously in
 	 * the UI thread.
-	 * 
+	 *
 	 * @param callable
 	 * @param delay
 	 * @return
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
-	 * 
+	 *
 	 *              TODO implement using Display.timerExec
 	 */
 	public static <V> Future<V> asyncExec(final Callable<V> callable,
@@ -676,14 +676,14 @@ public class ExecUtils {
 	/**
 	 * Executes the given {@link Runnable} with a delay and asynchronously in
 	 * the UI thread.
-	 * 
+	 *
 	 * @param runnable
 	 * @param delay
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
-	 * 
+	 *
 	 *              TODO implement using Display.timerExec
 	 */
 	public static Future<Void> asyncExec(final Runnable runnable,
@@ -709,10 +709,10 @@ public class ExecUtils {
 	 * Runs the given {@link Callable} immediately in a non-UI thread. If the
 	 * caller already runs in such one the {@link Callable} is simply executed.
 	 * Otherwise a new thread is started.
-	 * 
+	 *
 	 * @param callable
 	 * @return
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
@@ -729,9 +729,9 @@ public class ExecUtils {
 	 * Runs the given {@link Runnable} immediately in a non-UI thread. If the
 	 * caller already runs in such one the {@link Runnable} is simply executed.
 	 * Otherwise a new thread is started.
-	 * 
+	 *
 	 * @param runnable
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
@@ -758,15 +758,15 @@ public class ExecUtils {
 	 * <p>
 	 * The given {@link Class} and purpose are used to give the thread a
 	 * reasonable name.
-	 * 
+	 *
 	 * @param clazz
 	 *            that invokes this call
 	 * @param purpose
 	 *            of the callable
 	 * @param callable
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
@@ -783,14 +783,14 @@ public class ExecUtils {
 	 * <p>
 	 * The given {@link Class} and purpose are used to give the thread a
 	 * reasonable name.
-	 * 
+	 *
 	 * @param clazz
 	 *            that invokes this call
 	 * @param purpose
 	 *            of the runnable
 	 * @param runnable
 	 * @return
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
@@ -804,13 +804,13 @@ public class ExecUtils {
 	 * Executes the given {@link Callable} synchronously with a delay.
 	 * <p>
 	 * The return value is returned in the calling thread.
-	 * 
+	 *
 	 * @param executorService
 	 *            to be used to get the {@link Thread} in which to run the code
 	 * @param callable
 	 * @param delay
 	 * @return
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
@@ -824,11 +824,11 @@ public class ExecUtils {
 	 * Executes the given {@link Runnable} synchronously with a delay.
 	 * <p>
 	 * The return value is returned in the calling thread.
-	 * 
+	 *
 	 * @param callable
 	 * @param delay
 	 * @return
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
@@ -845,16 +845,16 @@ public class ExecUtils {
 	 * <p>
 	 * The given {@link Class} and purpose are used to give the thread a
 	 * reasonable name.
-	 * 
+	 *
 	 * @param clazz
 	 *            that invokes this call
 	 * @param purpose
 	 *            of the callable
 	 * @param callable
 	 * @param delay
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
@@ -872,16 +872,16 @@ public class ExecUtils {
 	 * <p>
 	 * The given {@link Class} and purpose are used to give the thread a
 	 * reasonable name.
-	 * 
+	 *
 	 * @param clazz
 	 *            that invokes this call
 	 * @param purpose
 	 *            of the runnable
 	 * @param runnable
 	 * @param delay
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
@@ -895,10 +895,10 @@ public class ExecUtils {
 	/**
 	 * Executes the given {@link Callable} asynchronously, meaning always in a
 	 * new thread.
-	 * 
+	 *
 	 * @param callable
 	 * @return
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
@@ -911,16 +911,16 @@ public class ExecUtils {
 	/**
 	 * Executes the given {@link Callable}s asynchronously, meaning always in a
 	 * new thread.
-	 * 
+	 *
 	 * @param callables
 	 * @return
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
 	 */
 	public static <V> Future<List<V>> nonUIAsyncExec(
-			final Callable<V>... callables) {
+			@SuppressWarnings("unchecked") final Callable<V>... callables) {
 		Assert.isLegal(callables != null && callables.length != 0);
 		return nonUIAsyncExec(new Callable<List<V>>() {
 			@Override
@@ -944,10 +944,10 @@ public class ExecUtils {
 	 * new thread.
 	 * <p>
 	 * The return value is returned in the calling thread.
-	 * 
+	 *
 	 * @param callable
 	 * @return
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
@@ -988,11 +988,11 @@ public class ExecUtils {
 	 * new thread.
 	 * <p>
 	 * The return value is returned in the calling thread.
-	 * 
+	 *
 	 * @param callable
 	 * @param delay
 	 * @return
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
@@ -1015,13 +1015,13 @@ public class ExecUtils {
 	 * new thread.
 	 * <p>
 	 * The return value is returned in the calling thread.
-	 * 
+	 *
 	 * @param executorService
 	 *            to be used to get the {@link Thread} in which to run the code
 	 * @param callable
 	 * @param delay
 	 * @return
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
@@ -1078,7 +1078,7 @@ public class ExecUtils {
 	/**
 	 * Executes the given {@link ExecUtils.ParametrizedCallable} once per
 	 * element in the given input {@link Collection} and each in a new thread.
-	 * 
+	 *
 	 * @param executorService
 	 * @param input
 	 *            whose elements are used as the parameter for the
@@ -1086,7 +1086,7 @@ public class ExecUtils {
 	 * @param parametrizedCallable
 	 *            to be called n times
 	 * @return a list of {@link Future}s
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread
@@ -1122,14 +1122,14 @@ public class ExecUtils {
 	 * In contrast to
 	 * {@link #nonUIAsyncExec(java.util.concurrent.ExecutorService, Collection, ParametrizedCallable)}
 	 * this method returns a single {@link Future} containing all results.
-	 * 
+	 *
 	 * @param input
 	 *            whose elements are used as the parameter for the
 	 *            {@link ExecUtils.ParametrizedCallable}
 	 * @param parametrizedCallable
 	 *            to be called n times
 	 * @return a {@link Future} that contains the results
-	 * 
+	 *
 	 * @UIThread <b>Warning: {@link Future#get()} must not be called from the UI
 	 *           thread</b>
 	 * @NonUIThread

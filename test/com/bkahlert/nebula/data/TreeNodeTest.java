@@ -8,17 +8,14 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import com.bkahlert.nebula.data.TreeNode;
-
 /**
  * Tests the <code>TreeNode</code> object. It is a generic tree (integer.e. not
  * a balanced tree or some other specialized tree).
- * 
+ *
  * @see com.bkahlert.nebula.data.TreeNode
  */
 public class TreeNodeTest extends TestCase {
 
-	@SuppressWarnings("unchecked")
 	public static TreeNode<Integer> getTree() {
 		return new TreeNode<Integer>(17, Arrays.asList(
 				new TreeNode<Integer>(1),
@@ -45,7 +42,8 @@ public class TreeNodeTest extends TestCase {
 	 */
 	@Test
 	public void testIllegalOperations() {
-		// TimelineViewer cannot add a child node to position greater than available
+		// TimelineViewer cannot add a child node to position greater than
+		// available
 		// number of children.
 		boolean caughtException = false;
 
@@ -64,7 +62,8 @@ public class TreeNodeTest extends TestCase {
 			fail("Expected exception 'IllegalArgumentException' but no exceptions caught.");
 		}
 
-		// TimelineViewer remove a child node from position greater than available number
+		// TimelineViewer remove a child node from position greater than
+		// available number
 		// of children.
 		caughtException = false;
 
@@ -181,9 +180,9 @@ public class TreeNodeTest extends TestCase {
 	}
 
 	/**
-	 * TimelineViewer a tree that has a root and just one child. This is a simple test to
-	 * verify the child has properties appropriately set before testing more
-	 * complex trees.
+	 * TimelineViewer a tree that has a root and just one child. This is a
+	 * simple test to verify the child has properties appropriately set before
+	 * testing more complex trees.
 	 */
 	@Test
 	public void testOneChild() {
@@ -502,7 +501,7 @@ public class TreeNodeTest extends TestCase {
 				13, 14, 3, 4 };
 		int i = 0;
 		for (Iterator<Integer> iterator = getTree().bfs(); iterator.hasNext(); i++) {
-			int next = (int) iterator.next();
+			int next = iterator.next();
 			System.out.println(next);
 			assertEquals(order[i], next);
 		}

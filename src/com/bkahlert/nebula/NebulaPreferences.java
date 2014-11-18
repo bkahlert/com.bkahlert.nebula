@@ -24,7 +24,7 @@ public class NebulaPreferences extends OSGIPreferenceUtil {
 	}
 
 	private <SRC, DST> DST convert(SRC value,
-			IConverter<SRC, DST>... converters) {
+			@SuppressWarnings("unchecked") IConverter<SRC, DST>... converters) {
 		for (IConverter<SRC, DST> converter : converters) {
 			DST converted = converter.convert(value);
 			if (converted != null) {
@@ -38,12 +38,14 @@ public class NebulaPreferences extends OSGIPreferenceUtil {
 	 * Saves the expanded elements of the given {@link TreeViewer} under the
 	 * given key. The key does not conflict with eventually other methods that
 	 * use a key to identify some resource.
-	 * 
+	 *
 	 * @param key
 	 * @param treeViewer
 	 */
-	public void saveExpandedElements(String key, TreeViewer treeViewer,
-			IConverter<Object, String>... converters) {
+	public void saveExpandedElements(
+			String key,
+			TreeViewer treeViewer,
+			@SuppressWarnings("unchecked") IConverter<Object, String>... converters) {
 		Object[] expandedElements = treeViewer.getExpandedElements();
 
 		List<String> serializedElements = new ArrayList<String>();
@@ -63,12 +65,14 @@ public class NebulaPreferences extends OSGIPreferenceUtil {
 	/**
 	 * Restores the expanded elements of the given {@link TreeViewer} previously
 	 * saved through {@link #saveExpandedElements(String, TreeViewer)}
-	 * 
+	 *
 	 * @param key
 	 * @param treeViewer
 	 */
-	public void loadExpandedElements(String key, final TreeViewer treeViewer,
-			IConverter<String, Object>... converters) {
+	public void loadExpandedElements(
+			String key,
+			final TreeViewer treeViewer,
+			@SuppressWarnings("unchecked") IConverter<String, Object>... converters) {
 		try {
 			byte[] stored = this.getSystemPreferences().getByteArray(
 					"expandedElements." + key, null);

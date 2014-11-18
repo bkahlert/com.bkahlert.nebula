@@ -33,11 +33,11 @@ import com.bkahlert.nebula.widgets.editor.Editor;
 
 /**
  * Instances of this class are {@link ViewPart}s that wrap a {@link Editor}.
- * 
+ *
  * @param <T>
  *            type of the objects that can be loaded in the wrapped
  *            {@link Editor}
- * 
+ *
  * @author bkahlert
  */
 public abstract class EditorView<T> extends ViewPart {
@@ -56,7 +56,7 @@ public abstract class EditorView<T> extends ViewPart {
 	/**
 	 * Creates a new instance using a classic {@link Editor} or a
 	 * {@link AutosaveEditor}.
-	 * 
+	 *
 	 * @param delayChangeEventUpTo
 	 *            is the delay that must have been passed in order save the
 	 *            currently loaded object. If 0 no delay will be applied. The
@@ -107,10 +107,11 @@ public abstract class EditorView<T> extends ViewPart {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param objectsToLoad
 	 * @see Editor#load(Object)
 	 */
+	@SafeVarargs
 	public final void load(final Runnable callback, final T... objectsToLoad) {
 
 		try {
@@ -260,7 +261,7 @@ public abstract class EditorView<T> extends ViewPart {
 
 	/**
 	 * Returns the html for the given object.
-	 * 
+	 *
 	 * @param objectToLoad
 	 * @param monitor
 	 * @return
@@ -271,7 +272,7 @@ public abstract class EditorView<T> extends ViewPart {
 
 	/**
 	 * Sets the given html to the loaded object.
-	 * 
+	 *
 	 * @param loadedObject
 	 * @param html
 	 * @param monitor

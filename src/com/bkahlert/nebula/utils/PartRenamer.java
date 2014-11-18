@@ -120,7 +120,6 @@ public class PartRenamer<T> {
 		setInfo(this.part, title, image);
 	}
 
-	@SuppressWarnings("unchecked")
 	public void apply(T object) {
 		this.apply(object != null ? Arrays.asList(object) : null);
 	}

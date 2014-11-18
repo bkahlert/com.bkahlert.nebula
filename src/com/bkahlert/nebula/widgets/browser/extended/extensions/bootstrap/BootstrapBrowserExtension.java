@@ -10,7 +10,6 @@ import com.bkahlert.nebula.widgets.browser.extended.extensions.jquery.JQueryBrow
 
 public class BootstrapBrowserExtension extends BrowserExtension {
 
-	@SuppressWarnings("unchecked")
 	public BootstrapBrowserExtension() {
 		super(
 				"Bootstrap 3.0.0",

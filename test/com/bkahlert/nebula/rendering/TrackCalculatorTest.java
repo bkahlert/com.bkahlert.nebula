@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.bkahlert.nebula.rendering.TrackCalculator;
 import com.bkahlert.nebula.rendering.TrackCalculator.Converter;
 import com.bkahlert.nebula.rendering.TrackCalculator.ITrackCalculation;
 
@@ -31,7 +30,7 @@ public class TrackCalculatorTest {
 		}
 	};
 
-	private <T> List<T> convert(T... ts) {
+	private <T> List<T> convert(@SuppressWarnings("unchecked") T... ts) {
 		return Arrays.asList(ts);
 	}
 
@@ -62,7 +61,7 @@ public class TrackCalculatorTest {
 	@Test
 	public void testOneElement() {
 		ITrackCalculation<String> tracks = TrackCalculator.calculateTracks(
-				convert("20 50"), STRING_CONVERTER);
+				this.convert("20 50"), STRING_CONVERTER);
 		assertEquals(1, tracks.getItemCount());
 		assertEquals(1, tracks.getMaxTracks());
 
@@ -79,7 +78,7 @@ public class TrackCalculatorTest {
 
 		// item1, item2
 		ITrackCalculation<String> tracks = TrackCalculator.calculateTracks(
-				convert(item1, item2), STRING_CONVERTER);
+				this.convert(item1, item2), STRING_CONVERTER);
 		assertEquals(2, tracks.getItemCount());
 		assertEquals(2, tracks.getMaxTracks());
 
@@ -94,7 +93,7 @@ public class TrackCalculatorTest {
 		assertEquals(2, (int) tracks.getNumTracks(trackItem2));
 
 		// item2, item1
-		tracks = TrackCalculator.calculateTracks(convert(item2, item1),
+		tracks = TrackCalculator.calculateTracks(this.convert(item2, item1),
 				STRING_CONVERTER);
 		assertEquals(2, tracks.getItemCount());
 		assertEquals(2, tracks.getMaxTracks());
@@ -110,8 +109,8 @@ public class TrackCalculatorTest {
 		assertEquals(2, (int) tracks.getNumTracks(trackItem2));
 
 		// item2, item1, item3
-		tracks = TrackCalculator.calculateTracks(convert(item2, item1, item3),
-				STRING_CONVERTER);
+		tracks = TrackCalculator.calculateTracks(
+				this.convert(item2, item1, item3), STRING_CONVERTER);
 		assertEquals(3, tracks.getItemCount());
 		assertEquals(2, tracks.getMaxTracks());
 
@@ -135,7 +134,7 @@ public class TrackCalculatorTest {
 		String item1 = "15 60";
 		String item2 = "15 50";
 		ITrackCalculation<String> tracks = TrackCalculator.calculateTracks(
-				convert(item1, item2), STRING_CONVERTER);
+				this.convert(item1, item2), STRING_CONVERTER);
 		assertEquals(2, tracks.getItemCount());
 		assertEquals(2, tracks.getMaxTracks());
 
@@ -152,15 +151,15 @@ public class TrackCalculatorTest {
 		assertEquals(1, (int) tracks.getTrack(trackItem2));
 		assertEquals(2, (int) tracks.getNumTracks(trackItem2));
 
-		assertTrue(((int) tracks.getTrack("15 60")) == 0
-				|| ((int) tracks.getTrack("15 60")) == 1);
-		assertTrue(((int) tracks.getTrack("15 50")) == 0
-				|| ((int) tracks.getTrack("15 50")) == 1);
+		assertTrue((tracks.getTrack("15 60")) == 0
+				|| (tracks.getTrack("15 60")) == 1);
+		assertTrue((tracks.getTrack("15 50")) == 0
+				|| (tracks.getTrack("15 50")) == 1);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInvalidElement() {
-		TrackCalculator.calculateTracks(convert("15 40", "2000000 50"),
+		TrackCalculator.calculateTracks(this.convert("15 40", "2000000 50"),
 				STRING_CONVERTER);
 	}
 
@@ -169,7 +168,7 @@ public class TrackCalculatorTest {
 		String item1 = "20 50";
 		String item2 = "15 50";
 		ITrackCalculation<String> tracks = TrackCalculator.calculateTracks(
-				convert(item1, item2), STRING_CONVERTER);
+				this.convert(item1, item2), STRING_CONVERTER);
 		assertEquals(2, tracks.getItemCount());
 		assertEquals(2, tracks.getMaxTracks());
 
@@ -200,7 +199,7 @@ public class TrackCalculatorTest {
 		String item1 = "15 60";
 		String item2 = "15 50";
 		ITrackCalculation<String> tracks = TrackCalculator.calculateTracks(
-				convert(item1, item2), STRING_CONVERTER);
+				this.convert(item1, item2), STRING_CONVERTER);
 		assertEquals(2, tracks.getItemCount());
 		assertEquals(2, tracks.getMaxTracks());
 
@@ -221,9 +220,9 @@ public class TrackCalculatorTest {
 		assertEquals(1, (int) tracks.getTrack(s2));
 		assertEquals(2, (int) tracks.getNumTracks(s2));
 
-		assertTrue(((int) tracks.getTrack("15 60")) == 0
-				|| ((int) tracks.getTrack("15 60")) == 1);
-		assertTrue(((int) tracks.getTrack("15 50")) == 0
-				|| ((int) tracks.getTrack("15 50")) == 1);
+		assertTrue((tracks.getTrack("15 60")) == 0
+				|| (tracks.getTrack("15 60")) == 1);
+		assertTrue((tracks.getTrack("15 50")) == 0
+				|| (tracks.getTrack("15 50")) == 1);
 	}
 }

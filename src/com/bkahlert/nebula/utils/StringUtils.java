@@ -29,7 +29,7 @@ public class StringUtils {
 
 	private static final Pattern BODY_PATTERN = Pattern.compile(
 			".*<body.*?>(.*)</body>.*", Pattern.CASE_INSENSITIVE
-			| Pattern.DOTALL);
+					| Pattern.DOTALL);
 
 	public static interface IStringAdapter<T> {
 		public String getString(T object);
@@ -110,6 +110,7 @@ public class StringUtils {
 	 *      href="http://stackoverflow.com/questions/1916218/find-the-longest-common-starting-substring-in-a-set-of-strings">Find
 	 *      the longest common starting substring in a set of strings</a>
 	 */
+	@SafeVarargs
 	public static <T> String getLongestCommonPrefix(
 			IStringAdapter<T> stringAdapter, T... objects) {
 		if (objects == null) {
@@ -157,6 +158,7 @@ public class StringUtils {
 	 *
 	 * @return
 	 */
+	@SafeVarargs
 	public static <T> Map<String, Integer> getLongestCommonPrefix(
 			IStringAdapter<T> stringAdapter, int partitionLength, T... objects) {
 		if (objects == null) {
@@ -170,17 +172,17 @@ public class StringUtils {
 			}
 			String string = stringAdapter != null ? stringAdapter
 					.getString(object) : object.toString();
-					if (string == null) {
-						throw new IllegalArgumentException();
-					}
-					if (string.length() < partitionLength) {
-						continue;
-					}
-					String key = string.substring(0, partitionLength);
-					if (!partitionedStrings.containsKey(key)) {
-						partitionedStrings.put(key, new ArrayList<String>());
-					}
-					partitionedStrings.get(key).add(string);
+			if (string == null) {
+				throw new IllegalArgumentException();
+			}
+			if (string.length() < partitionLength) {
+				continue;
+			}
+			String key = string.substring(0, partitionLength);
+			if (!partitionedStrings.containsKey(key)) {
+				partitionedStrings.put(key, new ArrayList<String>());
+			}
+			partitionedStrings.get(key).add(string);
 		}
 
 		Map<String, Integer> rs = new HashMap<String, Integer>();
@@ -232,7 +234,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see http
+	 * @see http 
 	 *      ://www.codeproject.com/Tips/136483/Java-How-to-convert-RTF-into-HTML
 	 * @param rtf
 	 * @return
