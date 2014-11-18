@@ -8,15 +8,14 @@ public class JointJSElement extends JointJSCell {
 
 	public JointJSElement(HashMap<String, Object> cell) {
 		super(cell);
+
+		Object title = this.cell.get("title");
+		if (title != null) {
+			this.title = title.toString();
+		}
 	}
 
 	public String getTitle() {
-		if (this.title == null) {
-			Object title = this.cell.get("title");
-			if (title != null) {
-				this.title = title.toString();
-			}
-		}
 		return this.title;
 	}
 

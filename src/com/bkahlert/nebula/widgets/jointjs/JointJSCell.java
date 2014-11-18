@@ -10,16 +10,19 @@ public class JointJSCell {
 
 	public JointJSCell(HashMap<String, Object> cell) {
 		this.cell = cell;
+
+		Object id = this.cell.get("id");
+		if (id != null) {
+			this.id = id.toString();
+		}
 	}
 
 	public String getId() {
-		if (this.id == null) {
-			Object id = this.cell.get("id");
-			if (id != null) {
-				this.id = id.toString();
-			}
-		}
 		return this.id;
+	}
+
+	public Object getAttribute(String key) {
+		return this.cell.get(key);
 	}
 
 	@Override

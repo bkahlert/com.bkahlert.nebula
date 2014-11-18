@@ -122,26 +122,36 @@ public class JointJSLink extends JointJSCell {
 		}
 	}
 
+	public static IEndpoint createEndpoint(HashMap<String, Object> endpoint) {
+		if (endpoint.get("id") != null) {
+			final String id = endpoint.get("id").toString();
+			return new ElementEndpoint(id.toString());
+		} else {
+			final int x = Integer.valueOf(endpoint.get("x").toString());
+			final int y = Integer.valueOf(endpoint.get("y").toString());
+			return new CoordinateEndpoint(x, y);
+		}
+	}
+
 	private String title;
 	private IEndpoint source;
 	private IEndpoint target;
 
+	@SuppressWarnings("unchecked")
 	public JointJSLink(HashMap<String, Object> cell) {
 		super(cell);
-	}
 
-	@SuppressWarnings("unchecked")
-	public String getTitle() {
-		if (this.title == null) {
-			List<HashMap<String, Object>> labels = (List<HashMap<String, Object>>) this.cell
-					.get("labels");
-			if (labels != null) {
-				for (HashMap<String, Object> label : labels) {
-					this.title = (String) ((HashMap<String, Object>) ((HashMap<String, Object>) label
-							.get("attrs")).get("text")).get("text");
-				}
+		List<HashMap<String, Object>> labels = (List<HashMap<String, Object>>) this.cell
+				.get("labels");
+		if (labels != null) {
+			for (HashMap<String, Object> label : labels) {
+				this.title = (String) ((HashMap<String, Object>) ((HashMap<String, Object>) label
+						.get("attrs")).get("text")).get("text");
 			}
 		}
+	}
+
+	public String getTitle() {
 		return this.title;
 	}
 
@@ -154,23 +164,12 @@ public class JointJSLink extends JointJSCell {
 		}
 	}
 
-	private IEndpoint createEndpoint(HashMap<String, Object> endpoint) {
-		if (endpoint.get("id") != null) {
-			final String id = endpoint.get("id").toString();
-			return new ElementEndpoint(id.toString());
-		} else {
-			final int x = Integer.valueOf(endpoint.get("x").toString());
-			final int y = Integer.valueOf(endpoint.get("y").toString());
-			return new CoordinateEndpoint(x, y);
-		}
-	}
-
 	public IEndpoint getSource() {
 		if (this.source == null) {
 			@SuppressWarnings("unchecked")
 			HashMap<String, Object> source = (HashMap<String, Object>) this.cell
 					.get("source");
-			this.source = this.createEndpoint(source);
+			this.source = createEndpoint(source);
 		}
 		return this.source;
 	}
@@ -180,7 +179,7 @@ public class JointJSLink extends JointJSCell {
 			@SuppressWarnings("unchecked")
 			HashMap<String, Object> source = (HashMap<String, Object>) this.cell
 					.get("target");
-			this.target = this.createEndpoint(source);
+			this.target = createEndpoint(source);
 		}
 		return this.target;
 	}

@@ -3,6 +3,7 @@ package com.bkahlert.nebula.widgets.browser;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -25,8 +26,12 @@ public class JointJSModelTest {
 		JointJSModel model = new JointJSModel(json);
 
 		assertEquals("Test", model.getTitle());
-		model.setTitle("New Title");
-		assertEquals("New Title", model.getTitle());
+		assertEquals("New Title",
+				model.createCopy(new HashMap<String, Object>() {
+					{
+						this.put("title", "New Title");
+					}
+				}).getTitle());
 
 		String element1 = "apiua://code1";
 		String element2 = "apiua://code2";
