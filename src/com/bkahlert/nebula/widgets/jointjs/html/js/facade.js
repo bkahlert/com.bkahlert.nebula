@@ -180,7 +180,7 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 		},
 
 		autoLayout: function () {
-			var bounds = com.bkahlert.nebula.jointjs.getBoundingBox();
+			var oldBounds = com.bkahlert.nebula.jointjs.getBoundingBox();
 			var graph = com.bkahlert.nebula.jointjs.graph;
 			joint.layout.DirectedGraph.layout(graph, {
 				setLinkVertices: false,
@@ -189,7 +189,9 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 				rankSep: 50,
 				rankDir: 'LR'
 			});
-			com.bkahlert.nebula.jointjs.shiftBy(bounds[0], bounds[1]);
+			var newBounds = com.bkahlert.nebula.jointjs.getBoundingBox();
+			var zoom = com.bkahlert.nebula.jointjs.getZoom();
+			com.bkahlert.nebula.jointjs.shiftBy((oldBounds[0]-newBounds[0]+oldBounds[2]-newBounds[2])/2/zoom, (oldBounds[1]-newBounds[1]+oldBounds[3]-newBounds[3])/2/zoom);
 		},
 
         onresize: function () {
