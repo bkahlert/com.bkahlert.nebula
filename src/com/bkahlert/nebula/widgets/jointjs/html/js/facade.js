@@ -353,10 +353,11 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 				bounds.width = Math.max(bounds.width, pos.x+size.width);
 				bounds.height = Math.max(bounds.height, pos.y+size.height);
 			});
-			if(bounds.x == Number.MAX_VALUE) bounds.x = null;
-			if(bounds.y == Number.MAX_VALUE) bounds.y = null;
-			if(bounds.width == Number.MIN_VALUE) bounds.width = null;
-			if(bounds.height == Number.MIN_VALUE) bounds.height = null;
+			var zoom = com.bkahlert.nebula.jointjs.getZoom();
+			if(bounds.x == Number.MAX_VALUE) bounds.x = null; else bounds.x *= zoom;
+			if(bounds.y == Number.MAX_VALUE) bounds.y = null; else bounds.y *= zoom;
+			if(bounds.width == Number.MIN_VALUE) bounds.width = null; else bounds.width *= zoom;
+			if(bounds.height == Number.MIN_VALUE) bounds.height = null; else bounds.height *= zoom;
 			return [ bounds.x, bounds.y, bounds.width, bounds.height ];
 		},
 		
