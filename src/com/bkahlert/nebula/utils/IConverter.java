@@ -5,13 +5,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 
 /**
  * {@link IConverter} can convert an object of arbitrary type to type
  * <code>T</code>.
- * 
+ *
  * @author bjornson
- * 
+ *
  * @param <T>
  *            type give objects can be converted to
  */
@@ -97,6 +98,30 @@ public interface IConverter<SRC, DEST> {
 			Object[] pos = (Object[]) returnValue;
 			return new Point((int) Math.round((Double) pos[0]),
 					(int) Math.round((Double) pos[1]));
+		}
+	};
+
+	/**
+	 * {@link IConverter} that converts objects to {@link Rectangle}s. Returns a
+	 * {@link Point} if the object is an array of two {@link Double}s. Otherwise
+	 * converts to <code>null</code>.
+	 */
+	public static final IConverter<Object, Rectangle> CONVERTER_RECTANGLE = new IConverter<Object, Rectangle>() {
+		@Override
+		public Rectangle convert(Object returnValue) {
+			if (returnValue == null || !Object[].class.isInstance(returnValue)
+					|| ((Object[]) returnValue).length != 4
+					|| !Double.class.isInstance(((Object[]) returnValue)[0])
+					|| !Double.class.isInstance(((Object[]) returnValue)[1])
+					|| !Double.class.isInstance(((Object[]) returnValue)[2])
+					|| !Double.class.isInstance(((Object[]) returnValue)[3])) {
+				return null;
+			}
+			Object[] pos = (Object[]) returnValue;
+			return new Rectangle((int) Math.round((Double) pos[0]),
+					(int) Math.round((Double) pos[1]),
+					(int) Math.round((Double) pos[2]),
+					(int) Math.round((Double) pos[3]));
 		}
 	};
 

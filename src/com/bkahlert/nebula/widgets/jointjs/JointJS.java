@@ -24,6 +24,7 @@ import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 
 import com.bkahlert.nebula.utils.IConverter;
@@ -572,6 +573,28 @@ public class JointJS extends Browser implements ISelectionProvider {
 	public Future<Void> setPan(int x, int y) {
 		return this.run("return com.bkahlert.nebula.jointjs.setPan(" + x + ", "
 				+ y + ");", IConverter.CONVERTER_VOID);
+	}
+
+	/**
+	 * Shifts the graphs elements by the given pair.
+	 * 
+	 * @param byX
+	 * @param byY
+	 * @return
+	 */
+	public Future<Void> shiftBy(int byX, int byY) {
+		return this.run("return com.bkahlert.nebula.jointjs.shiftBy(" + byX
+				+ ", " + byY + ");", IConverter.CONVERTER_VOID);
+	}
+
+	/**
+	 * Returns the box surrounding the graphs elements in relation to (0,0).
+	 * 
+	 * @return
+	 */
+	public Future<Rectangle> getBoundingBox() {
+		return this.run("return com.bkahlert.nebula.jointjs.getBoundingBox();",
+				IConverter.CONVERTER_RECTANGLE);
 	}
 
 	public Future<Void> autoLayout() {

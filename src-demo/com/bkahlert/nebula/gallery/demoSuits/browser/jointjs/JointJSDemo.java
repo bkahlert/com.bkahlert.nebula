@@ -258,6 +258,46 @@ public class JointJSDemo extends AbstractDemo {
 				log("removed class debugCustomClass");
 			}
 		});
+
+		this.createControlButton("Auto Layout", new Runnable() {
+			@Override
+			public void run() {
+				log("auto layouting");
+				try {
+					JointJSDemo.this.jointjs.autoLayout().get();
+				} catch (Exception e) {
+					log(e.toString());
+				}
+				log("auto layouted");
+			}
+		});
+
+		this.createControlButton("Shift By (20,20)", new Runnable() {
+			@Override
+			public void run() {
+				log("shifting by 20,20");
+				try {
+					JointJSDemo.this.jointjs.shiftBy(20, 20).get();
+				} catch (Exception e) {
+					log(e.toString());
+				}
+				log("shifted by 20,20");
+			}
+		});
+
+		this.createControlButton("Get Bounding Box", new Runnable() {
+			@Override
+			public void run() {
+				log("getting bounding box");
+				try {
+					log(JointJSDemo.this.jointjs.getBoundingBox().get()
+							.toString());
+				} catch (Exception e) {
+					log(e.toString());
+				}
+				log("got bounding box");
+			}
+		});
 	}
 
 	@Override

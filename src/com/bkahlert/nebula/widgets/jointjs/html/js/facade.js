@@ -180,14 +180,16 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 		},
 
 		autoLayout: function () {
+			var bounds = com.bkahlert.nebula.jointjs.getBoundingBox();
 			var graph = com.bkahlert.nebula.jointjs.graph;
 			joint.layout.DirectedGraph.layout(graph, {
 				setLinkVertices: false,
-				nodeSep: 0.1,
-				edgeSep: 0.1,
+				nodeSep: 150,
+				edgeSep: 150,
 				rankSep: 50,
-				rankDir: 'TB'
+				rankDir: 'LR'
 			});
+			com.bkahlert.nebula.jointjs.shiftBy(bounds[0], bounds[1]);
 		},
 
         onresize: function () {
@@ -235,6 +237,16 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			}))
 			.append($('<button>Set Pan</button>').click(function () {
 				com.bkahlert.nebula.jointjs.setPan(100, 100);
+			}))
+			.append($('<button>Shift By(20, 20)</button>').click(function () {
+				com.bkahlert.nebula.jointjs.shiftBy(20, 20);
+			}))
+			.append($('<button>Bounding Box</button>').click(function () {
+				var bounds = com.bkahlert.nebula.jointjs.getBoundingBox();
+				var pan = com.bkahlert.nebula.jointjs.getPan();
+				console.log(pan);
+				$('.bounding-box').remove();
+				$('<div class="bounding-box"></div>').css({ position: 'absolute', border: '1px solid #f00', left: bounds[0]+pan[0], top: bounds[1]+pan[1], width: bounds[2], height: bounds[3] }).prependTo('body').delay(500).fadeOut();
 			}))
 			.append($('<button>Log Nodes/Links</button>').click(function () {
 				console.log(com.bkahlert.nebula.jointjs.getNodes());
@@ -311,7 +323,42 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 		
 		setPan: function(x, y) {
 			com.bkahlert.nebula.jointjs.paper.translate(x, y);
-		},	
+		},
+
+		shiftBy: function(byX, byY) {
+			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
+				var pos = element.get('position');
+				element.set('position', { x: pos.x+byX, y: pos.y+byY });
+			});
+			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
+				var vertices = [];
+				_.each(link.get('vertices'), function(vertice) {
+					vertices.push({ x: vertice.x+byX, y: vertice.y+byY });
+				});
+				link.set('vertices', vertices);
+			});
+		},
+		
+		// bounding regarding (0,0)
+		getBoundingBox: function() {
+			var bounds = { x: Number.MAX_VALUE, y: Number.MAX_VALUE, width: Number.MIN_VALUE, height: Number.MIN_VALUE };
+			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
+				var pos = element.get('position');
+				var size = element.get('size');
+				
+				console.log(pos, size);
+				
+				bounds.x = Math.min(bounds.x, pos.x);
+				bounds.y = Math.min(bounds.y, pos.y);
+				bounds.width = Math.max(bounds.width, pos.x+size.width);
+				bounds.height = Math.max(bounds.height, pos.y+size.height);
+			});
+			if(bounds.x == Number.MAX_VALUE) bounds.x = null;
+			if(bounds.y == Number.MAX_VALUE) bounds.y = null;
+			if(bounds.width == Number.MIN_VALUE) bounds.width = null;
+			if(bounds.height == Number.MIN_VALUE) bounds.height = null;
+			return [ bounds.x, bounds.y, bounds.width, bounds.height ];
+		},
 		
 		createNode: function(id, attrs) {
 			var config = { id: id };
@@ -867,6 +914,10 @@ joint.shapes.LinkView = joint.dia.LinkView.extend({
 
 
 // own function
+joint.dia.Graph.prototype.getCells = function() {
+	return _.union(this.getElements(), this.getLinks());
+}
+
 joint.dia.Paper.prototype.getScale = function() {
 	var transformAttr = V(this.viewport).attr('transform') || '';
 			
