@@ -326,7 +326,7 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			
 			var shift = [ translated[0]-newTranslated[0], translated[1]-newTranslated[1] ];
 			com.bkahlert.nebula.jointjs.paper.scale(val);
-			com.bkahlert.nebula.jointjs.shiftBy(shift[0], shift[1]);
+			com.bkahlert.nebula.jointjs.setPan(pan[0]+shift[0], pan[1]+shift[1]);
 		},
 		
 		zoomIn: function(val) {
