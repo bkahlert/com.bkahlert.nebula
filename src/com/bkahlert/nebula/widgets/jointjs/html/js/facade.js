@@ -191,7 +191,10 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			});
 			var newBounds = com.bkahlert.nebula.jointjs.getBoundingBox();
 			var zoom = com.bkahlert.nebula.jointjs.getZoom();
-			com.bkahlert.nebula.jointjs.shiftBy((oldBounds[0]-newBounds[0]+oldBounds[2]-newBounds[2])/2/zoom, (oldBounds[1]-newBounds[1]+oldBounds[3]-newBounds[3])/2/zoom);
+			var shift = [
+				oldBounds[0]+(oldBounds[2]-newBounds[2])/2,
+				oldBounds[1]+(oldBounds[3]-newBounds[3])/2];
+			com.bkahlert.nebula.jointjs.shiftBy(shift[0], shift[1]);
 		},
 
         onresize: function () {
@@ -246,9 +249,15 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			.append($('<button>Bounding Box</button>').click(function () {
 				var bounds = com.bkahlert.nebula.jointjs.getBoundingBox();
 				var pan = com.bkahlert.nebula.jointjs.getPan();
-				console.log(pan);
+				var zoom = com.bkahlert.nebula.jointjs.getZoom();
+				var render = {
+					left: (bounds[0]+pan[0])*zoom,
+					top: (bounds[1]+pan[1])*zoom,
+					width: bounds[2]*zoom,
+					height: bounds[3]*zoom
+				 }
 				$('.bounding-box').remove();
-				$('<div class="bounding-box"></div>').css({ position: 'absolute', border: '1px solid #f00', left: bounds[0]+pan[0], top: bounds[1]+pan[1], width: bounds[2], height: bounds[3] }).prependTo('body').delay(500).fadeOut();
+				$('<div class="bounding-box"></div>').css({ position: 'absolute', border: '1px solid #f00', left: render.left, top: render.top, width: render.width, height: render.height }).prependTo('body').delay(500).fadeOut();
 			}))
 			.append($('<button>Log Nodes/Links</button>').click(function () {
 				console.log(com.bkahlert.nebula.jointjs.getNodes());
@@ -341,26 +350,53 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			});
 		},
 		
+		shiftTo: function(x, y) {
+			var bounds = com.bkahlert.nebula.jointjs.getBoundingBox();
+			com.bkahlert.nebula.jointjs.shiftBy(x-bounds[0], y-bounds[1]);
+		},
+		
 		// bounding regarding (0,0)
 		getBoundingBox: function() {
-			var bounds = { x: Number.MAX_VALUE, y: Number.MAX_VALUE, width: Number.MIN_VALUE, height: Number.MIN_VALUE };
+			var bounds = {
+				left: Number.POSITIVE_INFINITY,
+				top: Number.POSITIVE_INFINITY,
+				right: Number.NEGATIVE_INFINITY,
+				bottom: Number.NEGATIVE_INFINITY
+			};
 			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
 				var pos = element.get('position');
 				var size = element.get('size');
 				
-				console.log(pos, size);
+				var offset = {
+					left: pos.x,
+					top: pos.y,
+					right: pos.x+size.width,
+					bottom: pos.y+size.height
+				};
+				 
+				if (offset.left < bounds.left)
+				bounds.left = offset.left;
+				 
+				if (offset.top < bounds.top)
+				bounds.top = offset.top;
+				 
+				if (offset.right > bounds.right)
+				bounds.right = offset.right;
+				 
+				if (offset.bottom > bounds.bottom)
+				bounds.bottom = offset.bottom;
 				
-				bounds.x = Math.min(bounds.x, pos.x);
-				bounds.y = Math.min(bounds.y, pos.y);
-				bounds.width = Math.max(bounds.width, pos.x+size.width);
-				bounds.height = Math.max(bounds.height, pos.y+size.height);
 			});
+			return [ bounds.left, bounds.top, (bounds.right-bounds.left), (bounds.bottom-bounds.top) ];
+		},
+		
+		center: function() {
 			var zoom = com.bkahlert.nebula.jointjs.getZoom();
-			if(bounds.x == Number.MAX_VALUE) bounds.x = null; else bounds.x *= zoom;
-			if(bounds.y == Number.MAX_VALUE) bounds.y = null; else bounds.y *= zoom;
-			if(bounds.width == Number.MIN_VALUE) bounds.width = null; else bounds.width *= zoom;
-			if(bounds.height == Number.MIN_VALUE) bounds.height = null; else bounds.height *= zoom;
-			return [ bounds.x, bounds.y, bounds.width, bounds.height ];
+			var center = com.bkahlert.nebula.jointjs.mousePosition;
+			var pan = com.bkahlert.nebula.jointjs.getPan();
+			var shift = { x: pan[0]-center[0], y: pan[1]-center[1] };
+			com.bkahlert.nebula.jointjs.shiftBy(shift.x, shift.y);
+			com.bkahlert.nebula.jointjs.setPan(center[0], center[1]);
 		},
 		
 		createNode: function(id, attrs) {
