@@ -260,6 +260,9 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 				$('.bounding-box').remove();
 				$('<div class="bounding-box"></div>').css({ position: 'absolute', border: '1px solid #f00', left: render.left, top: render.top, width: render.width, height: render.height }).prependTo('body').delay(500).fadeOut();
 			}))
+			.append($('<button>Center Fit</button>').click(function () {
+				com.bkahlert.nebula.jointjs.fitOnScreen();
+			}))
 			.append($('<button>Log Nodes/Links</button>').click(function () {
 				console.log(com.bkahlert.nebula.jointjs.getNodes());
 				console.log(com.bkahlert.nebula.jointjs.getLinks());
@@ -310,6 +313,71 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			window.setTimeout(function() {
 				com.bkahlert.nebula.jointjs.setPosition(c, 500, 500);
 			}, 1000);
+		},
+		
+		fitOnScreen: function() {
+			// (c) http://selbie.wordpress.com/2011/01/23/scale-crop-and-center-an-image-with-correct-aspect-ratio-in-html-and-javascript/
+			function ScaleImage(srcwidth, srcheight, targetwidth, targetheight, fLetterBox) {
+			    var result = { width: 0, height: 0, fScaleToTargetWidth: true };
+			
+			    if ((srcwidth <= 0) || (srcheight <= 0) || (targetwidth <= 0) || (targetheight <= 0)) {
+			        return result;
+			    }
+			
+			    // scale to the target width
+			    var scaleX1 = targetwidth;
+			    var scaleY1 = (srcheight * targetwidth) / srcwidth;
+			
+			    // scale to the target height
+			    var scaleX2 = (srcwidth * targetheight) / srcheight;
+			    var scaleY2 = targetheight;
+			
+			    // now figure out which one we should use
+			    var fScaleOnWidth = (scaleX2 > targetwidth);
+			    if (fScaleOnWidth) {
+			        fScaleOnWidth = fLetterBox;
+			    }
+			    else {
+			       fScaleOnWidth = !fLetterBox;
+			    }
+			
+			    if (fScaleOnWidth) {
+			        result.width = Math.floor(scaleX1);
+			        result.height = Math.floor(scaleY1);
+			        result.fScaleToTargetWidth = true;
+			    }
+			    else {
+			        result.width = Math.floor(scaleX2);
+			        result.height = Math.floor(scaleY2);
+			        result.fScaleToTargetWidth = false;
+			    }
+			    result.left = Math.floor((targetwidth - result.width) / 2);
+			    result.top = Math.floor((targetheight - result.height) / 2);
+			
+			    return result;
+			}
+			
+			var bounds = com.bkahlert.nebula.jointjs.getBoundingBox();
+			
+			var width = $(window).width();
+			var height = $(window).height();
+			var margin = 10;
+			var margins = [ margin, margin, margin + $('.title').height(), margin ];
+			
+			var scaledBounds = ScaleImage(bounds[2], bounds[3], width-margins[1]-margins[3], height-margins[0]-margins[2], true);
+			var wRatio = bounds[2]/(width-margins[1]-margins[3]);
+			var hRatio = bounds[3]/(height-margins[0]-margins[2]);
+			var zoom;
+			if(wRatio > hRatio) {
+				zoom = 1/wRatio;
+			} else {
+				zoom = 1/hRatio;
+			}
+			
+			com.bkahlert.nebula.jointjs.shiftBy(-bounds[0], -bounds[1]);
+			com.bkahlert.nebula.jointjs.mousePosition = [0,0];
+			com.bkahlert.nebula.jointjs.setZoom(zoom);
+			com.bkahlert.nebula.jointjs.setPan((width-margins[1]-scaledBounds.width)/2/zoom,(height-margins[2]-scaledBounds.height)/2/zoom);
 		},
 		
 		getZoom: function() {

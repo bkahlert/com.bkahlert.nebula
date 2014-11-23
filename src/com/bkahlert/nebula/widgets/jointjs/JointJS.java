@@ -602,6 +602,11 @@ public class JointJS extends Browser implements ISelectionProvider {
 				IConverter.CONVERTER_VOID);
 	}
 
+	public Future<Void> fitOnScreen() {
+		return this.run("return com.bkahlert.nebula.jointjs.fitOnScreen();",
+				IConverter.CONVERTER_VOID);
+	}
+
 	public Future<Void> highlight(List<String> ids) {
 		String list = ids != null ? JSONUtils.buildJson(ids) : "null";
 		return this.run("return com.bkahlert.nebula.jointjs.highlight(" + list

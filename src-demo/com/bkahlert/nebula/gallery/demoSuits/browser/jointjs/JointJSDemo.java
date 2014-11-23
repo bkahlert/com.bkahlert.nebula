@@ -272,6 +272,19 @@ public class JointJSDemo extends AbstractDemo {
 			}
 		});
 
+		this.createControlButton("Fit On Screen", new Runnable() {
+			@Override
+			public void run() {
+				log("fitting on screen");
+				try {
+					JointJSDemo.this.jointjs.fitOnScreen().get();
+				} catch (Exception e) {
+					log(e.toString());
+				}
+				log("fitted on screen");
+			}
+		});
+
 		this.createControlButton("Shift By (20,20)", new Runnable() {
 			@Override
 			public void run() {
