@@ -169,10 +169,10 @@ public class JointJS extends Browser implements ISelectionProvider {
 			@Override
 			public Object function(Object[] arguments) {
 				if (arguments.length == 1) {
-					JointJSModel model = JointJSModelConverter.INSTANCE
+					JointJS.this.model = JointJSModelConverter.INSTANCE
 							.convert(arguments[0]);
 					for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
-						jointJSListener.save(model);
+						jointJSListener.save(JointJS.this.model);
 					}
 				}
 				return null;
@@ -183,10 +183,10 @@ public class JointJS extends Browser implements ISelectionProvider {
 			@Override
 			public Object function(Object[] arguments) {
 				if (arguments.length == 1) {
-					JointJSModel model = JointJSModelConverter.INSTANCE
+					JointJS.this.model = JointJSModelConverter.INSTANCE
 							.convert(arguments[0]);
 					for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
-						jointJSListener.modified(model);
+						jointJSListener.modified(JointJS.this.model);
 					}
 				}
 				return null;
@@ -577,7 +577,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 
 	/**
 	 * Shifts the graphs elements by the given pair.
-	 * 
+	 *
 	 * @param byX
 	 * @param byY
 	 * @return
@@ -589,7 +589,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 
 	/**
 	 * Returns the box surrounding the graphs elements in relation to (0,0).
-	 * 
+	 *
 	 * @return
 	 */
 	public Future<Rectangle> getBoundingBox() {

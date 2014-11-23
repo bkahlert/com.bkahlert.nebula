@@ -761,7 +761,7 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			var debouncingModified = _.debounce(modified, 1000);
 			
 			com.bkahlert.nebula.jointjs.graph.on('add change remove change:title', function() {
-				debouncingModified();
+				modified();
 			});
 			
 			com.bkahlert.nebula.jointjs.paper.on('change:translate change:zoom', function() {

@@ -36,6 +36,10 @@ public class JointJSModel {
 		return (String) this.json.get("title");
 	}
 
+	public void setTitle(String title) {
+		this.json.put("title", title);
+	}
+
 	@SuppressWarnings("unchecked")
 	public List<JointJSCell> getCells() {
 		List<JointJSCell> cells = new ArrayList<>();
