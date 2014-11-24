@@ -287,8 +287,8 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 				console.log(com.bkahlert.nebula.jointjs.getFocus());
 			}))
 			.append($('<button>Custom Class</button>').click(function () {
-				com.bkahlert.nebula.jointjs.addCustomClasses(['apiua://test', linkid], 'debugCustomClass');
-				window.setTimeout(function() { com.bkahlert.nebula.jointjs.removeCustomClasses(['apiua://test', linkid], 'debugCustomClass'); }, 2000);
+				com.bkahlert.nebula.jointjs.addCustomClasses(['apiua://test', linkid, linkid2], 'debugCustomClass');
+				window.setTimeout(function() { com.bkahlert.nebula.jointjs.removeCustomClasses(['apiua://test', linkid, linkid2], 'debugCustomClass'); }, 2000);
 			}))
 			.append($('<button>Custom</button>').click(function () {
 				var x = {"cells":[{"type":"html.Element","position":{"x":270,"y":142},"size":{"width":"242","height":"30"},"angle":"0","id":"apiua://code/-9223372036854775640","content":"","title":"Offensichtliche Usability-Probleme","z":"0","color":"rgb(0, 0, 0)","background-color":"rgba(255, 102, 102, 0.27450980392156865)","border-color":"rgba(255, 48, 48, 0.39215686274509803)","attrs":{}}],"title":"New Model","zoom":"1","pan":{"x":"0","y":"0"}};
@@ -1077,7 +1077,6 @@ joint.dia.Paper.prototype.translate = function(tx, ty) {
 	this.$el.find('.html-view').css('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + tx + 'px, ' + ty + 'px)');
 	this.trigger('change:translate');
 }
-
 
 
 

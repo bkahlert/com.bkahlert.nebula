@@ -220,7 +220,27 @@ body {
 .state(highlighted, @brand-warning);
 .state(selected, @brand-info);
 .state(focused, @input-border-focus, 10px);
-.state(debugCustomClass, #f00, 30px);
+
+.debugCustomClass {
+	.html-element& {
+		background-image: linear-gradient(-45deg,
+			rgba(255, 255, 255, .2) 25%,
+			rgba(255, 255, 255, .85) 25%,
+			rgba(255, 255, 255, .85) 50%,
+			rgba(255, 255, 255, .2) 50%,
+			rgba(255, 255, 255, .2) 75%,
+			rgba(255, 255, 255, .85) 75%,
+			rgba(255, 255, 255, .85));
+		background-size: 55px 55px;
+	}
+	
+	.link& {
+		.connection {
+			stroke: rgba(0,0,0,.2);
+			stroke-dasharray: 27,27;
+		}
+	}
+}
 
 
 
