@@ -546,33 +546,33 @@ public class JointJS extends Browser implements ISelectionProvider {
 	}
 
 	public Future<Double> getZoom() {
-		return this.run("return com.bkahlert.nebula.jointjs.getZoom();",
+		return this.run("return com.bkahlert.nebula.jointjs.paper.getZoom();",
 				IConverter.CONVERTER_DOUBLE);
 	}
 
 	public Future<Void> setZoom(Double zoom) {
-		return this.run("return com.bkahlert.nebula.jointjs.setZoom(" + zoom
-				+ ");", IConverter.CONVERTER_VOID);
+		return this.run("return com.bkahlert.nebula.jointjs.paper.setZoom("
+				+ zoom + ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Double> zoomIn() {
-		return this.run("return com.bkahlert.nebula.jointjs.zoomIn();",
+		return this.run("return com.bkahlert.nebula.jointjs.paper.zoomIn();",
 				IConverter.CONVERTER_DOUBLE);
 	}
 
 	public Future<Double> zoomOut() {
-		return this.run("return com.bkahlert.nebula.jointjs.zoomOut();",
+		return this.run("return com.bkahlert.nebula.jointjs.paper.zoomOut();",
 				IConverter.CONVERTER_DOUBLE);
 	}
 
 	public Future<Point> getPan() {
-		return this.run("return com.bkahlert.nebula.jointjs.getPan();",
+		return this.run("return com.bkahlert.nebula.jointjs.paper.getPan();",
 				IConverter.CONVERTER_POINT);
 	}
 
 	public Future<Void> setPan(int x, int y) {
-		return this.run("return com.bkahlert.nebula.jointjs.setPan(" + x + ", "
-				+ y + ");", IConverter.CONVERTER_VOID);
+		return this.run("return com.bkahlert.nebula.jointjs.paper.setPan(" + x
+				+ ", " + y + ");", IConverter.CONVERTER_VOID);
 	}
 
 	/**

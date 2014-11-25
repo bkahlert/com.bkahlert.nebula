@@ -130,8 +130,8 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			} catch(e) {
 			}
 			com.bkahlert.nebula.jointjs.setTitle(title);
-			com.bkahlert.nebula.jointjs.setZoom(zoom);
-			com.bkahlert.nebula.jointjs.setPan(pan.x, pan.y);
+			com.bkahlert.nebula.jointjs.paper.setZoom(zoom);
+			com.bkahlert.nebula.jointjs.paper.setPan(pan.x, pan.y);
 			
 			var json = com.bkahlert.nebula.jointjs.serialize()
 			if (typeof window.loaded === 'function') { window.loaded(json); }
@@ -155,8 +155,8 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			});
 			
 			json.title = com.bkahlert.nebula.jointjs.getTitle();
-			json.zoom = com.bkahlert.nebula.jointjs.getZoom();
-			var pan = com.bkahlert.nebula.jointjs.getPan();
+			json.zoom = com.bkahlert.nebula.jointjs.paper.getZoom();
+			var pan = com.bkahlert.nebula.jointjs.paper.getPan();
 			json.pan = { x: pan[0], y: pan[1] };
 			return JSON.stringify(json, null, "\t");
 		},
@@ -190,19 +190,12 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 				rankDir: 'LR'
 			});
 			var newBounds = com.bkahlert.nebula.jointjs.getBoundingBox();
-			var zoom = com.bkahlert.nebula.jointjs.getZoom();
+			var zoom = com.bkahlert.nebula.jointjs.paper.getZoom();
 			var shift = [
 				oldBounds[0]+(oldBounds[2]-newBounds[2])/2,
 				oldBounds[1]+(oldBounds[3]-newBounds[3])/2];
 			com.bkahlert.nebula.jointjs.shiftBy(shift[0], shift[1]);
 		},
-
-        onresize: function () {
-            if (com.bkahlert.nebula.jointjs.paper) {
-                var $window = $(window);
-                com.bkahlert.nebula.jointjs.paper.setDimensions($window.width(), $window.height());
-            }
-        },
 
 		openDemo: function () {
 			window.__modified = function(html) {
@@ -233,24 +226,24 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 				com.bkahlert.nebula.jointjs.autoLayout();
 			}))
 			.append($('<button>Zoom In</button>').click(function () {
-				com.bkahlert.nebula.jointjs.zoomIn();
+				com.bkahlert.nebula.jointjs.paper.zoomIn();
 			}))
 			.append($('<button>Zoom Out</button>').click(function () {
-				com.bkahlert.nebula.jointjs.zoomOut();
+				com.bkahlert.nebula.jointjs.paper.zoomOut();
 			}))
 			.append($('<button>Get Pan</button>').click(function () {
-				console.log(com.bkahlert.nebula.jointjs.getPan());
+				console.log(com.bkahlert.nebula.jointjs.paper.getPan());
 			}))
 			.append($('<button>Set Pan</button>').click(function () {
-				com.bkahlert.nebula.jointjs.setPan(100, 100);
+				com.bkahlert.nebula.jointjs.paper.setPan(100, 100);
 			}))
 			.append($('<button>Shift By(20, 20)</button>').click(function () {
 				com.bkahlert.nebula.jointjs.shiftBy(20, 20);
 			}))
 			.append($('<button>Bounding Box</button>').click(function () {
 				var bounds = com.bkahlert.nebula.jointjs.getBoundingBox();
-				var pan = com.bkahlert.nebula.jointjs.getPan();
-				var zoom = com.bkahlert.nebula.jointjs.getZoom();
+				var pan = com.bkahlert.nebula.jointjs.paper.getPan();
+				var zoom = com.bkahlert.nebula.jointjs.paper.getZoom();
 				var render = {
 					left: (bounds[0]+pan[0])*zoom,
 					top: (bounds[1]+pan[1])*zoom,
@@ -375,45 +368,10 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			}
 			
 			com.bkahlert.nebula.jointjs.shiftBy(-bounds[0], -bounds[1]);
-			com.bkahlert.nebula.jointjs.mousePosition = [0,0];
-			com.bkahlert.nebula.jointjs.setZoom(zoom);
-			com.bkahlert.nebula.jointjs.setPan((width-margins[1]-scaledBounds.width)/2/zoom,(height-margins[2]-scaledBounds.height)/2/zoom);
+			com.bkahlert.nebula.jointjs.paper.setZoom(zoom, [0,0]);
+			com.bkahlert.nebula.jointjs.paper.setPan((width-margins[1]-scaledBounds.width)/2/zoom,(height-margins[2]-scaledBounds.height)/2/zoom);
 		},
 		
-		getZoom: function() {
-			return this.paper.getScale().sx;
-		},
-		
-		setZoom: function(val) {
-			var center = com.bkahlert.nebula.jointjs.mousePosition || [ $(document).width(), $(document).height() ];
-			var zoom = com.bkahlert.nebula.jointjs.getZoom();
-			var pan = com.bkahlert.nebula.jointjs.getPan();
-
-			var translated = [ center[0]*zoom - pan[0], center[1]*zoom - pan[1] ];
-			var newTranslated = [ center[0]*val - pan[0], center[1]*val - pan[1] ];
-			
-			var shift = [ translated[0]-newTranslated[0], translated[1]-newTranslated[1] ];
-			com.bkahlert.nebula.jointjs.paper.scale(val);
-			com.bkahlert.nebula.jointjs.setPan(pan[0]+shift[0], pan[1]+shift[1]);
-		},
-		
-		zoomIn: function(val) {
-			com.bkahlert.nebula.jointjs.setZoom(com.bkahlert.nebula.jointjs.getZoom()*1.25);
-		},
-		
-		zoomOut: function(val) {
-			com.bkahlert.nebula.jointjs.setZoom(com.bkahlert.nebula.jointjs.getZoom()*0.8);
-		},
-		
-		getPan: function() {
-			var translate = com.bkahlert.nebula.jointjs.paper.getTranslate();
-			return [translate.tx, translate.ty];
-		},
-		
-		setPan: function(x, y) {
-			com.bkahlert.nebula.jointjs.paper.translate(x, y);
-		},
-
 		shiftBy: function(byX, byY) {
 			_.each(com.bkahlert.nebula.jointjs.graph.getElements(), function(element) {
 				var pos = element.get('position');
@@ -587,7 +545,7 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 					case 107:
 					/* laptop keyboard, + */
 					case 187:
-						com.bkahlert.nebula.jointjs.zoomIn();
+						com.bkahlert.nebula.jointjs.paper.zoomIn();
 						event.preventDefault();
 						event.stopPropagation();
 						break;
@@ -600,7 +558,7 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 					case 109:
 					/* laptop keyboard, - */
 					case 189:
-						com.bkahlert.nebula.jointjs.zoomOut();
+						com.bkahlert.nebula.jointjs.paper.zoomOut();
 						event.preventDefault();
 						event.stopPropagation();
 						break;
@@ -616,8 +574,8 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			
 			com.bkahlert.nebula.jointjs.paper.on('blank:pointerdblclick', 
 				function(evt, x, y) {
-					if(shiftKey) com.bkahlert.nebula.jointjs.zoomOut();
-					else com.bkahlert.nebula.jointjs.zoomIn();
+					if(shiftKey) com.bkahlert.nebula.jointjs.paper.zoomOut();
+					else com.bkahlert.nebula.jointjs.paper.zoomIn();
 				}
 			);
         },
@@ -959,8 +917,8 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
     });
 })(jQuery);
 
-$(window).resize(com.bkahlert.nebula.jointjs.onresize);
 $(document).ready(com.bkahlert.nebula.jointjs.start);
+
 
 
 
@@ -1033,7 +991,136 @@ joint.dia.Graph.prototype.getCells = function() {
 	return _.union(this.getElements(), this.getLinks());
 }
 
+joint.dia.Paper.prototype._initialize = joint.dia.Paper.prototype.initialize;
+joint.dia.Paper.prototype.initialize = function() {
+		
+		$(document).mousemove(function(event) {
+	        this.mousePosition = [ event.pageX, event.pageY ];
+	    }.bind(this));
+	    
+	    $(document).blur(function(event) {
+	        this.mousePosition = null;
+	    }.bind(this));
+	    
+	    var oldDims = [ $(window).width(), $(window).height() ];
+	    $(window).resize(function() {
+			var zoom = this.getZoom();
+            var newDims = [ $(window).width(), $(window).height() ];
+
+            var diff = [ newDims[0]-oldDims[0], newDims[1]-oldDims[1] ];
+            var panGain = [ diff[0]/2/zoom, diff[1]/2/zoom ];
+            
+            /*
+             * correct panGain ...
+             * - to avoid content to go out of viewport border (on contraction)
+             * - to allow content to move into viewport (on expansion)
+             */
+            var margins = this.getContentMargins(oldDims[0], oldDims[1]);
+            var collisions = [ margins[0] < 0, margins[1] < 0, margins[2] < 0, margins[3] < 0];
+            if(collisions[0] != collisions[2]) {
+            	if(collisions[0]) panGain[0] = panGain[0] < 0 ? 0 : 2*panGain[0];
+            	if(collisions[2]) panGain[0] = panGain[0] > 0 ? 0 : 2*panGain[0];
+            }
+            if(collisions[1] != collisions[3]) {
+            	if(collisions[1]) panGain[1] = panGain[1] < 0 ? 0 : 2*panGain[1];
+            	if(collisions[3]) panGain[1] = panGain[1] > 0 ? 0 : 2*panGain[1];
+            }
+            
+            /*
+             * fast resize action can make one content border to jump out of viewport;
+             * therefore don't allow the panGain to be larger than the margin of the content to each viewport border
+             */
+            /* does not work ...
+        	if(-panGain[0] < 0 && !collisions[0] && -panGain[0] > margins[0]) {
+        		panGain[0] = -margins[0];
+        	}
+        	if(panGain[0] > 0 && !collisions[2] && panGain[0] > margins[2]) {
+        		panGain[0] = margins[2];
+        	}
+        	if(-panGain[1] < 0 && !collisions[1] && -panGain[1] > margins[1]) {
+        		panGain[1] = -margins[1];
+        	}
+        	if(panGain[3] > 0 && !collisions[3] && panGain[1] > margins[3]) {
+        		panGain[1] = margins[3];
+        	}
+        	*/
+            
+			var pan = this.getPan();
+            this.setPan(pan[0]+panGain[0], pan[1]+panGain[1]);
+            
+            oldDims = newDims;
+	    }.bind(this));
+	    
+		this._initialize.apply(this, arguments);
+		
+}
+
+joint.dia.Paper.prototype.getZoom = function() {
+	return this.getScale().sx;
+}
+
+joint.dia.Paper.prototype.setZoom = function(val, coordinates) {
+	var center = coordinates || this.mousePosition || [ $(document).width(), $(document).height() ];
+	var zoom = this.getZoom();
+	var pan = this.getPan();
+
+	var translated = [ center[0]*zoom - pan[0], center[1]*zoom - pan[1] ];
+	var newTranslated = [ center[0]*val - pan[0], center[1]*val - pan[1] ];
+	
+	var shift = [ translated[0]-newTranslated[0], translated[1]-newTranslated[1] ];
+	this.scale(val);
+	this.setPan(pan[0]+shift[0], pan[1]+shift[1]);
+}
+		
+joint.dia.Paper.prototype.zoomIn = function(val) {
+	this.setZoom(this.getZoom()*1.25);
+}
+
+joint.dia.Paper.prototype.zoomOut = function(val) {
+	this.setZoom(this.getZoom()*0.8);
+}
+
+joint.dia.Paper.prototype.getPan = function() {
+	var translate = this.getTranslate();
+	return [translate.tx, translate.ty];
+}
+
+joint.dia.Paper.prototype.setPan = function(x, y) {
+	this.translate(x, y);
+}
+
+// returns an array that tells you the distance of the content's left, top, right and bottom border to the unscaled viewport (= no zoom applied)
+joint.dia.Paper.prototype.getContentMargins = function(width, height) {
+	var zoom = this.getZoom();
+    var scaledViewport = [
+    	(width || $(window).width())/zoom,
+    	(height || $(window).height())/zoom
+    	];
+    
+    var bounds = com.bkahlert.nebula.jointjs.getBoundingBox();
+	var pan = this.getPan();
+
+    return [
+    	bounds[0]+pan[0],
+    	bounds[1]+pan[1],
+    	scaledViewport[0]-(bounds[0]+bounds[2]+pan[0]),
+    	scaledViewport[1]-(bounds[1]+bounds[3]+pan[1])
+    	];
+}
+
+// returns an array for each side of the content if it is out of the unscaled viewport
+joint.dia.Paper.prototype.getOutOfViewport = function() {
+	var margins = joint.dia.Paper.prototype.getContentMargins.apply(this, arguments);
+	return [ margins[0] < 0, margins[1] < 0, margins[2] < 0, margins[3] < 0 ];
+}
+
+joint.dia.Paper.prototype.getDimensions = function() {
+	var $svg = $(this.viewport).parents('svg');
+	return { width: $svg.width(), height: $svg.height() };
+}
+
 joint.dia.Paper.prototype.getScale = function() {
+	if(!this.viewport) return 1.0;
 	var transformAttr = V(this.viewport).attr('transform') || '';
 			
 	var scale;
@@ -1047,10 +1134,10 @@ joint.dia.Paper.prototype.getScale = function() {
 	return { sx: sx, sy:sy };
 }
 
-joint.dia.Paper.prototype.oldScale = joint.dia.Paper.prototype.scale;
+joint.dia.Paper.prototype._scale = joint.dia.Paper.prototype.scale;
 joint.dia.Paper.prototype.scale = function(sx, sy, ox, oy) {
 	var translate = this.getTranslate();
-	this.oldScale(sx, sy, ox, oy);
+	this._scale(sx, sy, ox, oy);
 	var scale = this.getScale();
 	$(this.viewport).attr('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + translate.tx + ', ' + translate.ty + ')');
 	this.$el.find('.html-view').css('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + translate.tx + 'px, ' + translate.ty + 'px)');
@@ -1072,7 +1159,7 @@ joint.dia.Paper.prototype.getTranslate = function() {
 }
         
 joint.dia.Paper.prototype.translate = function(tx, ty) {
-	var scale = com.bkahlert.nebula.jointjs.paper.getScale();
+	var scale = this.getScale();
 	$(this.viewport).attr('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + tx + ', ' + ty + ')');
 	this.$el.find('.html-view').css('transform', 'scale(' + scale.sx + ', ' + scale.sy + ') translate(' + tx + 'px, ' + ty + 'px)');
 	this.trigger('change:translate');
