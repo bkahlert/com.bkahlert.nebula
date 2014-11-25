@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.swt.SWT;
@@ -196,12 +199,10 @@ public class Stylers {
 	private static final Map<RGB, Color> colors = new HashMap<RGB, Color>();
 
 	private static Color merge(Color color1, Color color2) {
-		if (color1 == null) {
+		if (color1 == null)
 			return color2;
-		}
-		if (color2 == null) {
+		if (color2 == null)
 			return color1;
-		}
 		RGB merged = new RGB(color1.getRGB()).mix(new RGB(color2.getRGB()), .5);
 		if (!colors.containsKey(merged)) {
 			colors.put(merged,
@@ -213,12 +214,10 @@ public class Stylers {
 	private static final Map<FontData, Font> fonts = new HashMap<FontData, Font>();
 
 	private static Font merge(Font font1, Font font2) {
-		if (font1 == null) {
+		if (font1 == null)
 			return font2;
-		}
-		if (font2 == null) {
+		if (font2 == null)
 			return font1;
-		}
 		FontData fontData[] = FontUtils.merge(font1.getFontData(),
 				font2.getFontData());
 		if (!fonts.containsKey(fontData[0])) {
@@ -239,9 +238,8 @@ public class Stylers {
 	 * @return
 	 */
 	public static StyledString rebase(StyledString string, Styler baseStyler) {
-		if (baseStyler == null) {
+		if (baseStyler == null)
 			return string;
-		}
 		StyleRange[] styleRanges = getExpandedStyleRanges(string);
 		for (StyleRange styleRange : styleRanges) {
 			string.setStyle(styleRange.start, styleRange.length,
@@ -292,11 +290,10 @@ public class Stylers {
 				: null;
 		Styler baseStyler = lastUsedStyleRange != null ? createFrom(lastUsedStyleRange)
 				: null;
-		if (baseStyler != null) {
+		if (baseStyler != null)
 			return baseString.append(rebase(clone(appendString), baseStyler));
-		} else {
+		else
 			return baseString.append(appendString);
-		}
 	}
 
 	private static StyledString cloneSubstring(StyledString string,
@@ -322,22 +319,61 @@ public class Stylers {
 	 * the string's style). The returned string will be of length max.
 	 *
 	 * @param string
-	 * @param max
+	 * @param maxCharacters
 	 * @param append
 	 * @return
 	 */
-	public static StyledString shorten(StyledString string, int max,
+	public static StyledString shorten(StyledString string, int maxCharacters,
 			String append) {
-		if (string.length() > max) {
+		if (string.length() > maxCharacters) {
 			if (append == null) {
 				append = "";
 			}
 			StyleRange[] ranges = getExpandedStyleRanges(string);
-			return cloneSubstring(string, 0, max - append.length()).append(
-					append, createFrom(ranges[ranges.length - 1]));
-		} else {
+			return cloneSubstring(string, 0, maxCharacters - append.length())
+					.append(append, createFrom(ranges[ranges.length - 1]));
+		} else
 			return clone(string);
+	}
+
+	/**
+	 * Shortens the given string if its length exceeds the maximum length. In
+	 * this case the string is shortened and the fill string is appended (using
+	 * the string's style). The returned string will have min(numContainedWords,
+	 * minWords) words.
+	 *
+	 * @param styledText
+	 * @param maxCharacters
+	 * @param minWords
+	 * @param string
+	 * @return
+	 */
+	public static StyledString shorten(StyledString styledText,
+			int maxCharacters, int minWords, String string) {
+		int numWords = styledText.getString().split("\\s+").length;
+		if (numWords > minWords) {
+			numWords = minWords;
 		}
+		String regex = numWords > 0 ? "[^\\s-]+" : "";
+		for (int i = 1; i < numWords; i++) {
+			regex += "\\s+[^\\s-]+";
+		}
+		regex = "(" + regex + ").*?";
+		Matcher matcher = Pattern.compile(regex)
+				.matcher(styledText.getString());
+		Assert.isTrue(matcher.matches());
+		StyledString start = cloneSubstring(styledText, matcher.start(1),
+				matcher.end(1));
+		if (matcher.end(1) == styledText.length())
+			return start;
+		StyledString end = shorten(styledText, maxCharacters, string);
+		try {
+			end = cloneSubstring(end, matcher.end(1), styledText.length());
+		} catch (Exception e) {
+			end = cloneSubstring(end, end.length() - string.length(),
+					end.length());
+		}
+		return append(start, end);
 	}
 
 	/**
