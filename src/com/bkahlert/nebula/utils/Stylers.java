@@ -296,8 +296,19 @@ public class Stylers {
 			return baseString.append(appendString);
 	}
 
-	private static StyledString cloneSubstring(StyledString string,
-			int beginIndex, int endIndex) {
+	/**
+	 * Creates a new {@link StyledString} based on the given string starting and
+	 * ending at the given position.
+	 * 
+	 * @param string
+	 * @param beginIndex
+	 *            inclusive
+	 * @param endIndex
+	 *            exclusive
+	 * @return
+	 */
+	public static StyledString substring(StyledString string, int beginIndex,
+			int endIndex) {
 		StyledString clone = new StyledString(string.getString().substring(
 				beginIndex, endIndex));
 		for (StyleRange styleRange : string.getStyleRanges()) {
@@ -330,7 +341,7 @@ public class Stylers {
 				append = "";
 			}
 			StyleRange[] ranges = getExpandedStyleRanges(string);
-			return cloneSubstring(string, 0, maxCharacters - append.length())
+			return substring(string, 0, maxCharacters - append.length())
 					.append(append, createFrom(ranges[ranges.length - 1]));
 		} else
 			return clone(string);
@@ -362,16 +373,15 @@ public class Stylers {
 		Matcher matcher = Pattern.compile(regex)
 				.matcher(styledText.getString());
 		Assert.isTrue(matcher.matches());
-		StyledString start = cloneSubstring(styledText, matcher.start(1),
+		StyledString start = substring(styledText, matcher.start(1),
 				matcher.end(1));
 		if (matcher.end(1) == styledText.length())
 			return start;
 		StyledString end = shorten(styledText, maxCharacters, string);
 		try {
-			end = cloneSubstring(end, matcher.end(1), styledText.length());
+			end = substring(end, matcher.end(1), styledText.length());
 		} catch (Exception e) {
-			end = cloneSubstring(end, end.length() - string.length(),
-					end.length());
+			end = substring(end, end.length() - string.length(), end.length());
 		}
 		return append(start, end);
 	}
@@ -383,7 +393,7 @@ public class Stylers {
 	 * @return
 	 */
 	public static StyledString clone(StyledString string) {
-		return cloneSubstring(string, 0, string.length());
+		return substring(string, 0, string.length());
 	}
 
 	/**
