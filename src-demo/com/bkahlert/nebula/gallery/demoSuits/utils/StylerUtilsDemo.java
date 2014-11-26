@@ -94,6 +94,7 @@ public class StylerUtilsDemo extends AbstractDemo {
 		}
 
 		final List<StyledString> data = new ArrayList<StyledString>();
+
 		data.add(new StyledString("Custom Designs", null));
 		{
 			StyledString string = new StyledString("Lorem ipsum");
@@ -160,6 +161,13 @@ public class StylerUtilsDemo extends AbstractDemo {
 				string.append(styler.getFirst(), styler.getSecond());
 				string.append(")");
 				data.add(string);
+			}
+
+			data.add(new StyledString("Substring Stylers", null));
+			for (int i = 0, m = FANCY_STYLED_STRING.length(); i < m; i++) {
+				for (int j = i + 1; j <= m; j++) {
+					data.add(Stylers.substring(FANCY_STYLED_STRING, i, j));
+				}
 			}
 		}
 

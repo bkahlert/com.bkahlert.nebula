@@ -199,10 +199,12 @@ public class Stylers {
 	private static final Map<RGB, Color> colors = new HashMap<RGB, Color>();
 
 	private static Color merge(Color color1, Color color2) {
-		if (color1 == null)
+		if (color1 == null) {
 			return color2;
-		if (color2 == null)
+		}
+		if (color2 == null) {
 			return color1;
+		}
 		RGB merged = new RGB(color1.getRGB()).mix(new RGB(color2.getRGB()), .5);
 		if (!colors.containsKey(merged)) {
 			colors.put(merged,
@@ -214,10 +216,12 @@ public class Stylers {
 	private static final Map<FontData, Font> fonts = new HashMap<FontData, Font>();
 
 	private static Font merge(Font font1, Font font2) {
-		if (font1 == null)
+		if (font1 == null) {
 			return font2;
-		if (font2 == null)
+		}
+		if (font2 == null) {
 			return font1;
+		}
 		FontData fontData[] = FontUtils.merge(font1.getFontData(),
 				font2.getFontData());
 		if (!fonts.containsKey(fontData[0])) {
@@ -238,8 +242,9 @@ public class Stylers {
 	 * @return
 	 */
 	public static StyledString rebase(StyledString string, Styler baseStyler) {
-		if (baseStyler == null)
+		if (baseStyler == null) {
 			return string;
+		}
 		StyleRange[] styleRanges = getExpandedStyleRanges(string);
 		for (StyleRange styleRange : styleRanges) {
 			string.setStyle(styleRange.start, styleRange.length,
@@ -290,16 +295,17 @@ public class Stylers {
 				: null;
 		Styler baseStyler = lastUsedStyleRange != null ? createFrom(lastUsedStyleRange)
 				: null;
-		if (baseStyler != null)
+		if (baseStyler != null) {
 			return baseString.append(rebase(clone(appendString), baseStyler));
-		else
+		} else {
 			return baseString.append(appendString);
+		}
 	}
 
 	/**
 	 * Creates a new {@link StyledString} based on the given string starting and
 	 * ending at the given position.
-	 * 
+	 *
 	 * @param string
 	 * @param beginIndex
 	 *            inclusive
@@ -313,12 +319,18 @@ public class Stylers {
 				beginIndex, endIndex));
 		for (StyleRange styleRange : string.getStyleRanges()) {
 			if (styleRange.start < endIndex) {
-				int start = Math.max(0, styleRange.start - beginIndex);
-				int length = styleRange.length - beginIndex;
-				if (styleRange.start + styleRange.length > endIndex) {
-					length -= styleRange.start + styleRange.length - endIndex;
+				int start = styleRange.start - beginIndex;
+				int end = start + styleRange.length;
+				if (start < 0) {
+					start = 0;
 				}
-				clone.setStyle(start, length, createFrom(styleRange));
+				if (end > clone.length()) {
+					end = clone.length();
+				}
+				int length = end - start;
+				if (length > 0) {
+					clone.setStyle(start, length, createFrom(styleRange));
+				}
 			}
 		}
 		return clone;
@@ -343,8 +355,9 @@ public class Stylers {
 			StyleRange[] ranges = getExpandedStyleRanges(string);
 			return substring(string, 0, maxCharacters - append.length())
 					.append(append, createFrom(ranges[ranges.length - 1]));
-		} else
+		} else {
 			return clone(string);
+		}
 	}
 
 	/**
@@ -375,8 +388,9 @@ public class Stylers {
 		Assert.isTrue(matcher.matches());
 		StyledString start = substring(styledText, matcher.start(1),
 				matcher.end(1));
-		if (matcher.end(1) == styledText.length())
+		if (matcher.end(1) == styledText.length()) {
 			return start;
+		}
 		StyledString end = shorten(styledText, maxCharacters, string);
 		try {
 			end = substring(end, matcher.end(1), styledText.length());
