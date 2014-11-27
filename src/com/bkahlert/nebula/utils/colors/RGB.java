@@ -13,7 +13,7 @@ import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
  * In contrast to {@link org.eclipse.swt.graphics.RGB} this class uses
  * {@link Double}s to save its colors. This allows for a much higher color
  * resolution.
- * 
+ *
  * @author bkahlert
  */
 public class RGB {
@@ -50,9 +50,14 @@ public class RGB {
 	private double blue;
 	private double alpha;
 
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return new RGB(this.red, this.green, this.blue, this.alpha);
+	}
+
 	/**
 	 * Constructs a new RGB.
-	 * 
+	 *
 	 * @param red
 	 *            0.0 ... 1.0
 	 * @param green
@@ -66,7 +71,7 @@ public class RGB {
 
 	/**
 	 * Constructs a new RGB.
-	 * 
+	 *
 	 * @param red
 	 *            0.0 ... 1.0
 	 * @param green
@@ -86,7 +91,7 @@ public class RGB {
 
 	/**
 	 * Constructs a new RGB
-	 * 
+	 *
 	 * @param red
 	 *            0 ... 255
 	 * @param green
@@ -100,7 +105,7 @@ public class RGB {
 
 	/**
 	 * Constructs a new RGB
-	 * 
+	 *
 	 * @param red
 	 *            0 ... 255
 	 * @param green
@@ -121,6 +126,10 @@ public class RGB {
 	public RGB(org.eclipse.swt.graphics.RGB rgb) {
 		this((double) rgb.red / 255, (double) rgb.green / 255,
 				(double) rgb.blue / 255);
+	}
+
+	public RGB(RGB rgb) {
+		this(rgb.red, rgb.green, rgb.blue, rgb.alpha);
 	}
 
 	public org.eclipse.swt.graphics.RGB toClassicRGB() {
@@ -261,13 +270,13 @@ public class RGB {
 	/**
 	 * Mixes the given {@link RGB} with the current {@link RGB} and returns the
 	 * resulting {@link RGB}. This instance stays untouched.
-	 * 
+	 *
 	 * @param rgb
 	 * @param weight
 	 *            by which the colors should be mixed. Use 0.5 for an equals mix
 	 *            and 1.0 for the given color to completely overlay this color.
 	 * @return
-	 * 
+	 *
 	 * @author Copyright (c) 2006-2009 Hampton Catlin, Nathan Weizenbaum, and
 	 *         Chris Eppstein, http://sass-lang.com
 	 */
@@ -294,7 +303,7 @@ public class RGB {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -313,7 +322,7 @@ public class RGB {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -362,7 +371,7 @@ public class RGB {
 		return sb.toString();
 	}
 
-	public String toCssString() {
+	public String toDecString() {
 		StringBuilder sb = new StringBuilder();
 		if (this.alpha == 1.0) {
 			sb.append("rgb(");
@@ -385,6 +394,6 @@ public class RGB {
 	@Override
 	public String toString() {
 		HLS hls = ColorSpaceConverter.RGBtoHLS(this);
-		return this.toHexString() + " (" + hls.getDecString() + ")";
+		return this.toDecString() + " (" + hls.getDecString() + ")";
 	}
 }

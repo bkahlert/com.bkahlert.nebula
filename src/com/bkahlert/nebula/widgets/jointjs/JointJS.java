@@ -474,14 +474,14 @@ public class JointJS extends Browser implements ISelectionProvider {
 	}
 
 	public Future<Void> setColor(String id, RGB rgb) {
-		String color = rgb != null ? "'" + rgb.toCssString() + "'"
+		String color = rgb != null ? "'" + rgb.toDecString() + "'"
 				: "'initial'";
 		return this.run("return com.bkahlert.nebula.jointjs.setColor('" + id
 				+ "', " + color + ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Void> setBackgroundColor(String id, RGB rgb) {
-		String color = rgb != null ? "'" + rgb.toCssString() + "'"
+		String color = rgb != null ? "'" + rgb.toDecString() + "'"
 				: "'initial'";
 		return this.run(
 				"return com.bkahlert.nebula.jointjs.setBackgroundColor('" + id
@@ -489,7 +489,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 	}
 
 	public Future<Void> setBorderColor(String id, RGB rgb) {
-		String color = rgb != null ? "'" + rgb.toCssString() + "'"
+		String color = rgb != null ? "'" + rgb.toDecString() + "'"
 				: "'initial'";
 		return this.run("return com.bkahlert.nebula.jointjs.setBorderColor('"
 				+ id + "', " + color + ");", IConverter.CONVERTER_VOID);

@@ -199,7 +199,7 @@ public class TimelineJsonGenerator {
 	 * Writes a {@link Map} denoting the {@link SelectionTimeline}'s options to
 	 * the JSON.
 	 * <p>
-	 * 
+	 *
 	 * <pre>
 	 * <code>
 	 * Map<String, Object> options = new HashMap<String, Object>();
@@ -207,10 +207,10 @@ public class TimelineJsonGenerator {
 	 * options.put("name", new Name("Björn", "Kahlert"));
 	 * </code>
 	 * </pre>
-	 * 
+	 *
 	 * would result in
 	 * <p>
-	 * 
+	 *
 	 * <pre>
 	 * <code>
 	 * {
@@ -224,9 +224,9 @@ public class TimelineJsonGenerator {
 	 *   }
 	 * </code>
 	 * </pre>
-	 * 
+	 *
 	 * without the outer brackets.
-	 * 
+	 *
 	 * @param generator
 	 *            to where to add an options property
 	 * @param options
@@ -350,7 +350,7 @@ public class TimelineJsonGenerator {
 
 		generator.writeFieldName("color");
 		RGB[] colors = event.getColors();
-		generator.writeString(colors.length > 0 ? colors[0].toHexString()
+		generator.writeString(colors.length > 0 ? colors[0].toDecString()
 				: null);
 
 		if (event.isResizable()) {

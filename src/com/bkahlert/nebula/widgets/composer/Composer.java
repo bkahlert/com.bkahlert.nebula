@@ -361,7 +361,7 @@ public class Composer extends Browser implements IModifiable {
 
 	public void setBackground(RGB rgb) {
 		this.background = rgb;
-		String hex = rgb != null ? rgb.toHexString() : "transparent";
+		String hex = rgb != null ? rgb.toDecString() : "transparent";
 		this.injectCss("html .cke_reset { background-color: " + hex + "; }");
 	}
 

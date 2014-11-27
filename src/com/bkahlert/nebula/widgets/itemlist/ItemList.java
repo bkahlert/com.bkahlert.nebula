@@ -95,9 +95,9 @@ public class ItemList extends BootstrapBrowser {
 			from.setAlpha(0.0);
 			to.setAlpha(1.0);
 			this.injectCss("body:after { display: block; position: absolute; content: ''; top: 0; right: 0; bottom: 0; width: 50px; background: linear-gradient(to right, "
-					+ from.toCssString()
+					+ from.toDecString()
 					+ " 0%,"
-					+ to.toCssString()
+					+ to.toDecString()
 					+ " 80%); })");
 		}
 	}
@@ -128,14 +128,14 @@ public class ItemList extends BootstrapBrowser {
 				// mixins.less
 
 				String className = RandomStringUtils.randomAlphabetic(8);
-				String css = "." + className + " {color: " + fontColor.toCssString()
-						+ "; background-color: " + backgroundColor.toCssString()
-						+ "; border-color: " + borderColor.toCssString() + ";} ."
+				String css = "." + className + " {color: " + fontColor.toDecString()
+						+ "; background-color: " + backgroundColor.toDecString()
+						+ "; border-color: " + borderColor.toDecString() + ";} ."
 						+ className + ":hover, ." + className + ":focus, ." + className
 						+ ":active, ." + className + ".active, .open>.dropdown-toggle."
-						+ className + " { color: " + fontColor.toCssString()
-						+ "; background-color: " + hoverColor.toCssString()
-						+ "; border-color: " + hoverborderColor.toCssString() + ";}";
+						+ className + " { color: " + fontColor.toDecString()
+						+ "; background-color: " + hoverColor.toDecString()
+						+ "; border-color: " + hoverborderColor.toDecString() + ";}";
 				this.injectCss(css);
 				this.addItem(id, title, className, buttonSize, buttonStyle,
 						secondaryActions);

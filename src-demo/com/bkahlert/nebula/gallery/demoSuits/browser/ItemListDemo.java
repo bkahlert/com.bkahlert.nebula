@@ -8,8 +8,6 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
@@ -47,19 +45,16 @@ public class ItemListDemo extends AbstractDemo {
 		alert.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						log("alerting");
-						try {
-							ItemListDemo.this.itemList.run(
-									"alert(\"" + ItemListDemo.this.alertString
-											+ "\");").get();
-						} catch (Exception e) {
-							log(e);
-						}
-						log("alerted");
+				new Thread(() -> {
+					log("alerting");
+					try {
+						ItemListDemo.this.itemList.run(
+								"alert(\"" + ItemListDemo.this.alertString
+										+ "\");").get();
+					} catch (Exception e1) {
+						log(e1);
 					}
+					log("alerted");
 				}).start();
 			}
 		});
@@ -69,43 +64,31 @@ public class ItemListDemo extends AbstractDemo {
 		fileAlert.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						log("alerting using external file");
-						try {
-							File jsFile = File.createTempFile(
-									ItemListDemo.class.getSimpleName(), ".js");
-							FileUtils.write(jsFile, "alert(\""
-									+ ItemListDemo.this.alertString + "\");");
-							ItemListDemo.this.itemList.run(jsFile);
-						} catch (Exception e) {
-							log(e.toString());
-						}
-						log("alerted using external file");
+				new Thread(() -> {
+					log("alerting using external file");
+					try {
+						File jsFile = File.createTempFile(
+								ItemListDemo.class.getSimpleName(), ".js");
+						FileUtils.write(jsFile, "alert(\""
+								+ ItemListDemo.this.alertString + "\");");
+						ItemListDemo.this.itemList.run(jsFile);
+					} catch (Exception e1) {
+						log(e1.toString());
 					}
+					log("alerted using external file");
 				}).start();
 			}
 		});
 
 		Text text = new Text(composite, SWT.BORDER);
 		text.setText(this.alertString);
-		text.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				ItemListDemo.this.alertString = ((Text) e.getSource())
-						.getText();
-			}
-		});
+		text.addModifyListener(e -> ItemListDemo.this.alertString = ((Text) e
+				.getSource()).getText());
 
 		Text timeout = new Text(composite, SWT.BORDER);
 		timeout.setText(ItemListDemo.timeoutString);
-		timeout.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				ItemListDemo.timeoutString = ((Text) e.getSource()).getText();
-			}
-		});
+		timeout.addModifyListener(e -> ItemListDemo.timeoutString = ((Text) e
+				.getSource()).getText());
 
 		new EmptyText(timeout, "Timeout for page load");
 
@@ -114,20 +97,17 @@ public class ItemListDemo extends AbstractDemo {
 		changeBackground.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						log("changing background");
-						try {
-							ItemListDemo.this.itemList
-									.injectCss("html, body { background-color: "
-											+ ColorUtils.getRandomRGB()
-													.toHexString() + "; }");
-						} catch (Exception e) {
-							log(e.toString());
-						}
-						log("changed background");
+				new Thread(() -> {
+					log("changing background");
+					try {
+						ItemListDemo.this.itemList
+								.injectCss("html, body { background-color: "
+										+ ColorUtils.getRandomRGB()
+												.toDecString() + "; }");
+					} catch (Exception e1) {
+						log(e1.toString());
 					}
+					log("changed background");
 				}).start();
 			}
 		});
@@ -142,7 +122,7 @@ public class ItemListDemo extends AbstractDemo {
 
 		this.itemList = new ItemList(parent, SWT.BORDER);
 		this.itemList
-		.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+				.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 		this.itemList.addListener(new IItemListListener() {
 			@Override
 			public void itemClicked(String key, int i) {
@@ -194,22 +174,14 @@ public class ItemListDemo extends AbstractDemo {
 		new Label(parent, SWT.NONE).setLayoutData(GridDataFactory
 				.fillDefaults().grab(true, true).create());
 
-		ExecUtils.nonUIAsyncExec(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					rendering.get();
-					rendering2.get();
-				} catch (Exception e) {
-					log(e);
-				}
-				ExecUtils.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						parent.layout();
-					}
-				});
+		ExecUtils.nonUIAsyncExec(() -> {
+			try {
+				rendering.get();
+				rendering2.get();
+			} catch (Exception e) {
+				log(e);
 			}
+			ExecUtils.asyncExec(() -> parent.layout());
 		});
 	}
 }

@@ -23,14 +23,12 @@ import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.browser.ProgressListener;
-import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
 import com.bkahlert.nebula.utils.CompletedFuture;
@@ -93,13 +91,8 @@ public class Browser extends Composite implements IBrowser {
 		this.browser = new org.eclipse.swt.browser.Browser(this, SWT.NONE);
 		this.browser.setVisible(false);
 		this.browserScriptRunner = new BrowserScriptRunner(this.browser,
-				new JavaScriptExceptionListener() {
-					@Override
-					public void thrown(JavaScriptException javaScriptException) {
-						Browser.this
-								.fireJavaScriptExceptionThrown(javaScriptException);
-					}
-				}) {
+				javaScriptException -> Browser.this
+						.fireJavaScriptExceptionThrown(javaScriptException)) {
 			@Override
 			public void scriptAboutToBeSentToBrowser(String script) {
 				Browser.this.scriptAboutToBeSentToBrowser(script);
@@ -297,24 +290,16 @@ public class Browser extends Composite implements IBrowser {
 
 		HandlerUtils.activateCustomPasteHandlerConsideration(this.browser,
 				FOCUS_CONTROL_ID, "application/x-java-file-list", "image");
-		this.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				HandlerUtils
-						.deactivateCustomPasteHandlerConsideration(Browser.this.browser);
-			}
-		});
+		this.addDisposeListener((DisposeListener) e -> HandlerUtils
+				.deactivateCustomPasteHandlerConsideration(Browser.this.browser));
 
-		this.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				synchronized (Browser.this.monitor) {
-					if (Browser.this.browserScriptRunner.getBrowserStatus() == BrowserStatus.LOADING) {
-						Browser.this.browserScriptRunner
-								.setBrowserStatus(BrowserStatus.DISPOSED);
-					}
-					Browser.this.monitor.notifyAll();
+		this.addDisposeListener((DisposeListener) e -> {
+			synchronized (Browser.this.monitor) {
+				if (Browser.this.browserScriptRunner.getBrowserStatus() == BrowserStatus.LOADING) {
+					Browser.this.browserScriptRunner
+							.setBrowserStatus(BrowserStatus.DISPOSED);
 				}
+				Browser.this.monitor.notifyAll();
 			}
 		});
 	}
@@ -447,37 +432,33 @@ public class Browser extends Composite implements IBrowser {
 			}
 		}
 		final Future<Void> finished = Browser.this.beforeCompletion(uri);
-		ExecUtils.nonUISyncExec(Browser.class, "Progress Check for " + uri,
-				new Runnable() {
-					@Override
-					public void run() {
-						try {
-							if (finished != null) {
-								finished.get();
-							}
-						} catch (Exception e) {
-							LOGGER.error(e);
+		ExecUtils.nonUISyncExec(
+				Browser.class,
+				"Progress Check for " + uri,
+				() -> {
+					try {
+						if (finished != null) {
+							finished.get();
 						}
+					} catch (Exception e) {
+						LOGGER.error(e);
+					}
 
-						Browser.this.injectEventCatchScript();
-						ExecUtils.asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								if (!Browser.this.browser.isDisposed()) {
-									Browser.this.browser.setVisible(true);
-								}
-							}
-						});
-						synchronized (Browser.this.monitor) {
-							if (!Arrays.asList(BrowserStatus.TIMEDOUT,
-									BrowserStatus.DISPOSED).contains(
-									Browser.this.browserScriptRunner
-											.getBrowserStatus())) {
-								Browser.this.browserScriptRunner
-										.setBrowserStatus(BrowserStatus.LOADED);
-							}
-							Browser.this.monitor.notifyAll();
+					Browser.this.injectEventCatchScript();
+					ExecUtils.asyncExec(() -> {
+						if (!Browser.this.browser.isDisposed()) {
+							Browser.this.browser.setVisible(true);
 						}
+					});
+					synchronized (Browser.this.monitor) {
+						if (!Arrays.asList(BrowserStatus.TIMEDOUT,
+								BrowserStatus.DISPOSED).contains(
+								Browser.this.browserScriptRunner
+										.getBrowserStatus())) {
+							Browser.this.browserScriptRunner
+									.setBrowserStatus(BrowserStatus.LOADED);
+						}
+						Browser.this.monitor.notifyAll();
 					}
 				});
 	}
@@ -499,92 +480,88 @@ public class Browser extends Composite implements IBrowser {
 			}
 		});
 
-		return ExecUtils.nonUIAsyncExec(Browser.class, "Opening " + uri,
-				new Callable<Boolean>() {
-					@Override
-					public Boolean call() throws Exception {
-						// stops waiting after timeout
-						Future<Void> timeoutMonitor = null;
-						if (timeout != null && timeout > 0) {
-							timeoutMonitor = ExecUtils.nonUIAsyncExec(
-									Browser.class,
-									"Timeout Watcher for " + uri,
-									new Runnable() {
-										@Override
-										public void run() {
-											synchronized (Browser.this.monitor) {
-												if (Browser.this.browserScriptRunner
-														.getBrowserStatus() != BrowserStatus.LOADED) {
-													Browser.this.browserScriptRunner
-															.setBrowserStatus(BrowserStatus.TIMEDOUT);
-												}
-												Browser.this.monitor
-														.notifyAll();
-											}
-										}
-									}, timeout);
-						} else {
-							LOGGER.warn("timeout must be greater or equal 0. Ignoring timeout.");
-						}
+		return ExecUtils
+				.nonUIAsyncExec(
+						Browser.class,
+						"Opening " + uri,
+						(Callable<Boolean>) () -> {
+							// stops waiting after timeout
+							Future<Void> timeoutMonitor = null;
+							if (timeout != null && timeout > 0) {
+								timeoutMonitor = ExecUtils
+										.nonUIAsyncExec(
+												Browser.class,
+												"Timeout Watcher for " + uri,
+												() -> {
+													synchronized (Browser.this.monitor) {
+														if (Browser.this.browserScriptRunner
+																.getBrowserStatus() != BrowserStatus.LOADED) {
+															Browser.this.browserScriptRunner
+																	.setBrowserStatus(BrowserStatus.TIMEDOUT);
+														}
+														Browser.this.monitor
+																.notifyAll();
+													}
+												}, timeout);
+							} else {
+								LOGGER.warn("timeout must be greater or equal 0. Ignoring timeout.");
+							}
 
-						Browser.this.beforeLoad(uri);
+							Browser.this.beforeLoad(uri);
 
-						ExecUtils.syncExec(new Runnable() {
-							@Override
-							public void run() {
+							ExecUtils.syncExec(() -> {
 								Browser.this.settingUri = true;
 								if (!Browser.this.browser.isDisposed()) {
 									Browser.this.browser.setUrl(uri.toString());
 								}
 								Browser.this.settingUri = false;
+							});
+
+							Browser.this.afterLoad(uri);
+
+							synchronized (Browser.this.monitor) {
+								if (Browser.this.browserScriptRunner
+										.getBrowserStatus() == BrowserStatus.LOADING) {
+									LOGGER.debug("Waiting for "
+											+ uri
+											+ " to be loaded (Thread: "
+											+ Thread.currentThread()
+											+ "; status: "
+											+ Browser.this.browserScriptRunner
+													.getBrowserStatus() + ")");
+									Browser.this.monitor.wait();
+									// notified by progresslistener or by
+									// timeout
+								}
+
+								if (timeoutMonitor != null) {
+									timeoutMonitor.cancel(true);
+								}
+
+								switch (Browser.this.browserScriptRunner
+										.getBrowserStatus()) {
+								case LOADED:
+									LOGGER.debug("Successfully loaded " + uri);
+									break;
+								case TIMEDOUT:
+									LOGGER.warn("Aborted loading " + uri
+											+ " due to timeout");
+									break;
+								case DISPOSED:
+									if (!Browser.this.browser.isDisposed()) {
+										LOGGER.info("Aborted loading " + uri
+												+ " due to disposal");
+									}
+									break;
+								default:
+									throw new RuntimeException(
+											"Implementation error");
+								}
+
+								return Browser.this.browserScriptRunner
+										.getBrowserStatus() == BrowserStatus.LOADED;
 							}
 						});
-
-						Browser.this.afterLoad(uri);
-
-						synchronized (Browser.this.monitor) {
-							if (Browser.this.browserScriptRunner
-									.getBrowserStatus() == BrowserStatus.LOADING) {
-								LOGGER.debug("Waiting for "
-										+ uri
-										+ " to be loaded (Thread: "
-										+ Thread.currentThread()
-										+ "; status: "
-										+ Browser.this.browserScriptRunner
-												.getBrowserStatus() + ")");
-								Browser.this.monitor.wait();
-								// notified by progresslistener or by timeout
-							}
-
-							if (timeoutMonitor != null) {
-								timeoutMonitor.cancel(true);
-							}
-
-							switch (Browser.this.browserScriptRunner
-									.getBrowserStatus()) {
-							case LOADED:
-								LOGGER.debug("Successfully loaded " + uri);
-								break;
-							case TIMEDOUT:
-								LOGGER.warn("Aborted loading " + uri
-										+ " due to timeout");
-								break;
-							case DISPOSED:
-								if (!Browser.this.browser.isDisposed()) {
-									LOGGER.info("Aborted loading " + uri
-											+ " due to disposal");
-								}
-								break;
-							default:
-								throw new RuntimeException(
-										"Implementation error");
-							}
-
-							return Browser.this.browserScriptRunner
-									.getBrowserStatus() == BrowserStatus.LOADED;
-						}
-					}
-				});
 	}
 
 	@Override
@@ -651,12 +628,7 @@ public class Browser extends Composite implements IBrowser {
 	 * definition of menus in an inheriting composite via setMenu.
 	 */
 	public void deactivateNativeMenu() {
-		this.browser.addListener(SWT.MenuDetect, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				event.doit = false;
-			}
-		});
+		this.browser.addListener(SWT.MenuDetect, event -> event.doit = false);
 	}
 
 	public void deactivateTextSelections() {
@@ -979,7 +951,7 @@ public class Browser extends Composite implements IBrowser {
 	@Override
 	public void setBackground(Color color) {
 		super.setBackground(color);
-		String hex = color != null ? new RGB(color.getRGB()).toHexString()
+		String hex = color != null ? new RGB(color.getRGB()).toDecString()
 				: "transparent";
 		try {
 			this.injectCssImmediately("html, body { background-color: " + hex

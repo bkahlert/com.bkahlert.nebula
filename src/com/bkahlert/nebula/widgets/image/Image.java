@@ -22,16 +22,16 @@ import com.bkahlert.nebula.widgets.browser.BrowserUtils;
 /**
  * Shows an image in a way that it always fills the {@link Composite}'s
  * available width.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public class Image extends Browser {
 
 	/**
 	 * Specifies the way the image should fill the canvas if the latter does not
 	 * have the same proportions as the provided image.
-	 * 
+	 *
 	 */
 	public static enum FILL_MODE {
 		/**
@@ -126,14 +126,14 @@ public class Image extends Browser {
 			}
 		};
 
-		this.open(BrowserUtils.getFileUrl(Image.class, "html/index.html", "?internal=true"),
-				5000);
+		this.open(BrowserUtils.getFileUrl(Image.class, "html/index.html",
+				"?internal=true"), 5000);
 	}
 
 	@Override
 	public void setBackground(Color color) {
 		// TODO get rid of window.setTimeout
-		String hex = new RGB(color.getRGB()).toHexString();
+		String hex = new RGB(color.getRGB()).toDecString();
 		this.run("window.setTimeout(function() {$('body').css('background-color', '"
 				+ hex + "');},100);");
 	}
@@ -153,31 +153,23 @@ public class Image extends Browser {
 	/**
 	 * Loads the given source and calls the optional {@link Runnable} if the
 	 * source has been loaded.
-	 * 
+	 *
 	 * @param src
 	 * @param callback
 	 *            is called in the UI thread when the source has been loaded.
 	 */
 	public Future<Void> load(final String src, final Runnable callback) {
-		return ExecUtils.nonUIAsyncExec(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				String script = "com.bkahlert.nebula.image.load("
-						+ JSONUtils.enquote(src) + ", '"
-						+ Image.this.fillMode.toString().toLowerCase() + "');";
-				Future<Object> future = Image.this.run(script);
-				Image.this.waitUntilImageLoaded();
-				future.get();
-				if (callback != null) {
-					ExecUtils.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							callback.run();
-						}
-					});
-				}
-				return null;
+		return ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {
+			String script = "com.bkahlert.nebula.image.load("
+					+ JSONUtils.enquote(src) + ", '"
+					+ Image.this.fillMode.toString().toLowerCase() + "');";
+			Future<Object> future = Image.this.run(script);
+			Image.this.waitUntilImageLoaded();
+			future.get();
+			if (callback != null) {
+				ExecUtils.asyncExec(() -> callback.run());
 			}
+			return null;
 		});
 	}
 
@@ -187,7 +179,7 @@ public class Image extends Browser {
 	 * <p>
 	 * The {@link org.eclipse.swt.graphics.Image} may directly be disposed after
 	 * having called this method.
-	 * 
+	 *
 	 * @param image
 	 * @param callback
 	 *            is called in the UI thread when the

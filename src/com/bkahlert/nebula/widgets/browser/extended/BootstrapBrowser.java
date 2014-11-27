@@ -20,7 +20,7 @@ public class BootstrapBrowser extends JQueryBrowser implements
 	/**
 	 * Calculates a Bootstrap button's border color based on its background
 	 * color.
-	 * 
+	 *
 	 * @param backgroundColor
 	 * @return
 	 */
@@ -31,7 +31,7 @@ public class BootstrapBrowser extends JQueryBrowser implements
 	/**
 	 * Calculates a Bootstrap button's hovered border color based on its
 	 * background color.
-	 * 
+	 *
 	 * @param backgroundColor
 	 * @return
 	 */
@@ -42,7 +42,7 @@ public class BootstrapBrowser extends JQueryBrowser implements
 	/**
 	 * Calculates a Bootstrap button's hovered background color based on its
 	 * background color.
-	 * 
+	 *
 	 * @param backgroundColor
 	 * @return
 	 */
@@ -137,7 +137,7 @@ public class BootstrapBrowser extends JQueryBrowser implements
 	@Override
 	public void setBackground(Color color) {
 		super.setBackground(color);
-		String hex = color != null ? new RGB(color.getRGB()).toHexString()
+		String hex = color != null ? new RGB(color.getRGB()).toDecString()
 				: "transparent";
 		try {
 			this.injectCssImmediately("body { background-color: " + hex

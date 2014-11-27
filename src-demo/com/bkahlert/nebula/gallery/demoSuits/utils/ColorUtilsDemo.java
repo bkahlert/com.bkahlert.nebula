@@ -15,7 +15,6 @@ import com.bkahlert.nebula.utils.FontUtils;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.ColorPicker;
-import com.bkahlert.nebula.widgets.ColorPicker.IModificationListener;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
 
 @Demo
@@ -56,7 +55,7 @@ public class ColorUtilsDemo extends AbstractDemo {
 				com.bkahlert.nebula.utils.colors.RGB color = ColorUtils
 						.scaleLightnessBy(rgb, lightnessFactor);
 				html.append("<td style=\"background-color: "
-						+ color.toHexString()
+						+ color.toDecString()
 						+ "; min-width: %{minwidth}; height: %{height};\"></td>");
 			}
 			html.append("</tr>");
@@ -68,7 +67,7 @@ public class ColorUtilsDemo extends AbstractDemo {
 				com.bkahlert.nebula.utils.colors.RGB color = ColorUtils
 						.scaleSaturationBy(rgb, saturationFactor);
 				html.append("<td style=\"background-color: "
-						+ color.toHexString()
+						+ color.toDecString()
 						+ "; min-width: %{minwidth}; height: %{height};\"></td>");
 			}
 			html.append("</tr>");
@@ -83,24 +82,16 @@ public class ColorUtilsDemo extends AbstractDemo {
 		mixer.setLayout(new FillLayout(SWT.VERTICAL));
 
 		this.colorPicker1 = new ColorPicker(mixer);
-		this.colorPicker1.addModificationListener(new IModificationListener() {
-			@Override
-			public void colorChanged(RGB rgb) {
-				ColorUtilsDemo.this.updateColorPicker();
-			}
-		});
+		this.colorPicker1.addModificationListener(rgb -> ColorUtilsDemo.this
+				.updateColorPicker());
 
 		Label plus = new Label(mixer, SWT.CENTER);
 		plus.setText("+");
 		FontUtils.changeFontSizeBy(plus, 100);
 
 		this.colorPicker2 = new ColorPicker(mixer);
-		this.colorPicker2.addModificationListener(new IModificationListener() {
-			@Override
-			public void colorChanged(RGB rgb) {
-				ColorUtilsDemo.this.updateColorPicker();
-			}
-		});
+		this.colorPicker2.addModificationListener(rgb -> ColorUtilsDemo.this
+				.updateColorPicker());
 
 		Label equals = new Label(mixer, SWT.CENTER);
 		equals.setText("=");

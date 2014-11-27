@@ -203,13 +203,13 @@ public class TimelineAndComposerAndEditorDemo extends AbstractDemo {
 				&& !this.composerReadOnly.isDisposed()) {
 			this.composerReadOnly.setSource(this.composerReadOnly.getSource()
 					+ "<span style=\"font-weight:700;color:"
-					+ ColorUtils.getRandomRGB().toHexString() + ";\">" + html
+					+ ColorUtils.getRandomRGB().toDecString() + ";\">" + html
 					+ "</span><br/>");
 		}
 
 		if (this.editor != null && !this.editor.isDisposed()) {
 			this.editor.load("<span style=\"font-style:italic;color:"
-					+ ColorUtils.getRandomRGB().toHexString() + ";\">" + html
+					+ ColorUtils.getRandomRGB().toDecString() + ";\">" + html
 					+ "</span><br/>");
 		}
 	}

@@ -137,13 +137,13 @@ public class HLS {
 		final int prime = 31;
 		int result = 1;
 		long temp;
-		temp = Double.doubleToLongBits(alpha);
+		temp = Double.doubleToLongBits(this.alpha);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(hue);
+		temp = Double.doubleToLongBits(this.hue);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(lightness);
+		temp = Double.doubleToLongBits(this.lightness);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(saturation);
+		temp = Double.doubleToLongBits(this.saturation);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
@@ -156,22 +156,23 @@ public class HLS {
 		if (obj == null) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
 		HLS other = (HLS) obj;
-		if (Double.doubleToLongBits(alpha) != Double
+		if (Double.doubleToLongBits(this.alpha) != Double
 				.doubleToLongBits(other.alpha)) {
 			return false;
 		}
-		if (Double.doubleToLongBits(hue) != Double.doubleToLongBits(other.hue)) {
+		if (Double.doubleToLongBits(this.hue) != Double
+				.doubleToLongBits(other.hue)) {
 			return false;
 		}
-		if (Double.doubleToLongBits(lightness) != Double
+		if (Double.doubleToLongBits(this.lightness) != Double
 				.doubleToLongBits(other.lightness)) {
 			return false;
 		}
-		if (Double.doubleToLongBits(saturation) != Double
+		if (Double.doubleToLongBits(this.saturation) != Double
 				.doubleToLongBits(other.saturation)) {
 			return false;
 		}
@@ -188,6 +189,6 @@ public class HLS {
 	@Override
 	public String toString() {
 		RGB rgb = ColorSpaceConverter.HLStoRGB(this);
-		return this.getDecString() + ", (" + rgb.toHexString() + ")";
+		return this.getDecString() + ", (" + rgb.toDecString() + ")";
 	}
 }
