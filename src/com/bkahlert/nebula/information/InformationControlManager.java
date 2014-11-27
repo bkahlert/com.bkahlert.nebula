@@ -8,7 +8,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
 import com.bkahlert.nebula.InformationManagerSourceProvider;
@@ -31,25 +30,22 @@ public class InformationControlManager<CONTROL extends Control, INFORMATION>
 
 	private static Listener f2Filter = null;
 
+	@SuppressWarnings("restriction")
 	private static void activateF2Filter() {
 		if (f2Filter != null) {
 			return;
 		}
-		f2Filter = new Listener() {
-			@SuppressWarnings("restriction")
-			@Override
-			public void handleEvent(Event event) {
-				if (event.keyCode != SWT.F2) {
-					return;
-				}
-				try {
-					InformationControlManagerUtils.getCurrentManager()
-							.getInternalAccessor()
-							.replaceInformationControl(false);
-				} catch (Exception e) {
-					LOGGER.error("Error while enhancing "
-							+ InformationControl.class.getSimpleName());
-				}
+		f2Filter = event -> {
+			if (event.keyCode != SWT.F2) {
+				return;
+			}
+			try {
+				InformationControlManagerUtils.getCurrentManager()
+						.getInternalAccessor().replaceInformationControl(false);
+			} catch (NullPointerException e1) {
+			} catch (Exception e2) {
+				LOGGER.error("Error while enhancing "
+						+ InformationControl.class.getSimpleName());
 			}
 		};
 		Display.getCurrent().addFilter(SWT.KeyDown, f2Filter);

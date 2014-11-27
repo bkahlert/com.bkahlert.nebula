@@ -15,8 +15,8 @@ import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
-import com.bkahlert.nebula.widgets.composer.ComposerReadOnly;
 import com.bkahlert.nebula.widgets.composer.Composer.ToolbarSet;
+import com.bkahlert.nebula.widgets.composer.ComposerReadOnly;
 import com.bkahlert.nebula.widgets.editor.Editor;
 import com.bkahlert.nebula.widgets.timeline.ITimelineListener;
 import com.bkahlert.nebula.widgets.timeline.impl.Options;
@@ -175,6 +175,12 @@ public class TimelineAndComposerAndEditorDemo extends AbstractDemo {
 
 		this.editor = new Editor<String>(composite, SWT.NONE, 1000,
 				ToolbarSet.DEFAULT) {
+			@Override
+			public String getTitle(String objectToLoad, IProgressMonitor monitor)
+					throws Exception {
+				return objectToLoad;
+			}
+
 			@Override
 			public void setHtml(String loadedObject, String html,
 					IProgressMonitor monitor) throws Exception {

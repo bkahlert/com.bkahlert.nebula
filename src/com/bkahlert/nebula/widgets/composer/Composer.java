@@ -11,8 +11,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.BrowserFunction;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -113,18 +111,14 @@ public class Composer extends Browser implements IModifiable {
 					if (e.keyCode == 120) {
 						// x - cut
 						// wait for the ui thread to apply the operation
-						ExecUtils.asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								try {
-									Composer.this.modifiedCallback(
-											Composer.this.getSource().get(),
-											false);
-								} catch (Exception e) {
-									LOGGER.error(
-											"Error reporting content modification",
-											e);
-								}
+						ExecUtils.asyncExec(() -> {
+							try {
+								Composer.this.modifiedCallback(Composer.this
+										.getSource().get(), false);
+							} catch (Exception e1) {
+								LOGGER.error(
+										"Error reporting content modification",
+										e1);
 							}
 						});
 					}
@@ -135,18 +129,14 @@ public class Composer extends Browser implements IModifiable {
 					if (e.keyCode == 118) {
 						// v - paste
 						// wait for the ui thread to apply the operation
-						ExecUtils.asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								try {
-									Composer.this.modifiedCallback(
-											Composer.this.getSource().get(),
-											false);
-								} catch (Exception e) {
-									LOGGER.error(
-											"Error reporting content modification",
-											e);
-								}
+						ExecUtils.asyncExec(() -> {
+							try {
+								Composer.this.modifiedCallback(Composer.this
+										.getSource().get(), false);
+							} catch (Exception e1) {
+								LOGGER.error(
+										"Error reporting content modification",
+										e1);
 							}
 						});
 					}
@@ -170,20 +160,19 @@ public class Composer extends Browser implements IModifiable {
 			}
 		};
 
-		this.getBrowser().addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				if (!Composer.this.isLoadingCompleted()) {
-					return;
-				}
-				try {
-					Composer.this.modifiedCallback(Composer.this.getSource()
-							.get(), true);
-				} catch (Exception e1) {
-					LOGGER.error("Error reporting last composer contents", e1);
-				}
-			}
-		});
+		this.getBrowser().addDisposeListener(
+				e -> {
+					if (!Composer.this.isLoadingCompleted()) {
+						return;
+					}
+					try {
+						Composer.this.modifiedCallback(Composer.this
+								.getSource().get(), true);
+					} catch (Exception e1) {
+						LOGGER.error("Error reporting last composer contents",
+								e1);
+					}
+				});
 	}
 
 	protected void modifiedCallback(String html, boolean immediately) {
@@ -293,6 +282,11 @@ public class Composer extends Browser implements IModifiable {
 
 	public void selectAll() {
 		this.run("com.bkahlert.nebula.editor.selectAll();");
+	}
+
+	public Future<Void> setTitle(String title) {
+		return this.run("return com.bkahlert.nebula.editor.setTitle("
+				+ JSONUtils.enquote(title) + ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<Boolean> setSource(String html) {

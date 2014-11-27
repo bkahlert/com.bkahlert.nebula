@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -16,8 +14,6 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.graphics.Color;
@@ -42,12 +38,12 @@ import com.bkahlert.nebula.widgets.composer.IAnkerLabelProvider;
  * <p>
  * If multiple {@link Editor}s loaded the same information, only the one in
  * focus saved its changed whereas the other reflect them.
- * 
+ *
  * @param <T>
  *            type of the objects that can be loaded in this {@link Editor}
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public abstract class Editor<T> extends Composite {
 
@@ -69,7 +65,7 @@ public abstract class Editor<T> extends Composite {
 	protected Composer composer = null;
 
 	/**
-	 * 
+	 *
 	 * @param parent
 	 * @param style
 	 * @param delayChangeEventUpTo
@@ -92,18 +88,16 @@ public abstract class Editor<T> extends Composite {
 				lastFocussedEditor.put(Editor.this.loadedObject, Editor.this);
 			}
 		});
-		this.composer.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				try {
-					Editor.this.save();
-				} catch (Exception e1) {
-					LOGGER.error(
-							"Error saving content of " + Editor.this.getClass(),
-							e1);
-				}
-			}
-		});
+		this.composer
+				.addDisposeListener(e -> {
+					try {
+						Editor.this.save();
+					} catch (Exception e1) {
+						LOGGER.error(
+								"Error saving content of "
+										+ Editor.this.getClass(), e1);
+					}
+				});
 	}
 
 	public ToolbarSet getToolbarSet() {
@@ -152,7 +146,7 @@ public abstract class Editor<T> extends Composite {
 	}
 
 	/**
-	 * 
+	 *
 	 * @see com.bkahlert.nebula.widgets.composer.Composer#showSource()
 	 */
 	public void showSource() {
@@ -160,7 +154,7 @@ public abstract class Editor<T> extends Composite {
 	}
 
 	/**
-	 * 
+	 *
 	 * @see com.bkahlert.nebula.widgets.composer.Composer#hideSource()
 	 */
 	public void hideSource() {
@@ -195,9 +189,9 @@ public abstract class Editor<T> extends Composite {
 	 * <p>
 	 * May safely be called multiple times. If this {@link Editor} is still
 	 * loading the current load job is cancelled.
-	 * 
+	 *
 	 * @ArbitraryThread may be called from whatever thread you like.
-	 * 
+	 *
 	 * @param objectToLoad
 	 * @return the {@link Job} used to load the object; null if no object to be
 	 *         loaded.
@@ -221,12 +215,10 @@ public abstract class Editor<T> extends Composite {
 		if (objectToLoad == null) {
 			// refreshHeader();
 			this.loadedObject = null;
-			ExecUtils.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					Editor.this.composer.setSource("");
-					Editor.this.composer.setEnabled(false);
-				}
+			ExecUtils.asyncExec(() -> {
+				Editor.this.composer.setTitle(null);
+				Editor.this.composer.setSource("");
+				Editor.this.composer.setEnabled(false);
 			});
 			return null;
 		} else {
@@ -238,16 +230,19 @@ public abstract class Editor<T> extends Composite {
 						Editor.this.loadedObject = null;
 						return Status.CANCEL_STATUS;
 					}
-					SubMonitor monitor = SubMonitor.convert(progressMonitor, 3);
-					final AtomicReference<String> html = new AtomicReference<String>();
+					SubMonitor monitor = SubMonitor.convert(progressMonitor, 4);
 					try {
-						html.set(Editor.this.getHtml(objectToLoad,
-								monitor.newChild(1)));
+						String title = Editor.this.getTitle(objectToLoad,
+								monitor.newChild(1));
+						String html = Editor.this.getHtml(objectToLoad,
+								monitor.newChild(1));
 
 						// refreshHeader();
 						monitor.worked(1);
+						ExecUtils.logException(Editor.this.composer
+								.setTitle(title));
 						Future<Boolean> success = Editor.this.composer
-								.setSource(html.get());
+								.setSource(html);
 						if (!success.get()) {
 							throw new Exception(
 									"Could not set source's content");
@@ -262,12 +257,8 @@ public abstract class Editor<T> extends Composite {
 						responsibleEditors.get(objectToLoad).add(
 								(Editor<Object>) Editor.this);
 
-						ExecUtils.syncExec(new Runnable() {
-							@Override
-							public void run() {
-								Editor.this.composer.setEnabled(true);
-							}
-						});
+						ExecUtils.syncExec(() -> Editor.this.composer
+								.setEnabled(true));
 					} catch (Exception e) {
 						boolean log = true;
 						if (e.getCause() != null
@@ -296,9 +287,9 @@ public abstract class Editor<T> extends Composite {
 
 	/**
 	 * Saves the current content of the {@link Editor} to the loaded object.
-	 * 
+	 *
 	 * @ArbitraryThread may be called from whatever thread you like.
-	 * 
+	 *
 	 * @return the {@link Job} used to save the object.
 	 * @throws Exception
 	 */
@@ -306,12 +297,8 @@ public abstract class Editor<T> extends Composite {
 		if (!this.composer.isLoadingCompleted()) {
 			return null;
 		}
-		String html = ExecUtils.syncExec(new Callable<String>() {
-			@Override
-			public String call() throws Exception {
-				return Editor.this.composer.getSource().get();
-			}
-		});
+		String html = ExecUtils.syncExec(() -> Editor.this.composer.getSource()
+				.get());
 		return this.save(html);
 	}
 
@@ -321,9 +308,9 @@ public abstract class Editor<T> extends Composite {
 	 * In contrast to {@link #save()} this method does not use the
 	 * {@link Editor}'s content and thus also works if this widget is being
 	 * disposed.
-	 * 
+	 *
 	 * @ArbitraryThread may be called from whatever thread you like.
-	 * 
+	 *
 	 * @param html
 	 * @return the {@link Job} used to save the object.
 	 */
@@ -379,7 +366,17 @@ public abstract class Editor<T> extends Composite {
 
 	/**
 	 * Returns the html for the given object.
-	 * 
+	 *
+	 * @param objectToLoad
+	 * @param monitor
+	 * @return
+	 */
+	public abstract String getTitle(T objectToLoad, IProgressMonitor monitor)
+			throws Exception;
+
+	/**
+	 * Returns the html for the given object.
+	 *
 	 * @param objectToLoad
 	 * @param monitor
 	 * @return
@@ -389,7 +386,7 @@ public abstract class Editor<T> extends Composite {
 
 	/**
 	 * Sets the given html to the loaded object.
-	 * 
+	 *
 	 * @param loadedObject
 	 * @param html
 	 * @param monitor

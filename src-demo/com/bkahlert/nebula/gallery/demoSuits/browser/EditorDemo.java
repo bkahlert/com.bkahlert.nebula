@@ -20,7 +20,6 @@ import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.information.EnhanceableInformationControl;
 import com.bkahlert.nebula.information.EnhanceableInformationControl.Delegate;
-import com.bkahlert.nebula.information.EnhanceableInformationControl.DelegateFactory;
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.information.InformationControl;
 import com.bkahlert.nebula.information.InformationControlCreator;
@@ -45,6 +44,13 @@ public class EditorDemo extends AbstractDemo {
 
 		this.editor = new AutosaveEditor<String>(composite, SWT.NONE, 5000,
 				ToolbarSet.DEFAULT) {
+
+			@Override
+			public String getTitle(String objectToLoad, IProgressMonitor monitor)
+					throws Exception {
+				return objectToLoad;
+			}
+
 			@Override
 			public String getHtml(String objectToLoad, IProgressMonitor monitor) {
 				return objectToLoad;
@@ -95,46 +101,38 @@ public class EditorDemo extends AbstractDemo {
 						return new EnhanceableInformationControl<IAnker, Delegate<IAnker>>(
 								EditorDemo.class.getClassLoader(),
 								IAnker.class, parent,
-								new DelegateFactory<Delegate<IAnker>>() {
+								() -> new Delegate<IAnker>() {
+									private Label label;
+
 									@Override
-									public Delegate<IAnker> create() {
-										return new Delegate<IAnker>() {
-											private Label label;
+									public Composite build(Composite parent) {
+										this.label = new Label(parent,
+												SWT.BORDER);
+										return parent;
+									}
 
-											@Override
-											public Composite build(
-													Composite parent) {
-												this.label = new Label(parent,
-														SWT.BORDER);
-												return parent;
-											}
+									@Override
+									public boolean load(IAnker anker,
+											ToolBarManager toolBarManager) {
+										if (anker == null) {
+											return false;
+										}
 
-											@Override
-											public boolean load(
-													IAnker anker,
-													ToolBarManager toolBarManager) {
-												if (anker == null) {
-													return false;
-												}
+										AbstractDemo.log(this.label.hashCode()
+												+ "");
 
-												AbstractDemo.log(this.label
-														.hashCode() + "");
-
-												if (toolBarManager != null) {
-													toolBarManager
-															.add(new AboutAction(
-																	PlatformUI
-																			.getWorkbench()
-																			.getActiveWorkbenchWindow()));
-												}
-												String content = toolBarManager != null ? anker
-														.toHtml() : anker
-														.getContent();
-												AbstractDemo.log(content);
-												this.label.setText(content);
-												return true;
-											}
-										};
+										if (toolBarManager != null) {
+											toolBarManager
+													.add(new AboutAction(
+															PlatformUI
+																	.getWorkbench()
+																	.getActiveWorkbenchWindow()));
+										}
+										String content = toolBarManager != null ? anker
+												.toHtml() : anker.getContent();
+										AbstractDemo.log(content);
+										this.label.setText(content);
+										return true;
 									}
 								});
 					}

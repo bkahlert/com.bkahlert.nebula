@@ -17,12 +17,12 @@ import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.information.EnhanceableInformationControl;
 import com.bkahlert.nebula.information.EnhanceableInformationControl.Delegate;
-import com.bkahlert.nebula.information.EnhanceableInformationControl.DelegateFactory;
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.information.InformationControl;
 import com.bkahlert.nebula.information.InformationControlCreator;
 import com.bkahlert.nebula.information.InformationControlManager;
 import com.bkahlert.nebula.information.extender.EditorInformationControlExtender;
+import com.bkahlert.nebula.utils.StringUtils;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
 import com.bkahlert.nebula.widgets.SimpleRoundedComposite;
 
@@ -44,6 +44,13 @@ public class InformationControlExtenderDemo extends AbstractDemo {
 		@Override
 		public Class<InformationControlDemoInput> getInformationClass() {
 			return InformationControlDemoInput.class;
+		}
+
+		@Override
+		public String getTitle(InformationControlDemoInput objectToLoad,
+				IProgressMonitor monitor) {
+			log("Getting title " + objectToLoad);
+			return StringUtils.htmlToPlain(objectToLoad.toString());
 		}
 
 		@Override
@@ -93,47 +100,37 @@ public class InformationControlExtenderDemo extends AbstractDemo {
 					Shell parent) {
 				return new EnhanceableInformationControl<InformationControlDemoInput, Delegate<InformationControlDemoInput>>(
 						InformationControlExtender.class.getClassLoader(),
-						InformationControlDemoInput.class,
-						parent,
-						new DelegateFactory<Delegate<InformationControlDemoInput>>() {
+						InformationControlDemoInput.class, parent,
+						() -> new Delegate<InformationControlDemoInput>() {
+							private Label label;
+
 							@Override
-							public Delegate<InformationControlDemoInput> create() {
-								return new Delegate<InformationControlDemoInput>() {
-									private Label label;
+							public Composite build(Composite parent) {
+								parent.setLayout(GridLayoutFactory
+										.fillDefaults().create());
+								this.label = new Label(parent, SWT.BORDER);
+								this.label.setLayoutData(GridDataFactory
+										.fillDefaults().grab(true, false)
+										.create());
+								return parent;
+							}
 
-									@Override
-									public Composite build(Composite parent) {
-										parent.setLayout(GridLayoutFactory
-												.fillDefaults().create());
-										this.label = new Label(parent,
-												SWT.BORDER);
-										this.label
-												.setLayoutData(GridDataFactory
-														.fillDefaults()
-														.grab(true, false)
-														.create());
-										return parent;
-									}
+							@Override
+							public boolean load(
+									InformationControlDemoInput input,
+									ToolBarManager toolBarManager) {
+								if (input == null) {
+									return false;
+								}
 
-									@Override
-									public boolean load(
-											InformationControlDemoInput input,
-											ToolBarManager toolBarManager) {
-										if (input == null) {
-											return false;
-										}
-
-										if (toolBarManager != null) {
-											toolBarManager
-													.add(new AboutAction(
-															PlatformUI
-																	.getWorkbench()
-																	.getActiveWorkbenchWindow()));
-										}
-										this.label.setText(input.toString());
-										return true;
-									}
-								};
+								if (toolBarManager != null) {
+									toolBarManager
+											.add(new AboutAction(PlatformUI
+													.getWorkbench()
+													.getActiveWorkbenchWindow()));
+								}
+								this.label.setText(input.toString());
+								return true;
 							}
 						});
 			}
@@ -142,12 +139,12 @@ public class InformationControlExtenderDemo extends AbstractDemo {
 		ISubjectInformationProvider<Composite, InformationControlDemoInput> provider = new ISubjectInformationProvider<Composite, InformationControlExtenderDemo.InformationControlDemoInput>() {
 			@Override
 			public void register(Composite subject) {
-				InformationControlExtenderDemo.log("registered");
+				AbstractDemo.log("registered");
 			}
 
 			@Override
 			public void unregister(Composite subject) {
-				InformationControlExtenderDemo.log("unregistered");
+				AbstractDemo.log("unregistered");
 			}
 
 			@Override

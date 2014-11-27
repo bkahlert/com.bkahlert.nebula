@@ -23,16 +23,21 @@ public class MultipleEditorsDemo extends AbstractDemo {
 		return new AutosaveEditor<Object>(composite, SWT.NONE, 500,
 				ToolbarSet.TERMINAL) {
 			@Override
+			public String getTitle(Object objectToLoad, IProgressMonitor monitor)
+					throws Exception {
+				return objectToLoad.toString();
+			}
+
+			@Override
 			public String getHtml(Object objectToLoad, IProgressMonitor monitor) {
-				MultipleEditorsDemo.log("Editor #" + i + " loaded: "
-						+ objectToLoad);
+				AbstractDemo.log("Editor #" + i + " loaded: " + objectToLoad);
 				return objectToLoad.toString();
 			}
 
 			@Override
 			public void setHtml(Object objectToLoad, String html,
 					IProgressMonitor monitor) {
-				MultipleEditorsDemo.log("Editor #" + i + " saved: " + html);
+				AbstractDemo.log("Editor #" + i + " saved: " + html);
 			}
 		};
 	}

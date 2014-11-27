@@ -21,9 +21,9 @@ import com.bkahlert.nebula.widgets.editor.Editor;
 /**
  * Instances of this class extends a {@link InformationControl} by a
  * {@link Editor}.
- * 
+ *
  * @author bkahlert
- * 
+ *
  * @param <INFORMATION>
  */
 public abstract class EditorInformationControlExtender<INFORMATION> implements
@@ -39,7 +39,7 @@ public abstract class EditorInformationControlExtender<INFORMATION> implements
 
 	/**
 	 * Creates a new instance.
-	 * 
+	 *
 	 * @param layoutData
 	 *            to be used for the {@link Editor}.
 	 */
@@ -60,6 +60,13 @@ public abstract class EditorInformationControlExtender<INFORMATION> implements
 		} else {
 			final Editor<INFORMATION> editor = new Editor<INFORMATION>(parent,
 					SWT.NONE, 50, ToolbarSet.DEFAULT) {
+				@Override
+				public String getTitle(INFORMATION objectToLoad,
+						IProgressMonitor monitor) throws Exception {
+					return EditorInformationControlExtender.this.getTitle(
+							objectToLoad, monitor);
+				}
+
 				@Override
 				public String getHtml(INFORMATION objectToLoad,
 						IProgressMonitor monitor) {
@@ -107,8 +114,18 @@ public abstract class EditorInformationControlExtender<INFORMATION> implements
 	}
 
 	/**
+	 * Returns the title for the given object.
+	 *
+	 * @param objectToLoad
+	 * @param monitor
+	 * @return
+	 */
+	public abstract String getTitle(INFORMATION objectToLoad,
+			IProgressMonitor monitor);
+
+	/**
 	 * Returns the html for the given object.
-	 * 
+	 *
 	 * @param objectToLoad
 	 * @param monitor
 	 * @return
@@ -118,7 +135,7 @@ public abstract class EditorInformationControlExtender<INFORMATION> implements
 
 	/**
 	 * Sets the given html to the loaded object.
-	 * 
+	 *
 	 * @param loadedObject
 	 * @param html
 	 * @param monitor

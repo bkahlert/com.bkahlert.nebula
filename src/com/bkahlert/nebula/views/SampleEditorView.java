@@ -5,7 +5,6 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.bkahlert.nebula.utils.ExecUtils;
-import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.widgets.composer.Composer.ToolbarSet;
 import com.bkahlert.nebula.widgets.editor.Editor;
@@ -13,15 +12,8 @@ import com.bkahlert.nebula.widgets.editor.Editor;
 public class SampleEditorView extends EditorView<String> {
 
 	public SampleEditorView() {
-		super(
-				new IConverter<String, Pair<String, org.eclipse.swt.graphics.Image>>() {
-					@Override
-					public Pair<String, org.eclipse.swt.graphics.Image> convert(
-							String returnValue) {
-						return new Pair<String, org.eclipse.swt.graphics.Image>(
-								returnValue, null);
-					}
-				}, 500, ToolbarSet.DEFAULT, true);
+		super(returnValue -> new Pair<String, org.eclipse.swt.graphics.Image>(
+				returnValue, null), 500, ToolbarSet.DEFAULT, true);
 	}
 
 	@Override
@@ -61,17 +53,20 @@ public class SampleEditorView extends EditorView<String> {
 		// }
 		// }, 12000);
 
-		ExecUtils.asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					SampleEditorView.this.load(null, "Input #1", "Input #2");
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		ExecUtils.asyncExec(() -> {
+			try {
+				SampleEditorView.this.load(null, "Input #1", "Input #2");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}, 1000);
+	}
+
+	@Override
+	public String getTitle(String objectToLoad, IProgressMonitor monitor)
+			throws Exception {
+		return objectToLoad;
 	}
 
 	@Override

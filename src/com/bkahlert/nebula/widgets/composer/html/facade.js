@@ -21,6 +21,13 @@ com.bkahlert.nebula.editor = com.bkahlert.nebula.editor || {};
 		    startupFocus: false,
         	readOnly: false
         },
+        
+        setTitle : function(name) {
+        	var c = $(CKEDITOR.instances.editor1.container.$).find('.cke_bottom');
+        	c.find('.title').remove();
+        	$('<div class="title" style="position: absolute; left: 1em; right: 1em; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ">' + name + '</div>')
+        		.appendTo(c);
+        },
 
         onready : function(e) {
                         
@@ -30,7 +37,7 @@ com.bkahlert.nebula.editor = com.bkahlert.nebula.editor || {};
             $(window).resize();
 
             com.bkahlert.nebula.editor.setEnabled(!com.bkahlert.nebula.editor.config.readOnly);
-
+ 
             function turnOffTitle(editor) {
                 var editable = editor.editable();
                 if (editable && editable.isInline()) {
@@ -192,6 +199,8 @@ com.bkahlert.nebula.editor = com.bkahlert.nebula.editor || {};
             window["mouseleave"] = function(html) {
                 console.log("leave " + html);
             }
+            
+            com.bkahlert.nebula.editor.setTitle("I'm a <b>demo</b>");
         }
     });
 })(jQuery);

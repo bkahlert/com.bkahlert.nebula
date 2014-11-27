@@ -3,7 +3,6 @@ package com.bkahlert.nebula.views;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
@@ -11,8 +10,6 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.jface.action.IMenuListener;
-import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
@@ -88,13 +85,8 @@ public abstract class EditorView<T> extends ViewPart {
 
 		MenuManager menuManager = new MenuManager("#PopupMenu");
 		menuManager.setRemoveAllWhenShown(true);
-		menuManager.addMenuListener(new IMenuListener() {
-			@Override
-			public void menuAboutToShow(IMenuManager manager) {
-				manager.add(new Separator(
-						IWorkbenchActionConstants.MB_ADDITIONS));
-			}
-		});
+		menuManager.addMenuListener(manager -> manager.add(new Separator(
+				IWorkbenchActionConstants.MB_ADDITIONS)));
 
 		this.postInit();
 	}
@@ -115,12 +107,9 @@ public abstract class EditorView<T> extends ViewPart {
 	public final void load(final Runnable callback, final T... objectsToLoad) {
 
 		try {
-			ExecUtils.syncExec(new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
-					EditorView.this.createEditors(objectsToLoad.length);
-					return null;
-				}
+			ExecUtils.syncExec(() -> {
+				EditorView.this.createEditors(objectsToLoad.length);
+				return null;
 			});
 		} catch (Exception e) {
 			LOGGER.error("Error creating editors", e);
@@ -191,6 +180,12 @@ public abstract class EditorView<T> extends ViewPart {
 				editor = new AutosaveEditor<T>(this.parent, style,
 						this.delayChangeEventUpTo, toolbarSet) {
 					@Override
+					public String getTitle(T loadedObject,
+							IProgressMonitor monitor) throws Exception {
+						return EditorView.this.getTitle(loadedObject, monitor);
+					}
+
+					@Override
 					public String getHtml(T loadedObject,
 							IProgressMonitor monitor) throws Exception {
 						return EditorView.this.getHtml(loadedObject, monitor);
@@ -205,6 +200,12 @@ public abstract class EditorView<T> extends ViewPart {
 			} else {
 				editor = new Editor<T>(this.parent, style,
 						this.delayChangeEventUpTo, toolbarSet) {
+					@Override
+					public String getTitle(T loadedObject,
+							IProgressMonitor monitor) throws Exception {
+						return EditorView.this.getTitle(loadedObject, monitor);
+					}
+
 					@Override
 					public String getHtml(T loadedObject,
 							IProgressMonitor monitor) throws Exception {
@@ -258,6 +259,17 @@ public abstract class EditorView<T> extends ViewPart {
 		}
 		return loadedObjects;
 	}
+
+	/**
+	 * Returns the title for the given object.
+	 *
+	 * @param objectToLoad
+	 * @param monitor
+	 * @return
+	 * @throws Exception
+	 */
+	public abstract String getTitle(T objectToLoad, IProgressMonitor monitor)
+			throws Exception;
 
 	/**
 	 * Returns the html for the given object.

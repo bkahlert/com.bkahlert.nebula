@@ -1,8 +1,6 @@
 package com.bkahlert.nebula.gallery.demoSuits.browser;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
@@ -27,6 +25,7 @@ public class ComposerDemo extends AbstractDemo {
 	public void createDemo(Composite composite) {
 		this.composer = new Composer(composite, SWT.BORDER);
 		this.composer.setSource("Hello <b>CKEditor</b>!");
+		this.composer.setTitle("Hello CKEditor!");
 		this.composer.addAnkerLabelProvider(new IAnkerLabelProvider() {
 			@Override
 			public boolean isResponsible(IAnker anker) {
@@ -53,12 +52,12 @@ public class ComposerDemo extends AbstractDemo {
 
 			@Override
 			public void ankerClicked(IAnker anker) {
-				ComposerDemo.log("clicked on " + anker.getHref());
+				AbstractDemo.log("clicked on " + anker.getHref());
 			}
 
 			@Override
 			public void ankerHovered(final IAnker anker, boolean entered) {
-				ComposerDemo.log((entered ? "entered " : "left") + ": "
+				AbstractDemo.log((entered ? "entered " : "left") + ": "
 						+ anker.getHref());
 				if (this.popup != null) {
 					this.popup.close();
@@ -77,12 +76,8 @@ public class ComposerDemo extends AbstractDemo {
 				}
 			}
 		});
-		this.composer.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				ComposerDemo.log("changed: " + e.data);
-			}
-		});
+		this.composer.addModifyListener(e -> AbstractDemo.log("changed: "
+				+ e.data));
 	}
 
 	@Override
@@ -110,7 +105,7 @@ public class ComposerDemo extends AbstractDemo {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
-					ComposerDemo.log(ComposerDemo.this.composer.getSource()
+					AbstractDemo.log(ComposerDemo.this.composer.getSource()
 							.get());
 				} catch (Exception ex) {
 					log(ex);
