@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.util.Policy;
@@ -26,7 +25,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
@@ -50,7 +48,7 @@ import com.bkahlert.nebula.utils.DistributionUtils.Width;
  * want to refresh the whole viewer but manually remove the element from the
  * viewer in order to reflect the model. If your viewer supports this action the
  * element is removed. Otherwise the viewer is advised to reload the model.
- * 
+ *
  * @author bkahlert
  */
 public class ViewerUtils {
@@ -60,12 +58,8 @@ public class ViewerUtils {
 
 		private final Map<Integer, Width> numbers = new HashMap<Integer, Width>();
 
-		private final Listener resizeListener = new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				FullWidthResizer.this.resize();
-			}
-		};
+		private final Listener resizeListener = event -> FullWidthResizer.this
+				.resize();
 
 		public FullWidthResizer(ColumnViewer columnViewer) {
 			this.columnViewer = columnViewer;
@@ -131,31 +125,28 @@ public class ViewerUtils {
 
 	/**
 	 * Sets a viewer's input and makes sure it runs in the SWT thread
-	 * 
+	 *
 	 * @param viewer
 	 * @param input
-	 * 
+	 *
 	 * @see Viewer#setInput(Object)
 	 */
 	public static void setInput(final Viewer viewer, final Object input) {
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed()) {
-					return;
-				}
-
-				viewer.setInput(input);
+		Display.getDefault().syncExec(() -> {
+			if (viewer == null || viewer.getControl().isDisposed()) {
+				return;
 			}
+
+			viewer.setInput(input);
 		});
 	}
 
 	/**
 	 * Gets a viewer's input
-	 * 
+	 *
 	 * @param viewer
 	 * @return
-	 * 
+	 *
 	 * @see StructuredViewer#setInput(Object)
 	 */
 	public static Object getInput(final Viewer viewer) {
@@ -169,28 +160,25 @@ public class ViewerUtils {
 	 * Add the a new element to a given element in a viewer and makes sure it
 	 * runs in the SWT thread. Runs a refresh in case the viewer does not
 	 * support additions.
-	 * 
+	 *
 	 * @param viewer
 	 * @param parentElementOrTreePath
 	 * @param childElement
-	 * 
+	 *
 	 * @see StructuredViewer#refresh(boolean)
 	 */
 	public static void add(final Viewer viewer,
 			final Object parentElementOrTreePath, final Object childElement) {
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed()) {
-					return;
-				}
+		Display.getDefault().syncExec(() -> {
+			if (viewer == null || viewer.getControl().isDisposed()) {
+				return;
+			}
 
-				if (viewer instanceof AbstractTreeViewer) {
-					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
-					treeViewer.add(parentElementOrTreePath, childElement);
-				} else {
-					viewer.refresh();
-				}
+			if (viewer instanceof AbstractTreeViewer) {
+				AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
+				treeViewer.add(parentElementOrTreePath, childElement);
+			} else {
+				viewer.refresh();
 			}
 		});
 	}
@@ -199,28 +187,25 @@ public class ViewerUtils {
 	 * Add the new elements to a given element in a viewer and makes sure it
 	 * runs in the SWT thread. Runs a refresh in case the viewer does not
 	 * support additions.
-	 * 
+	 *
 	 * @param viewer
 	 * @param parentElementOrTreePath
 	 * @param childElements
-	 * 
+	 *
 	 * @see StructuredViewer#refresh(boolean)
 	 */
 	public static void add(final Viewer viewer,
 			final Object parentElementOrTreePath, final Object[] childElements) {
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed()) {
-					return;
-				}
+		Display.getDefault().syncExec(() -> {
+			if (viewer == null || viewer.getControl().isDisposed()) {
+				return;
+			}
 
-				if (viewer instanceof AbstractTreeViewer) {
-					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
-					treeViewer.add(parentElementOrTreePath, childElements);
-				} else {
-					viewer.refresh();
-				}
+			if (viewer instanceof AbstractTreeViewer) {
+				AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
+				treeViewer.add(parentElementOrTreePath, childElements);
+			} else {
+				viewer.refresh();
 			}
 		});
 	}
@@ -228,27 +213,24 @@ public class ViewerUtils {
 	/**
 	 * Removes an existing element from a viewer and makes sure it runs in the
 	 * SWT thread. Runs a refresh in case the viewer does not support removals.
-	 * 
+	 *
 	 * @param viewer
 	 * @param elementsOrTreePaths
-	 * 
+	 *
 	 * @see StructuredViewer#refresh(boolean)
 	 */
 	public static void remove(final Viewer viewer,
 			final Object elementsOrTreePaths) {
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed()) {
-					return;
-				}
+		Display.getDefault().syncExec(() -> {
+			if (viewer == null || viewer.getControl().isDisposed()) {
+				return;
+			}
 
-				if (viewer instanceof AbstractTreeViewer) {
-					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
-					treeViewer.remove(elementsOrTreePaths);
-				} else {
-					viewer.refresh();
-				}
+			if (viewer instanceof AbstractTreeViewer) {
+				AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
+				treeViewer.remove(elementsOrTreePaths);
+			} else {
+				viewer.refresh();
 			}
 		});
 	}
@@ -256,27 +238,24 @@ public class ViewerUtils {
 	/**
 	 * Removes existing elements from a viewer and makes sure it runs in the SWT
 	 * thread. Runs a refresh in case the viewer does not support removals.
-	 * 
+	 *
 	 * @param viewer
 	 * @param elementsOrTreePaths
-	 * 
+	 *
 	 * @see StructuredViewer#refresh(boolean)
 	 */
 	public static void remove(final Viewer viewer,
 			final Object[] elementsOrTreePaths) {
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed()) {
-					return;
-				}
+		Display.getDefault().syncExec(() -> {
+			if (viewer == null || viewer.getControl().isDisposed()) {
+				return;
+			}
 
-				if (viewer instanceof AbstractTreeViewer) {
-					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
-					treeViewer.remove(elementsOrTreePaths);
-				} else {
-					viewer.refresh();
-				}
+			if (viewer instanceof AbstractTreeViewer) {
+				AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
+				treeViewer.remove(elementsOrTreePaths);
+			} else {
+				viewer.refresh();
 			}
 		});
 	}
@@ -284,28 +263,25 @@ public class ViewerUtils {
 	/**
 	 * Updates a viewer's element and makes sure it runs in the SWT thread. Runs
 	 * a refresh in case the viewer does not support updates.
-	 * 
+	 *
 	 * @param viewer
 	 * @param element
 	 * @param properties
-	 * 
+	 *
 	 * @see StructuredViewer#update(Object, String[])
 	 */
 	public static void update(final Viewer viewer, final Object element,
 			final String[] properties) {
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed()) {
-					return;
-				}
+		Display.getDefault().syncExec(() -> {
+			if (viewer == null || viewer.getControl().isDisposed()) {
+				return;
+			}
 
-				if (viewer instanceof StructuredViewer) {
-					StructuredViewer structuredViewer = (StructuredViewer) viewer;
-					structuredViewer.update(element, properties);
-				} else {
-					viewer.refresh();
-				}
+			if (viewer instanceof StructuredViewer) {
+				StructuredViewer structuredViewer = (StructuredViewer) viewer;
+				structuredViewer.update(element, properties);
+			} else {
+				viewer.refresh();
 			}
 		});
 	}
@@ -313,84 +289,75 @@ public class ViewerUtils {
 	/**
 	 * Updates a viewer's elements and makes sure it runs in the SWT thread.
 	 * Runs a refresh in case the viewer does not support updates.
-	 * 
+	 *
 	 * @param viewer
 	 * @param elements
 	 * @param properties
-	 * 
+	 *
 	 * @see StructuredViewer#update(Object[], String[])
 	 */
 	public static void update(final Viewer viewer, final Object[] elements,
 			final String[] properties) {
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed()) {
-					return;
-				}
+		Display.getDefault().syncExec(() -> {
+			if (viewer == null || viewer.getControl().isDisposed()) {
+				return;
+			}
 
-				if (viewer instanceof StructuredViewer) {
-					StructuredViewer structuredViewer = (StructuredViewer) viewer;
-					structuredViewer.update(elements, properties);
-				} else {
-					viewer.refresh();
-				}
+			if (viewer instanceof StructuredViewer) {
+				StructuredViewer structuredViewer = (StructuredViewer) viewer;
+				structuredViewer.update(elements, properties);
+			} else {
+				viewer.refresh();
 			}
 		});
 	}
 
 	/**
 	 * Refreshes a viewer's display and makes sure it runs in the SWT thread.
-	 * 
+	 *
 	 * @param viewer
 	 * @param updateLabels
-	 * 
+	 *
 	 * @see Viewer#refresh()
 	 * @see StructuredViewer#refresh(boolean)
 	 */
 	public static void refresh(final Viewer viewer, final boolean updateLabels) {
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed()) {
-					return;
-				}
+		Display.getDefault().syncExec(() -> {
+			if (viewer == null || viewer.getControl().isDisposed()) {
+				return;
+			}
 
-				if (viewer instanceof StructuredViewer) {
-					StructuredViewer structuredViewer = (StructuredViewer) viewer;
-					structuredViewer.refresh(updateLabels);
-				} else {
-					viewer.refresh();
-				}
+			if (viewer instanceof StructuredViewer) {
+				StructuredViewer structuredViewer = (StructuredViewer) viewer;
+				structuredViewer.refresh(updateLabels);
+			} else {
+				viewer.refresh();
 			}
 		});
 	}
 
 	/**
 	 * Refreshes a viewer's display and makes sure it runs in the SWT thread.
-	 * 
+	 *
 	 * @param viewer
 	 * @param element
 	 * @param updateLabels
-	 * 
+	 *
 	 * @see Viewer#refresh()
 	 * @see StructuredViewer#refresh(Object, boolean)
 	 */
 	public static void refresh(final Viewer viewer, final Object element,
 			final boolean updateLabels) {
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed()) {
-					return;
-				}
+		Display.getDefault().syncExec(() -> {
+			if (viewer == null || viewer.getControl().isDisposed()) {
+				return;
+			}
 
-				if (viewer instanceof StructuredViewer) {
-					StructuredViewer structuredViewer = (StructuredViewer) viewer;
-					structuredViewer.refresh(element, updateLabels);
-				} else {
-					viewer.refresh();
-				}
+			if (viewer instanceof StructuredViewer) {
+				StructuredViewer structuredViewer = (StructuredViewer) viewer;
+				structuredViewer.refresh(element, updateLabels);
+			} else {
+				viewer.refresh();
 			}
 		});
 	}
@@ -399,17 +366,14 @@ public class ViewerUtils {
 	 * @see AbstractTreeViewer#expandToLevel(int)
 	 */
 	public static void expandToLevel(final Viewer viewer, final int level) {
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed()) {
-					return;
-				}
+		Display.getDefault().syncExec(() -> {
+			if (viewer == null || viewer.getControl().isDisposed()) {
+				return;
+			}
 
-				if (viewer instanceof AbstractTreeViewer) {
-					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
-					treeViewer.expandToLevel(level);
-				}
+			if (viewer instanceof AbstractTreeViewer) {
+				AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
+				treeViewer.expandToLevel(level);
 			}
 		});
 	}
@@ -419,17 +383,14 @@ public class ViewerUtils {
 	 */
 	public static void expandToLevel(final Viewer viewer,
 			final Object elementOrTreePath, final int level) {
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed()) {
-					return;
-				}
+		Display.getDefault().syncExec(() -> {
+			if (viewer == null || viewer.getControl().isDisposed()) {
+				return;
+			}
 
-				if (viewer instanceof AbstractTreeViewer) {
-					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
-					treeViewer.expandToLevel(elementOrTreePath, level);
-				}
+			if (viewer instanceof AbstractTreeViewer) {
+				AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
+				treeViewer.expandToLevel(elementOrTreePath, level);
 			}
 		});
 	}
@@ -437,23 +398,20 @@ public class ViewerUtils {
 	/**
 	 * If supported by the viewer expands all elements and makes sure it runs in
 	 * the SWT thread.
-	 * 
+	 *
 	 * @param viewer
-	 * 
+	 *
 	 * @see AbstractTreeViewer#expandAll()
 	 */
 	public static void expandAll(final Viewer viewer) {
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed()) {
-					return;
-				}
+		Display.getDefault().syncExec(() -> {
+			if (viewer == null || viewer.getControl().isDisposed()) {
+				return;
+			}
 
-				if (viewer instanceof AbstractTreeViewer) {
-					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
-					treeViewer.expandAll();
-				}
+			if (viewer instanceof AbstractTreeViewer) {
+				AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
+				treeViewer.expandAll();
 			}
 		});
 	}
@@ -463,18 +421,14 @@ public class ViewerUtils {
 	 */
 	public static void expandAll(final Viewer viewer,
 			final Object elementOrTreePath) {
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (viewer == null || viewer.getControl().isDisposed()) {
-					return;
-				}
+		Display.getDefault().syncExec(() -> {
+			if (viewer == null || viewer.getControl().isDisposed()) {
+				return;
+			}
 
-				if (viewer instanceof AbstractTreeViewer) {
-					AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
-					treeViewer.expandToLevel(elementOrTreePath,
-							Integer.MAX_VALUE);
-				}
+			if (viewer instanceof AbstractTreeViewer) {
+				AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
+				treeViewer.expandToLevel(elementOrTreePath, Integer.MAX_VALUE);
 			}
 		});
 	}
@@ -482,7 +436,7 @@ public class ViewerUtils {
 	/**
 	 * Returns all elements contained in the given viewer. This calculation is
 	 * independent of what is currently displayed.
-	 * 
+	 *
 	 * @param viewer
 	 * @return
 	 * @throws Exception
@@ -490,15 +444,12 @@ public class ViewerUtils {
 	public static List<Object> getAllItems(final Viewer viewer)
 			throws Exception {
 		final List<Object> objects = new ArrayList<Object>();
-		ExecUtils.syncExec(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				for (Object topLevelElement : getTopLevelItems(viewer)) {
-					objects.add(topLevelElement);
-					objects.addAll(getDescendants(viewer, topLevelElement));
-				}
-				return null;
+		ExecUtils.syncExec(() -> {
+			for (Object topLevelElement : getTopLevelItems(viewer)) {
+				objects.add(topLevelElement);
+				objects.addAll(getDescendants(viewer, topLevelElement));
 			}
+			return null;
 		});
 		return objects;
 	}
@@ -506,7 +457,7 @@ public class ViewerUtils {
 	/**
 	 * Returns all top-level elements contained in the given viewer. This
 	 * calculation is independent of what is currently displayed.
-	 * 
+	 *
 	 * @param viewer
 	 * @return
 	 * @throws Exception
@@ -515,27 +466,26 @@ public class ViewerUtils {
 			throws Exception {
 		final List<Object> topLevelElements = new ArrayList<Object>();
 		if (viewer instanceof StructuredViewer) {
-			ExecUtils.syncExec(new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
-					IContentProvider cp = ((StructuredViewer) viewer)
-							.getContentProvider();
-					if (cp instanceof IStructuredContentProvider) {
-						IStructuredContentProvider scp = (IStructuredContentProvider) cp;
-						for (Object object : scp.getElements(viewer.getInput())) {
-							topLevelElements.add(object);
+			ExecUtils
+					.syncExec(() -> {
+						IContentProvider cp = ((StructuredViewer) viewer)
+								.getContentProvider();
+						if (cp instanceof IStructuredContentProvider) {
+							IStructuredContentProvider scp = (IStructuredContentProvider) cp;
+							for (Object object : scp.getElements(viewer
+									.getInput())) {
+								topLevelElements.add(object);
+							}
 						}
-					}
-					return null;
-				}
-			});
+						return null;
+					});
 		}
 		return topLevelElements;
 	}
 
 	/**
 	 * Returns all descendants of the given element.
-	 * 
+	 *
 	 * @param viewer
 	 * @param parent
 	 * @return
@@ -545,20 +495,17 @@ public class ViewerUtils {
 			final Object parent) throws Exception {
 		final List<Object> descendants = new ArrayList<Object>();
 		if (viewer instanceof StructuredViewer) {
-			ExecUtils.syncExec(new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
-					IContentProvider cp = ((StructuredViewer) viewer)
-							.getContentProvider();
-					if (cp instanceof ITreeContentProvider) {
-						ITreeContentProvider tcp = (ITreeContentProvider) cp;
-						for (Object child : tcp.getChildren(parent)) {
-							descendants.add(child);
-							descendants.addAll(getDescendants(viewer, child));
-						}
+			ExecUtils.syncExec(() -> {
+				IContentProvider cp = ((StructuredViewer) viewer)
+						.getContentProvider();
+				if (cp instanceof ITreeContentProvider) {
+					ITreeContentProvider tcp = (ITreeContentProvider) cp;
+					for (Object child : tcp.getChildren(parent)) {
+						descendants.add(child);
+						descendants.addAll(getDescendants(viewer, child));
 					}
-					return null;
 				}
+				return null;
 			});
 		}
 		return descendants;
@@ -566,30 +513,30 @@ public class ViewerUtils {
 
 	/**
 	 * Merges an array of {@link TreePath}s to one {@link TreePath}.
-	 * 
+	 *
 	 * Example: {@link TreePath}s
-	 * 
+	 *
 	 * <pre>
 	 * A<br/>
 	 * | -B
 	 * </pre>
-	 * 
+	 *
 	 * and
-	 * 
+	 *
 	 * <pre>
 	 * C<br/>
 	 * | -D
 	 * </pre>
-	 * 
+	 *
 	 * become
-	 * 
+	 *
 	 * <pre>
 	 * A<br/>
 	 * | -B<br/>
 	 *    | -C<br/>
 	 *       | -D
 	 * </pre>
-	 * 
+	 *
 	 * @param treePaths
 	 * @return
 	 */
@@ -664,14 +611,25 @@ public class ViewerUtils {
 
 	public static void refresh(final Viewer viewer) {
 		if (viewer != null) {
-			Display.getDefault().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					viewer.refresh();
-				}
-			});
+			Display.getDefault().syncExec(() -> viewer.refresh());
 
 		}
+	}
+
+	public static TreePath clone(TreePath treePath) {
+		Object[] segments = new Object[treePath.getSegmentCount()];
+		for (int i = 0; i < segments.length; i++) {
+			segments[i] = treePath.getSegment(i);
+		}
+		return new TreePath(segments);
+	}
+
+	public static Object[] getSegments(TreePath treePath) {
+		Object[] segments = new Object[treePath.getSegmentCount()];
+		for (int i = 0; i < segments.length; i++) {
+			segments[i] = treePath.getSegment(i);
+		}
+		return segments;
 	}
 
 	public static TreePath[] addTreePath(TreePath[] treePaths1,
@@ -693,7 +651,7 @@ public class ViewerUtils {
 	 * {@link TreeViewer#setExpandedTreePaths(TreePath[])} - will not only
 	 * expand the deepest child of the given {@link TreePath} but also all of
 	 * its parents.
-	 * 
+	 *
 	 * @param treePath
 	 * @return
 	 */
@@ -713,7 +671,7 @@ public class ViewerUtils {
 	 * {@link TreeViewer#setExpandedTreePaths(TreePath[])} - will not only
 	 * expand the deepest children of the given {@link TreePath}[] but also all
 	 * of its parents.
-	 * 
+	 *
 	 * @param treePath
 	 * @return
 	 */
@@ -734,7 +692,7 @@ public class ViewerUtils {
 	 * Creates a {@link TreePath} array that - passed to
 	 * {@link TreeViewer#setExpandedTreePaths(TreePath[])} - will expand all
 	 * elements so the selection is visible.
-	 * 
+	 *
 	 * @param treePath
 	 * @return
 	 */
