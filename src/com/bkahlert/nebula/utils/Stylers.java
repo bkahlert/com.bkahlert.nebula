@@ -143,6 +143,18 @@ public class Stylers {
 		};
 	}
 
+	private static boolean colorMixEnabled;
+
+	/**
+	 * Sets if merging styles should mix conflicting colors (disable = false) or
+	 * make the last applied colors the resulting color (disable = true).
+	 *
+	 * @param disable
+	 */
+	public static void setDisableColorMix(boolean disable) {
+		colorMixEnabled = !disable;
+	}
+
 	/**
 	 * Applies the {@link Styler} to the {@link TextStyle} is a smart fashion.
 	 * Settings are not simply overwritten but really combined. E.g. small +
@@ -175,7 +187,7 @@ public class Stylers {
 			textStyle.metrics = dummy.metrics;
 		}
 		if (!ObjectUtils.equals(reference.rise, dummy.rise)) {
-			textStyle.rise = (textStyle.rise + dummy.rise) / 2;
+			textStyle.rise = (textStyle.rise + dummy.rise) / 2 + 1;
 		}
 		if (!ObjectUtils.equals(reference.strikeout, dummy.strikeout)) {
 			textStyle.strikeout = dummy.strikeout;
@@ -205,6 +217,10 @@ public class Stylers {
 		if (color2 == null) {
 			return color1;
 		}
+		if (colorMixEnabled) {
+			return color2;
+		}
+
 		RGB merged = new RGB(color1.getRGB()).mix(new RGB(color2.getRGB()), .5);
 		if (!colors.containsKey(merged)) {
 			colors.put(merged,
@@ -228,6 +244,72 @@ public class Stylers {
 			fonts.put(fontData[0], new Font(Display.getCurrent(), fontData));
 		}
 		return fonts.get(fontData[0]);
+	}
+
+	/**
+	 * Applies the given {@link Styler} to the given {@link StyledString}.
+	 * <p>
+	 * Example: if the {@link Styler}'s format was bold and blue, the string
+	 * will be bold and blue tinted.
+	 *
+	 * @param string
+	 * @param baseStyler
+	 * @return
+	 */
+	public static StyledString apply(StyledString string, Styler styler) {
+		if (styler == null) {
+			return string;
+		}
+		StyleRange[] styleRanges = getExpandedStyleRanges(string);
+		for (StyleRange styleRange : styleRanges) {
+			string.setStyle(styleRange.start, styleRange.length,
+					combine(createFrom(styleRange), styler));
+		}
+		return string;
+	}
+
+	/**
+	 * Applies the given {@link Styler} to the segment between the given
+	 * indices.
+	 *
+	 * @param string
+	 * @param styler
+	 * @param beginIndex
+	 *            (inclusive)
+	 * @param endIndex
+	 *            (exclusive)
+	 * @return
+	 */
+	public static StyledString apply(StyledString string, Styler styler,
+			int beginIndex, int endIndex) {
+		StyledString applied = substring(string, beginIndex, endIndex);
+		apply(applied, styler);
+		if (beginIndex > 0) {
+			applied = substring(string, 0, beginIndex).append(applied);
+		}
+		if (endIndex < string.length()) {
+			applied = applied.append(substring(string, endIndex,
+					string.length()));
+		}
+		return applied;
+	}
+
+	/**
+	 * Applies the given {@link Styler} to all occurrences of the given
+	 * {@link String}.
+	 *
+	 * @param string
+	 * @param styler
+	 * @param applyTo
+	 * @return
+	 */
+	public static StyledString apply(StyledString string, Styler styler,
+			String applyTo) {
+		for (int index = string.getString().indexOf(applyTo); index >= 0; index = string
+				.getString().indexOf(applyTo, index + 1)) {
+			string = apply(string, styler, index, index + applyTo.length());
+		}
+		return string;
 	}
 
 	/**
@@ -334,6 +416,131 @@ public class Stylers {
 			}
 		}
 		return clone;
+	}
+
+	/**
+	 * Splits the given {@link StyledString} exactly like
+	 * {@link String#split(String)} does.
+	 *
+	 * @param string
+	 * @param regex
+	 * @return
+	 *
+	 * @see {@link String#split(String)}
+	 */
+	public static StyledString[] split(StyledString string, String regex) {
+		return split(string, regex, 0);
+	}
+
+	/**
+	 * Splits the given {@link StyledString} exactly like
+	 * {@link String#split(String, int)} does.
+	 *
+	 * @param string
+	 * @param regex
+	 * @param limit
+	 * @return
+	 *
+	 * @see {@link String#split(String)}
+	 */
+	public static StyledString[] split(StyledString string, String regex,
+			int limit) {
+		String raw = string.getString();
+
+		// copied from String.regex
+
+		/*
+		 * fastpath if the regex is a (1)one-char String and this character is
+		 * not one of the RegEx's meta characters ".$|()[{^?*+\\", or
+		 * (2)two-char String and the first char is the backslash and the second
+		 * is not the ascii digit or ascii letter.
+		 */
+		char ch = 0;
+		if (((regex.length() == 1 && ".$|()[{^?*+\\".indexOf(ch = regex
+				.charAt(0)) == -1) || (regex.length() == 2
+				&& regex.charAt(0) == '\\'
+				&& (((ch = regex.charAt(1)) - '0') | ('9' - ch)) < 0
+				&& ((ch - 'a') | ('z' - ch)) < 0 && ((ch - 'A') | ('Z' - ch)) < 0))
+				&& (ch < Character.MIN_HIGH_SURROGATE || ch > Character.MAX_LOW_SURROGATE)) {
+			int off = 0;
+			int next = 0;
+			boolean limited = limit > 0;
+			ArrayList<StyledString> list = new ArrayList<>();
+			while ((next = raw.indexOf(ch, off)) != -1) {
+				if (!limited || list.size() < limit - 1) {
+					list.add(substring(string, off, next));
+					off = next + 1;
+				} else { // last one
+					// assert (list.size() == limit - 1);
+					list.add(substring(string, off, raw.length()));
+					off = raw.length();
+					break;
+				}
+			}
+			// If no match was found, return this
+			if (off == 0) {
+				return new StyledString[] { string };
+			}
+
+			// Add remaining segment
+			if (!limited || list.size() < limit) {
+				list.add(substring(string, off, raw.length()));
+			}
+
+			// Construct result
+			int resultSize = list.size();
+			if (limit == 0) {
+				while (resultSize > 0 && list.get(resultSize - 1).length() == 0) {
+					resultSize--;
+				}
+			}
+			StyledString[] result = new StyledString[resultSize];
+			return list.subList(0, resultSize).toArray(result);
+		}
+
+		// copied from Pattern.split
+		int index = 0;
+		boolean matchLimited = limit > 0;
+		ArrayList<StyledString> matchList = new ArrayList<>();
+		Matcher m = Pattern.compile(regex).matcher(raw);
+
+		// Add segments before each match found
+		while (m.find()) {
+			if (!matchLimited || matchList.size() < limit - 1) {
+				if (index == 0 && index == m.start() && m.start() == m.end()) {
+					// no empty leading substring included for zero-width match
+					// at the beginning of the input char sequence.
+					continue;
+				}
+				StyledString match = substring(string, index, m.start());
+				matchList.add(match);
+				index = m.end();
+			} else if (matchList.size() == limit - 1) { // last one
+				StyledString match = substring(string, index, raw.length());
+				matchList.add(match);
+				index = m.end();
+			}
+		}
+
+		// If no match was found, return this
+		if (index == 0) {
+			return new StyledString[] { string };
+		}
+
+		// Add remaining segment
+		if (!matchLimited || matchList.size() < limit) {
+			matchList.add(substring(string, index, raw.length()));
+		}
+
+		// Construct result
+		int resultSize = matchList.size();
+		if (limit == 0) {
+			while (resultSize > 0 && matchList.get(resultSize - 1).equals("")) {
+				resultSize--;
+			}
+		}
+		StyledString[] result = new StyledString[resultSize];
+		return matchList.subList(0, resultSize).toArray(result);
 	}
 
 	/**
@@ -483,4 +690,5 @@ public class Stylers {
 
 	private Stylers() {
 	}
+
 }

@@ -126,6 +126,24 @@ public class StylerUtilsDemo extends AbstractDemo {
 				data.add(new StyledString(styler.getFirst(), styler.getSecond()));
 			}
 
+			data.add(new StyledString(
+					"Stylers.substring(FANCY_STYLED_STRING, \"s\")", null));
+			for (StyledString split : Stylers.split(FANCY_STYLED_STRING, "s")) {
+				data.add(split);
+			}
+
+			data.add(new StyledString("Stylers.applyStyler(3,12)", null));
+			for (Pair<String, Styler> styler : stylers) {
+				for (Pair<String, Styler> styler2 : stylers) {
+					data.add(Stylers.apply(
+							new StyledString(styler.getFirst(), styler
+									.getSecond()), styler2.getSecond(), 3, 12)
+							.append(new StyledString(
+									" - " + styler2.getFirst(), styler2
+											.getSecond())));
+				}
+			}
+
 			data.add(new StyledString("Shortened Stylers", null));
 			for (Pair<String, Styler> styler : stylers) {
 				data.add(Stylers.shorten(new StyledString(styler.getFirst(),
