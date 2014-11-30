@@ -18,7 +18,7 @@ public class WorkbenchUtils {
 	 * Returns a {@link IViewPart} with the given id.
 	 * <p>
 	 * This method may be called from any thread.
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 */
@@ -49,23 +49,20 @@ public class WorkbenchUtils {
 	@SuppressWarnings("unchecked")
 	public static <T extends IViewPart> List<T> getViews(final Class<T> clazz) {
 		try {
-			return ExecUtils.syncExec(new Callable<List<T>>() {
-				@Override
-				public List<T> call() throws Exception {
-					List<T> viewParts = new ArrayList<T>();
-					for (IWorkbenchPage page : PlatformUI.getWorkbench()
-							.getActiveWorkbenchWindow().getPages()) {
-						for (IViewReference viewReference : page
-								.getViewReferences()) {
-							IViewPart part = (IViewPart) viewReference
-									.getPart(true);
-							if (clazz.isInstance(part)) {
-								viewParts.add((T) part);
-							}
+			return ExecUtils.syncExec(() -> {
+				List<T> viewParts = new ArrayList<T>();
+				for (IWorkbenchPage page : PlatformUI.getWorkbench()
+						.getActiveWorkbenchWindow().getPages()) {
+					for (IViewReference viewReference : page
+							.getViewReferences()) {
+						IViewPart part = (IViewPart) viewReference
+								.getPart(true);
+						if (clazz.isInstance(part)) {
+							viewParts.add((T) part);
 						}
 					}
-					return viewParts;
 				}
+				return viewParts;
 			});
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -74,21 +71,17 @@ public class WorkbenchUtils {
 
 	public static IViewPart getView(final String id, final boolean create) {
 		try {
-			return ExecUtils.syncExec(new Callable<IViewPart>() {
-				@Override
-				public IViewPart call() throws Exception {
-					for (IWorkbenchPage page : PlatformUI.getWorkbench()
-							.getActiveWorkbenchWindow().getPages()) {
-						for (IViewReference viewReference : page
-								.getViewReferences()) {
-							if (viewReference.getId().equals(id)) {
-								return (IViewPart) viewReference
-										.getPart(create);
-							}
+			return ExecUtils.syncExec(() -> {
+				for (IWorkbenchPage page : PlatformUI.getWorkbench()
+						.getActiveWorkbenchWindow().getPages()) {
+					for (IViewReference viewReference : page
+							.getViewReferences()) {
+						if (viewReference.getId().equals(id)) {
+							return (IViewPart) viewReference.getPart(create);
 						}
 					}
-					return null;
 				}
+				return null;
 			});
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -97,22 +90,19 @@ public class WorkbenchUtils {
 
 	public static List<IViewPart> getViews(final String id, final boolean create) {
 		try {
-			return ExecUtils.syncExec(new Callable<List<IViewPart>>() {
-				@Override
-				public List<IViewPart> call() throws Exception {
-					List<IViewPart> viewParts = new ArrayList<IViewPart>();
-					for (IWorkbenchPage page : PlatformUI.getWorkbench()
-							.getActiveWorkbenchWindow().getPages()) {
-						for (IViewReference viewReference : page
-								.getViewReferences()) {
-							if (viewReference.getId().equals(id)) {
-								viewParts.add((IViewPart) viewReference
-										.getPart(create));
-							}
+			return ExecUtils.syncExec(() -> {
+				List<IViewPart> viewParts = new ArrayList<IViewPart>();
+				for (IWorkbenchPage page : PlatformUI.getWorkbench()
+						.getActiveWorkbenchWindow().getPages()) {
+					for (IViewReference viewReference : page
+							.getViewReferences()) {
+						if (viewReference.getId().equals(id)) {
+							viewParts.add((IViewPart) viewReference
+									.getPart(create));
 						}
 					}
-					return viewParts;
 				}
+				return viewParts;
 			});
 		} catch (Exception e) {
 			throw new RuntimeException(e);
