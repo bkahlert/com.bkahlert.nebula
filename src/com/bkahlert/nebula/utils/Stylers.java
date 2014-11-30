@@ -1,6 +1,7 @@
 package com.bkahlert.nebula.utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -308,6 +309,23 @@ public class Stylers {
 		for (int index = string.getString().indexOf(applyTo); index >= 0; index = string
 				.getString().indexOf(applyTo, index + 1)) {
 			string = apply(string, styler, index, index + applyTo.length());
+		}
+		return string;
+	}
+
+	/**
+	 * Applies the given {@link Styler} to all occurrences of the given
+	 * {@link String}.
+	 *
+	 * @param string
+	 * @param styler
+	 * @param applyTo
+	 * @return
+	 */
+	public static StyledString apply(StyledString string, Styler styler,
+			Collection<String> applyTos) {
+		for (String applyTo : applyTos) {
+			string = apply(string, styler, applyTo);
 		}
 		return string;
 	}
