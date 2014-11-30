@@ -112,20 +112,20 @@ public class JointJS extends Browser implements ISelectionProvider {
 
 	private JointJSModel model = null;
 
-	private String nodeCreationPrefix;
+	private String elementCreationPrefix;
 	private String linkCreationPrefix;
 
-	public JointJS(Composite parent, int style, String nodeCreationPrefix,
+	public JointJS(Composite parent, int style, String elementCreationPrefix,
 			String linkCreationPrefix) {
-		this(parent, style, nodeCreationPrefix, linkCreationPrefix, null);
+		this(parent, style, elementCreationPrefix, linkCreationPrefix, null);
 	}
 
 	/**
 	 *
 	 * @param parent
 	 * @param style
-	 * @param nodeCreationPrefix
-	 *            prefix used if a node is created but no id was passed. The
+	 * @param elementCreationPrefix
+	 *            prefix used if a element is created but no id was passed. The
 	 *            prefix is put in front of the automatically generated id.
 	 * @param linkCreationPrefix
 	 *            prefix used if a link is created but no id was passed. The
@@ -137,7 +137,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 	 *            used as the default selection (applies if no other element is
 	 *            selected).
 	 */
-	public JointJS(Composite parent, int style, String nodeCreationPrefix,
+	public JointJS(Composite parent, int style, String elementCreationPrefix,
 			String linkCreationPrefix,
 			final IReflexiveConverter<String, Object> selectionConverter) {
 		super(parent, style);
@@ -145,10 +145,10 @@ public class JointJS extends Browser implements ISelectionProvider {
 
 		this.selectionConverter = selectionConverter;
 
-		Assert.isNotNull(nodeCreationPrefix);
+		Assert.isNotNull(elementCreationPrefix);
 		Assert.isNotNull(linkCreationPrefix);
 
-		this.nodeCreationPrefix = nodeCreationPrefix;
+		this.elementCreationPrefix = elementCreationPrefix;
 		this.linkCreationPrefix = linkCreationPrefix;
 
 		new BrowserFunction(this.getBrowser(), "loaded") {
@@ -334,9 +334,9 @@ public class JointJS extends Browser implements ISelectionProvider {
 				+ "\");", IConverter.CONVERTER_VOID);
 	}
 
-	public Future<String> createNode(String id, Object json) {
+	public Future<String> createElement(String id, Object json) {
 		if (id == null) {
-			id = this.nodeCreationPrefix + UUID.randomUUID().toString();
+			id = this.elementCreationPrefix + UUID.randomUUID().toString();
 		}
 		return this.run("return com.bkahlert.nebula.jointjs.createNode('" + id
 				+ "', " + JSONUtils.buildJson(json) + ");",
@@ -344,8 +344,8 @@ public class JointJS extends Browser implements ISelectionProvider {
 	}
 
 	@SuppressWarnings("serial")
-	public Future<String> createNode(String id, String title, String content,
-			final Point position, final Point size) {
+	public Future<String> createElement(String id, String title,
+			String content, final Point position, final Point size) {
 		Map<String, Object> json = new HashMap<String, Object>();
 		json.put("title", title);
 		if (content != null) {
@@ -367,7 +367,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 				}
 			});
 		}
-		return this.createNode(id, json);
+		return this.createElement(id, json);
 	}
 
 	public Future<String> createLink(String id, Object source, Object target) {
@@ -517,7 +517,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 		return rt;
 	}
 
-	public Future<List<String>> getNodes() {
+	public Future<List<String>> getElements() {
 		return this.run("return com.bkahlert.nebula.jointjs.getNodes();",
 				IConverter.CONVERTER_STRINGLIST);
 	}

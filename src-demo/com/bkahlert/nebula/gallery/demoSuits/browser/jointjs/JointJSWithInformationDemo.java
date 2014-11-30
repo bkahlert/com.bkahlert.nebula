@@ -4,8 +4,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.eclipse.jface.action.Action;
@@ -28,14 +28,12 @@ import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.gallery.demoSuits.information.InformationControlManagerDemo;
 import com.bkahlert.nebula.information.EnhanceableInformationControl;
 import com.bkahlert.nebula.information.EnhanceableInformationControl.Delegate;
-import com.bkahlert.nebula.information.EnhanceableInformationControl.DelegateFactory;
 import com.bkahlert.nebula.information.ISubjectInformationProvider;
 import com.bkahlert.nebula.information.InformationControl;
 import com.bkahlert.nebula.information.InformationControlCreator;
 import com.bkahlert.nebula.information.InformationControlManager;
 import com.bkahlert.nebula.information.InformationControlManagerUtils;
 import com.bkahlert.nebula.utils.ExecUtils;
-import com.bkahlert.nebula.utils.ExecUtils.ParametrizedCallable;
 import com.bkahlert.nebula.utils.ShellUtils;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.browser.extended.html.IAnker;
@@ -63,63 +61,56 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 				Shell parent) {
 			return new EnhanceableInformationControl<URI, Delegate<URI>>(
 					InformationControlManagerDemo.class.getClassLoader(),
-					URI.class, parent, new DelegateFactory<Delegate<URI>>() {
+					URI.class, parent, () -> new Delegate<URI>() {
+						private Label label;
+
 						@Override
-						public Delegate<URI> create() {
-							return new Delegate<URI>() {
-								private Label label;
+						public Composite build(Composite parent) {
+							parent.setLayout(GridLayoutFactory.fillDefaults()
+									.create());
+							this.label = new Label(parent, SWT.BORDER);
+							this.label.setLayoutData(GridDataFactory
+									.fillDefaults().grab(true, true).create());
+							return parent;
+						}
 
-								@Override
-								public Composite build(Composite parent) {
-									parent.setLayout(GridLayoutFactory
-											.fillDefaults().create());
-									this.label = new Label(parent, SWT.BORDER);
-									this.label.setLayoutData(GridDataFactory
-											.fillDefaults().grab(true, true)
-											.create());
-									return parent;
-								}
+						@Override
+						public boolean load(URI input,
+								ToolBarManager toolBarManager) {
+							if (input == null) {
+								return false;
+							}
 
-								@Override
-								public boolean load(URI input,
-										ToolBarManager toolBarManager) {
-									if (input == null) {
-										return false;
-									}
+							if (toolBarManager != null) {
+								Action showCurrentManagerAction = new Action() {
+									@Override
+									public String getText() {
+										return "Curr. Mngr";
+									};
 
-									if (toolBarManager != null) {
-										Action showCurrentManagerAction = new Action() {
-											@Override
-											public String getText() {
-												return "Curr. Mngr";
-											};
+									@Override
+									public void run() {
+										log("Current manager: "
+												+ InformationControlManagerUtils
+														.getCurrentManager());
+									};
+								};
+								Action showAgainAction = new Action() {
+									@Override
+									public String getText() {
+										return "Show Again";
+									};
 
-											@Override
-											public void run() {
-												log("Current manager: "
-														+ InformationControlManagerUtils
-																.getCurrentManager());
-											};
-										};
-										Action showAgainAction = new Action() {
-											@Override
-											public String getText() {
-												return "Show Again";
-											};
-
-											@Override
-											public void run() {
-												replaceInformationControlContent();
-											};
-										};
-										toolBarManager
-												.add(showCurrentManagerAction);
-										toolBarManager.add(showAgainAction);
-									}
-									this.label.setText(input.toString());
-									return true;
-								}
-							};
+									@Override
+									public void run() {
+										replaceInformationControlContent();
+									};
+								};
+								toolBarManager.add(showCurrentManagerAction);
+								toolBarManager.add(showAgainAction);
+							}
+							this.label.setText(input.toString());
+							return true;
 						}
 					});
 		}
@@ -142,25 +133,22 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 		loadButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						log("loading");
-						try {
-							JointJSWithInformationDemo.this.jointjs
-									.load(JointJSWithInformationDemo.this.json);
-							JointJSWithInformationDemo.this.jointjs
-									.setZoom(JointJSWithInformationDemo.this.zoom);
-							if (JointJSWithInformationDemo.this.pan != null) {
-								JointJSWithInformationDemo.this.jointjs.setPan(
-										JointJSWithInformationDemo.this.pan.x,
-										JointJSWithInformationDemo.this.pan.y);
-							}
-						} catch (Exception e) {
-							log(e.toString());
+				new Thread(() -> {
+					log("loading");
+					try {
+						JointJSWithInformationDemo.this.jointjs
+								.load(JointJSWithInformationDemo.this.json);
+						JointJSWithInformationDemo.this.jointjs
+								.setZoom(JointJSWithInformationDemo.this.zoom);
+						if (JointJSWithInformationDemo.this.pan != null) {
+							JointJSWithInformationDemo.this.jointjs.setPan(
+									JointJSWithInformationDemo.this.pan.x,
+									JointJSWithInformationDemo.this.pan.y);
 						}
-						log("loaded");
+					} catch (Exception e1) {
+						log(e1.toString());
 					}
+					log("loaded");
 				}).start();
 			}
 		});
@@ -170,55 +158,52 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 		saveButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						log("saving");
-						try {
-							JointJSWithInformationDemo.this.json = JointJSWithInformationDemo.this.jointjs
-									.save().get();
+				new Thread(
+						() -> {
+							log("saving");
+							try {
+								JointJSWithInformationDemo.this.json = JointJSWithInformationDemo.this.jointjs
+										.save().get();
 
-							JointJSWithInformationDemo.this.pan = JointJSWithInformationDemo.this.jointjs
-									.getPan().get();
-							log("pan: " + JointJSWithInformationDemo.this.pan.x
-									+ ", "
-									+ JointJSWithInformationDemo.this.pan.y);
+								JointJSWithInformationDemo.this.pan = JointJSWithInformationDemo.this.jointjs
+										.getPan().get();
+								log("pan: "
+										+ JointJSWithInformationDemo.this.pan.x
+										+ ", "
+										+ JointJSWithInformationDemo.this.pan.y);
 
-							JointJSWithInformationDemo.this.zoom = JointJSWithInformationDemo.this.jointjs
-									.getZoom().get();
-							log("zoom: " + JointJSWithInformationDemo.this.zoom);
-						} catch (Exception e) {
-							log(e.toString());
-						}
-						log("saved");
-					}
-				}).start();
+								JointJSWithInformationDemo.this.zoom = JointJSWithInformationDemo.this.jointjs
+										.getZoom().get();
+								log("zoom: "
+										+ JointJSWithInformationDemo.this.zoom);
+							} catch (Exception e1) {
+								log(e1.toString());
+							}
+							log("saved");
+						}).start();
 			}
 		});
 
 		Button getNodesLinksButton = new Button(composite, SWT.PUSH);
-		getNodesLinksButton.setText("log nodes/links");
+		getNodesLinksButton.setText("log elements/links");
 		getNodesLinksButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						log("getting nodes and links");
-						try {
-							log("Nodes: "
-									+ StringUtils
-											.join(JointJSWithInformationDemo.this.jointjs
-													.getNodes().get(), ", "));
-							log("Links: "
-									+ StringUtils
-											.join(JointJSWithInformationDemo.this.jointjs
-													.getLinks().get(), ", "));
-						} catch (Exception e) {
-							log(e.toString());
-						}
-						log("got nodes and links");
+				new Thread(() -> {
+					log("getting elements and links");
+					try {
+						log("Nodes: "
+								+ StringUtils.join(
+										JointJSWithInformationDemo.this.jointjs
+												.getElements().get(), ", "));
+						log("Links: "
+								+ StringUtils.join(
+										JointJSWithInformationDemo.this.jointjs
+												.getLinks().get(), ", "));
+					} catch (Exception e1) {
+						log(e1.toString());
 					}
+					log("got elements and links");
 				}).start();
 			}
 		});
@@ -228,18 +213,15 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 		setTitleButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						log("setting title");
-						try {
-							JointJSWithInformationDemo.this.jointjs.setTitle(
-									"Test").get();
-						} catch (Exception e) {
-							log(e.toString());
-						}
-						log("set title");
+				new Thread(() -> {
+					log("setting title");
+					try {
+						JointJSWithInformationDemo.this.jointjs
+								.setTitle("Test").get();
+					} catch (Exception e1) {
+						log(e1.toString());
 					}
+					log("set title");
 				}).start();
 			}
 		});
@@ -249,39 +231,56 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 		getTitleButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						log("getting title");
-						try {
-							log(JointJSWithInformationDemo.this.jointjs
-									.getTitle().get());
-						} catch (Exception e) {
-							log(e.toString());
-						}
-						log("got title");
+				new Thread(() -> {
+					log("getting title");
+					try {
+						log(JointJSWithInformationDemo.this.jointjs.getTitle()
+								.get());
+					} catch (Exception e1) {
+						log(e1.toString());
 					}
+					log("got title");
 				}).start();
 			}
 		});
+
+		this.createControlButton(
+				"setContent",
+				() -> {
+					log("settint content");
+					try {
+						for (String id : JointJSWithInformationDemo.this.jointjs
+								.getElements().get()) {
+							String content = "";
+							for (int i = 0, m = (int) (Math.random() * 20); i < m; i++) {
+								content += " "
+										+ RandomStringUtils
+												.randomAlphabetic((int) (Math
+														.random() * 20));
+							}
+							JointJSWithInformationDemo.this.jointjs
+									.setElementContent(id, content).get();
+						}
+					} catch (Exception e) {
+						log(e.toString());
+					}
+					log("set content");
+				});
 
 		Button getPanButton = new Button(composite, SWT.PUSH);
 		getPanButton.setText("getPan()");
 		getPanButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						log("getting pan");
-						try {
-							log(JointJSWithInformationDemo.this.jointjs
-									.getPan().get().toString());
-						} catch (Exception e) {
-							log(e.toString());
-						}
-						log("got pan");
+				new Thread(() -> {
+					log("getting pan");
+					try {
+						log(JointJSWithInformationDemo.this.jointjs.getPan()
+								.get().toString());
+					} catch (Exception e1) {
+						log(e1.toString());
 					}
+					log("got pan");
 				}).start();
 			}
 		});
@@ -291,18 +290,15 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 		enableButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						log("enabling");
-						try {
-							JointJSWithInformationDemo.this.jointjs
-									.setEnabled(true);
-						} catch (Exception e) {
-							log(e.toString());
-						}
-						log("enabled");
+				new Thread(() -> {
+					log("enabling");
+					try {
+						JointJSWithInformationDemo.this.jointjs
+								.setEnabled(true);
+					} catch (Exception e1) {
+						log(e1.toString());
 					}
+					log("enabled");
 				}).start();
 			}
 		});
@@ -312,18 +308,15 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 		disableButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						log("diabling");
-						try {
-							JointJSWithInformationDemo.this.jointjs
-									.setEnabled(false);
-						} catch (Exception e) {
-							log(e.toString());
-						}
-						log("disabled");
+				new Thread(() -> {
+					log("diabling");
+					try {
+						JointJSWithInformationDemo.this.jointjs
+								.setEnabled(false);
+					} catch (Exception e1) {
+						log(e1.toString());
 					}
+					log("disabled");
 				}).start();
 			}
 		});
@@ -331,7 +324,7 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 
 	@Override
 	public void createDemo(Composite parent) {
-		this.jointjs = new JointJS(parent, SWT.BORDER, "node://", "link://");
+		this.jointjs = new JointJS(parent, SWT.BORDER, "element://", "link://");
 		this.jointjs.addAnkerListener(new IAnkerListener() {
 			@Override
 			public void ankerHovered(IAnker anker, boolean entered) {
@@ -428,43 +421,40 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 				});
 		informationManager.install(this.jointjs);
 
-		ExecUtils.nonUIAsyncExec(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				String node1 = JointJSWithInformationDemo.this.jointjs
-						.createNode("apiua://test3", "Hello Java",
-								"bla<b> b</b>la", new Point(150, 300),
-								new Point(200, 100)).get();
+		ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {
+			String element1 = JointJSWithInformationDemo.this.jointjs
+					.createElement("apiua://test3", "Hello Java",
+							"bla<b> b</b>la", new Point(150, 300),
+							new Point(200, 100)).get();
 
-				String node2 = JointJSWithInformationDemo.this.jointjs
-						.createNode("apiua://test4", "Hello Java", "bla bla",
-								new Point(50, 30), new Point(120, 80)).get();
+			String element2 = JointJSWithInformationDemo.this.jointjs
+					.createElement("apiua://test4", "Hello Java", "bla bla",
+							new Point(50, 30), new Point(120, 80)).get();
 
-				String node3 = JointJSWithInformationDemo.this.jointjs
-						.createNode("apiua://test40", "Hello Java", "bla bla",
-								new Point(50, 30), new Point(220, 180)).get();
+			String element3 = JointJSWithInformationDemo.this.jointjs
+					.createElement("apiua://test40", "Hello Java", "bla bla",
+							new Point(50, 30), new Point(220, 180)).get();
 
-				String link1 = JointJSWithInformationDemo.this.jointjs
-						.createLink(null, node1, node2).get();
+			String link1 = JointJSWithInformationDemo.this.jointjs.createLink(
+					null, element1, element2).get();
 
-				JointJSWithInformationDemo.this.jointjs.setLinkTitle(link1,
-						"dssdööl sdldslkö ").get();
+			JointJSWithInformationDemo.this.jointjs.setLinkTitle(link1,
+					"dssdööl sdldslkö ").get();
 
-				String link2 = JointJSWithInformationDemo.this.jointjs
-						.createPermanentLink(null, node2, node3).get();
+			String link2 = JointJSWithInformationDemo.this.jointjs
+					.createPermanentLink(null, element2, element3).get();
 
-				JointJSWithInformationDemo.this.jointjs.setLinkTitle(link2,
-						"perm link ").get();
+			JointJSWithInformationDemo.this.jointjs.setLinkTitle(link2,
+					"perm link ").get();
 
-				JointJSWithInformationDemo.this.jointjs.setColor(
-						"apiua://test3", new RGB(255, 0, 0));
-				JointJSWithInformationDemo.this.jointjs.setBackgroundColor(
-						"apiua://test3", new RGB(255, 0, 255));
-				JointJSWithInformationDemo.this.jointjs.setBorderColor(
-						"apiua://test3", new RGB(255, 128, 0));
+			JointJSWithInformationDemo.this.jointjs.setColor("apiua://test3",
+					new RGB(255, 0, 0));
+			JointJSWithInformationDemo.this.jointjs.setBackgroundColor(
+					"apiua://test3", new RGB(255, 0, 255));
+			JointJSWithInformationDemo.this.jointjs.setBorderColor(
+					"apiua://test3", new RGB(255, 128, 0));
 
-				return null;
-			}
+			return null;
 		});
 	}
 
@@ -472,34 +462,25 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 	public void testLoadSaveSeveralTimes() throws Exception {
 		DOMConfigurator
 				.configure("/Users/bkahlert/development/reps/com.bkahlert.nebula/log4j.xml");
-		ShellUtils.runInSeparateShell(500, 300,
-				new ParametrizedCallable<Shell, Future<String>>() {
-					@Override
-					public Future<String> call(Shell shell) throws Exception {
-						final JointJS jointjs = new JointJS(shell, SWT.NONE,
-								"node://", "link://");
-						return ExecUtils.nonUIAsyncExec(new Callable<String>() {
-							@Override
-							public String call() throws Exception {
-								jointjs.createNode("myid", "Hello World!",
-										"Lorem ipsum<br/>lorem ipsum",
-										new Point(10, 10), new Point(100, 30))
-										.get();
-								String json = jointjs.save().get();
+		ShellUtils.runInSeparateShell(500, 300, shell -> {
+			final JointJS jointjs = new JointJS(shell, SWT.NONE, "element://",
+					"link://");
+			return ExecUtils.nonUIAsyncExec((Callable<String>) () -> {
+				jointjs.createElement("myid", "Hello World!",
+						"Lorem ipsum<br/>lorem ipsum", new Point(10, 10),
+						new Point(100, 30)).get();
+				String json = jointjs.save().get();
 
-								// save the loaded string and check for equality
-								for (int i = 0; i < 10; i++) {
-									String loadedJson = jointjs.load(json)
-											.get();
-									String savedJson = jointjs.save().get();
-									Assert.assertEquals(json, loadedJson);
-									Assert.assertEquals(json, savedJson);
-									json = savedJson;
-								}
-								return json;
-							}
-						});
+				// save the loaded string and check for equality
+					for (int i = 0; i < 10; i++) {
+						String loadedJson = jointjs.load(json).get();
+						String savedJson = jointjs.save().get();
+						Assert.assertEquals(json, loadedJson);
+						Assert.assertEquals(json, savedJson);
+						json = savedJson;
 					}
-				}, 1000);
+					return json;
+				});
+		}, 1000);
 	}
 }

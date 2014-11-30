@@ -23,14 +23,9 @@ public class WorkbenchUtils {
 	 * @return
 	 */
 	public static IViewPart getView(final String id) {
-		Callable<IViewPart> callable = new Callable<IViewPart>() {
-			@Override
-			public IViewPart call() throws Exception {
-				return PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-						.getActivePage()
-						.showView(id, null, IWorkbenchPage.VIEW_VISIBLE);
-			}
-		};
+		Callable<IViewPart> callable = () -> PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow().getActivePage()
+				.showView(id, null, IWorkbenchPage.VIEW_CREATE);
 		try {
 			if (Display.getCurrent() == Display.getDefault()) {
 				return callable.call();
