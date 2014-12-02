@@ -27,8 +27,8 @@ import org.codehaus.jackson.node.TextNode;
 
 /**
  * Utility functions for serializing/deserializing json object/string.
- * 
- * @see http 
+ *
+ * @see http
  *      ://www.scribblememo.com/2013/08/13/4296/jsonutil-java-package-com-glassmemo
  *      -app-auth
  */
@@ -64,7 +64,7 @@ public final class JSONUtils {
 	 * (Even if an object has an internal structure, we do not have the type
 	 * information.) Note that a leaf node object cannot be instantiated as an
 	 * object (it's only a string).
-	 * 
+	 *
 	 * @param jsonStr
 	 *            Input JSON string representing a map, a list, or an
 	 *            object/primitive type.
@@ -221,7 +221,7 @@ public final class JSONUtils {
 	 * and map) are treated as leaf nodes. Objects are converted to a string
 	 * using toString(). (Note: Even if an object has an internal structure, we
 	 * do not have the type information.)
-	 * 
+	 *
 	 * @param jsonObj
 	 *            An object that is to be converted to JSON string.
 	 * @return The json string representation of jsonObj.
@@ -372,16 +372,8 @@ public final class JSONUtils {
 					String b = (String) o;
 					jsonObj.put(key.toString(), b);
 				} else {
-					String value = o.toString();
-					if (value != null) {
-						jsonObj.put(key.toString(), value);
-					} else {
-						// ?????
-						if (log.isLoggable(Level.FINE)) {
-							log.fine("Value is null for key = " + key);
-						}
-						jsonObj.put(key.toString(), value);
-					}
+					String value = o != null ? o.toString() : null;
+					jsonObj.put(key.toString(), value);
 				}
 			}
 		}
@@ -514,10 +506,10 @@ public final class JSONUtils {
 	/**
 	 * Escapes quotes of a JSON string to it can be concatenated with JavaScript
 	 * code without breaking the commands.
-	 * 
+	 *
 	 * @param json
 	 * @return
-	 * 
+	 *
 	 * @author bkahlert
 	 */
 	public static String enquote(String s) {
