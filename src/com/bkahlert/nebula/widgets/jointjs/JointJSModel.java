@@ -32,6 +32,28 @@ public class JointJSModel {
 		return this.json.get(key);
 	}
 
+	@SuppressWarnings("unchecked")
+	public void setData(String key, String value) {
+		Object data = this.json.get("data");
+		if (!(data instanceof Map)) {
+			data = new HashMap<>();
+		}
+		((Map<Object, Object>) data).put(key, value);
+		this.json.put("data", data);
+	}
+
+	public String getData(String key) {
+		Object data = this.json.get("data");
+		if (data instanceof Map) {
+			@SuppressWarnings("unchecked")
+			Object value = ((Map<Object, Object>) data).get(key);
+			if (value instanceof String) {
+				return (String) value;
+			}
+		}
+		return null;
+	}
+
 	public String getTitle() {
 		return (String) this.json.get("title");
 	}

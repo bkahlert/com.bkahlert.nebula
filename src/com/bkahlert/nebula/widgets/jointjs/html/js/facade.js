@@ -83,6 +83,12 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 				delete json.title;
 			}
 			
+			com.bkahlert.nebula.jointjs.data  = null;
+			if(json.data) {
+				com.bkahlert.nebula.jointjs.data = json.data;
+				delete json.data;
+			}
+			
 			var zoom = 1;
 			if(json.zoom) {
 				zoom = json.zoom;
@@ -155,6 +161,7 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			});
 			
 			json.title = com.bkahlert.nebula.jointjs.getTitle();
+			json.data = com.bkahlert.nebula.jointjs.data || {};
 			json.zoom = com.bkahlert.nebula.jointjs.paper.getZoom();
 			var pan = com.bkahlert.nebula.jointjs.paper.getPan();
 			json.pan = { x: pan[0], y: pan[1] };
@@ -177,6 +184,20 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			var visible = title && title.trim() != "";
 			$('.title').text(title || "").css("display", visible ? "block" : "none");
 			com.bkahlert.nebula.jointjs.graph.trigger('change:title');
+		},
+		
+		getData: function(key) {
+			if(com.bkahlert.nebula.jointjs.data && com.bkahlert.nebula.jointjs.data[key]) {
+				return com.bkahlert.nebula.jointjs.data[key];
+			}
+			return null;
+		},
+		
+		setData: function(key, value) {
+			if(!com.bkahlert.nebula.jointjs.data) {
+				com.bkahlert.nebula.jointjs.data = {};
+			}
+			com.bkahlert.nebula.jointjs.data[key] = value;
 		},
 
 		autoLayout: function () {
@@ -283,11 +304,14 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 				com.bkahlert.nebula.jointjs.addCustomClasses(['apiua://test', linkid, linkid2], 'debugCustomClass');
 				window.setTimeout(function() { com.bkahlert.nebula.jointjs.removeCustomClasses(['apiua://test', linkid, linkid2], 'debugCustomClass'); }, 2000);
 			}))
+			.append($('<button>Set Data</button>').click(function () {
+				com.bkahlert.nebula.jointjs.setData('test', Math.random().toString(36).substring(7));
+			}))
+			.append($('<button>Get Data</button>').click(function () {
+				alert(com.bkahlert.nebula.jointjs.getData('test'));
+			}))
 			.append($('<button>Custom</button>').click(function () {
-				var x = {"cells":[{"type":"html.Element","position":{"x":270,"y":142},"size":{"width":"242","height":"30"},"angle":"0","id":"apiua://code/-9223372036854775640","content":"","title":"Offensichtliche Usability-Probleme","z":"0","color":"rgb(0, 0, 0)","background-color":"rgba(255, 102, 102, 0.27450980392156865)","border-color":"rgba(255, 48, 48, 0.39215686274509803)","attrs":{}}],"title":"New Model","zoom":"1","pan":{"x":"0","y":"0"}};
-				console.log(x);
-				com.bkahlert.nebula.jointjs.graph.clear();
-				com.bkahlert.nebula.jointjs.graph.fromJSON(x);
+				com.bkahlert.nebula.jointjs.load({"cells":[{"type":"html.Element","position":{"x":617,"y":178},"size":{"width":245,"height":28},"angle":0,"id":"apiua://code/-9223372036854775280","title":"Fehlende Funktionskategorisierung","content":"","z":0,"customClasses":[],"color":"rgb(0, 0, 0)","background-color":"rgba(57, 200, 123, 0.27450980392156865)","border-color":"rgba(47, 171, 104, 0.39215686274509803)","attrs":{}},{"type":"html.Element","position":{"x":939,"y":267},"size":{"width":230,"height":28},"angle":0,"id":"apiua://code/-9223372036854775279","title":"Funktionszweckunerkennbarkeit","content":"","z":1,"customClasses":[],"color":"rgb(0, 0, 0)","background-color":"rgba(200, 202, 54, 0.27450980392156865)","border-color":"rgba(170, 172, 46, 0.39215686274509803)","attrs":{}},{"type":"html.Element","position":{"x":395,"y":178},"size":{"width":145,"height":28},"angle":0,"id":"apiua://code/-9223372036854775579","title":"Global Interface","content":"","z":2,"customClasses":[],"color":"rgb(0, 0, 0)","background-color":"rgba(198, 57, 115, 0.27450980392156865)","border-color":"rgba(168, 48, 98, 0.39215686274509803)","attrs":{}},{"type":"html.Element","position":{"x":644.5,"y":356},"size":{"width":190,"height":28},"angle":0,"id":"apiua://code/-9223372036854775277","title":"2 Funktionen = 2 Namen","content":"","z":3,"customClasses":[],"color":"rgb(0, 0, 0)","background-color":"rgba(57, 200, 135, 0.27450980392156865)","border-color":"rgba(48, 170, 115, 0.39215686274509803)","attrs":{}},{"type":"html.Element","position":{"x":630,"y":0},"size":{"width":219,"height":28},"angle":0,"id":"apiua://code/-9223372036854775633","title":"Inkonsistenzen bzgl. STD/STL","content":"","z":4,"customClasses":[],"color":"rgb(0, 0, 0)","background-color":"rgba(198, 57, 181, 0.27450980392156865)","border-color":"rgba(168, 48, 154, 0.39215686274509803)","attrs":{}},{"type":"html.Element","position":{"x":81,"y":178},"size":{"width":183,"height":28},"angle":0,"id":"apiua://code/-9223372036854775515","title":"Template Programming","content":"","z":5,"customClasses":[],"color":"rgb(0, 0, 0)","background-color":"rgba(169, 57, 198, 0.27450980392156865)","border-color":"rgba(144, 48, 168, 0.39215686274509803)","attrs":{}},{"type":"html.Element","position":{"x":590,"y":534},"size":{"width":299,"height":28},"angle":0,"id":"apiua://code/-9223372036854775577","title":"Fehlende Dokumentation der Rückgabetypen","content":"","z":6,"customClasses":[],"color":"rgb(0, 0, 0)","background-color":"rgba(80, 239, 142, 0.27450980392156865)","border-color":"rgba(36, 235, 114, 0.39215686274509803)","attrs":{}},{"type":"html.Element","position":{"x":49.5,"y":356},"size":{"width":246,"height":28},"angle":0,"id":"apiua://code/-9223372036854775544","title":"Identifikation relevanter Funktionen","content":"","z":7,"customClasses":[],"color":"rgb(0, 0, 0)","background-color":"rgba(52, 191, 179, 0.27450980392156865)","border-color":"rgba(44, 162, 152, 0.39215686274509803)","attrs":{}},{"type":"link","source":{"id":"apiua://code/-9223372036854775579"},"target":{"id":"apiua://code/-9223372036854775633"},"labels":[{"position":0.5,"attrs":{"text":{"text":"verursacht\nTODO Anzahl direkte und indirekte Groundings anzeigen"}}}],"id":"apiua://relation/7fu79qaas2p0m5qkp2a9160agfiotm6j","smooth":true,"z":8,"vertices":[],"attrs":{".marker-target":{"d":"M 10 0 L 0 5 L 10 10 z"}}},{"type":"link","source":{"id":"apiua://code/-9223372036854775579"},"target":{"id":"apiua://code/-9223372036854775280"},"labels":[{"position":0.5,"attrs":{"text":{"text":"erhöht Eintrittwahrscheinlichkeit\nTODO Anzahl direkte und indirekte Groundings anzeigen"}}}],"id":"apiua://relation/bc471l5bdmgjsbp92ljc2372aoil9olr","smooth":true,"z":9,"vertices":[],"attrs":{".marker-target":{"d":"M 10 0 L 0 5 L 10 10 z"}}},{"type":"link","source":{"id":"apiua://code/-9223372036854775280"},"target":{"id":"apiua://code/-9223372036854775279"},"labels":[{"position":0.5,"attrs":{"text":{"text":"bedingt2222\nTODO Anzahl direkte und indirekte Groundings anzeigen"}}}],"id":"apiua://relation/koak8ole0n4vbudg45f8kar682o3e9hd","smooth":true,"z":10,"vertices":[],"attrs":{".marker-target":{"d":"M 10 0 L 0 5 L 10 10 z"}}},{"type":"link","source":{"id":"apiua://code/-9223372036854775577"},"target":{"id":"apiua://code/-9223372036854775279"},"labels":[{"position":0.5,"attrs":{"text":{"text":"verstärkt\nTODO Anzahl direkte und indirekte Groundings anzeigen"}}}],"id":"apiua://relation/3shsibj2mp5kbknqqbcsg0fksuej8l4l","smooth":true,"z":11,"vertices":[],"attrs":{".marker-target":{"d":"M 10 0 L 0 5 L 10 10 z"}}},{"type":"link","source":{"id":"apiua://code/-9223372036854775515"},"target":{"id":"apiua://code/-9223372036854775579"},"labels":[{"position":0.5,"attrs":{"text":{"text":"begingt\nTODO Anzahl direkte und indirekte Groundings anzeigen"}}}],"id":"apiua://relation/q7fgboeh34qflo84sa5bvlr3asiglv7s","smooth":true,"z":12,"vertices":[],"attrs":{".marker-target":{"d":"M 10 0 L 0 5 L 10 10 z"}}},{"type":"link","source":{"id":"apiua://code/-9223372036854775579"},"target":{"id":"apiua://code/-9223372036854775277"},"labels":[{"position":0.5,"attrs":{"text":{"text":"begingt\nTODO Anzahl direkte und indirekte Groundings anzeigen"}}}],"id":"apiua://relation/c95pfuvinhva0vaeqmbk4p48kpcb37im","smooth":true,"z":13,"vertices":[],"attrs":{".marker-target":{"d":"M 10 0 L 0 5 L 10 10 z"}}},{"type":"html.Element","position":{"x":-412,"y":267},"size":{"width":345,"height":28},"angle":0,"id":"apiua://code/-9223372036854775455","title":"Programmentwicklung (Unmöglich, Langsam, Schnell)","content":"","z":14,"customClasses":[],"color":"rgb(255, 255, 255)","background-color":"rgb(198, 57, 155)","border-color":"rgb(168, 48, 132)","attrs":{}},{"type":"link","source":{"id":"apiua://code/-9223372036854775280"},"target":{"id":"apiua://code/-9223372036854775544"},"labels":[{"position":0.5,"attrs":{"text":{"text":"begingt\nTODO Anzahl direkte und indirekte Groundings anzeigen"}}}],"id":"apiua://relation/bnukj71m5n1lejph7g3vgng83cv6qbeo","smooth":true,"z":15,"attrs":{".marker-target":{"d":"M 10 0 L 0 5 L 10 10 z"}}},{"type":"link","source":{"id":"apiua://code/-9223372036854775544"},"target":{"id":"apiua://code/-9223372036854775455"},"labels":[{"position":0.5,"attrs":{"text":{"text":"bedingt\nTODO Anzahl direkte und indirekte Groundings anzeigen"}}}],"id":"apiua://relation/s8n6bibe20mp3s27aej9vi1pdffmlnhl","smooth":true,"z":16,"attrs":{".marker-target":{"d":"M 10 0 L 0 5 L 10 10 z"}}}],"title":"Fehlende Funktionskategorisierung","data":{"origin":"apiua://code/-9223372036854775280"},"zoom":1,"pan":{"x":0,"y":0}});
 			}));
 			
 			var a = com.bkahlert.nebula.jointjs.createNode('apiua://test', { position: { x: 100, y: 300 }, title: 'my box', content: '<ul><li>jkjk</li></ul>' });

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Future;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.ListenerList;
@@ -330,8 +331,42 @@ public class JointJS extends Browser implements ISelectionProvider {
 	}
 
 	public Future<Void> setTitle(String title) {
-		return this.run("com.bkahlert.nebula.jointjs.setTitle(\"" + title
-				+ "\");", IConverter.CONVERTER_VOID);
+		if (title != null) {
+			title = "\"" + StringEscapeUtils.escapeHtml(title) + "\"";
+		}
+		return this.run("com.bkahlert.nebula.jointjs.setTitle(" + title + ");",
+				IConverter.CONVERTER_VOID);
+	}
+
+	/**
+	 * Gets the given key value. In contrast to {@link #getData()} the data is
+	 * not retrived from the {@link Widget} but the internal model.
+	 */
+	public Future<String> getCustomData(String key) {
+		return this.run("return com.bkahlert.nebula.jointjs.getData(\"" + key
+				+ "\");", IConverter.CONVERTER_STRING);
+	}
+
+	/**
+	 * Sets the given key to the given value. In contrast to
+	 * {@link #setData(String, Object)} the data is not saved in the
+	 * {@link Widget} but in the internal model.
+	 * <p>
+	 * This way the data can be saved and loaded along the model.
+	 *
+	 * @param key
+	 * @param value
+	 * @return
+	 */
+	public Future<Void> setCustomData(String key, String value) {
+		if (key != null) {
+			key = "\"" + StringEscapeUtils.escapeHtml(key) + "\"";
+		}
+		if (value != null) {
+			value = "\"" + StringEscapeUtils.escapeHtml(value) + "\"";
+		}
+		return this.run("com.bkahlert.nebula.jointjs.setData(" + key + ", "
+				+ value + ");", IConverter.CONVERTER_VOID);
 	}
 
 	public Future<String> createElement(String id, Object json) {

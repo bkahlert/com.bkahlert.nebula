@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.eclipse.swt.SWT;
@@ -269,6 +270,30 @@ public class JointJSDemo extends AbstractDemo {
 					}
 					log("got bounding box");
 				});
+
+		this.createControlButton("Set Data", () -> {
+			log("setting data");
+			try {
+				JointJSDemo.this.jointjs.setCustomData(
+						"test",
+						"crazy string for test reasons: "
+								+ RandomStringUtils.random(32)
+								+ " ← crazy, isn't it?!");
+			} catch (Exception e) {
+				log(e.toString());
+			}
+			log("set data");
+		});
+
+		this.createControlButton("Get Data", () -> {
+			log("getting data");
+			try {
+				log(JointJSDemo.this.jointjs.getCustomData("test").get());
+			} catch (Exception e) {
+				log(e.toString());
+			}
+			log("got data");
+		});
 	}
 
 	@Override
