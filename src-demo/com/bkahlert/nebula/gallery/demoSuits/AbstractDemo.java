@@ -58,7 +58,7 @@ public abstract class AbstractDemo {
 				.grab(true, true).create());
 
 		Text console = new Text(this.composite, SWT.V_SCROLL | SWT.BORDER
-				| SWT.MULTI);
+				| SWT.MULTI | SWT.WRAP);
 		console.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 		this.console = new EmptyText(console, "Debug Console");
 		this.hideConsole();
@@ -96,7 +96,7 @@ public abstract class AbstractDemo {
 
 	/**
 	 * Adds a message to the console and shows it if hidden.
-	 * 
+	 *
 	 * @param message
 	 */
 	public static void log(final String message) {
@@ -105,20 +105,17 @@ public abstract class AbstractDemo {
 		}
 
 		try {
-			ExecUtils.syncExec(new Runnable() {
-				@Override
-				public void run() {
-					String newLine = consoleDateFormat.format(new Date()) + " "
-							+ message + "\n";
-					String oldText = currentDemo.console.getText();
-					String newText = oldText + newLine;
-					currentDemo.console.setText(newText);
-					Text control = currentDemo.console.getControl();
-					if (control != null && !control.isDisposed()) {
-						control.setSelection(newText.length());
-					}
-					currentDemo.showConsole();
+			ExecUtils.syncExec(() -> {
+				String newLine = consoleDateFormat.format(new Date()) + " "
+						+ message + "\n";
+				String oldText = currentDemo.console.getText();
+				String newText = oldText + newLine;
+				currentDemo.console.setText(newText);
+				Text control = currentDemo.console.getControl();
+				if (control != null && !control.isDisposed()) {
+					control.setSelection(newText.length());
 				}
+				currentDemo.showConsole();
 			});
 		} catch (SWTException e) {
 			// Disposed
@@ -136,7 +133,7 @@ public abstract class AbstractDemo {
 	 * Creates the controls for this demo.
 	 * <p>
 	 * By default they are hidden.
-	 * 
+	 *
 	 * @param composite
 	 */
 	public void createControls(Composite composite) {
@@ -148,7 +145,7 @@ public abstract class AbstractDemo {
 	 * Creates a button in the control section.
 	 * {@link #createControls(Composite)} must be overwritten to make the
 	 * effects of this function visible.
-	 * 
+	 *
 	 * @param caption
 	 * @param runnable
 	 * @return
@@ -167,7 +164,7 @@ public abstract class AbstractDemo {
 
 	/**
 	 * Creates the demoAreaContent for this demo.
-	 * 
+	 *
 	 * @param composite
 	 */
 	public void createDemo(Composite composite) {
