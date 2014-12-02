@@ -329,16 +329,13 @@ public class ExecUtils {
 	public static <I, O> ParametrizedCallable<I, O> createThreadLabelingCode(
 			final ParametrizedCallable<I, O> parametrizedCallable,
 			final Class<?> clazz, final String purpose) {
-		return new ParametrizedCallable<I, O>() {
-			@Override
-			public O call(I i) throws Exception {
-				String oldName = Thread.currentThread().getName();
-				setThreadLabel(oldName + " :: ", clazz, purpose);
-				try {
-					return parametrizedCallable.call(i);
-				} finally {
-					Thread.currentThread().setName(oldName);
-				}
+		return i -> {
+			String oldName = Thread.currentThread().getName();
+			setThreadLabel(oldName + " :: ", clazz, purpose);
+			try {
+				return parametrizedCallable.call(i);
+			} finally {
+				Thread.currentThread().setName(oldName);
 			}
 		};
 	}
@@ -346,32 +343,26 @@ public class ExecUtils {
 	public static <V> Callable<V> createThreadLabelingCode(
 			final Callable<V> callable, final Class<?> clazz,
 			final String purpose) {
-		return new Callable<V>() {
-			@Override
-			public V call() throws Exception {
-				String oldName = Thread.currentThread().getName();
-				setThreadLabel(oldName + " :: ", clazz, purpose);
-				try {
-					return callable.call();
-				} finally {
-					Thread.currentThread().setName(oldName);
-				}
+		return () -> {
+			String oldName = Thread.currentThread().getName();
+			setThreadLabel(oldName + " :: ", clazz, purpose);
+			try {
+				return callable.call();
+			} finally {
+				Thread.currentThread().setName(oldName);
 			}
 		};
 	}
 
 	public static Runnable createThreadLabelingCode(final Runnable runnable,
 			final Class<?> clazz, final String purpose) {
-		return new Runnable() {
-			@Override
-			public void run() {
-				String oldName = Thread.currentThread().getName();
-				setThreadLabel(oldName + " :: ", clazz, purpose);
-				try {
-					runnable.run();
-				} finally {
-					Thread.currentThread().setName(oldName);
-				}
+		return () -> {
+			String oldName = Thread.currentThread().getName();
+			setThreadLabel(oldName + " :: ", clazz, purpose);
+			try {
+				runnable.run();
+			} finally {
+				Thread.currentThread().setName(oldName);
 			}
 		};
 	}
@@ -385,12 +376,7 @@ public class ExecUtils {
 	public static void busyWait(final long millis) {
 		final long start = System.currentTimeMillis();
 		try {
-			busyWait(new Callable<Boolean>() {
-				@Override
-				public Boolean call() throws Exception {
-					return System.currentTimeMillis() < start + millis;
-				}
-			});
+			busyWait(() -> System.currentTimeMillis() < start + millis);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -405,12 +391,7 @@ public class ExecUtils {
 	 */
 	public static void busyWait(final Future<?> future) {
 		try {
-			busyWait(new Callable<Boolean>() {
-				@Override
-				public Boolean call() throws Exception {
-					return !future.isDone();
-				}
-			});
+			busyWait(() -> !future.isDone());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -426,13 +407,8 @@ public class ExecUtils {
 	public static void busyWait(final Future<?> future, final long millis) {
 		final long start = System.currentTimeMillis();
 		try {
-			busyWait(new Callable<Boolean>() {
-				@Override
-				public Boolean call() throws Exception {
-					return !future.isDone()
-							|| System.currentTimeMillis() < start + millis;
-				}
-			});
+			busyWait(() -> !future.isDone()
+					|| System.currentTimeMillis() < start + millis);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -452,25 +428,19 @@ public class ExecUtils {
 			throws Exception {
 		Assert.isTrue(whileTrue != null);
 		Assert.isTrue(isUIThread());
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					while (whileTrue.call()) {
-						Thread.sleep(20);
-					}
-				} catch (Exception e) {
-					LOGGER.error(e);
+		new Thread(() -> {
+			try {
+				while (whileTrue.call()) {
+					Thread.sleep(20);
 				}
-				ExecUtils.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						// Should the be no more events on the queue, the loop
-						// below will never stop. Let's make it work again with
-						// this Runnable.
-					}
-				});
+			} catch (Exception e) {
+				LOGGER.error(e);
 			}
+			ExecUtils.asyncExec(() -> {
+				// Should the be no more events on the queue, the loop
+				// below will never stop. Let's make it work again with
+				// this Runnable.
+				});
 		}).start();
 		Display display = Display.getCurrent();
 		while (!display.isDisposed() && whileTrue.call()) {
@@ -486,7 +456,9 @@ public class ExecUtils {
 	 * @param future
 	 */
 	public static void logException(Future<?> future) {
-		logException(future, null);
+		if (future != null) {
+			logException(future, null);
+		}
 	}
 
 	/**
@@ -498,17 +470,14 @@ public class ExecUtils {
 	 */
 	public static void logException(final Future<?> future, final Logger logger) {
 		Assert.isNotNull(future);
-		ExecUtils.nonUIAsyncExec(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					future.get();
-				} catch (Exception e) {
-					if (logger != null) {
-						logger.error(e);
-					} else {
-						e.printStackTrace();
-					}
+		ExecUtils.nonUIAsyncExec(() -> {
+			try {
+				future.get();
+			} catch (Exception e) {
+				if (logger != null) {
+					logger.error(e);
+				} else {
+					e.printStackTrace();
 				}
 			}
 		});
@@ -530,16 +499,13 @@ public class ExecUtils {
 		final AtomicReference<V> r = new AtomicReference<V>();
 		final AtomicReference<Exception> exception = new AtomicReference<Exception>();
 		final Semaphore mutex = new Semaphore(0);
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					r.set(callable.call());
-				} catch (Exception e) {
-					exception.set(e);
-				}
-				mutex.release();
+		Display.getDefault().syncExec(() -> {
+			try {
+				r.set(callable.call());
+			} catch (Exception e) {
+				exception.set(e);
 			}
+			mutex.release();
 		});
 		try {
 			mutex.acquire();
@@ -569,14 +535,11 @@ public class ExecUtils {
 			runnable.run();
 		} else {
 			final AtomicReference<Exception> exception = new AtomicReference<Exception>();
-			Display.getDefault().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						runnable.run();
-					} catch (Exception e) {
-						exception.set(e);
-					}
+			Display.getDefault().syncExec(() -> {
+				try {
+					runnable.run();
+				} catch (Exception e) {
+					exception.set(e);
 				}
 			});
 			if (exception.get() != null) {
@@ -599,12 +562,7 @@ public class ExecUtils {
 	 */
 	public static <V> Future<V> asyncExec(final Callable<V> callable) {
 		return new UIThreadSafeFuture<V>(
-				EXECUTOR_SERVICE.submit(new Callable<V>() {
-					@Override
-					public V call() throws Exception {
-						return syncExec(callable);
-					}
-				}));
+				EXECUTOR_SERVICE.submit(() -> syncExec(callable)));
 	}
 
 	/**
@@ -619,26 +577,21 @@ public class ExecUtils {
 	 */
 	public static Future<Void> asyncExec(final Runnable runnable) {
 		return new UIThreadSafeFuture<Void>(
-				EXECUTOR_SERVICE.submit(new Callable<Void>() {
-					@Override
-					public Void call() throws Exception {
-						final AtomicReference<Exception> exception = new AtomicReference<Exception>();
-						Display.getDefault().asyncExec(new Runnable() {
-							@Override
-							public void run() {
+				EXECUTOR_SERVICE
+						.submit(() -> {
+							final AtomicReference<Exception> exception = new AtomicReference<Exception>();
+							Display.getDefault().asyncExec(() -> {
 								try {
 									runnable.run();
 								} catch (Exception e) {
 									exception.set(e);
 								}
+							});
+							if (exception.get() != null) {
+								throw exception.get();
 							}
-						});
-						if (exception.get() != null) {
-							throw exception.get();
-						}
-						return null;
-					}
-				}));
+							return null;
+						}));
 	}
 
 	/**
@@ -657,20 +610,16 @@ public class ExecUtils {
 	 */
 	public static <V> Future<V> asyncExec(final Callable<V> callable,
 			final long delay) {
-		return new UIThreadSafeFuture<V>(
-				EXECUTOR_SERVICE.submit(new Callable<V>() {
-					@Override
-					public V call() throws Exception {
-						try {
-							Thread.sleep(delay);
-						} catch (InterruptedException e) {
-							LOGGER.error("Could not execute with a delay callable "
-									+ callable);
-						}
+		return new UIThreadSafeFuture<V>(EXECUTOR_SERVICE.submit(() -> {
+			try {
+				Thread.sleep(delay);
+			} catch (InterruptedException e) {
+				LOGGER.error("Could not execute with a delay callable "
+						+ callable);
+			}
 
-						return syncExec(callable);
-					}
-				}));
+			return syncExec(callable);
+		}));
 	}
 
 	/**
@@ -688,21 +637,17 @@ public class ExecUtils {
 	 */
 	public static Future<Void> asyncExec(final Runnable runnable,
 			final long delay) {
-		return new UIThreadSafeFuture<Void>(
-				EXECUTOR_SERVICE.submit(new Callable<Void>() {
-					@Override
-					public Void call() throws Exception {
-						try {
-							Thread.sleep(delay);
-						} catch (InterruptedException e) {
-							LOGGER.error("Could not execute with a delay runnable "
-									+ runnable);
-						}
+		return new UIThreadSafeFuture<Void>(EXECUTOR_SERVICE.submit(() -> {
+			try {
+				Thread.sleep(delay);
+			} catch (InterruptedException e) {
+				LOGGER.error("Could not execute with a delay runnable "
+						+ runnable);
+			}
 
-						syncExec(runnable);
-						return null;
-					}
-				}));
+			syncExec(runnable);
+			return null;
+		}));
 	}
 
 	/**
@@ -738,14 +683,10 @@ public class ExecUtils {
 	 */
 	public static Future<Void> nonUISyncExec(final Runnable runnable) {
 		if (ExecUtils.isUIThread()) {
-			return new UIThreadSafeFuture<Void>(
-					EXECUTOR_SERVICE.submit(new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							runnable.run();
-							return null;
-						}
-					}));
+			return new UIThreadSafeFuture<Void>(EXECUTOR_SERVICE.submit(() -> {
+				runnable.run();
+				return null;
+			}));
 		} else {
 			return new CompletedFuture<Void>(runnable);
 		}
@@ -922,20 +863,16 @@ public class ExecUtils {
 	public static <V> Future<List<V>> nonUIAsyncExec(
 			@SuppressWarnings("unchecked") final Callable<V>... callables) {
 		Assert.isLegal(callables != null && callables.length != 0);
-		return nonUIAsyncExec(new Callable<List<V>>() {
-			@Override
-			public List<V> call() throws Exception {
-				List<V> list = new ArrayList<V>(callables.length);
-				List<Future<V>> futures = new ArrayList<Future<V>>(
-						callables.length);
-				for (Callable<V> callable : callables) {
-					futures.add(nonUIAsyncExec(callable));
-				}
-				for (Future<V> future : futures) {
-					list.add(future.get());
-				}
-				return list;
+		return nonUIAsyncExec((Callable<List<V>>) () -> {
+			List<V> list = new ArrayList<V>(callables.length);
+			List<Future<V>> futures = new ArrayList<Future<V>>(callables.length);
+			for (Callable<V> callable : callables) {
+				futures.add(nonUIAsyncExec(callable));
 			}
+			for (Future<V> future : futures) {
+				list.add(future.get());
+			}
+			return list;
 		});
 	}
 
@@ -953,14 +890,10 @@ public class ExecUtils {
 	 * @NonUIThread
 	 */
 	public static Future<Void> nonUIAsyncExec(final Runnable runnable) {
-		return new UIThreadSafeFuture<Void>(
-				EXECUTOR_SERVICE.submit(new Callable<Void>() {
-					@Override
-					public Void call() throws Exception {
-						runnable.run();
-						return null;
-					}
-				}));
+		return new UIThreadSafeFuture<Void>(EXECUTOR_SERVICE.submit(() -> {
+			runnable.run();
+			return null;
+		}));
 	}
 
 	public static <V> Future<V> nonUIAsyncExec(final Class<?> clazz,
@@ -972,15 +905,10 @@ public class ExecUtils {
 
 	public static Future<Void> nonUIAsyncExec(final Class<?> clazz,
 			final String purpose, final Runnable runnable) {
-		return new UIThreadSafeFuture<Void>(
-				EXECUTOR_SERVICE.submit(new Callable<Void>() {
-					@Override
-					public Void call() throws Exception {
-						createThreadLabelingCode(runnable, clazz, purpose)
-								.run();
-						return null;
-					}
-				}));
+		return new UIThreadSafeFuture<Void>(EXECUTOR_SERVICE.submit(() -> {
+			createThreadLabelingCode(runnable, clazz, purpose).run();
+			return null;
+		}));
 	}
 
 	/**
@@ -1102,13 +1030,8 @@ public class ExecUtils {
 		List<Future<OUTPUT>> futures1 = new ArrayList<Future<OUTPUT>>();
 		for (Iterator<INPUT> iterator = input.iterator(); iterator.hasNext();) {
 			final INPUT object = iterator.next();
-			futures1.add(executorService.submit(new Callable<OUTPUT>() {
-				@Override
-				public OUTPUT call() throws Exception {
-					return createThreadLabelingCode(parametrizedCallable,
-							clazz, purpose).call(object);
-				}
-			}));
+			futures1.add(executorService.submit(() -> createThreadLabelingCode(
+					parametrizedCallable, clazz, purpose).call(object)));
 		}
 		List<Future<OUTPUT>> futures = futures1;
 		executorService.shutdown();
@@ -1145,68 +1068,58 @@ public class ExecUtils {
 		final List<Future<OUTPUT>> futures1 = new ArrayList<Future<OUTPUT>>();
 		for (Iterator<INPUT> iterator = input.iterator(); iterator.hasNext();) {
 			final INPUT object = iterator.next();
-			futures1.add(executorService.submit(new Callable<OUTPUT>() {
-				@Override
-				public OUTPUT call() throws Exception {
-					return createThreadLabelingCode(parametrizedCallable,
-							clazz, purpose).call(object);
-				}
-			}));
+			futures1.add(executorService.submit(() -> createThreadLabelingCode(
+					parametrizedCallable, clazz, purpose).call(object)));
 		}
-		Iterable<OUTPUT> futures = new Iterable<OUTPUT>() {
+		Iterable<OUTPUT> futures = () -> new Iterator<OUTPUT>() {
 			@Override
-			public Iterator<OUTPUT> iterator() {
-				return new Iterator<OUTPUT>() {
-					@Override
-					public boolean hasNext() {
-						return futures1.size() > 0;
+			public boolean hasNext() {
+				return futures1.size() > 0;
+			}
+
+			@Override
+			public OUTPUT next() {
+				if (!this.hasNext()) {
+					return null;
+				}
+
+				return this.next(0);
+			}
+
+			public OUTPUT next(int numCalls) {
+				if (numCalls == 200) {
+					LOGGER.warn(ExecUtils.class
+							+ " is busy waiting for the next available result since 10s. There might be a problem.");
+				}
+
+				Future<OUTPUT> next = null;
+				for (Future<OUTPUT> future : futures1) {
+					if (future.isDone()) {
+						next = future;
+						break;
 					}
-
-					@Override
-					public OUTPUT next() {
-						if (!this.hasNext()) {
-							return null;
-						}
-
-						return this.next(0);
+				}
+				if (next != null) {
+					futures1.remove(next);
+					try {
+						return next.get();
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
+					} catch (ExecutionException e) {
+						throw new RuntimeException(e);
 					}
-
-					public OUTPUT next(int numCalls) {
-						if (numCalls == 200) {
-							LOGGER.warn(ExecUtils.class
-									+ " is busy waiting for the next available result since 10s. There might be a problem.");
-						}
-
-						Future<OUTPUT> next = null;
-						for (Future<OUTPUT> future : futures1) {
-							if (future.isDone()) {
-								next = future;
-								break;
-							}
-						}
-						if (next != null) {
-							futures1.remove(next);
-							try {
-								return next.get();
-							} catch (InterruptedException e) {
-								throw new RuntimeException(e);
-							} catch (ExecutionException e) {
-								throw new RuntimeException(e);
-							}
-						} else {
-							try {
-								Thread.sleep(50);
-							} catch (InterruptedException e) {
-								throw new RuntimeException(e);
-							}
-							return this.next(numCalls + 1);
-						}
+				} else {
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
 					}
+					return this.next(numCalls + 1);
+				}
+			}
 
-					@Override
-					public void remove() {
-					}
-				};
+			@Override
+			public void remove() {
 			}
 		};
 		executorService.shutdown();
