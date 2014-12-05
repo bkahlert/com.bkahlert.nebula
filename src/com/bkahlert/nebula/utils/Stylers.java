@@ -35,9 +35,9 @@ public class Stylers {
 				}
 			}).getStyleRanges()[0];
 
-	private static final Color COUNTER_COLOR = new Color(Display.getCurrent(),
+	public static final Color COUNTER_COLOR = new Color(Display.getCurrent(),
 			new org.eclipse.swt.graphics.RGB(0, 128, 170));
-	private static final Color MINOR_COLOR = new Color(Display.getCurrent(),
+	public static final Color MINOR_COLOR = new Color(Display.getCurrent(),
 			new org.eclipse.swt.graphics.RGB(179, 179, 179));
 
 	public static final Color ATTENTION_COLOR = new Color(Display.getDefault(),
