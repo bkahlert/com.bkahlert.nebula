@@ -295,4 +295,18 @@ public class StringUtils {
 	public static String shorten(String script) {
 		return shorten(script, 100);
 	}
+
+	public static int findClosingParenthese(String string, int openPos) {
+		int closePos = openPos;
+		int counter = 1;
+		while (counter > 0) {
+			char c = string.charAt(++closePos);
+			if (c == '(') {
+				counter++;
+			} else if (c == ')') {
+				counter--;
+			}
+		}
+		return closePos;
+	}
 }
