@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
-import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.StyledString.Styler;
@@ -24,6 +23,7 @@ import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 import com.bkahlert.nebula.utils.FontUtils;
 import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.Stylers;
+import com.bkahlert.nebula.viewer.IStyledLabelProvider;
 import com.bkahlert.nebula.viewer.SortableTableViewer;
 
 @Demo
