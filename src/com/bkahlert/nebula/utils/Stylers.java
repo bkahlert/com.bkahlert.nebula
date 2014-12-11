@@ -306,7 +306,8 @@ public class Stylers {
 	 */
 	public static StyledString apply(StyledString string, Styler styler,
 			String applyTo) {
-		for (int index = string.getString().indexOf(applyTo); index >= 0; index = string
+		for (int index = string.getString().toLowerCase()
+				.indexOf(applyTo.toLowerCase()); index >= 0; index = string
 				.getString().indexOf(applyTo, index + 1)) {
 			string = apply(string, styler, index, index + applyTo.length());
 		}

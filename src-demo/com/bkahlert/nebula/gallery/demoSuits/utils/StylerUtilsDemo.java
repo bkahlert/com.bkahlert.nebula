@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.StyledString;
@@ -23,8 +22,8 @@ import com.bkahlert.nebula.utils.DistributionUtils.RelativeWidth;
 import com.bkahlert.nebula.utils.FontUtils;
 import com.bkahlert.nebula.utils.Pair;
 import com.bkahlert.nebula.utils.Stylers;
-import com.bkahlert.nebula.viewer.IStyledLabelProvider;
 import com.bkahlert.nebula.viewer.SortableTableViewer;
+import com.bkahlert.nebula.viewer.StyledLabelProvider;
 
 @Demo
 public class StylerUtilsDemo extends AbstractDemo {
@@ -37,44 +36,6 @@ public class StylerUtilsDemo extends AbstractDemo {
 			.append("consectetur", Stylers.ATTENTION_STYLER)
 			.append(" adipiscing ", Stylers.IMPORTANCE_HIGH_STYLER)
 			.append("elit.", Stylers.IMPORTANCE_LOW_STYLER);
-
-	private static class LabelProvider extends ColumnLabelProvider implements
-			IStyledLabelProvider {
-		@Override
-		public StyledString getStyledText(Object element) {
-			StyledString string = (StyledString) element;
-			if (string.getStyleRanges().length == 0) {
-				return new StyledString(string.getString(), new Styler() {
-					@Override
-					public void applyStyles(TextStyle textStyle) {
-						textStyle.font = FontUtils.BOLD_FONT;
-					}
-				});
-			} else {
-				return string;
-			}
-		}
-
-		@Override
-		public Color getForeground(Object element) {
-			StyledString string = (StyledString) element;
-			if (string.getStyleRanges().length == 0) {
-				return Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
-			} else {
-				return null;
-			}
-		}
-
-		@Override
-		public Color getBackground(Object element) {
-			StyledString string = (StyledString) element;
-			if (string.getStyleRanges().length == 0) {
-				return Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
-			} else {
-				return null;
-			}
-		}
-	}
 
 	@Override
 	public void createDemo(Composite parent) {
@@ -209,7 +170,47 @@ public class StylerUtilsDemo extends AbstractDemo {
 		});
 
 		viewer.createColumn(null, new RelativeWidth(1.0)).setLabelProvider(
-				new DelegatingStyledCellLabelProvider(new LabelProvider()));
+				new DelegatingStyledCellLabelProvider(
+						new StyledLabelProvider() {
+							@Override
+							public StyledString getStyledText(Object element) {
+								StyledString string = (StyledString) element;
+								if (string.getStyleRanges().length == 0) {
+									return new StyledString(string.getString(),
+											new Styler() {
+												@Override
+												public void applyStyles(
+														TextStyle textStyle) {
+													textStyle.font = FontUtils.BOLD_FONT;
+												}
+											});
+								} else {
+									return string;
+								}
+							}
+
+							@Override
+							public Color getForeground(Object element) {
+								StyledString string = (StyledString) element;
+								if (string.getStyleRanges().length == 0) {
+									return Display.getCurrent().getSystemColor(
+											SWT.COLOR_WHITE);
+								} else {
+									return null;
+								}
+							}
+
+							@Override
+							public Color getBackground(Object element) {
+								StyledString string = (StyledString) element;
+								if (string.getStyleRanges().length == 0) {
+									return Display.getCurrent().getSystemColor(
+											SWT.COLOR_BLACK);
+								} else {
+									return null;
+								}
+							}
+						}));
 
 		viewer.setInput(data);
 		viewer.refresh();

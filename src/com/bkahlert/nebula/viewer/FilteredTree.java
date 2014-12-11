@@ -1,5 +1,8 @@
 package com.bkahlert.nebula.viewer;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
@@ -11,20 +14,23 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.viewers.CellLabelProvider;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.progress.WorkbenchJob;
 
 import com.bkahlert.nebula.utils.CellLabelClient;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
+import com.bkahlert.nebula.utils.Stylers;
 import com.bkahlert.nebula.utils.ViewerUtils;
 
 /**
@@ -36,9 +42,9 @@ import com.bkahlert.nebula.utils.ViewerUtils;
  * <li>The expanded elements state is restored after search has finished. The
  * selected element stays also expanded.</li>
  * </ol>
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 
@@ -59,14 +65,12 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 	 * {@link ILabelProvider} for the whole thing. If {@link TreeViewerColumn}
 	 * are used there is no single {@link ILabelProvider}. This
 	 * {@link PatternFilter} considers all column's {@link ILabelProvider}s.
-	 * 
+	 *
 	 * @author bkahlert
-	 * 
+	 *
 	 */
 	public static class GenericTreePatternFilter extends
 			PatternFilterWorkAround {
-
-		private final Map<Integer, CellLabelClient> cellLabelClients = new HashMap<Integer, CellLabelClient>();
 
 		public GenericTreePatternFilter(TreeViewerFactory factory) {
 			super(factory);
@@ -84,27 +88,21 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 			for (int columnIndex = 0; columnIndex < numberOfColumns; columnIndex++) {
 				CellLabelProvider cellLabelProvider = treeViewer
 						.getLabelProvider(columnIndex);
-				if (!this.cellLabelClients.containsKey(columnIndex)) {
-					this.cellLabelClients.put(columnIndex, new CellLabelClient(
-							cellLabelProvider));
-				}
-
-				CellLabelClient labelClient = this.cellLabelClients
-						.get(columnIndex);
-				labelClient.setElement(element);
-				String labelText = labelClient.getText();
+				CellLabelClient.INSTANCE.setElement(cellLabelProvider, element);
+				String labelText = CellLabelClient.INSTANCE.getText();
 				isMatch |= this.wordMatches(labelText);
 			}
 			return isMatch;
 		}
+
 	}
 
 	/**
 	 * This {@link PatternFilter} filters based on the value object behind each
 	 * row.
-	 * 
+	 *
 	 * @author bkahlert
-	 * 
+	 *
 	 * @param <T>
 	 */
 	public static class URITreePatternFilter<T> extends PatternFilterWorkAround {
@@ -145,9 +143,9 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 	 * rows. The value object of each row is passed to the converter. If the
 	 * converter returns true (or cannot be casted to <code>T</code>) the row is
 	 * part of the result.
-	 * 
+	 *
 	 * @author bkahlert
-	 * 
+	 *
 	 */
 	public <T> FilteredTree(Composite parent, int treeStyle,
 			TreeViewerFactory factory, IConverter<T, String> filter) {
@@ -158,9 +156,9 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 	/**
 	 * Constructs a new instance that checks the text of all columns of each
 	 * row.
-	 * 
+	 *
 	 * @author bkahlert
-	 * 
+	 *
 	 */
 	public FilteredTree(Composite parent, int treeStyle,
 			TreeViewerFactory factory) {
@@ -171,10 +169,20 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 	protected WorkbenchJob doCreateRefreshJob() {
 		WorkbenchJob job = super.doCreateRefreshJob();
 		job.addJobChangeListener(new JobChangeAdapter() {
+			private String lastFilterString = "";
 			private TreePath[] expanded = null;
+			private Map<TreeViewerColumn, CellLabelProvider> labelProviders = null;
 
 			@Override
 			public void aboutToRun(IJobChangeEvent event) {
+				boolean filterStarted;
+				{
+					String s = FilteredTree.this.getFilterString();
+					filterStarted = !s.equals(this.lastFilterString)
+							&& !s.isEmpty();
+					this.lastFilterString = s;
+				}
+
 				Job prefetcher = FilteredTree.this
 						.prefetch(FilteredTree.this.treeViewer);
 
@@ -197,22 +205,70 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 				} catch (InterruptedException e1) {
 					LOGGER.error("Error prefetching", e1);
 				}
-				try {
-					ExecUtils.syncExec(new Runnable() {
-						@Override
-						public void run() {
-							Text text = FilteredTree.this.getFilterControl();
-							if (text != null && !text.isDisposed()
-									&& !text.getText().isEmpty()
-									&& expanded == null) {
-								expanded = FilteredTree.this.getViewer()
+
+				if (filterStarted) {
+					try {
+						ExecUtils.syncExec(() -> {
+							if (!FilteredTree.this.getFilterString().isEmpty()
+									&& this.expanded == null) {
+								this.expanded = FilteredTree.this.getViewer()
 										.getExpandedTreePaths();
 							}
-						}
-					});
-				} catch (Exception e) {
-					LOGGER.error("Error saving expanded state of "
-							+ FilteredTree.this.getViewer());
+						});
+					} catch (Exception e) {
+						this.expanded = null;
+						LOGGER.error("Error saving expanded state of "
+								+ FilteredTree.this.getViewer());
+					}
+
+					try {
+						ExecUtils.syncExec(() -> {
+							this.labelProviders = new HashMap<>();
+							for (TreeViewerColumn column : ViewerUtils
+									.getColumns(FilteredTree.this.getViewer())) {
+
+								CellLabelProvider labelProvider = ViewerUtils
+										.getLabelProvider(column);
+								if (labelProvider != null) {
+									this.labelProviders.put(column,
+											labelProvider);
+									column.setLabelProvider(new DelegatingStyledCellLabelProvider(
+											new StyledLabelProvider() {
+												@Override
+												public StyledString getStyledText(
+														Object element) {
+													CellLabelClient.INSTANCE
+															.setElement(
+																	labelProvider,
+																	element);
+													StyledString s = CellLabelClient.INSTANCE
+															.getStyledText();
+													return Stylers
+															.apply(s,
+																	Stylers.BOLD_STYLER,
+																	Arrays.asList(FilteredTree.this
+																			.getWords()));
+												}
+
+												@Override
+												public Image getImage(
+														Object element) {
+													CellLabelClient.INSTANCE
+															.setElement(
+																	labelProvider,
+																	element);
+													return CellLabelClient.INSTANCE
+															.getImage();
+												}
+											}));
+								}
+							}
+						});
+					} catch (Exception e) {
+						this.labelProviders = null;
+						LOGGER.error("Error highlighting filtering text in "
+								+ FilteredTree.this.getViewer());
+					}
 				}
 				super.aboutToRun(event);
 			}
@@ -220,30 +276,47 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 			@Override
 			public void done(final IJobChangeEvent event) {
 				super.done(event);
-				final Text text = FilteredTree.this.getFilterControl();
 				try {
-					ExecUtils.syncExec(new Runnable() {
-						@Override
-						public void run() {
-							if (text.getText() != null && !text.isDisposed()
-									&& text.getText().isEmpty()) {
-								TreeSelection selection = (TreeSelection) FilteredTree.this.treeViewer
-										.getSelection();
-								if (selection != null && selection.size() > 0) {
-									expanded = ViewerUtils.addTreePath(
-											expanded,
-											ViewerUtils
-													.createCompletedTreePaths(selection));
+					ExecUtils
+							.syncExec(() -> {
+								if (FilteredTree.this.getFilterString()
+										.isEmpty()) {
+									TreeSelection selection = (TreeSelection) FilteredTree.this.treeViewer
+											.getSelection();
+									if (selection != null
+											&& selection.size() > 0) {
+										this.expanded = ViewerUtils
+												.addTreePath(
+														this.expanded,
+														ViewerUtils
+																.createCompletedTreePaths(selection));
+									}
+									if (this.expanded != null
+											&& (event.getResult() == Status.OK_STATUS)) {
+										FilteredTree.this.treeViewer
+												.setExpandedTreePaths(this.expanded);
+										this.expanded = null;
+									}
+
+									if (this.labelProviders != null) {
+										try {
+											ExecUtils
+													.syncExec(() -> {
+														for (TreeViewerColumn column : this.labelProviders
+																.keySet()) {
+															column.setLabelProvider(this.labelProviders
+																	.get(column));
+														}
+													});
+										} catch (Exception e) {
+											LOGGER.error("Error highlighting filtering text in "
+													+ FilteredTree.this
+															.getViewer());
+										}
+										this.labelProviders = null;
+									}
 								}
-								if (expanded != null
-										&& (event.getResult() == Status.OK_STATUS)) {
-									FilteredTree.this.treeViewer
-											.setExpandedTreePaths(expanded);
-									expanded = null;
-								}
-							}
-						}
-					});
+							});
 				} catch (Exception e) {
 					LOGGER.error("Error filtering Tree", e);
 				}
@@ -256,7 +329,7 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 	/**
 	 * Can be overwritten if you need to preload data before the filtering takes
 	 * place and blocks the UI thread.
-	 * 
+	 *
 	 * @param treeViewer
 	 * @return
 	 */
@@ -270,4 +343,35 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 				.create(parent, style);
 	};
 
+	@Override
+	protected String getFilterString() {
+		try {
+			String s = ExecUtils.syncExec(() -> FilteredTree.super
+					.getFilterString());
+			if (s == null || s.equals(this.initialText)) {
+				return "";
+			}
+			return s;
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		return "";
+	}
+
+	private String[] getWords() {
+		try {
+			Method m = PatternFilter.class.getDeclaredMethod("getWords",
+					String.class);
+			m.setAccessible(true);
+			String[] words = (String[]) m.invoke(this.getPatternFilter(),
+					this.getFilterString());
+			m.setAccessible(false);
+			return words;
+		} catch (NoSuchMethodException | SecurityException
+				| IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			LOGGER.error(e);
+		}
+		return this.getFilterString().split("\\s+");
+	}
 }

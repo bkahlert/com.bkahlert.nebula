@@ -1,5 +1,7 @@
 package com.bkahlert.nebula.utils;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.util.Policy;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
+import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -591,6 +594,28 @@ public class ViewerUtils {
 		return -1;
 	}
 
+	public static List<TableViewerColumn> getColumns(TableViewer tableViewer) {
+		List<TableViewerColumn> tableViewerColumns = new ArrayList<TableViewerColumn>();
+		for (int i = 0, m = tableViewer.getTable().getColumnCount(); i < m; i++) {
+			TableViewerColumn tableViewerColumn = getColumn(tableViewer, i);
+			if (tableViewerColumn != null) {
+				tableViewerColumns.add(tableViewerColumn);
+			}
+		}
+		return tableViewerColumns;
+	}
+
+	public static List<TreeViewerColumn> getColumns(TreeViewer treeViewer) {
+		List<TreeViewerColumn> treeViewerColumns = new ArrayList<TreeViewerColumn>();
+		for (int i = 0, m = treeViewer.getTree().getColumnCount(); i < m; i++) {
+			TreeViewerColumn treeViewerColumn = getColumn(treeViewer, i);
+			if (treeViewerColumn != null) {
+				treeViewerColumns.add(treeViewerColumn);
+			}
+		}
+		return treeViewerColumns;
+	}
+
 	public static TableViewerColumn getColumn(TableViewer tableViewer, int index) {
 		Object data = TreeTableUtils.getColumn(tableViewer.getTable(), index)
 				.getData(Policy.JFACE + ".columnViewer");
@@ -607,6 +632,22 @@ public class ViewerUtils {
 			return (TreeViewerColumn) data;
 		}
 		return null;
+	}
+
+	public static CellLabelProvider getLabelProvider(ViewerColumn viewerColumn) {
+		Assert.isLegal(viewerColumn != null);
+		CellLabelProvider cellLabelProvider = null;
+		try {
+			Method m = ViewerColumn.class.getDeclaredMethod("getLabelProvider");
+			m.setAccessible(true);
+			cellLabelProvider = (CellLabelProvider) m.invoke(viewerColumn);
+			m.setAccessible(false);
+		} catch (NoSuchMethodException | SecurityException
+				| IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		return cellLabelProvider;
 	}
 
 	public static void refresh(final Viewer viewer) {
