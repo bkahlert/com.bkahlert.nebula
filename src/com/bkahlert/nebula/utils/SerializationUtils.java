@@ -29,8 +29,8 @@ public class SerializationUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends Serializable> T deserialize(String string,
-			Class<T> clazz) throws IOException, ClassNotFoundException {
+	public static <T> T deserialize(String string, Class<T> clazz)
+			throws IOException, ClassNotFoundException {
 		byte[] bytes = Base64.decodeBase64(string.getBytes());
 		T object = null;
 		ObjectInputStream objectInputStream = new ObjectInputStream(

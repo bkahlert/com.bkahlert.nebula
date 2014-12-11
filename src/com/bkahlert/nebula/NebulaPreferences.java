@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.OSGIPreferenceUtil;
+import com.bkahlert.nebula.utils.SerializationUtils;
 
 // TODO for some reason (3->4?) does not persist settings
 // therefore using newly created OSGIPreferenceUtil
@@ -46,20 +47,27 @@ public class NebulaPreferences extends OSGIPreferenceUtil {
 			String key,
 			TreeViewer treeViewer,
 			@SuppressWarnings("unchecked") IConverter<Object, String>... converters) {
-		Object[] expandedElements = treeViewer.getExpandedElements();
+		TreePath[] treePaths = treeViewer.getExpandedTreePaths();
 
-		List<String> serializedElements = new ArrayList<String>();
-		for (Object expandedElement : expandedElements) {
-			String serializedElement = this
-					.convert(expandedElement, converters);
-			if (serializedElement != null) {
-				serializedElements.add(serializedElement);
+		List<List<String>> serializedTreePaths = new ArrayList<>();
+		for (TreePath treePath : treePaths) {
+			List<String> serializedTreePath = new ArrayList<>();
+			for (int i = 0; i < treePath.getSegmentCount(); i++) {
+				String serializedElement = this.convert(treePath.getSegment(i),
+						converters);
+				if (serializedElement == null) {
+					break;
+				}
+				serializedTreePath.add(serializedElement);
 			}
+			serializedTreePaths.add(serializedTreePath);
 		}
-		this.getSystemPreferences().putByteArray(
+
+		this.getSystemPreferences().put(
 				"expandedElements." + key,
-				SerializationUtils.serialize(serializedElements
-						.toArray(new String[0])));
+				SerializationUtils.serialize(serializedTreePaths,
+						list -> SerializationUtils.serialize(list,
+								string -> string)));
 	}
 
 	/**
@@ -74,27 +82,27 @@ public class NebulaPreferences extends OSGIPreferenceUtil {
 			final TreeViewer treeViewer,
 			@SuppressWarnings("unchecked") IConverter<String, Object>... converters) {
 		try {
-			byte[] stored = this.getSystemPreferences().getByteArray(
+			String stored = this.getSystemPreferences().get(
 					"expandedElements." + key, null);
-			String[] serializedElements = (String[]) SerializationUtils
-					.deserialize(stored);
-			final List<Object> expandedElements = new LinkedList<Object>();
-			for (String serializedElement : serializedElements) {
-				Object expandedElement = this.convert(serializedElement,
-						converters);
-				if (expandedElement != null) {
-					expandedElements.add(expandedElement);
-				}
-			}
-			ExecUtils.syncExec(new Runnable() {
-				@Override
-				public void run() {
-					for (Object expandedElement : expandedElements) {
-						if (expandedElement != null) {
-							treeViewer.expandToLevel(expandedElement, 1);
-						}
+			@SuppressWarnings("unchecked")
+			List<String> serializedTreePaths = SerializationUtils.deserialize(
+					stored, List.class);
+			final List<TreePath> treePaths = new LinkedList<>();
+			for (String serializedTreePath : serializedTreePaths) {
+				List<Object> treePath = new LinkedList<>();
+				for (Object serializedElement : SerializationUtils.deserialize(
+						serializedTreePath, List.class)) {
+					Object expandedElement = this.convert(
+							(String) serializedElement, converters);
+					if (expandedElement != null) {
+						treePath.add(expandedElement);
 					}
 				}
+				treePaths.add(new TreePath(treePath.toArray()));
+			}
+			ExecUtils.syncExec(() -> {
+				treeViewer.setExpandedTreePaths(treePaths
+						.toArray(new TreePath[0]));
 			});
 		} catch (Exception e) {
 			LOGGER.error("Error loading expanded elements of " + treeViewer, e);
