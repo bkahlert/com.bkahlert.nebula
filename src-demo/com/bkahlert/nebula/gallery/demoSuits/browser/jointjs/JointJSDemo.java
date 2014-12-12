@@ -346,6 +346,16 @@ public class JointJSDemo extends AbstractDemo {
 			public void hovered(JointJSCell cell, boolean hoveredIn) {
 				log("hovered " + (hoveredIn ? "in" : "out") + ": " + cell);
 			}
+
+			@Override
+			public void clicked(JointJSCell cell) {
+				log("clicked " + cell);
+			}
+
+			@Override
+			public void doubleClicked(JointJSCell cell) {
+				log("double clicked " + cell);
+			}
 		});
 
 		ExecUtils.nonUIAsyncExec((Callable<Void>) () -> {

@@ -77,8 +77,11 @@ public class JointJS extends Browser implements ISelectionProvider {
 
 		public void linkTitleChanged(String id, String title);
 
-		public void hovered(JointJSCell jointJSCell, boolean hoveredIn);
+		public void hovered(JointJSCell cell, boolean hoveredIn);
 
+		public void clicked(JointJSCell cell);
+
+		public void doubleClicked(JointJSCell cell);
 	}
 
 	public static class JointJSListener implements IJointJSListener {
@@ -101,6 +104,14 @@ public class JointJS extends Browser implements ISelectionProvider {
 
 		@Override
 		public void hovered(JointJSCell cell, boolean hoveredIn) {
+		}
+
+		@Override
+		public void clicked(JointJSCell cell) {
+		}
+
+		@Override
+		public void doubleClicked(JointJSCell cell) {
 		}
 
 	}
@@ -225,6 +236,30 @@ public class JointJS extends Browser implements ISelectionProvider {
 				if (arguments.length == 1) {
 					String json = (String) arguments[0];
 					JointJS.this.fireHoveredOut(JointJSCellFactory
+							.createJointJSCell(json));
+				}
+				return null;
+			}
+		};
+
+		new BrowserFunction(this.getBrowser(), "__cellClicked") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length == 1) {
+					String json = (String) arguments[0];
+					JointJS.this.fireClicked(JointJSCellFactory
+							.createJointJSCell(json));
+				}
+				return null;
+			}
+		};
+
+		new BrowserFunction(this.getBrowser(), "__cellDoubleClicked") {
+			@Override
+			public Object function(Object[] arguments) {
+				if (arguments.length == 1) {
+					String json = (String) arguments[0];
+					JointJS.this.fireDoubleClicked(JointJSCellFactory
 							.createJointJSCell(json));
 				}
 				return null;
@@ -758,6 +793,18 @@ public class JointJS extends Browser implements ISelectionProvider {
 			jointJSListener.hovered(jointJSCell, false);
 		}
 		this.lastHovered = null;
+	}
+
+	private void fireClicked(JointJSCell jointJSCell) {
+		for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
+			jointJSListener.clicked(jointJSCell);
+		}
+	}
+
+	private void fireDoubleClicked(JointJSCell jointJSCell) {
+		for (IJointJSListener jointJSListener : JointJS.this.jointJSListeners) {
+			jointJSListener.doubleClicked(jointJSCell);
+		}
 	}
 
 	@Override

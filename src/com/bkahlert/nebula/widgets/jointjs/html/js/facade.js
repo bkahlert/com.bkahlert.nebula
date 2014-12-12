@@ -62,7 +62,7 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			com.bkahlert.nebula.jointjs.activateLinkAbandonCapability(com.bkahlert.nebula.jointjs.graph, com.bkahlert.nebula.jointjs.paper);
 			com.bkahlert.nebula.jointjs.activateLinkTools();
 			com.bkahlert.nebula.jointjs.activateSelections();
-			com.bkahlert.nebula.jointjs.activateHoverStates();
+			com.bkahlert.nebula.jointjs.activateEventForwarding();
 			com.bkahlert.nebula.jointjs.activateModificationNotification();
 			
 			var internal = /[?&]internal=true/.test(location.href);
@@ -783,9 +783,21 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			        com.bkahlert.nebula.jointjs.setFocus([cell.model.id]);
 			    }
 			);
+			
+			joint.shapes.LinkView.prototype._pointerdown = joint.shapes.LinkView.prototype.pointerdown;
+			joint.shapes.LinkView.prototype.pointerdown = function(evt, x, y) {
+				// only handle pointerdown by LinkView if shift was pressed or a vertex-marker
+				if(shiftKey || $(evt.target).parents('.marker-vertices, .link-tools, .marker-arrowheads').length > 0) joint.shapes.LinkView.prototype._pointerdown.apply(this, arguments);
+				// otherwise directly forward the event to the paper (so the link can be selected)
+				else this.paper.trigger('cell:pointerdown', this, evt, x, y);
+			};
 		},
 		
-		activateHoverStates: function() {
+		activateEventForwarding: function() {
+			var shiftKey = false;
+			var altKey = false;
+			$(document).bind('keyup keydown', function(e){shiftKey = e.shiftKey || e.metaKey; altKey = e.altKey; });
+			
 			var $d = $(document);
 			if (typeof window.__cellHoveredOver === 'function') {
 				$d.on('mouseenter', '[model-id]', function() {
@@ -797,6 +809,17 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 				$d.on('mouseleave', '[model-id]', function() {
 					var id = $(this).attr('model-id');
 					window.__cellHoveredOut(com.bkahlert.nebula.jointjs.getCell(id));
+				});
+			}
+			if (typeof window.__cellClicked === 'function') {
+				$d.on('click', '[model-id]', function() {
+					var id = $(this).attr('model-id');
+					window.__cellClicked(com.bkahlert.nebula.jointjs.getCell(id));
+				});
+			}
+			if (typeof window.__cellDoubleClicked === 'function') {
+				com.bkahlert.nebula.jointjs.paper.on('cell:pointerdblclick', function(cell, evt, x, y) {
+					if(!altKey) window.__cellDoubleClicked(com.bkahlert.nebula.jointjs.getCell(cell.model.id));
 				});
 			}
 		},

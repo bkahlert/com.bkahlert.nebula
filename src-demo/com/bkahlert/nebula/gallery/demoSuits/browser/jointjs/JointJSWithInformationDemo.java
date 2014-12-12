@@ -373,6 +373,16 @@ public class JointJSWithInformationDemo extends AbstractDemo {
 				log("hovered " + (hoveredIn ? "in" : "out") + ": "
 						+ cell.getId());
 			}
+
+			@Override
+			public void clicked(JointJSCell cell) {
+				log("clicked " + cell);
+			}
+
+			@Override
+			public void doubleClicked(JointJSCell cell) {
+				log("double clicked " + cell);
+			}
 		});
 
 		InformationControlManager<Composite, URI> informationManager = new InformationControlManager<Composite, URI>(
