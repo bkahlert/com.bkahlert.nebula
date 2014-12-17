@@ -367,7 +367,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 
 	public Future<Void> setTitle(String title) {
 		if (title != null) {
-			title = "\"" + StringEscapeUtils.escapeHtml(title) + "\"";
+			title = "\"" + title.replace("\"", "\\\"") + "\"";
 		}
 		return this.run("com.bkahlert.nebula.jointjs.setTitle(" + title + ");",
 				IConverter.CONVERTER_VOID);
