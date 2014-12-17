@@ -239,8 +239,7 @@ public abstract class Editor<T> extends Composite {
 
 						// refreshHeader();
 						monitor.worked(1);
-						ExecUtils.logException(Editor.this.composer
-								.setTitle(title));
+						Editor.this.composer.setTitle(title);
 						Future<Boolean> success = Editor.this.composer
 								.setSource(html);
 						if (!success.get()) {
