@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Control;
@@ -27,9 +26,9 @@ import org.eclipse.swt.widgets.Event;
  * <b>Please not that {@link #notifyNow()} is automatically called if the
  * {@link Control} is being disposed.</b> Simply make sure to have
  * {@link #modifyied(Object)} called before.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public class ModificationNotifier<T> implements IModifiable {
 
@@ -47,32 +46,25 @@ public class ModificationNotifier<T> implements IModifiable {
 		this.control = control;
 		this.delayChangeEventTo = delayChangeEventTo;
 
-		control.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				// there might be other DisposeListeners
-				// with asyncExec we make sure we don't stop the timer to
-				// early
-				ExecUtils.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						synchronized (control) {
-							if (ModificationNotifier.this.timer != null) {
-								ModificationNotifier.this.timer.cancel();
-							}
-							ModificationNotifier.this.notifyNow();
+		// there might be other DisposeListeners
+		// with asyncExec we make sure we don't stop the timer to
+		// early
+		control.addDisposeListener(e -> ExecUtils.asyncExec(() -> ExecUtils
+				.nonUIAsyncExec((Callable<Void>) () -> {
+					synchronized (control) {
+						if (ModificationNotifier.this.timer != null) {
+							ModificationNotifier.this.timer.cancel();
 						}
+						ModificationNotifier.this.notifyNow();
 					}
-				});
-
-			}
-		});
+					return null;
+				})));
 	}
 
 	/**
 	 * Informs the {@link ModificationNotifier} that the {@link Control}'s
 	 * content changed. This will trigger a delayed {@link ModifyEvent}.
-	 * 
+	 *
 	 * @param newValue
 	 */
 	public void modified(final T newValue) {
@@ -82,19 +74,15 @@ public class ModificationNotifier<T> implements IModifiable {
 
 		this.oldValue = newValue;
 
-		final Runnable fireRunnable = new Runnable() {
-			@Override
-			public void run() {
-				Event event = new Event();
-				event.display = Display.getCurrent();
-				event.widget = ModificationNotifier.this.control;
-				event.text = newValue instanceof String ? (String) newValue
-						: null;
-				event.data = newValue;
-				ModifyEvent modifyEvent = new ModifyEvent(event);
-				for (ModifyListener modifyListener : ModificationNotifier.this.modifyListeners) {
-					modifyListener.modifyText(modifyEvent);
-				}
+		final Runnable fireRunnable = () -> {
+			Event event = new Event();
+			event.display = Display.getCurrent();
+			event.widget = ModificationNotifier.this.control;
+			event.text = newValue instanceof String ? (String) newValue : null;
+			event.data = newValue;
+			ModifyEvent modifyEvent = new ModifyEvent(event);
+			for (ModifyListener modifyListener : ModificationNotifier.this.modifyListeners) {
+				modifyListener.modifyText(modifyEvent);
 			}
 		};
 
