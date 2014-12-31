@@ -16,9 +16,9 @@ public class RenameDialog extends TitleAreaDialog {
 
 	private String caption;
 
-	public RenameDialog(Shell parentShell, String title) {
+	public RenameDialog(Shell parentShell, String caption) {
 		super(parentShell);
-		this.caption = title;
+		this.caption = caption;
 	}
 
 	@Override
