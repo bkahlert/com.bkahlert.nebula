@@ -1,6 +1,7 @@
 package com.bkahlert.nebula.utils;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -27,7 +28,7 @@ public class AdapterFactoryProxy<T> implements IAdapterFactory {
 	/**
 	 * Constructs a new {@link AdapterFactoryProxy} with the given shared
 	 * classes.
-	 * 
+	 *
 	 * @param adaptableClass
 	 *            the class
 	 * @param sharedClasses
@@ -38,9 +39,12 @@ public class AdapterFactoryProxy<T> implements IAdapterFactory {
 	public AdapterFactoryProxy(Class<T> adaptableClass,
 			Class<?>... sharedClasses) {
 		this.adaptableClass = adaptableClass;
-		this.sharedClasses = new HashSet<Class<?>>(Arrays.asList(sharedClasses));
-		this.adapterFactories = new HashSet<IAdapterFactory>();
-		this.adapterToAdapterFactories = new HashMap<Class<?>, Set<IAdapterFactory>>();
+		this.sharedClasses = Collections.synchronizedSet(new HashSet<Class<?>>(
+				Arrays.asList(sharedClasses)));
+		this.adapterFactories = Collections
+				.synchronizedSet(new HashSet<IAdapterFactory>());
+		this.adapterToAdapterFactories = Collections
+				.synchronizedMap(new HashMap<Class<?>, Set<IAdapterFactory>>());
 	}
 
 	public void registerAdapters(IAdapterFactory adapterFactory) {
@@ -66,7 +70,8 @@ public class AdapterFactoryProxy<T> implements IAdapterFactory {
 	@Override
 	synchronized public Object getAdapter(Object adaptableObject,
 			@SuppressWarnings("rawtypes") Class adapterType) {
-		Set<IAdapterFactory> adapterFactoriesToAsk = new HashSet<IAdapterFactory>();
+		Set<IAdapterFactory> adapterFactoriesToAsk = Collections
+				.synchronizedSet(new HashSet<IAdapterFactory>());
 		if (this.sharedClasses.contains(adapterType)) {
 			adapterFactoriesToAsk.addAll(this.adapterFactories);
 		} else if (this.adapterToAdapterFactories.containsKey(adapterType)) {
