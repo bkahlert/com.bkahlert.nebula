@@ -925,14 +925,14 @@ public class Browser extends Composite implements IBrowser {
 				+ "').length > 0", IConverter.CONVERTER_BOOLEAN);
 	}
 
-	private String escape(String html) {
+	public static String escape(String html) {
 		return html.replace("\n", "<br>").replace("&#xD;", "")
 				.replace("\r", "").replace("\"", "\\\"").replace("'", "\\'");
 	}
 
 	@Override
 	public Future<Void> setBodyHtml(String html) {
-		return this.run("document.body.innerHTML = ('" + this.escape(html)
+		return this.run("document.body.innerHTML = ('" + Browser.escape(html)
 				+ "');", IConverter.CONVERTER_VOID);
 	}
 
@@ -963,7 +963,7 @@ public class Browser extends Composite implements IBrowser {
 
 	@Override
 	public Future<Void> pasteHtmlAtCaret(String html) {
-		String escapedHtml = this.escape(html);
+		String escapedHtml = Browser.escape(html);
 		try {
 			File js = File.createTempFile("paste", ".js");
 			FileUtils
