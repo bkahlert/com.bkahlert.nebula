@@ -370,7 +370,9 @@ public class Composer extends Browser implements IModifiable {
 	}
 
 	public void addAnkerLabelProvider(IAnkerLabelProvider ankerLabelProvider) {
-		this.ankerLabelProviders.add(ankerLabelProvider);
+		if (!this.ankerLabelProviders.contains(ankerLabelProvider)) {
+			this.ankerLabelProviders.add(ankerLabelProvider);
+		}
 	}
 
 	public void removeAnkerLabelProvider(IAnkerLabelProvider ankerLabelProvider) {

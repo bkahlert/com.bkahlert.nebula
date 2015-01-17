@@ -33,7 +33,7 @@ public abstract class EditorInformationControlExtender<INFORMATION> implements
 			.getLogger(EditorInformationControlExtender.class);
 
 	private final Map<InformationControl<INFORMATION>, ComposerReadOnly> composers = new HashMap<InformationControl<INFORMATION>, ComposerReadOnly>();
-	private final Map<InformationControl<INFORMATION>, Editor<INFORMATION>> editors = new HashMap<InformationControl<INFORMATION>, Editor<INFORMATION>>();
+	protected final Map<InformationControl<INFORMATION>, Editor<INFORMATION>> editors = new HashMap<InformationControl<INFORMATION>, Editor<INFORMATION>>();
 
 	private final GridDataFactory layoutData;
 

@@ -12,8 +12,8 @@ import com.bkahlert.nebula.widgets.editor.Editor;
 public class SampleEditorView extends EditorView<String> {
 
 	public SampleEditorView() {
-		super(returnValue -> new Pair<String, org.eclipse.swt.graphics.Image>(
-				returnValue, null), 500, ToolbarSet.DEFAULT, true);
+		super(returnValue -> new Pair<>(returnValue, null), 500,
+				ToolbarSet.DEFAULT, true);
 	}
 
 	@Override
