@@ -667,6 +667,11 @@ public class Browser extends Composite implements IBrowser {
 	}
 
 	@Override
+	public void run(String script, long interval, String scope) {
+		this.browserScriptRunner.run(script, interval, scope);
+	}
+
+	@Override
 	public <DEST> Future<DEST> run(final String script,
 			final IConverter<Object, DEST> converter) {
 		return this.browserScriptRunner.run(script, converter);

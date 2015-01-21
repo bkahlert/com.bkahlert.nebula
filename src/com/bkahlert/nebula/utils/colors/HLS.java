@@ -1,5 +1,6 @@
 package com.bkahlert.nebula.utils.colors;
 
+
 /**
  * Instances of this class describe colors in the HLS (hue, saturation,
  * lightness) color space.
@@ -7,6 +8,8 @@ package com.bkahlert.nebula.utils.colors;
  * @author bkahlert
  */
 public class HLS {
+	public static final HLS BLACK = new HLS(0.0, 0.0, 0.0);
+
 	private double hue;
 	private double lightness;
 	private double saturation;

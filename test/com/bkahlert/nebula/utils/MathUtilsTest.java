@@ -85,4 +85,12 @@ public class MathUtilsTest {
 		assertEquals(1, MathUtils.min(100, 1, 1));
 		assertEquals(-1, MathUtils.min(100, Integer.MAX_VALUE, -1));
 	}
+
+	@Test
+	public void testAngDiff() {
+		assertEquals(0.0, MathUtils.angDiff(0.0, 0.0), 0.1);
+		assertEquals(0.0, MathUtils.angDiff(1.0, 0.0), 0.1);
+		assertEquals(0.5, MathUtils.angDiff(0.25, 0.75), 0.1);
+		assertEquals(0.45, MathUtils.angDiff(0.25, 0.70), 0.1);
+	}
 }

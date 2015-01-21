@@ -11,7 +11,7 @@ public class MathUtils {
 	 * <p>
 	 * e.g. if you have a directed graph P1(0,0) and P2(1,1) the angle would be
 	 * about 0.785rad (45°).
-	 * 
+	 *
 	 * @param p1
 	 * @param p2
 	 * @return
@@ -27,7 +27,7 @@ public class MathUtils {
 	 * <p>
 	 * e.g. if you have a directed graph P1(0,0) and P2(1,1) the angle would be
 	 * 45� (about 0.785rad).
-	 * 
+	 *
 	 * @param p1
 	 * @param p2
 	 * @return
@@ -39,7 +39,7 @@ public class MathUtils {
 	/**
 	 * Calculate the maximum size a given rectangle (specified by its width and
 	 * height) can have if it must be resized to given limits.
-	 * 
+	 *
 	 * @param rectangle
 	 * @param limits
 	 * @return
@@ -68,7 +68,7 @@ public class MathUtils {
 	/**
 	 * Calculate the maximum size a given rectangle (specified by its width and
 	 * height) can have if it must be resized to given limits.
-	 * 
+	 *
 	 * @param rectangle
 	 * @param limits
 	 * @return
@@ -84,7 +84,7 @@ public class MathUtils {
 	/**
 	 * Calculates by which factor a given rectangle may be scaled without
 	 * exceeding the given limits.
-	 * 
+	 *
 	 * @param rectangle
 	 * @param limits
 	 * @return
@@ -97,7 +97,7 @@ public class MathUtils {
 	/**
 	 * Calculates by which factor a given rectangle may be scaled without
 	 * exceeding the given limits.
-	 * 
+	 *
 	 * @param rectangle
 	 * @param limits
 	 * @return
@@ -116,5 +116,10 @@ public class MathUtils {
 			}
 		}
 		return min;
+	}
+
+	public static double angDiff(double alpha, double beta) {
+		double abs = Math.abs(alpha - beta);
+		return Math.min(abs, 1 - abs);
 	}
 }

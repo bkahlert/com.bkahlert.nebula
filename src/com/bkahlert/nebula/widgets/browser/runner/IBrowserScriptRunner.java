@@ -11,9 +11,9 @@ import com.bkahlert.nebula.utils.IConverter;
 /**
  * Implementations of this script can execute {@link IJavaScript}s using a
  * {@link Browser}.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public interface IBrowserScriptRunner {
 
@@ -23,10 +23,10 @@ public interface IBrowserScriptRunner {
 	 * <p>
 	 * In contrast to {@link #run(URI)} the reference (
 	 * <code>&lt;script src="..."&gt&lt;/script&gt</code>) is kept.
-	 * 
+	 *
 	 * @param script
 	 * @return
-	 * 
+	 *
 	 * @ArbitraryThread may be called from whatever thread.
 	 */
 	public Future<Boolean> inject(URI script);
@@ -34,10 +34,10 @@ public interface IBrowserScriptRunner {
 	/**
 	 * Runs the script contained in the given {@link File} in the browser as
 	 * soon as its content is loaded.
-	 * 
+	 *
 	 * @param script
 	 * @return
-	 * 
+	 *
 	 * @ArbitraryThread may be called from whatever thread.
 	 */
 	public Future<Boolean> run(File script);
@@ -51,10 +51,10 @@ public interface IBrowserScriptRunner {
 	 * {@link #inject(URI)} is recommended. <b>Exception: If the resource is
 	 * actually a file on the local file system, its content will be run and
 	 * therefore persist to circumvent security restrictions.
-	 * 
+	 *
 	 * @param script
 	 * @return
-	 * 
+	 *
 	 * @ArbitraryThread may be called from whatever thread.
 	 */
 	public Future<Boolean> run(URI script);
@@ -62,22 +62,33 @@ public interface IBrowserScriptRunner {
 	/**
 	 * Runs the given script in the browser as soon as its content is loaded and
 	 * returns the evaluation's return value.
-	 * 
+	 *
 	 * @param script
 	 * @return
-	 * 
+	 *
 	 * @ArbitraryThread may be called from whatever thread.
 	 */
 	public Future<Object> run(String script);
 
 	/**
+	 * Runs the given script in a debouncing fashion. Consecutive calls are
+	 * script calls with the same scope and less than than <code>interval</code>
+	 * milliseconds between them.
+	 *
+	 * @param script
+	 * @param interval
+	 * @param scope
+	 */
+	public void run(String script, long interval, String scope);
+
+	/**
 	 * Runs the given script in the browser as soon as its content is loaded and
 	 * returns the evaluation's converted return value.
-	 * 
+	 *
 	 * @param script
 	 * @param converter
 	 * @return
-	 * 
+	 *
 	 * @ArbitraryThread may be called from whatever thread.
 	 */
 	public <DEST> Future<DEST> run(String script,
@@ -87,10 +98,10 @@ public interface IBrowserScriptRunner {
 	 * Runs the script <b>contained</b> in the given {@link File} in the browser
 	 * immediately. This means the file is not linked but its content is read
 	 * and directly executed.
-	 * 
+	 *
 	 * @param scriptFile
 	 * @return
-	 * 
+	 *
 	 * @ArbitraryThread may be called from whatever thread.
 	 */
 
@@ -100,10 +111,10 @@ public interface IBrowserScriptRunner {
 	 * Runs the script <b>contained</b> in the given {@link File} in the browser
 	 * immediately. This means the file is not linked but its content is
 	 * directly put into a <code>script</code> tag.
-	 * 
+	 *
 	 * @param scriptFile
 	 * @return
-	 * 
+	 *
 	 * @ArbitraryThread may be called from whatever thread.
 	 */
 	void runContentsAsScriptTagImmediately(File scriptFile) throws Exception;
@@ -111,11 +122,11 @@ public interface IBrowserScriptRunner {
 	/**
 	 * Runs the given script in the browser immediately and returns the
 	 * evaluation's converted return value.
-	 * 
+	 *
 	 * @param script
 	 * @param converter
 	 * @return
-	 * 
+	 *
 	 * @ArbitraryThread may be called from whatever thread.
 	 */
 	public <DEST> DEST runImmediately(String script,
@@ -124,14 +135,14 @@ public interface IBrowserScriptRunner {
 	/**
 	 * Gets called if when the given script is about to be executed by the
 	 * browser.
-	 * 
+	 *
 	 * @param script
 	 */
 	public void scriptAboutToBeSentToBrowser(String script);
 
 	/**
 	 * Gets called when the previously executed script finished execution.
-	 * 
+	 *
 	 * @param returnValue
 	 */
 	public void scriptReturnValueReceived(Object returnValue);

@@ -1,7 +1,10 @@
 package com.bkahlert.nebula.gallery.demoSuits.utils;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -12,7 +15,10 @@ import org.eclipse.swt.widgets.Label;
 import com.bkahlert.nebula.gallery.annotations.Demo;
 import com.bkahlert.nebula.gallery.demoSuits.AbstractDemo;
 import com.bkahlert.nebula.utils.FontUtils;
+import com.bkahlert.nebula.utils.Pair;
+import com.bkahlert.nebula.utils.colors.ColorSpaceConverter;
 import com.bkahlert.nebula.utils.colors.ColorUtils;
+import com.bkahlert.nebula.utils.colors.HLS;
 import com.bkahlert.nebula.utils.colors.RGB;
 import com.bkahlert.nebula.widgets.ColorPicker;
 import com.bkahlert.nebula.widgets.browser.extended.BootstrapBrowser;
@@ -31,7 +37,14 @@ public class ColorUtilsDemo extends AbstractDemo {
 	public void createDemo(Composite parent) {
 		SashForm sash = new SashForm(parent, SWT.HORIZONTAL | SWT.SMOOTH);
 
-		this.bootstrapBrowser = new BootstrapBrowser(sash, SWT.INHERIT_FORCE);
+		this.allColors(sash);
+		this.mixerDemo(sash);
+		this.rainbow(sash);
+	}
+
+	private void allColors(Composite composite) {
+		this.bootstrapBrowser = new BootstrapBrowser(composite,
+				SWT.INHERIT_FORCE);
 		this.bootstrapBrowser.openBlank();
 
 		List<RGB> colors = Arrays.asList(new RGB(0, 0, 0), new RGB(0, 0, 255),
@@ -44,41 +57,13 @@ public class ColorUtilsDemo extends AbstractDemo {
 				ColorUtils.getRandomRGB(), ColorUtils.getRandomRGB(),
 				ColorUtils.getRandomRGB());
 
-		StringBuilder html = new StringBuilder();
-		html.append("<table style=\"width: 100%;\">");
+		Pair<Integer, String> table = this.renderTable(colors, 1, true);
 
-		int numRows = 0;
-		for (float lightnessFactor = 1.6f; lightnessFactor >= 0f; lightnessFactor -= 0.1f) {
-			numRows++;
-			html.append("<tr>");
-			for (RGB rgb : colors) {
-				com.bkahlert.nebula.utils.colors.RGB color = ColorUtils
-						.scaleLightnessBy(rgb, lightnessFactor);
-				html.append("<td style=\"background-color: "
-						+ color.toDecString()
-						+ "; min-width: %{minwidth}; height: %{height};\"></td>");
-			}
-			html.append("</tr>");
-		}
-		for (float saturationFactor = 1.0f; saturationFactor >= 0f; saturationFactor -= 0.1f) {
-			numRows++;
-			html.append("<tr>");
-			for (RGB rgb : colors) {
-				com.bkahlert.nebula.utils.colors.RGB color = ColorUtils
-						.scaleSaturationBy(rgb, saturationFactor);
-				html.append("<td style=\"background-color: "
-						+ color.toDecString()
-						+ "; min-width: %{minwidth}; height: %{height};\"></td>");
-			}
-			html.append("</tr>");
-		}
+		this.bootstrapBrowser.setBodyHtml(table.getSecond());
+	}
 
-		html.append("</table>");
-		this.bootstrapBrowser.setBodyHtml(html.toString()
-				.replace("%{minwidth}", "1em")
-				.replace("%{height}", (100.0 / numRows) + "vh"));
-
-		Composite mixer = new Composite(sash, SWT.NONE);
+	private void mixerDemo(Composite composite) {
+		Composite mixer = new Composite(composite, SWT.NONE);
 		mixer.setLayout(new FillLayout(SWT.VERTICAL));
 
 		this.colorPicker1 = new ColorPicker(mixer);
@@ -107,6 +92,75 @@ public class ColorUtilsDemo extends AbstractDemo {
 		this.resultColorPicker3 = new ColorPicker(result);
 		this.resultColorPicker3.setEnabled(false);
 		this.updateColorPicker();
+	}
+
+	private void rainbow(Composite composite) {
+		BootstrapBrowser bootstrapBrowser = new BootstrapBrowser(composite,
+				SWT.INHERIT_FORCE);
+		bootstrapBrowser.openBlank();
+
+		int numColors = 2;
+		int numRuns = 3;
+
+		List<HLS> colors = ColorUtils.rainbow(numColors);
+
+		String html = this.renderTable(
+				colors.stream().map(hls -> ColorSpaceConverter.HLStoRGB(hls))
+						.collect(Collectors.toList()), numRuns + 1, false)
+				.getSecond();
+		for (int run = 0; run < numRuns; run++) {
+			numColors = colors.size();
+			List<HLS> newColors = new LinkedList<>();
+			for (int i = 0; i < numColors; i++) {
+				newColors.addAll(ColorUtils.rainbow(numColors, colors, i));
+			}
+			colors = newColors;
+			html += this.renderTable(
+					colors.stream()
+							.map(hls -> ColorSpaceConverter.HLStoRGB(hls))
+							.collect(Collectors.toList()), numRuns + 1, false)
+					.getSecond();
+		}
+
+		bootstrapBrowser.setBodyHtml(html);
+	}
+
+	private Pair<Integer, String> renderTable(Collection<RGB> colors,
+			int pages, boolean showSaturation) {
+		StringBuilder html = new StringBuilder();
+		html.append("<table style=\"width: 100%;\">");
+
+		int numRows = 0;
+		for (float lightnessFactor = 1.6f; lightnessFactor >= 0f; lightnessFactor -= 0.1f) {
+			numRows++;
+			html.append("<tr>");
+			for (RGB rgb : colors) {
+				com.bkahlert.nebula.utils.colors.RGB color = ColorUtils
+						.scaleLightnessBy(rgb, lightnessFactor);
+				html.append("<td style=\"background-color: "
+						+ color.toDecString()
+						+ "; min-width: %{minwidth}; height: %{height};\"></td>");
+			}
+			html.append("</tr>");
+		}
+		if (showSaturation) {
+			for (float saturationFactor = 1.0f; saturationFactor >= 0f; saturationFactor -= 0.1f) {
+				numRows++;
+				html.append("<tr>");
+				for (RGB rgb : colors) {
+					com.bkahlert.nebula.utils.colors.RGB color = ColorUtils
+							.scaleSaturationBy(rgb, saturationFactor);
+					html.append("<td style=\"background-color: "
+							+ color.toDecString()
+							+ "; min-width: %{minwidth}; height: %{height};\"></td>");
+				}
+				html.append("</tr>");
+			}
+		}
+
+		html.append("</table>");
+		return new Pair<>(numRows, html.toString().replace("%{minwidth}", "0")
+				.replace("%{height}", ((100.0 / pages) / numRows) + "vh"));
 	}
 
 	private void updateColorPicker() {

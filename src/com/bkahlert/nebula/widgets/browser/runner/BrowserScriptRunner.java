@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
@@ -20,6 +22,7 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
 
 import com.bkahlert.nebula.utils.CompletedFuture;
+import com.bkahlert.nebula.utils.Debouncer;
 import com.bkahlert.nebula.utils.ExecUtils;
 import com.bkahlert.nebula.utils.IConverter;
 import com.bkahlert.nebula.utils.OffWorker;
@@ -33,17 +36,17 @@ import com.bkahlert.nebula.widgets.browser.exception.UnexpectedBrowserStateExcep
 
 /**
  * This is the default implementation of {@link IBrowserScriptRunner}.
- * 
+ *
  * @author bkahlert
- * 
+ *
  */
 public class BrowserScriptRunner implements IBrowserScriptRunner {
 
 	/**
 	 * Relevant statuses a browser can have in terms of script execution.
-	 * 
+	 *
 	 * @author bkahlert
-	 * 
+	 *
 	 */
 	public static enum BrowserStatus {
 		/**
@@ -77,9 +80,9 @@ public class BrowserScriptRunner implements IBrowserScriptRunner {
 	 * Instances of this class can handle asynchronous
 	 * {@link JavaScriptException}s, that are exceptions raised by the
 	 * {@link Browser} itself and not provoked by Java invocations.
-	 * 
+	 *
 	 * @author bkahlert
-	 * 
+	 *
 	 */
 	public static interface JavaScriptExceptionListener {
 		public void thrown(JavaScriptException javaScriptException);
@@ -92,38 +95,38 @@ public class BrowserScriptRunner implements IBrowserScriptRunner {
 			final BrowserScriptRunner browserScriptRunner, final String script,
 			final IConverter<Object, DEST> converter) {
 		final String label = StringUtils.shorten(script);
-		return ExecUtils.createThreadLabelingCode(new Callable<DEST>() {
-			@Override
-			public DEST call() throws Exception {
-				if (browserScriptRunner.browser == null
-						|| browserScriptRunner.browser.isDisposed()) {
-					throw new ScriptExecutionException(script,
-							new SWTException(SWT.ERROR_WIDGET_DISPOSED));
-				}
-				LOGGER.info("Running " + label);
-				try {
-					browserScriptRunner.scriptAboutToBeSentToBrowser(script);
-					Object returnValue = browserScriptRunner.browser
-							.evaluate(BrowserUtils
-									.getExecutionReturningScript(script));
+		return ExecUtils.createThreadLabelingCode(
+				(Callable<DEST>) () -> {
+					if (browserScriptRunner.browser == null
+							|| browserScriptRunner.browser.isDisposed()) {
+						throw new ScriptExecutionException(script,
+								new SWTException(SWT.ERROR_WIDGET_DISPOSED));
+					}
+					LOGGER.info("Running " + label);
+					try {
+						browserScriptRunner
+								.scriptAboutToBeSentToBrowser(script);
+						Object returnValue = browserScriptRunner.browser
+								.evaluate(BrowserUtils
+										.getExecutionReturningScript(script));
 
-					BrowserUtils.assertException(script, returnValue);
+						BrowserUtils.assertException(script, returnValue);
 
-					browserScriptRunner.scriptReturnValueReceived(returnValue);
-					DEST rs = converter.convert(returnValue);
-					LOGGER.info("Returned " + rs);
-					return rs;
-				} catch (SWTException e) {
-					throw e;
-				} catch (JavaScriptException e) {
-					LOGGER.error(e);
-					throw e;
-				} catch (Exception e) {
-					LOGGER.error(e);
-					throw e;
-				}
-			}
-		}, Browser.class, "Running " + label);
+						browserScriptRunner
+								.scriptReturnValueReceived(returnValue);
+						DEST rs = converter.convert(returnValue);
+						LOGGER.info("Returned " + rs);
+						return rs;
+					} catch (SWTException e1) {
+						throw e1;
+					} catch (JavaScriptException e2) {
+						LOGGER.error(e2);
+						throw e2;
+					} catch (Exception e3) {
+						LOGGER.error(e3);
+						throw e3;
+					}
+				}, Browser.class, "Running " + label);
 	}
 
 	private final org.eclipse.swt.browser.Browser browser;
@@ -157,7 +160,7 @@ public class BrowserScriptRunner implements IBrowserScriptRunner {
 	/**
 	 * Sets the {@link BrowserStatus}. This information is necessary for the
 	 * correct script execution.
-	 * 
+	 *
 	 * @param browserStatus
 	 * @throws UnexpectedBrowserStateException
 	 */
@@ -210,16 +213,13 @@ public class BrowserScriptRunner implements IBrowserScriptRunner {
 		case TIMEDOUT:
 		case DISPOSED:
 			if (this.delayedScriptsWorker != null) {
-				this.delayedScriptsWorker.submit(new Callable<Void>() {
-					@Override
-					public Void call() throws Exception {
-						if (!BrowserScriptRunner.this.delayedScriptsWorker
-								.isShutdown()) {
-							BrowserScriptRunner.this.delayedScriptsWorker
-									.shutdown();
-						}
-						return null;
+				this.delayedScriptsWorker.submit(() -> {
+					if (!BrowserScriptRunner.this.delayedScriptsWorker
+							.isShutdown()) {
+						BrowserScriptRunner.this.delayedScriptsWorker
+								.shutdown();
 					}
+					return null;
 				});
 			}
 
@@ -232,7 +232,7 @@ public class BrowserScriptRunner implements IBrowserScriptRunner {
 
 	/**
 	 * Returns the previously set {@link BrowserStatus}.
-	 * 
+	 *
 	 * @return
 	 */
 	public BrowserStatus getBrowserStatus() {
@@ -285,12 +285,7 @@ public class BrowserScriptRunner implements IBrowserScriptRunner {
 			try {
 				String scriptContent = FileUtils.readFileToString(file);
 				Future<Boolean> rs = this.run(scriptContent,
-						new IConverter<Object, Boolean>() {
-							@Override
-							public Boolean convert(Object returnValue) {
-								return true;
-							}
-						});
+						returnValue -> true);
 				if (removeAfterExecution) {
 					LOGGER.warn("The script "
 							+ script
@@ -301,66 +296,73 @@ public class BrowserScriptRunner implements IBrowserScriptRunner {
 				return new CompletedFuture<Boolean>(null, e);
 			}
 		} else {
-			return ExecUtils.nonUIAsyncExec(Browser.class,
-					"Script Runner for: " + script, new Callable<Boolean>() {
-						@Override
-						public Boolean call() throws Exception {
-							final String callbackFunctionName = BrowserUtils
-									.createRandomFunctionName();
+			return ExecUtils
+					.nonUIAsyncExec(
+							Browser.class,
+							"Script Runner for: " + script,
+							(Callable<Boolean>) () -> {
+								final String callbackFunctionName = BrowserUtils
+										.createRandomFunctionName();
 
-							final Semaphore mutex = new Semaphore(0);
-							ExecUtils.syncExec(new Runnable() {
-								@Override
-								public void run() {
-									final AtomicReference<BrowserFunction> callback = new AtomicReference<BrowserFunction>();
-									callback.set(new BrowserFunction(
-											BrowserScriptRunner.this.browser,
-											callbackFunctionName) {
-										@Override
-										public Object function(
-												Object[] arguments) {
-											callback.get().dispose();
-											mutex.release();
-											return null;
-										}
-									});
+								final Semaphore mutex = new Semaphore(0);
+								ExecUtils
+										.syncExec(() -> {
+											final AtomicReference<BrowserFunction> callback = new AtomicReference<BrowserFunction>();
+											callback.set(new BrowserFunction(
+													BrowserScriptRunner.this.browser,
+													callbackFunctionName) {
+												@Override
+												public Object function(
+														Object[] arguments) {
+													callback.get().dispose();
+													mutex.release();
+													return null;
+												}
+											});
+										});
+
+								String js = "var h = document.getElementsByTagName(\"head\")[0]; var s = document.createElement(\"script\");s.type = \"text/javascript\";s.src = \""
+										+ script.toString()
+										+ "\"; s.onload=function(e){";
+								if (removeAfterExecution) {
+									js += "h.removeChild(s);";
 								}
+								js += callbackFunctionName + "();";
+								js += "};h.appendChild(s);";
+
+								// runs the scripts that ends by calling the
+								// callback
+								// ...
+								BrowserScriptRunner.this.run(js);
+								try {
+									// ... which destroys itself and releases
+									// this
+									// lock
+									mutex.acquire();
+								} catch (InterruptedException e) {
+									LOGGER.error(e);
+								}
+								return null;
 							});
-
-							String js = "var h = document.getElementsByTagName(\"head\")[0]; var s = document.createElement(\"script\");s.type = \"text/javascript\";s.src = \""
-									+ script.toString()
-									+ "\"; s.onload=function(e){";
-							if (removeAfterExecution) {
-								js += "h.removeChild(s);";
-							}
-							js += callbackFunctionName + "();";
-							js += "};h.appendChild(s);";
-
-							// runs the scripts that ends by calling the
-							// callback
-							// ...
-							BrowserScriptRunner.this.run(js);
-							try {
-								// ... which destroys itself and releases this
-								// lock
-								mutex.acquire();
-							} catch (InterruptedException e) {
-								LOGGER.error(e);
-							}
-							return null;
-						}
-					});
 		}
 	}
 
 	@Override
 	public Future<Object> run(final String script) {
-		return this.run(script, new IConverter<Object, Object>() {
-			@Override
-			public Object convert(Object object) {
-				return object;
-			}
-		});
+		return this.run(script, object -> object);
+	}
+
+	private Map<String, Debouncer<String>> debouncers = new HashMap<>();
+
+	@Override
+	public void run(String script, long interval, String scope) {
+		Assert.isLegal(scope != null && script != null);
+		if (!this.debouncers.containsKey(scope)) {
+			this.debouncers.put(scope, new Debouncer<>(script1 -> {
+				BrowserScriptRunner.this.run(script1.toString());
+			}));
+		}
+		this.debouncers.get(scope).call(script, interval);
 	}
 
 	@Override
@@ -376,24 +378,21 @@ public class BrowserScriptRunner implements IBrowserScriptRunner {
 					new ScriptExecutionException(script,
 							new BrowserUninitializedException(this.browser)));
 		case LOADING:
-			return this.delayedScriptsWorker.submit(new Callable<DEST>() {
-				@Override
-				public DEST call() throws Exception {
-					switch (BrowserScriptRunner.this.browserStatus) {
-					case LOADED:
-						return ExecUtils.syncExec(scriptRunner);
-					case TIMEDOUT:
-						throw new ScriptExecutionException(script,
-								new BrowserTimeoutException());
-					case DISPOSED:
-						throw new ScriptExecutionException(script,
-								new SWTException(SWT.ERROR_WIDGET_DISPOSED));
-					default:
-						throw new ScriptExecutionException(script,
-								new UnexpectedBrowserStateException(
-										BrowserScriptRunner.this.browserStatus
-												.toString()));
-					}
+			return this.delayedScriptsWorker.submit(() -> {
+				switch (BrowserScriptRunner.this.browserStatus) {
+				case LOADED:
+					return ExecUtils.syncExec(scriptRunner);
+				case TIMEDOUT:
+					throw new ScriptExecutionException(script,
+							new BrowserTimeoutException());
+				case DISPOSED:
+					throw new ScriptExecutionException(script,
+							new SWTException(SWT.ERROR_WIDGET_DISPOSED));
+				default:
+					throw new ScriptExecutionException(script,
+							new UnexpectedBrowserStateException(
+									BrowserScriptRunner.this.browserStatus
+											.toString()));
 				}
 			});
 		case LOADED:
