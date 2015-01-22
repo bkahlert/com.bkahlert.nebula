@@ -968,7 +968,7 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			});
 			
 			// Workaround: Render all elements anew so neighbours of focused cells can also be updated.
-			_.each(ids ? ids : com.bkahlert.nebula.jointjs.oldSetFocusIds, function(id) {
+			_.each(_.union(com.bkahlert.nebula.jointjs.oldSetFocusIds, ids ? ids : []), function(id) {
 				_.each(com.bkahlert.nebula.jointjs.graph.getAdjancedCells(id), function(cell) {
 					cell.trigger('change');
 				});
