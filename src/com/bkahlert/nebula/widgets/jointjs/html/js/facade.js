@@ -52,7 +52,8 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 				gridSize: 1,
 				model: com.bkahlert.nebula.jointjs.graph,
 				elementView: joint.shapes.html.ElementView,
-				linkView: joint.shapes.LinkView
+				linkView: joint.shapes.LinkView,
+				async: true
 			});
 			com.bkahlert.nebula.jointjs.setTitle(null);
 			
@@ -962,14 +963,18 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 		},
 		
 		setFocus: function(ids) {
-			_.each(_.union(com.bkahlert.nebula.jointjs.graph.getElements(), com.bkahlert.nebula.jointjs.graph.getLinks()), function(cell) {
+			_.each(com.bkahlert.nebula.jointjs.graph.getCells(), function(cell) {
 				cell.set('focused', _.contains(ids, cell.get('id')));
 			});
 			
 			// Workaround: Render all elements anew so neighbours of focused cells can also be updated.
-			_.each(_.union(com.bkahlert.nebula.jointjs.graph.getElements(), com.bkahlert.nebula.jointjs.graph.getLinks()), function(cell) {
-				cell.trigger('change');
+			_.each(ids ? ids : com.bkahlert.nebula.jointjs.oldSetFocusIds, function(id) {
+				_.each(com.bkahlert.nebula.jointjs.graph.getAdjancedCells(id), function(cell) {
+					cell.trigger('change');
+				});
 			});
+			
+			com.bkahlert.nebula.jointjs.oldSetFocusIds = ids;
 			
 			if (typeof window.__focusChanged === 'function') { window.__focusChanged(com.bkahlert.nebula.jointjs.getFocus()); }
 		},
@@ -992,7 +997,6 @@ $(document).ready(com.bkahlert.nebula.jointjs.start);
 
 
 
-
 joint.shapes.LinkView = joint.dia.LinkView.extend({
 
 	className: function() {
@@ -1001,19 +1005,7 @@ joint.shapes.LinkView = joint.dia.LinkView.extend({
 		if(this.model.get('highlighted')) classes.push('highlighted');
 		if(this.model.get('selected')) classes.push('selected');
 		if(this.model.get('focused')) classes.push('focused');
-		
-		var focusNeighbour = false;
-		var source = this.model.get('source');
-		var target = this.model.get('target');
-		source = source.id ? com.bkahlert.nebula.jointjs.graph.getCell(source.id) : null;
-		target = target.id ? com.bkahlert.nebula.jointjs.graph.getCell(target.id) : null;
-		if(source.get('focused')) {
-			focusNeighbour = true;
-		} else if(target.get('focused')) {
-			focusNeighbour = true;
-		}
-		if(focusNeighbour) classes.push('focusNeighbour');
-		
+		if(_.some(com.bkahlert.nebula.jointjs.graph.getAdjancedCells(this.model), function(cell) { return cell.get('focused'); })) classes.push('focusNeighbour');
 		if(this.model.get('customClasses')) _.each(this.model.get('customClasses'), function(customClass) { classes.push(customClass); });
 		return classes.join(' ');
     },
@@ -1069,6 +1061,23 @@ joint.shapes.LinkView = joint.dia.LinkView.extend({
 // own function
 joint.dia.Graph.prototype.getCells = function() {
 	return _.union(this.getElements(), this.getLinks());
+}
+
+joint.dia.Graph.prototype.getAdjancedCells = function(cell) {
+	if(typeof cell === 'string') cell = this.getCell(cell);
+	
+	var adjancedCells = [];
+	_.each(com.bkahlert.nebula.jointjs.graph.getConnectedLinks(cell), function(link) { adjancedCells.push(link); });
+	
+	var source = cell.get('source');
+	var target = cell.get('target');
+	source = source && source.hasOwnProperty('id') ? this.getCell(source.id) : null;
+	target = target && target.hasOwnProperty('id') ? this.getCell(target.id) : null;
+	
+	if(source) adjancedCells.push(source);
+	if(target) adjancedCells.push(target);
+	
+	return adjancedCells;
 }
 
 joint.dia.Paper.prototype._initialize = joint.dia.Paper.prototype.initialize;
@@ -1309,14 +1318,6 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
 		// Set the position and dimension of the box so that it covers the JointJS element.
 		var bbox = this.model.getBBox();
 		
-		var focusNeighbour = false;
-		_.each(com.bkahlert.nebula.jointjs.graph.getConnectedLinks(this.model), function(link) {
-			if(link.get('focused')) {
-				focusNeighbour = true;
-				return false;
-			}
-		});
-		
 		var classNames = joint.shapes.html.ElementView.prototype.className.apply(this, arguments).split(/ +/);
 		classNames.push('html-element');
 		
@@ -1324,7 +1325,7 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
 		if(this.model.get('highlighted')) classNames.push('highlighted');
 		if(this.model.get('selected')) classNames.push('selected');
 		if(this.model.get('focused')) classNames.push('focused');
-		if(focusNeighbour) classNames.push('focusNeighbour');
+		if(_.some(com.bkahlert.nebula.jointjs.graph.getAdjancedCells(this.model), function(cell) { return cell.get('focused'); })) classNames.push('focusNeighbour');
 		if(this.model.get('customClasses')) classNames = _.union(classNames, this.model.get('customClasses'));
 		this.$box.attr('class', classNames.join(' '));
 		
