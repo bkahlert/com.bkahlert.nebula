@@ -217,6 +217,18 @@ body {
 	}
 }
 
+.focusNeighbour {
+	&.html-element {
+		border-width: 3px;
+	}
+		
+	&.link {
+		.connection {
+			stroke-width: 3px
+		}
+	}
+}
+
 .state(highlighted, @brand-warning);
 .state(selected, @brand-info);
 .state(focused, @input-border-focus, 10px);

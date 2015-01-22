@@ -5906,6 +5906,12 @@ body::before {
   height: 20px;
   line-height: 20px;
 }
+.focusNeighbour.html-element {
+  border-width: 3px;
+}
+.focusNeighbour.link .connection {
+  stroke-width: 3px;
+}
 .highlighted.html-element {
   border-color: #f0ad4e;
   outline: 0;

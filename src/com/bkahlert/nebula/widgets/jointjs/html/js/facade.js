@@ -965,6 +965,12 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			_.each(_.union(com.bkahlert.nebula.jointjs.graph.getElements(), com.bkahlert.nebula.jointjs.graph.getLinks()), function(cell) {
 				cell.set('focused', _.contains(ids, cell.get('id')));
 			});
+			
+			// Workaround: Render all elements anew so neighbours of focused cells can also be updated.
+			_.each(_.union(com.bkahlert.nebula.jointjs.graph.getElements(), com.bkahlert.nebula.jointjs.graph.getLinks()), function(cell) {
+				cell.trigger('change');
+			});
+			
 			if (typeof window.__focusChanged === 'function') { window.__focusChanged(com.bkahlert.nebula.jointjs.getFocus()); }
 		},
 		
@@ -995,6 +1001,19 @@ joint.shapes.LinkView = joint.dia.LinkView.extend({
 		if(this.model.get('highlighted')) classes.push('highlighted');
 		if(this.model.get('selected')) classes.push('selected');
 		if(this.model.get('focused')) classes.push('focused');
+		
+		var focusNeighbour = false;
+		var source = this.model.get('source');
+		var target = this.model.get('target');
+		source = source.id ? com.bkahlert.nebula.jointjs.graph.getCell(source.id) : null;
+		target = target.id ? com.bkahlert.nebula.jointjs.graph.getCell(target.id) : null;
+		if(source.get('focused')) {
+			focusNeighbour = true;
+		} else if(target.get('focused')) {
+			focusNeighbour = true;
+		}
+		if(focusNeighbour) classes.push('focusNeighbour');
+		
 		if(this.model.get('customClasses')) _.each(this.model.get('customClasses'), function(customClass) { classes.push(customClass); });
 		return classes.join(' ');
     },
@@ -1290,6 +1309,14 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
 		// Set the position and dimension of the box so that it covers the JointJS element.
 		var bbox = this.model.getBBox();
 		
+		var focusNeighbour = false;
+		_.each(com.bkahlert.nebula.jointjs.graph.getConnectedLinks(this.model), function(link) {
+			if(link.get('focused')) {
+				focusNeighbour = true;
+				return false;
+			}
+		});
+		
 		var classNames = joint.shapes.html.ElementView.prototype.className.apply(this, arguments).split(/ +/);
 		classNames.push('html-element');
 		
@@ -1297,6 +1324,7 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
 		if(this.model.get('highlighted')) classNames.push('highlighted');
 		if(this.model.get('selected')) classNames.push('selected');
 		if(this.model.get('focused')) classNames.push('focused');
+		if(focusNeighbour) classNames.push('focusNeighbour');
 		if(this.model.get('customClasses')) classNames = _.union(classNames, this.model.get('customClasses'));
 		this.$box.attr('class', classNames.join(' '));
 		
