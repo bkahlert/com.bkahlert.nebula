@@ -5912,6 +5912,30 @@ body::before {
 .focusNeighbour.link .connection {
   stroke-width: 3px;
 }
+.unimportant.html-element {
+  opacity: 0.1;
+}
+.unimportant.link > :not(.connection-wrap),
+.unimportant.link > :not(.link-tools),
+.unimportant.link > :not(.marker-arrowheads) {
+  opacity: .1;
+}
+.unimportant.link > .connection-wrap,
+.unimportant.link > .link-tools,
+.unimportant.link > .marker-arrowheads {
+  opacity: 0;
+}
+.unimportant.link:hover > .connection-wrap,
+.unimportant.link:hover > .link-tools,
+.unimportant.link:hover > .marker-arrowheads {
+  opacity: .1;
+}
+.unimportant.link > .labels {
+  opacity: 0;
+}
+.unimportant.link:hover > .labels {
+  opacity: .5;
+}
 .highlighted.html-element {
   border-color: #f0ad4e;
   outline: 0;

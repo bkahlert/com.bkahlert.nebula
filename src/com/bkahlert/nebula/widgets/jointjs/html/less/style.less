@@ -229,6 +229,38 @@ body {
 	}
 }
 
+.unimportant {
+	&.html-element {
+		opacity: 0.1;
+	}
+		
+	&.link {
+		> :not(.connection-wrap),
+		> :not(.link-tools),
+		> :not(.marker-arrowheads) {
+			opacity: .1;
+		}
+		
+		> .connection-wrap,
+		> .link-tools,
+		> .marker-arrowheads {
+			opacity: 0;
+		}
+		&:hover > .connection-wrap,
+		&:hover > .link-tools,
+		&:hover > .marker-arrowheads {
+			opacity: .1;
+		}
+		
+		> .labels {
+			opacity: 0;
+		}
+		&:hover > .labels {
+			opacity: .5;
+		}
+	}
+}
+
 .state(highlighted, @brand-warning);
 .state(selected, @brand-info);
 .state(focused, @input-border-focus, 10px);

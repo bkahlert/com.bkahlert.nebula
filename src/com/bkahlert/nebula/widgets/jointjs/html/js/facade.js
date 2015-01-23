@@ -65,6 +65,7 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			com.bkahlert.nebula.jointjs.activatePanCapability(com.bkahlert.nebula.jointjs.paper);
 			com.bkahlert.nebula.jointjs.activateLinkCreationCapability(com.bkahlert.nebula.jointjs.graph, com.bkahlert.nebula.jointjs.paper);
 			com.bkahlert.nebula.jointjs.activateLinkAbandonCapability(com.bkahlert.nebula.jointjs.graph, com.bkahlert.nebula.jointjs.paper);
+			com.bkahlert.nebula.jointjs.activateElementTools();
 			com.bkahlert.nebula.jointjs.activateLinkTools();
 			com.bkahlert.nebula.jointjs.activateSelections();
 			com.bkahlert.nebula.jointjs.activateEventForwarding();
@@ -702,17 +703,45 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			);
 		},
 		
-		activateLinkTools: function() {
+		activateElementTools: function() {
 			var hoveredId = null;
-			$(document).on('mouseenter', '.link[model-id]:not(.permanent)', function() {
+			$(document).on('mouseenter', 'svg .element', function() {
 				hoveredId = $(this).attr('model-id');
-			}).on('mouseleave', '.link[model-id]', function() {
+			}).on('mouseleave', '[model-id]', function() {
 				hoveredId = null;
 			}).on('keydown', function(e) {
-				if(hoveredId != null && e.keyCode == 13) {
-					com.bkahlert.nebula.jointjs.showTextChangePopup(hoveredId);
-					hoveredId = null;
-					return false;
+				if(hoveredId != null) {
+					var cell = com.bkahlert.nebula.jointjs.graph.getCell(hoveredId);
+					switch(e.keyCode) {
+						case 32: // space
+							cell.set('unimportant', !cell.get('unimportant'));
+							return false;
+					}
+				}
+			});
+		},
+		
+		activateLinkTools: function() {
+			var hoveredId = null;
+			$(document).on('mouseenter', 'svg .link[model-id]', function() {
+				hoveredId = $(this).attr('model-id');
+			}).on('mouseleave', '[model-id]', function() {
+				hoveredId = null;
+			}).on('keydown', function(e) {
+				if(hoveredId != null) {
+					var cell = com.bkahlert.nebula.jointjs.graph.getCell(hoveredId);
+					switch(e.keyCode) {
+						case 32: // space
+							cell.set('unimportant', !cell.get('unimportant'));
+							return false;
+						case 13: // enter
+							if(!cell.get('permanent')) {
+								com.bkahlert.nebula.jointjs.showTextChangePopup(hoveredId);
+								hoveredId = null;
+								return false;
+							}
+							break;
+					}
 				}
 			});
 		},
@@ -914,7 +943,7 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 		
 		addCustomClasses: function(ids, add) {
 			if(!_.isArray(add)) add = add ? [add] : [];
-			_.each(_.union(com.bkahlert.nebula.jointjs.graph.getElements(), com.bkahlert.nebula.jointjs.graph.getLinks()), function(cell) {
+			_.each(com.bkahlert.nebula.jointjs.graph.getCells(), function(cell) {
 				if(!_.contains(ids, cell.get('id'))) return;
 				
 				var customClasses = cell.get('customClasses') || [];
@@ -923,9 +952,23 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			});
 		},
 		
+		toggleCustomClasses: function(ids, classes) {
+			if(!_.isArray(classes)) classes = classes ? [classes] : [];
+			_.each(com.bkahlert.nebula.jointjs.graph.getCells(), function(cell) {
+				if(!_.contains(ids, cell.get('id'))) return;
+				
+				var customClasses = cell.get('customClasses') || [];
+				_.each(classes, function(clazz) {
+					if(_.contains(customClasses, clazz)) customClasses = _.without(customClasses, clazz);
+					else customClasses = _.union(customClasses, [clazz]);
+				});
+				cell.set('customClasses', customClasses);
+			});
+		},
+		
 		removeCustomClasses: function(ids, remove) {
 			if(!_.isArray(remove)) remove = remove ? [remove] : [];
-			_.each(_.union(com.bkahlert.nebula.jointjs.graph.getElements(), com.bkahlert.nebula.jointjs.graph.getLinks()), function(cell) {
+			_.each(com.bkahlert.nebula.jointjs.graph.getCells(), function(cell) {
 				if(!_.contains(ids, cell.get('id'))) return;
 				
 				var customClasses = cell.get('customClasses') || [];
@@ -1006,6 +1049,7 @@ joint.shapes.LinkView = joint.dia.LinkView.extend({
 		if(this.model.get('selected')) classes.push('selected');
 		if(this.model.get('focused')) classes.push('focused');
 		if(_.some(com.bkahlert.nebula.jointjs.graph.getAdjancedCells(this.model), function(cell) { return cell.get('focused'); })) classes.push('focusNeighbour');
+		if(this.model.get('unimportant')) classes.push('unimportant');
 		if(this.model.get('customClasses')) _.each(this.model.get('customClasses'), function(customClass) { classes.push(customClass); });
 		return classes.join(' ');
     },
@@ -1326,6 +1370,7 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
 		if(this.model.get('selected')) classNames.push('selected');
 		if(this.model.get('focused')) classNames.push('focused');
 		if(_.some(com.bkahlert.nebula.jointjs.graph.getAdjancedCells(this.model), function(cell) { return cell.get('focused'); })) classNames.push('focusNeighbour');
+		if(this.model.get('unimportant')) classNames.push('unimportant');
 		if(this.model.get('customClasses')) classNames = _.union(classNames, this.model.get('customClasses'));
 		this.$box.attr('class', classNames.join(' '));
 		
