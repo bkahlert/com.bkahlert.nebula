@@ -66,7 +66,7 @@ public class CalendarUtils {
 	 * <p>
 	 * e.g. Tuesday, 15 May 1984 at 2:30pm in timezone 01:00 summertime would be
 	 * 1984-05-15T14:30:00.000+02:00.
-	 * 
+	 *
 	 * @param calendar
 	 * @return
 	 */
@@ -143,7 +143,7 @@ public class CalendarUtils {
 				/*
 				 * Double x = offset / 3600000.0; String[] parts =
 				 * x.toString().split("\\.");
-				 * 
+				 *
 				 * timezoneHour_ = Integer.valueOf(parts[0]); timezoneMinute_ =
 				 * (int) (Double.valueOf("." + parts[1]) * 60);
 				 */
@@ -170,7 +170,7 @@ public class CalendarUtils {
 	/**
 	 * Formats the given {@link Calendar} while considering the time zone
 	 * information.
-	 * 
+	 *
 	 * @param calendar
 	 * @param pattern
 	 * @return
@@ -182,7 +182,7 @@ public class CalendarUtils {
 	/**
 	 * Formats the given {@link Calendar} while considering the time zone
 	 * information.
-	 * 
+	 *
 	 * @param calendar
 	 * @param dateFormat
 	 * @return
@@ -209,7 +209,7 @@ public class CalendarUtils {
 
 	/**
 	 * Return the milliseconds passed since 1.1.1970 00:00:00.000 [TimeZone]
-	 * 
+	 *
 	 * @param calendar
 	 * @return
 	 */
