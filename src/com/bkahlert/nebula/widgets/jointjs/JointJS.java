@@ -404,17 +404,22 @@ public class JointJS extends Browser implements ISelectionProvider {
 				+ value + ");", IConverter.CONVERTER_VOID);
 	}
 
+	public static String createElementStatement(String id, Object json) {
+		Assert.isLegal(id != null);
+		return "com.bkahlert.nebula.jointjs.createNode('" + id + "', "
+				+ JSONUtils.buildJson(json) + ");";
+	}
+
 	public Future<String> createElement(String id, Object json) {
 		if (id == null) {
 			id = this.elementCreationPrefix + UUID.randomUUID().toString();
 		}
-		return this.run("return com.bkahlert.nebula.jointjs.createNode('" + id
-				+ "', " + JSONUtils.buildJson(json) + ");",
+		return this.run("return " + createElementStatement(id, json),
 				IConverter.CONVERTER_STRING);
 	}
 
 	@SuppressWarnings("serial")
-	public Future<String> createElement(String id, String title,
+	public static String createElementStatement(String id, String title,
 			String content, final Point position, final Point size) {
 		Map<String, Object> json = new HashMap<String, Object>();
 		json.put("title", title);
@@ -437,18 +442,39 @@ public class JointJS extends Browser implements ISelectionProvider {
 				}
 			});
 		}
-		return this.createElement(id, json);
+		return createElementStatement(id, json);
+	}
+
+	public Future<String> createElement(String id, String title,
+			String content, final Point position, final Point size) {
+		return this.run(
+				"return "
+						+ createElementStatement(id, title, content, position,
+								size), IConverter.CONVERTER_STRING);
+	}
+
+	public static String createLinkStatement(String id, Object source,
+			Object target) {
+		Assert.isLegal(id != null);
+		return "com.bkahlert.nebula.jointjs.createLink('" + id + "', "
+				+ JSONUtils.buildJson(source) + ", "
+				+ JSONUtils.buildJson(target) + ");";
 	}
 
 	public Future<String> createLink(String id, Object source, Object target) {
 		if (id == null) {
 			id = this.linkCreationPrefix + UUID.randomUUID().toString();
 		}
-		return this.run(
-				"return com.bkahlert.nebula.jointjs.createLink('" + id + "', "
-						+ JSONUtils.buildJson(source) + ", "
-						+ JSONUtils.buildJson(target) + ");",
+		return this.run("return " + createLinkStatement(id, source, target),
 				IConverter.CONVERTER_STRING);
+	}
+
+	public static String createPermanentLinkStatement(String id, Object source,
+			Object target) {
+		Assert.isLegal(id != null);
+		return "com.bkahlert.nebula.jointjs.createPermanentLink('" + id + "', "
+				+ JSONUtils.buildJson(source) + ", "
+				+ JSONUtils.buildJson(target) + ");";
 	}
 
 	public Future<String> createPermanentLink(String id, Object source,
@@ -457,9 +483,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 			id = this.linkCreationPrefix + UUID.randomUUID().toString();
 		}
 		return this.run(
-				"return com.bkahlert.nebula.jointjs.createPermanentLink('" + id
-						+ "', " + JSONUtils.buildJson(source) + ", "
-						+ JSONUtils.buildJson(target) + ");",
+				"return " + createPermanentLinkStatement(id, source, target),
 				IConverter.CONVERTER_STRING);
 	}
 
@@ -496,15 +520,19 @@ public class JointJS extends Browser implements ISelectionProvider {
 				+ "');", JointJSCellConverter.INSTANCE);
 	}
 
-	public Future<Void> setText(String id, Object index, String text) {
+	public static String setTextStatement(String id, Object index, String text) {
 		String indexParam = "null";
 		if (index instanceof Integer) {
 			indexParam = ((Integer) index).toString();
 		} else if (index instanceof String) {
 			indexParam = "'" + index + "'";
 		}
-		return this.run("return com.bkahlert.nebula.jointjs.setText('" + id
-				+ "', " + indexParam + ", '" + text + "');",
+		return "com.bkahlert.nebula.jointjs.setText('" + id + "', "
+				+ indexParam + ", '" + text + "');";
+	}
+
+	public Future<Void> setText(String id, Object index, String text) {
+		return this.run(JointJS.setTextStatement(id, index, text),
 				IConverter.CONVERTER_VOID);
 	}
 
@@ -515,8 +543,12 @@ public class JointJS extends Browser implements ISelectionProvider {
 		} else if (index instanceof String) {
 			indexParam = "'" + index + "'";
 		}
-		return this.run("return com.bkahlert.nebula.jointjs.getText('" + id
-				+ "', " + indexParam + ");", IConverter.CONVERTER_STRING);
+		return this.run("com.bkahlert.nebula.jointjs.getText('" + id + "', "
+				+ indexParam + ");", IConverter.CONVERTER_STRING);
+	}
+
+	public static String setElementTitleStatement(String id, String title) {
+		return setTextStatement(id, "title", title);
 	}
 
 	public Future<Void> setElementTitle(String id, String title) {
@@ -527,12 +559,20 @@ public class JointJS extends Browser implements ISelectionProvider {
 		return this.getText(id, "title");
 	}
 
+	public static String setElementContentStatement(String id, String content) {
+		return setTextStatement(id, "content", content);
+	}
+
 	public Future<Void> setElementContent(String id, String content) {
 		return this.setText(id, "content", content);
 	}
 
 	public Future<String> getElementContent(String id) {
 		return this.getText(id, "content");
+	}
+
+	public static String setLinkTitleStatement(String id, String title) {
+		return setTextStatement(id, 0, title);
 	}
 
 	public Future<Void> setLinkTitle(String id, String title) {
@@ -543,42 +583,67 @@ public class JointJS extends Browser implements ISelectionProvider {
 		return this.getText(id, 0);
 	}
 
-	public Future<Void> setColor(String id, RGB rgb) {
+	public static String setColorStatement(String id, RGB rgb) {
 		String color = rgb != null ? "'" + rgb.toDecString() + "'"
 				: "'initial'";
-		return this.run("return com.bkahlert.nebula.jointjs.setColor('" + id
-				+ "', " + color + ");", IConverter.CONVERTER_VOID);
+		return "com.bkahlert.nebula.jointjs.setColor('" + id + "', " + color
+				+ ");";
+	}
+
+	public Future<Void> setColor(String id, RGB rgb) {
+		return this.run(setColorStatement(id, rgb), IConverter.CONVERTER_VOID);
+	}
+
+	public static String setBackgroundColorStatement(String id, RGB rgb) {
+		String color = rgb != null ? "'" + rgb.toDecString() + "'"
+				: "'initial'";
+		return "com.bkahlert.nebula.jointjs.setBackgroundColor('" + id + "', "
+				+ color + ");";
 	}
 
 	public Future<Void> setBackgroundColor(String id, RGB rgb) {
-		String color = rgb != null ? "'" + rgb.toDecString() + "'"
-				: "'initial'";
-		return this.run(
-				"return com.bkahlert.nebula.jointjs.setBackgroundColor('" + id
-						+ "', " + color + ");", IConverter.CONVERTER_VOID);
-	}
-
-	public Future<Void> setBorderColor(String id, RGB rgb) {
-		String color = rgb != null ? "'" + rgb.toDecString() + "'"
-				: "'initial'";
-		return this.run("return com.bkahlert.nebula.jointjs.setBorderColor('"
-				+ id + "', " + color + ");", IConverter.CONVERTER_VOID);
-	}
-
-	public Future<Void> setPosition(String id, int x, int y) {
-		return this.run("return com.bkahlert.nebula.jointjs.setPosition('" + id
-				+ "', " + x + ", " + y + ");", IConverter.CONVERTER_VOID);
-	}
-
-	public Future<Void> setSize(String id, int width, int height) {
-		return this.run("return com.bkahlert.nebula.jointjs.setSize('" + id
-				+ "', " + width + ", " + height + ");",
+		return this.run(setBackgroundColorStatement(id, rgb),
 				IConverter.CONVERTER_VOID);
 	}
 
+	public static String setBorderColorStatement(String id, RGB rgb) {
+		String color = rgb != null ? "'" + rgb.toDecString() + "'"
+				: "'initial'";
+		return "com.bkahlert.nebula.jointjs.setBorderColor('" + id + "', "
+				+ color + ");";
+	}
+
+	public Future<Void> setBorderColor(String id, RGB rgb) {
+		return this.run(setBorderColorStatement(id, rgb),
+				IConverter.CONVERTER_VOID);
+	}
+
+	public static String setPositionStatement(String id, int x, int y) {
+		return "com.bkahlert.nebula.jointjs.setPosition('" + id + "', " + x
+				+ ", " + y + ");";
+	}
+
+	public Future<Void> setPosition(String id, int x, int y) {
+		return this.run(setPositionStatement(id, x, y),
+				IConverter.CONVERTER_VOID);
+	}
+
+	public static String setSizeStatement(String id, int width, int height) {
+		return "com.bkahlert.nebula.jointjs.setSize('" + id + "', " + width
+				+ ", " + height + ");";
+	}
+
+	public Future<Void> setSize(String id, int width, int height) {
+		return this.run(setSizeStatement(id, width, height),
+				IConverter.CONVERTER_VOID);
+	}
+
+	public static String removeStatement(String id) {
+		return "com.bkahlert.nebula.jointjs.removeCell('" + id + "');";
+	}
+
 	public Future<JointJSCell> remove(String id) {
-		Future<JointJSCell> rt = this.run(
-				"return com.bkahlert.nebula.jointjs.removeCell('" + id + "');",
+		Future<JointJSCell> rt = this.run("return " + removeStatement(id),
 				JointJSCellConverter.INSTANCE);
 		if (id != null && this.lastHovered != null
 				&& id.equals(this.lastHovered.getId())) {
@@ -689,23 +754,33 @@ public class JointJS extends Browser implements ISelectionProvider {
 				+ ");", IConverter.CONVERTER_VOID);
 	}
 
-	public Future<Void> addCustomClass(List<String> ids,
+	public static String addCustomClassStatement(List<String> ids,
 			String... customClasses) {
 		String idList = ids != null ? JSONUtils.buildJson(ids) : "[]";
 		String classList = customClasses != null ? JSONUtils
 				.buildJson(customClasses) : "[]";
-		return this.run("return com.bkahlert.nebula.jointjs.addCustomClasses("
-				+ idList + ", " + classList + ");", IConverter.CONVERTER_VOID);
+		return "com.bkahlert.nebula.jointjs.addCustomClasses(" + idList + ", "
+				+ classList + ");";
+	}
+
+	public Future<Void> addCustomClass(List<String> ids,
+			String... customClasses) {
+		return this.run(addCustomClassStatement(ids, customClasses),
+				IConverter.CONVERTER_VOID);
+	}
+
+	public static String removeCustomClassStatement(List<String> ids,
+			String... customClasses) {
+		String idList = ids != null ? JSONUtils.buildJson(ids) : "[]";
+		String classList = customClasses != null ? JSONUtils
+				.buildJson(customClasses) : "[]";
+		return "com.bkahlert.nebula.jointjs.removeCustomClasses(" + idList
+				+ ", " + classList + ");";
 	}
 
 	public Future<Void> removeCustomClass(List<String> ids,
 			String... customClasses) {
-		String idList = ids != null ? JSONUtils.buildJson(ids) : "[]";
-		String classList = customClasses != null ? JSONUtils
-				.buildJson(customClasses) : "[]";
-		return this.run(
-				"return com.bkahlert.nebula.jointjs.removeCustomClasses("
-						+ idList + ", " + classList + ");",
+		return this.run(removeCustomClassStatement(ids, customClasses),
 				IConverter.CONVERTER_VOID);
 	}
 
