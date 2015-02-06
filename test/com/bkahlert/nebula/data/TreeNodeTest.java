@@ -8,6 +8,8 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
+import com.bkahlert.nebula.utils.Pair;
+
 /**
  * Tests the <code>TreeNode</code> object. It is a generic tree (integer.e. not
  * a balanced tree or some other specialized tree).
@@ -595,4 +597,76 @@ public class TreeNodeTest extends TestCase {
 		assertFalse(n3.isDescendantOf(n2));
 		assertFalse(n3.isDescendantOf(n3));
 	}
+
+	@Test
+	public void testGetParentRelations() {
+		List<Pair<Integer, Integer>> relations = getTree().getParentRelations();
+		assertEquals(17, relations.size());
+		assertTrue(relations.contains(new Pair<>(null, 17)));
+		assertTrue(relations.contains(new Pair<>(17, 1)));
+		assertTrue(relations.contains(new Pair<>(17, 8)));
+		assertTrue(relations.contains(new Pair<>(8, 2)));
+		assertTrue(relations.contains(new Pair<>(8, 7)));
+		assertTrue(relations.contains(new Pair<>(7, 5)));
+		assertTrue(relations.contains(new Pair<>(5, 3)));
+		assertTrue(relations.contains(new Pair<>(5, 4)));
+		assertTrue(relations.contains(new Pair<>(7, 6)));
+		assertTrue(relations.contains(new Pair<>(17, 16)));
+		assertTrue(relations.contains(new Pair<>(16, 11)));
+		assertTrue(relations.contains(new Pair<>(11, 9)));
+		assertTrue(relations.contains(new Pair<>(11, 10)));
+		assertTrue(relations.contains(new Pair<>(16, 12)));
+		assertTrue(relations.contains(new Pair<>(16, 15)));
+		assertTrue(relations.contains(new Pair<>(15, 13)));
+		assertTrue(relations.contains(new Pair<>(15, 14)));
+	}
+
+	@Test
+	public void testGetAncestorRelations() {
+		List<Pair<Integer, Integer>> relations = getTree()
+				.getAncestorRelations();
+		assertEquals(39, relations.size());
+		assertTrue(relations.contains(new Pair<>(17, 1)));
+
+		assertTrue(relations.contains(new Pair<>(17, 8)));
+		assertTrue(relations.contains(new Pair<>(17, 2)));
+		assertTrue(relations.contains(new Pair<>(17, 7)));
+		assertTrue(relations.contains(new Pair<>(17, 5)));
+		assertTrue(relations.contains(new Pair<>(17, 3)));
+		assertTrue(relations.contains(new Pair<>(17, 4)));
+		assertTrue(relations.contains(new Pair<>(17, 6)));
+		assertTrue(relations.contains(new Pair<>(8, 5)));
+		assertTrue(relations.contains(new Pair<>(8, 3)));
+		assertTrue(relations.contains(new Pair<>(8, 4)));
+		assertTrue(relations.contains(new Pair<>(8, 6)));
+		assertTrue(relations.contains(new Pair<>(8, 2)));
+		assertTrue(relations.contains(new Pair<>(8, 7)));
+		assertTrue(relations.contains(new Pair<>(7, 3)));
+		assertTrue(relations.contains(new Pair<>(7, 4)));
+		assertTrue(relations.contains(new Pair<>(7, 5)));
+		assertTrue(relations.contains(new Pair<>(5, 3)));
+		assertTrue(relations.contains(new Pair<>(5, 4)));
+		assertTrue(relations.contains(new Pair<>(7, 6)));
+
+		assertTrue(relations.contains(new Pair<>(17, 16)));
+		assertTrue(relations.contains(new Pair<>(17, 11)));
+		assertTrue(relations.contains(new Pair<>(17, 9)));
+		assertTrue(relations.contains(new Pair<>(17, 10)));
+		assertTrue(relations.contains(new Pair<>(17, 12)));
+		assertTrue(relations.contains(new Pair<>(17, 15)));
+		assertTrue(relations.contains(new Pair<>(17, 13)));
+		assertTrue(relations.contains(new Pair<>(17, 14)));
+		assertTrue(relations.contains(new Pair<>(16, 9)));
+		assertTrue(relations.contains(new Pair<>(16, 10)));
+		assertTrue(relations.contains(new Pair<>(16, 11)));
+		assertTrue(relations.contains(new Pair<>(11, 9)));
+		assertTrue(relations.contains(new Pair<>(11, 10)));
+		assertTrue(relations.contains(new Pair<>(16, 12)));
+		assertTrue(relations.contains(new Pair<>(16, 13)));
+		assertTrue(relations.contains(new Pair<>(16, 14)));
+		assertTrue(relations.contains(new Pair<>(16, 15)));
+		assertTrue(relations.contains(new Pair<>(15, 13)));
+		assertTrue(relations.contains(new Pair<>(15, 14)));
+	}
+
 }

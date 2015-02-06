@@ -1,9 +1,18 @@
 package com.bkahlert.nebula.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Set;
+
+import com.bkahlert.nebula.utils.Pair;
 
 /**
  * <code>getData</code> objects can be combined into a tree. The tree is not a
@@ -25,7 +34,7 @@ import java.util.NoSuchElementException;
  * <p>
  * <i>This is not a thread safe class.</i> If used from multiple threads it must
  * be manually sychronized by your code.
- * 
+ *
  * @param <T>
  */
 public class TreeNode<T> implements Iterable<T> {
@@ -63,10 +72,19 @@ public class TreeNode<T> implements Iterable<T> {
 	}
 
 	/**
+	 * Constructs a copy of a tree node object.
+	 */
+	public TreeNode(TreeNode<T> treeNode) {
+		this.parent = treeNode.parent;
+		this.children = treeNode.children;
+		this.data = treeNode.data;
+	}
+
+	/**
 	 * Constructs a tree node object. It can become the root of a tree. Or it
 	 * can become a child of another node by calling the other node's
 	 * <code>add</code> method.
-	 * 
+	 *
 	 * @param data
 	 *            is an object this node encapsulates. It is up to the developer
 	 *            to maintain its type. To get the object back out call
@@ -80,7 +98,7 @@ public class TreeNode<T> implements Iterable<T> {
 	 * Constructs a tree node object. It can become the root of a tree. Or it
 	 * can become a child of another node by calling the other node's
 	 * <code>add</code> method.
-	 * 
+	 *
 	 * @param data
 	 *            is an object this node encapsulates. It is up to the developer
 	 *            to maintain its type. To get the object back out call
@@ -90,7 +108,7 @@ public class TreeNode<T> implements Iterable<T> {
 		this.data = data;
 		if (nodes != null) {
 			for (TreeNode<T> node : nodes) {
-				add(node);
+				this.add(node);
 			}
 		}
 	}
@@ -98,10 +116,10 @@ public class TreeNode<T> implements Iterable<T> {
 	/**
 	 * Adds the <code>child</code> node to this container making this its
 	 * parent.
-	 * 
+	 *
 	 * @param child
 	 *            is the node to add to the tree as a child of <code>this</code>
-	 * 
+	 *
 	 * @param index
 	 *            is the position within the children list to add the child. It
 	 *            must be between 0 (the first child) and the total number of
@@ -110,28 +128,29 @@ public class TreeNode<T> implements Iterable<T> {
 	 */
 	public void add(TreeNode<T> child, int index) {
 		// Add the child to the list of children.
-		if (index < 0 || index == children.length) // then append
+		if (index < 0 || index == this.children.length) // then append
 		{
 			@SuppressWarnings("unchecked")
-			TreeNode<T>[] newChildren = new TreeNode[children.length + 1];
-			System.arraycopy(children, 0, newChildren, 0, children.length);
-			newChildren[children.length] = child;
-			children = newChildren;
-		} else if (index > children.length) {
+			TreeNode<T>[] newChildren = new TreeNode[this.children.length + 1];
+			System.arraycopy(this.children, 0, newChildren, 0,
+					this.children.length);
+			newChildren[this.children.length] = child;
+			this.children = newChildren;
+		} else if (index > this.children.length) {
 			throw new IllegalArgumentException("Cannot add child to index "
-					+ index + ".  There are only " + children.length
+					+ index + ".  There are only " + this.children.length
 					+ " children.");
 		} else // insert
 		{
 			@SuppressWarnings("unchecked")
-			TreeNode<T>[] newChildren = new TreeNode[children.length + 1];
+			TreeNode<T>[] newChildren = new TreeNode[this.children.length + 1];
 			if (index > 0) {
-				System.arraycopy(children, 0, newChildren, 0, index);
+				System.arraycopy(this.children, 0, newChildren, 0, index);
 			}
 			newChildren[index] = child;
-			System.arraycopy(children, index, newChildren, index + 1,
-					children.length - index);
-			children = newChildren;
+			System.arraycopy(this.children, index, newChildren, index + 1,
+					this.children.length - index);
+			this.children = newChildren;
 		}
 
 		// Set the parent of the child.
@@ -143,12 +162,12 @@ public class TreeNode<T> implements Iterable<T> {
 	 * parent. The child is appended to the list of children as the last child.
 	 */
 	public void add(TreeNode<T> child) {
-		add(child, -1);
+		this.add(child, -1);
 	}
 
 	/**
 	 * Removes the child at position <code>index</code> from the tree.
-	 * 
+	 *
 	 * @param index
 	 *            is the position of the child. It should be between 0 (the
 	 *            first child) and the total number of children minus 1 (the
@@ -157,27 +176,28 @@ public class TreeNode<T> implements Iterable<T> {
 	 *         child exists at the specified <code>index</code>.
 	 */
 	public TreeNode<T> remove(int index) {
-		if (index < 0 || index >= children.length)
+		if (index < 0 || index >= this.children.length) {
 			throw new IllegalArgumentException(
 					"Cannot remove element with index " + index
-							+ " when there are " + children.length
+							+ " when there are " + this.children.length
 							+ " elements.");
+		}
 
 		// Get a handle to the node being removed.
-		TreeNode<T> node = children[index];
+		TreeNode<T> node = this.children[index];
 		node.parent = null;
 
 		// Remove the child from this node.
 		@SuppressWarnings("unchecked")
-		TreeNode<T>[] newChildren = new TreeNode[children.length - 1];
+		TreeNode<T>[] newChildren = new TreeNode[this.children.length - 1];
 		if (index > 0) {
-			System.arraycopy(children, 0, newChildren, 0, index);
+			System.arraycopy(this.children, 0, newChildren, 0, index);
 		}
-		if (index != children.length - 1) {
-			System.arraycopy(children, index + 1, newChildren, index,
-					children.length - index - 1);
+		if (index != this.children.length - 1) {
+			System.arraycopy(this.children, index + 1, newChildren, index,
+					this.children.length - index - 1);
 		}
-		children = newChildren;
+		this.children = newChildren;
 
 		return node;
 	}
@@ -189,31 +209,31 @@ public class TreeNode<T> implements Iterable<T> {
 	 * Calling this on the root node has no effect.
 	 */
 	public void removeFromParent() {
-		if (parent != null) {
+		if (this.parent != null) {
 			int position = this.index();
-			parent.remove(position);
-			parent = null;
+			this.parent.remove(position);
+			this.parent = null;
 		}
 	}
 
 	/**
 	 * Gets the parent node of this one.
-	 * 
+	 *
 	 * @return The parent of this node. This will return <code>null</code> if
 	 *         this node is the root node in the tree.
 	 */
 	public TreeNode<T> getParent() {
-		return parent;
+		return this.parent;
 	}
 
 	/**
 	 * Returns if this node is the root node in the tree or not.
-	 * 
+	 *
 	 * @return <code>true</code> if this node is the root of the tree;
 	 *         <code>false</code> if it has a parent.
 	 */
 	public boolean isRoot() {
-		if (parent == null) {
+		if (this.parent == null) {
 			return true;
 		} else {
 			return false;
@@ -222,23 +242,23 @@ public class TreeNode<T> implements Iterable<T> {
 
 	/**
 	 * Gets a list of all the child nodes of this node.
-	 * 
+	 *
 	 * @return An array of all the child nodes. The array will be the size of
 	 *         the number of children. A leaf node will return an empty array,
 	 *         not <code>null</code>.
 	 */
 	public TreeNode<T>[] children() {
-		return children;
+		return this.children;
 	}
 
 	/**
 	 * Returns if this node has children or if it is a leaf node.
-	 * 
+	 *
 	 * @return <code>true</code> if this node has children; <code>false</code>
 	 *         if it does not have any children.
 	 */
 	public boolean hasChildren() {
-		if (children.length == 0) {
+		if (this.children.length == 0) {
 			return false;
 		} else {
 			return true;
@@ -249,14 +269,14 @@ public class TreeNode<T> implements Iterable<T> {
 	 * Gets the position of this node in the list of siblings managed by the
 	 * parent node. This node can be obtained by
 	 * <code>this = parent.children[this.index()]</code>.
-	 * 
+	 *
 	 * @return The index of the child array of this node's parent. If this is
 	 *         the root node it will return -1.
 	 */
 	public int index() {
-		if (parent != null) {
+		if (this.parent != null) {
 			for (int i = 0;; i++) {
-				Object node = parent.children[i];
+				Object node = this.parent.children[i];
 
 				if (this == node) {
 					return i;
@@ -271,11 +291,11 @@ public class TreeNode<T> implements Iterable<T> {
 	/**
 	 * Gets this node's depth in the tree. The root node will have a depth of 0,
 	 * first-level nodes will have a depth of 1, and so on.
-	 * 
+	 *
 	 * @return The depth of this node in the tree.
 	 */
 	public int depth() {
-		int depth = recurseDepth(parent, 0);
+		int depth = this.recurseDepth(this.parent, 0);
 		return depth;
 	}
 
@@ -286,7 +306,7 @@ public class TreeNode<T> implements Iterable<T> {
 	 * A recursive approach is used so that when a node that is part of a tree
 	 * is removed from that tree, we do not need to recalculate the depth of
 	 * every node in that subtree.
-	 * 
+	 *
 	 * @param node
 	 *            is the node to recursively check for its depth. This should be
 	 *            set to <code>parent</code> by the caller.
@@ -299,7 +319,7 @@ public class TreeNode<T> implements Iterable<T> {
 		{
 			return depth;
 		} else {
-			return recurseDepth(node.parent, depth + 1);
+			return this.recurseDepth(node.parent, depth + 1);
 		}
 	}
 
@@ -313,7 +333,7 @@ public class TreeNode<T> implements Iterable<T> {
 	/**
 	 * Attaches a user defined object to this node. Only one object can be
 	 * attached to a node.
-	 * 
+	 *
 	 * @param data
 	 *            is the programmer defined object to attach to this node in the
 	 *            tree. Set it to <code>null</code> to clear any objects.
@@ -325,12 +345,12 @@ public class TreeNode<T> implements Iterable<T> {
 	/**
 	 * Gets the user defined object attached to this node. It must be cast back
 	 * to what it was inserted as. It is up to the developer to make this cast.
-	 * 
+	 *
 	 * @return The programmer defined object attached to this node in the tree.
 	 *         Returns <code>null</code> if no object is attached.
 	 */
 	public T getData() {
-		return data;
+		return this.data;
 	}
 
 	public Iterator<T> bfs() {
@@ -339,19 +359,19 @@ public class TreeNode<T> implements Iterable<T> {
 			private final List<TreeNode<T>> queue = new ArrayList<TreeNode<T>>();
 
 			{
-				queue.add(TreeNode.this);
+				this.queue.add(TreeNode.this);
 			}
 
 			@Override
 			public boolean hasNext() {
-				return queue.size() > 0;
+				return this.queue.size() > 0;
 			}
 
 			@Override
 			public T next() {
-				TreeNode<T> current = queue.remove(0);
+				TreeNode<T> current = this.queue.remove(0);
 				for (TreeNode<T> child : current.children) {
-					queue.add(child);
+					this.queue.add(child);
 				}
 				T next = current.getData();
 				return next;
@@ -371,33 +391,37 @@ public class TreeNode<T> implements Iterable<T> {
 			private TreeNode<T> current;
 
 			{
-				TreeNode<T> firstChild = stop;
-				while (firstChild.hasChildren())
+				TreeNode<T> firstChild = this.stop;
+				while (firstChild.hasChildren()) {
 					firstChild = firstChild.children[0];
-				current = firstChild;
+				}
+				this.current = firstChild;
 			}
 
 			@Override
 			public boolean hasNext() {
-				return current != null;
+				return this.current != null;
 			}
 
 			@Override
 			public T next() {
-				T next = current.getData();
-				if (!hasNext())
+				T next = this.current.getData();
+				if (!this.hasNext()) {
 					throw new NoSuchElementException();
-				if (current.parent == null || current == stop) {
-					current = null;
-				} else if (current.parent.children.length > current.index() + 1) {
-					TreeNode<T> sisterNode = current.parent.children[current
+				}
+				if (this.current.parent == null || this.current == this.stop) {
+					this.current = null;
+				} else if (this.current.parent.children.length > this.current
+						.index() + 1) {
+					TreeNode<T> sisterNode = this.current.parent.children[this.current
 							.index() + 1];
 					TreeNode<T> firstChild = sisterNode;
-					while (firstChild.hasChildren())
+					while (firstChild.hasChildren()) {
 						firstChild = firstChild.children[0];
-					current = firstChild;
+					}
+					this.current = firstChild;
 				} else {
-					current = current.parent;
+					this.current = this.current.parent;
 				}
 				return next;
 			}
@@ -411,22 +435,23 @@ public class TreeNode<T> implements Iterable<T> {
 
 	@Override
 	public Iterator<T> iterator() {
-		return postorder();
+		return this.postorder();
 	}
 
 	/**
 	 * Finds a given value in the {@link TreeNode} and its children.
 	 * <p>
 	 * If the root matches it is also contained in the result.
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 */
 	public List<TreeNode<T>> find(T value) {
 		List<TreeNode<T>> foundNodes = new ArrayList<TreeNode<T>>();
-		if (this.getData().equals(value))
+		if (this.getData().equals(value)) {
 			foundNodes.add(this);
-		for (TreeNode<T> treeNode : children()) {
+		}
+		for (TreeNode<T> treeNode : this.children()) {
 			foundNodes.addAll(treeNode.find(value));
 		}
 		return foundNodes;
@@ -442,14 +467,117 @@ public class TreeNode<T> implements Iterable<T> {
 	}
 
 	public boolean isAncestorOf(TreeNode<T> node) {
-		if (node == null)
+		if (node == null) {
 			return false;
-		if (node.parent == this)
+		}
+		if (node.parent == this) {
 			return true;
+		}
 		return this.isAncestorOf(node.parent);
 	}
 
 	public boolean isDescendantOf(TreeNode<T> node) {
 		return node.isAncestorOf(this);
 	}
+
+	/**
+	 * Returns all parent - child relations.
+	 *
+	 * @return each element consists of the parent (first element) and child
+	 *         (second element)
+	 */
+	public List<Pair<T, T>> getParentRelations() {
+		List<Pair<T, T>> relations = new ArrayList<>();
+		this.getParentRelations(relations);
+		return relations;
+	}
+
+	private List<Pair<T, T>> getParentRelations(List<Pair<T, T>> relations) {
+		relations.add(new Pair<>(this.parent != null ? this.parent.data : null,
+				this.data));
+		for (TreeNode<T> child : this.children) {
+			child.getParentRelations(relations);
+		}
+		return relations;
+	}
+
+	public List<Pair<T, T>> getAncestorRelations() {
+		Map<TreeNode<T>, Set<TreeNode<T>>> ancestors = new HashMap<>();
+		this.getAncestorRelations(ancestors);
+
+		List<Pair<T, T>> ancestors_ = new ArrayList<>();
+		for (Entry<TreeNode<T>, Set<TreeNode<T>>> entry : ancestors.entrySet()) {
+			T child = entry.getKey().data;
+			for (TreeNode<T> ancestor : entry.getValue()) {
+				ancestors_.add(new Pair<>(ancestor.data, child));
+			}
+		}
+		return ancestors_;
+	}
+
+	private void getAncestorRelations(
+			Map<TreeNode<T>, Set<TreeNode<T>>> ancestors) {
+		if (ancestors.containsKey(this)) {
+			throw new RuntimeException("Implementation error");
+		}
+
+		HashSet<TreeNode<T>> currAncestors = new LinkedHashSet<>();
+		if (this.parent != null) {
+			currAncestors.add(this.parent);
+			currAncestors.addAll(ancestors.get(this.parent));
+		}
+		ancestors.put(this, currAncestors);
+
+		for (TreeNode<T> child : this.children) {
+			child.getAncestorRelations(ancestors);
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(this.children);
+		result = prime * result
+				+ ((this.data == null) ? 0 : this.data.hashCode());
+		result = prime
+				* result
+				+ ((this.parent == null) ? 0 : System
+						.identityHashCode(this.parent));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (this.getClass() != obj.getClass()) {
+			return false;
+		}
+		@SuppressWarnings("rawtypes")
+		TreeNode other = (TreeNode) obj;
+		if (!Arrays.equals(this.children, other.children)) {
+			return false;
+		}
+		if (this.data == null) {
+			if (other.data != null) {
+				return false;
+			}
+		} else if (!this.data.equals(other.data)) {
+			return false;
+		}
+		if (this.parent == null) {
+			if (other.parent != null) {
+				return false;
+			}
+		} else if (!this.parent.equals(other.parent)) {
+			return false;
+		}
+		return true;
+	}
+
 }
