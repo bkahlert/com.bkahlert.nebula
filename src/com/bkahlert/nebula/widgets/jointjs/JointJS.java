@@ -461,11 +461,35 @@ public class JointJS extends Browser implements ISelectionProvider {
 				+ JSONUtils.buildJson(target) + ");";
 	}
 
+	@SuppressWarnings("serial")
+	public static String createLinkStatement(String id, String sourceId,
+			String targetId) {
+		return createLinkStatement(id, new HashMap<String, String>() {
+			{
+				this.put("id", sourceId);
+			}
+		}, new HashMap<String, String>() {
+			{
+				this.put("id", targetId);
+			}
+		});
+	}
+
 	public Future<String> createLink(String id, Object source, Object target) {
 		if (id == null) {
 			id = this.linkCreationPrefix + UUID.randomUUID().toString();
 		}
 		return this.run("return " + createLinkStatement(id, source, target),
+				IConverter.CONVERTER_STRING);
+	}
+
+	public Future<String> createLink(String id, final String sourceId,
+			final String targetId) {
+		if (id == null) {
+			id = this.linkCreationPrefix + UUID.randomUUID().toString();
+		}
+		return this.run(
+				"return " + createLinkStatement(id, sourceId, targetId),
 				IConverter.CONVERTER_STRING);
 	}
 
@@ -475,6 +499,20 @@ public class JointJS extends Browser implements ISelectionProvider {
 		return "com.bkahlert.nebula.jointjs.createPermanentLink('" + id + "', "
 				+ JSONUtils.buildJson(source) + ", "
 				+ JSONUtils.buildJson(target) + ");";
+	}
+
+	@SuppressWarnings("serial")
+	public static String createPermanentLinkStatement(String id,
+			String sourceId, String targetId) {
+		return createPermanentLinkStatement(id, new HashMap<String, String>() {
+			{
+				this.put("id", sourceId);
+			}
+		}, new HashMap<String, String>() {
+			{
+				this.put("id", targetId);
+			}
+		});
 	}
 
 	public Future<String> createPermanentLink(String id, Object source,
@@ -487,32 +525,15 @@ public class JointJS extends Browser implements ISelectionProvider {
 				IConverter.CONVERTER_STRING);
 	}
 
-	@SuppressWarnings("serial")
-	public Future<String> createLink(String id, final String sourceId,
-			final String targetId) {
-		return this.createLink(id, new HashMap<String, String>() {
-			{
-				this.put("id", sourceId);
-			}
-		}, new HashMap<String, String>() {
-			{
-				this.put("id", targetId);
-			}
-		});
-	}
-
-	@SuppressWarnings("serial")
 	public Future<String> createPermanentLink(String id, final String sourceId,
 			final String targetId) {
-		return this.createPermanentLink(id, new HashMap<String, String>() {
-			{
-				this.put("id", sourceId);
-			}
-		}, new HashMap<String, String>() {
-			{
-				this.put("id", targetId);
-			}
-		});
+		if (id == null) {
+			id = this.linkCreationPrefix + UUID.randomUUID().toString();
+		}
+		return this.run(
+				"return "
+						+ createPermanentLinkStatement(id, sourceId, targetId),
+				IConverter.CONVERTER_STRING);
 	}
 
 	public Future<JointJSCell> getCell(String id) {
