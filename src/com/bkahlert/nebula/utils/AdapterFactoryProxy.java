@@ -1,12 +1,13 @@
 package com.bkahlert.nebula.utils;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.core.runtime.IAdapterManager;
@@ -21,7 +22,7 @@ import org.eclipse.core.runtime.Platform;
 public class AdapterFactoryProxy<T> implements IAdapterFactory {
 
 	private final Class<T> adaptableClass;
-	private final Set<Class<?>> sharedClasses;
+	private final Class<?>[] sharedClasses;
 	private final Set<IAdapterFactory> adapterFactories;
 	private final Map<Class<?>, Set<IAdapterFactory>> adapterToAdapterFactories;
 
@@ -39,21 +40,18 @@ public class AdapterFactoryProxy<T> implements IAdapterFactory {
 	public AdapterFactoryProxy(Class<T> adaptableClass,
 			Class<?>... sharedClasses) {
 		this.adaptableClass = adaptableClass;
-		this.sharedClasses = Collections.synchronizedSet(new HashSet<Class<?>>(
-				Arrays.asList(sharedClasses)));
-		this.adapterFactories = Collections
-				.synchronizedSet(new HashSet<IAdapterFactory>());
-		this.adapterToAdapterFactories = Collections
-				.synchronizedMap(new HashMap<Class<?>, Set<IAdapterFactory>>());
+		this.sharedClasses = sharedClasses;
+		this.adapterFactories = new CopyOnWriteArraySet<>();
+		this.adapterToAdapterFactories = new ConcurrentHashMap<>();
 	}
 
-	public void registerAdapters(IAdapterFactory adapterFactory) {
+	synchronized public void registerAdapters(IAdapterFactory adapterFactory) {
 		Assert.isNotNull(adapterFactory);
 		this.adapterFactories.add(adapterFactory);
 		for (Class<?> adapter : adapterFactory.getAdapterList()) {
 			if (!this.adapterToAdapterFactories.containsKey(adapter)) {
 				this.adapterToAdapterFactories.put(adapter,
-						new HashSet<IAdapterFactory>());
+						new CopyOnWriteArraySet<IAdapterFactory>());
 			}
 			this.adapterToAdapterFactories.get(adapter).add(adapterFactory);
 		}
@@ -72,7 +70,7 @@ public class AdapterFactoryProxy<T> implements IAdapterFactory {
 			@SuppressWarnings("rawtypes") Class adapterType) {
 		Set<IAdapterFactory> adapterFactoriesToAsk = Collections
 				.synchronizedSet(new HashSet<IAdapterFactory>());
-		if (this.sharedClasses.contains(adapterType)) {
+		if (ArrayUtils.contains(this.sharedClasses, adapterType)) {
 			adapterFactoriesToAsk.addAll(this.adapterFactories);
 		} else if (this.adapterToAdapterFactories.containsKey(adapterType)) {
 			adapterFactoriesToAsk.addAll(this.adapterToAdapterFactories
@@ -93,7 +91,9 @@ public class AdapterFactoryProxy<T> implements IAdapterFactory {
 	@Override
 	public Class<?>[] getAdapterList() {
 		Set<Class<?>> adapterList = new HashSet<Class<?>>();
-		adapterList.addAll(this.sharedClasses);
+		for (Class<?> sharedClass : this.sharedClasses) {
+			adapterList.add(sharedClass);
+		}
 		adapterList.addAll(this.adapterToAdapterFactories.keySet());
 		return adapterList.toArray(new Class<?>[adapterList.size()]);
 	}
