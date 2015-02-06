@@ -13,7 +13,7 @@ import org.junit.runners.Suite.SuiteClasses;
 		StringUtilsTest.class, IteratorUtilsTest.class,
 		SerializationUtilsTest.class, BrowserUtilsTest.class,
 		ClipboardUtilsTest.class, ListUtilsTest.class, ViewerUtilsTest.class,
-		StylersTest.class })
+		StylersTest.class, DataViewTest.class })
 public class AllTests {
 
 }
