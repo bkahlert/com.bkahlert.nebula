@@ -15,7 +15,7 @@ public class ArrayUtils {
 
 	/**
 	 * Returns a list of elements that are instances of class clazz.
-	 * 
+	 *
 	 * @param <T>
 	 * @param array
 	 * @param clazz
@@ -40,7 +40,7 @@ public class ArrayUtils {
 	/**
 	 * Tries to adapt each selection item to adapter and returns all adapted
 	 * items.
-	 * 
+	 *
 	 * @param objects
 	 * @param adapter
 	 *            to adapt each object to
@@ -67,9 +67,9 @@ public class ArrayUtils {
 	/**
 	 * Moves the given position before the given before position and returns the
 	 * list itself.
-	 * 
+	 *
 	 * TODO make more performant
-	 * 
+	 *
 	 * @param array
 	 * @param fromPos
 	 * @param beforePos

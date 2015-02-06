@@ -46,16 +46,18 @@ import com.bkahlert.nebula.utils.ViewerUtils;
  * @author bkahlert
  *
  */
-public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
+public class FilteredTree<TREEVIEWER extends TreeViewer> extends
+		org.eclipse.ui.dialogs.FilteredTree {
 
-	private static class PatternFilterWorkAround extends PatternFilter {
+	private static class PatternFilterWorkAround<TREEVIEWER extends TreeViewer>
+			extends PatternFilter {
 		// DIRTY this field is only kept here since we need it in the
 		// construction of the viewer. This happens in the super constructor,
 		// that's why there's no chance to save the reference before it is
 		// actually used.
-		private final TreeViewerFactory factory;
+		private final TreeViewerFactory<TREEVIEWER> factory;
 
-		public PatternFilterWorkAround(TreeViewerFactory factory) {
+		public PatternFilterWorkAround(TreeViewerFactory<TREEVIEWER> factory) {
 			this.factory = factory;
 		}
 	}
@@ -69,10 +71,10 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 	 * @author bkahlert
 	 *
 	 */
-	public static class GenericTreePatternFilter extends
-			PatternFilterWorkAround {
+	public static class GenericTreePatternFilter<TREEVIEWER extends TreeViewer>
+			extends PatternFilterWorkAround<TREEVIEWER> {
 
-		public GenericTreePatternFilter(TreeViewerFactory factory) {
+		public GenericTreePatternFilter(TreeViewerFactory<TREEVIEWER> factory) {
 			super(factory);
 		}
 
@@ -105,11 +107,12 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 	 *
 	 * @param <T>
 	 */
-	public static class URITreePatternFilter<T> extends PatternFilterWorkAround {
+	public static class URITreePatternFilter<TREEVIEWER extends TreeViewer, T>
+			extends PatternFilterWorkAround<TREEVIEWER> {
 
 		private final IConverter<T, String> converter;
 
-		public URITreePatternFilter(TreeViewerFactory factory,
+		public URITreePatternFilter(TreeViewerFactory<TREEVIEWER> factory,
 				IConverter<T, String> converter) {
 			super(factory);
 			Assert.isNotNull(converter);
@@ -132,8 +135,8 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 		}
 	}
 
-	public static interface TreeViewerFactory {
-		public TreeViewer create(Composite parent, int style);
+	public static interface TreeViewerFactory<TREEVIEWER extends TreeViewer> {
+		public TREEVIEWER create(Composite parent, int style);
 	}
 
 	private static final Logger LOGGER = Logger.getLogger(FilteredTree.class);
@@ -148,9 +151,9 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 	 *
 	 */
 	public <T> FilteredTree(Composite parent, int treeStyle,
-			TreeViewerFactory factory, IConverter<T, String> filter) {
-		super(parent, treeStyle, new URITreePatternFilter<T>(factory, filter),
-				true);
+			TreeViewerFactory<TREEVIEWER> factory, IConverter<T, String> filter) {
+		super(parent, treeStyle, new URITreePatternFilter<TREEVIEWER, T>(
+				factory, filter), true);
 	}
 
 	/**
@@ -161,8 +164,9 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 	 *
 	 */
 	public FilteredTree(Composite parent, int treeStyle,
-			TreeViewerFactory factory) {
-		super(parent, treeStyle, new GenericTreePatternFilter(factory), true);
+			TreeViewerFactory<TREEVIEWER> factory) {
+		super(parent, treeStyle, new GenericTreePatternFilter<TREEVIEWER>(
+				factory), true);
 	}
 
 	@Override
@@ -337,9 +341,10 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected TreeViewer doCreateTreeViewer(Composite parent, int style) {
-		return ((PatternFilterWorkAround) this.getPatternFilter()).factory
+	protected TREEVIEWER doCreateTreeViewer(Composite parent, int style) {
+		return ((PatternFilterWorkAround<TREEVIEWER>) this.getPatternFilter()).factory
 				.create(parent, style);
 	};
 
@@ -373,5 +378,11 @@ public class FilteredTree extends org.eclipse.ui.dialogs.FilteredTree {
 			LOGGER.error(e);
 		}
 		return this.getFilterString().split("\\s+");
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public TREEVIEWER getViewer() {
+		return (TREEVIEWER) super.getViewer();
 	}
 }
