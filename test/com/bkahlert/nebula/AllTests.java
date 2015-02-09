@@ -6,6 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ com.bkahlert.nebula.data.AllTests.class,
+		com.bkahlert.nebula.lang.AllTests.class,
 		com.bkahlert.nebula.datetime.AllTests.class,
 		com.bkahlert.nebula.rendering.AllTests.class,
 		com.bkahlert.nebula.utils.AllTests.class,
