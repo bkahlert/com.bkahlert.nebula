@@ -3,6 +3,7 @@ package com.bkahlert.nebula.widgets.jointjs;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -267,6 +268,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 		};
 
 		new BrowserFunction(this.getBrowser(), "__selectionChanged") {
+			@SuppressWarnings("unchecked")
 			@Override
 			public Object function(Object[] arguments) {
 				if (arguments.length == 1 && arguments[0] instanceof Object[]) {
@@ -277,7 +279,12 @@ public class JointJS extends Browser implements ISelectionProvider {
 							Object converted = selectionConverter
 									.convert((String) id);
 							if (converted != null) {
-								selection.add(converted);
+								if (selection instanceof Collection) {
+									selection
+											.addAll((Collection<Object>) converted);
+								} else {
+									selection.add(converted);
+								}
 							}
 						}
 						if (selection.isEmpty()
