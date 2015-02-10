@@ -87,9 +87,9 @@ public abstract class DataView extends Dirtiable implements IDirtiable {
 		if (updatedDependencyHashValue.size() > 0) {
 			this.dependencyLastModification.addAll(updatedDependencyHashValue);
 			try {
-				LOGGER.warn("Starting Refresh: " + this.getClass().toString());
+				LOGGER.debug("Starting Refresh: " + this.getClass().toString());
 				this.refresh();
-				LOGGER.warn("Finished Refresh: " + this.getClass().toString());
+				LOGGER.debug("Finished Refresh: " + this.getClass().toString());
 			} catch (Exception e) {
 				LOGGER.error("Failed Refresh " + this.getClass().toString(), e);
 			} finally {

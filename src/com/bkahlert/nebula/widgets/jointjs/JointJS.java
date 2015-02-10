@@ -279,7 +279,7 @@ public class JointJS extends Browser implements ISelectionProvider {
 							Object converted = selectionConverter
 									.convert((String) id);
 							if (converted != null) {
-								if (selection instanceof Collection) {
+								if (converted instanceof Collection) {
 									selection
 											.addAll((Collection<Object>) converted);
 								} else {

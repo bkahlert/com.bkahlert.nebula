@@ -465,6 +465,8 @@ public class ExecUtils {
 	 * Logs an eventually thrown {@link Exception} using the given
 	 * {@link Logger}.
 	 *
+	 * TODO only use one thread
+	 *
 	 * @param future
 	 * @param logger
 	 */
