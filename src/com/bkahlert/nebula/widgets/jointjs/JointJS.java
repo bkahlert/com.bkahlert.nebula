@@ -3,7 +3,9 @@ package com.bkahlert.nebula.widgets.jointjs;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -686,8 +688,19 @@ public class JointJS extends Browser implements ISelectionProvider {
 	}
 
 	public Future<List<String>> getLinks() {
-		return this.run("return com.bkahlert.nebula.jointjs.getLinks();",
-				IConverter.CONVERTER_STRINGLIST);
+		return this.getLinks(Collections.emptyList());
+	}
+
+	public Future<List<String>> getLinks(String customClass) {
+		Assert.isLegal(customClass != null);
+		return this.getLinks(Arrays.asList(customClass));
+	}
+
+	public Future<List<String>> getLinks(Collection<String> customClasses) {
+		Assert.isLegal(customClasses != null);
+		String classList = JSONUtils.buildJson(customClasses);
+		return this.run("return com.bkahlert.nebula.jointjs.getLinks("
+				+ classList + ");", IConverter.CONVERTER_STRINGLIST);
 	}
 
 	public Future<List<String>> getPermanentLinks() {

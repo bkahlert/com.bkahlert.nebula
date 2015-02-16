@@ -249,6 +249,12 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			.append($('<button>Add Link</button>').click(function () {
 				com.bkahlert.nebula.jointjs.createLink();
 			}))
+			.append($('<button>Get Links</button>').click(function () {
+				console.log('getLinks();', com.bkahlert.nebula.jointjs.getLinks());
+				console.log('getLinks(\’debugCustomClass\’);', com.bkahlert.nebula.jointjs.getLinks('debugCustomClass'));
+				console.log('graph.getLinks();', com.bkahlert.nebula.jointjs.graph.getLinks());
+				console.log('graph.getLinks(\’debugCustomClass\’);', com.bkahlert.nebula.jointjs.graph.getLinks('debugCustomClass'));
+			}))
 			.append($('<button>Layout</button>').click(function () {
 				com.bkahlert.nebula.jointjs.autoLayout();
 			}))
@@ -531,17 +537,17 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 			return nodes;
 		},
 		
-		getLinks: function() {
+		getLinks: function(classes) {
 			var links = [];
-			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
+			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(classes), function(link) {
 				if(!link.get('permanent')) links.push(link.id);
 			});
 			return links;
 		},
 		
-		getPermanentLinks: function() {
+		getPermanentLinks: function(classes) {
 			var links = [];
-			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(), function(link) {
+			_.each(com.bkahlert.nebula.jointjs.graph.getLinks(classes), function(link) {
 				if(link.get('permanent')) links.push(link.id);
 			});
 			return links;
@@ -1018,7 +1024,6 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 					cell.trigger('change');
 				});
 			});
-			
 			com.bkahlert.nebula.jointjs.oldSetFocusIds = ids;
 			
 			if (typeof window.__focusChanged === 'function') { window.__focusChanged(com.bkahlert.nebula.jointjs.getFocus()); }
@@ -1107,6 +1112,24 @@ joint.shapes.LinkView = joint.dia.LinkView.extend({
 // own function
 joint.dia.Graph.prototype.getCells = function() {
 	return _.union(this.getElements(), this.getLinks());
+}
+
+joint.dia.Graph.prototype._getLinks = joint.dia.Graph.prototype.getLinks;
+joint.dia.Graph.prototype.getLinks = function(classes) {
+	var links = this._getLinks.apply(this, arguments);
+	if(!_.isArray(classes)) classes = classes ? [classes] : [];
+	
+	if(classes.length > 0) {
+		links = _.filter(links, function(link) {
+			var customClasses = link.get('customClasses');
+			if(!customClasses) customClasses = [];
+			return _.filter(classes, function(clazz) {
+				return _.contains(customClasses, clazz);
+			}).length > 0;
+		});
+	}
+	
+	return links;
 }
 
 joint.dia.Graph.prototype.getAdjancedCells = function(cell) {
