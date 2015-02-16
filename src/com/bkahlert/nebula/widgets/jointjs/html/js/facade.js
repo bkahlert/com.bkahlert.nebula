@@ -1113,15 +1113,17 @@ joint.dia.Graph.prototype.getAdjancedCells = function(cell) {
 	if(typeof cell === 'string') cell = this.getCell(cell);
 	
 	var adjancedCells = [];
-	_.each(com.bkahlert.nebula.jointjs.graph.getConnectedLinks(cell), function(link) { adjancedCells.push(link); });
-	
-	var source = cell.get('source');
-	var target = cell.get('target');
-	source = source && source.hasOwnProperty('id') ? this.getCell(source.id) : null;
-	target = target && target.hasOwnProperty('id') ? this.getCell(target.id) : null;
-	
-	if(source) adjancedCells.push(source);
-	if(target) adjancedCells.push(target);
+	if(cell) {
+		_.each(com.bkahlert.nebula.jointjs.graph.getConnectedLinks(cell), function(link) { adjancedCells.push(link); });
+		
+		var source = cell.get('source');
+		var target = cell.get('target');
+		source = source && source.hasOwnProperty('id') ? this.getCell(source.id) : null;
+		target = target && target.hasOwnProperty('id') ? this.getCell(target.id) : null;
+		
+		if(source) adjancedCells.push(source);
+		if(target) adjancedCells.push(target);
+	}
 	
 	return adjancedCells;
 }
