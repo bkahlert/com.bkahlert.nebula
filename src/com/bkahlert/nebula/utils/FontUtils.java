@@ -1,6 +1,5 @@
 package com.bkahlert.nebula.utils;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
@@ -8,8 +7,6 @@ import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
@@ -50,7 +47,7 @@ public class FontUtils {
 	 * Factor by which the small font is actually smaller than the system's
 	 * default font.
 	 */
-	public static final double SMALL_TEXT_FACTOR = .8;
+	public static final double SMALL_TEXT_FACTOR = .9;
 
 	/**
 	 * Factor by which the large font is actually larger than the system's
@@ -93,12 +90,7 @@ public class FontUtils {
 		control.setFont(newFont);
 
 		// Since you created the font, you must dispose it
-		control.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				newFont.dispose();
-			}
-		});
+		control.addDisposeListener(e -> newFont.dispose());
 	}
 
 	public static void makeBold(Control control) {
@@ -114,17 +106,12 @@ public class FontUtils {
 		control.setFont(newFont);
 
 		// Since you created the font, you must dispose it
-		control.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				newFont.dispose();
-			}
-		});
+		control.addDisposeListener(e -> newFont.dispose());
 	}
 
 	/**
 	 * Adds the given style bitmask to the one's of the given {@link FontData}.
-	 * 
+	 *
 	 * @param originalData
 	 * @param additionalStyle
 	 * @return
@@ -145,7 +132,7 @@ public class FontUtils {
 	 * <p>
 	 * <strong>Attention:</strong> A new object is created that must be manually
 	 * disposed.
-	 * 
+	 *
 	 * @param originalFont
 	 * @param additionalStyle
 	 * @return
@@ -159,7 +146,7 @@ public class FontUtils {
 	/**
 	 * Returns new {@link FontData} with the scaled size based on the given
 	 * {@link FontData} and the given scale factor.
-	 * 
+	 *
 	 * @param originalData
 	 * @param resizeBy
 	 * @return
@@ -198,7 +185,7 @@ public class FontUtils {
 	 * <dd>... uses all defined flags. As soon as at least one font is bold or
 	 * italic (or both) the resulting font has the same style.</dd>
 	 * </dl>
-	 * 
+	 *
 	 * @param font1
 	 * @param font2
 	 * @return
@@ -242,26 +229,23 @@ public class FontUtils {
 
 	/**
 	 * Calculates the space needed to render the given text.
-	 * 
+	 *
 	 * @param text
 	 * @return
 	 */
 	public static Future<Point> calcSize(final String text) {
-		return ExecUtils.asyncExec(new Callable<Point>() {
-			@Override
-			public Point call() throws Exception {
-				if (shell == null) {
-					shell = new Shell(Display.getCurrent());
-					shell.setLayout(new RowLayout());
-				}
-				if (label == null) {
-					label = new Label(shell, SWT.NONE);
-				}
-				GC gc = new GC(label);
-				Point size = gc.textExtent(text);
-				gc.dispose();
-				return size;
+		return ExecUtils.asyncExec(() -> {
+			if (shell == null) {
+				shell = new Shell(Display.getCurrent());
+				shell.setLayout(new RowLayout());
 			}
+			if (label == null) {
+				label = new Label(shell, SWT.NONE);
+			}
+			GC gc = new GC(label);
+			Point size = gc.textExtent(text);
+			gc.dispose();
+			return size;
 		});
 	}
 
