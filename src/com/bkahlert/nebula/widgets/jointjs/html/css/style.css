@@ -5922,11 +5922,13 @@ body::before {
 }
 .unimportant.link > .connection-wrap,
 .unimportant.link > .link-tools,
+.unimportant.link > .marker-vertices,
 .unimportant.link > .marker-arrowheads {
   opacity: 0;
 }
 .unimportant.link:hover > .connection-wrap,
 .unimportant.link:hover > .link-tools,
+.unimportant.link:hover > .marker-vertices,
 .unimportant.link:hover > .marker-arrowheads {
   opacity: .1;
 }
