@@ -9,8 +9,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.nebula.viewer.timeline.ITimelineGroupViewer;
@@ -22,9 +20,9 @@ import com.bkahlert.nebula.widgets.timelinegroup.impl.TimelineGroup;
 /**
  * This abstract {@link ITimelineGroupViewer} implements the
  * {@link ISelectionPolicy} functionality.
- * 
+ *
  * @author bkahlert
- * 
+ *
  * @param <TIMELINEGROUP>
  * @param <INPUT>
  */
@@ -83,23 +81,15 @@ public abstract class AbstractTimelineGroupViewer<TIMELINE extends ITimeline, IN
 		Assert.isNotNull(timelineGroup);
 		this.timelineGroup = timelineGroup;
 		this.timelineGroup.addTimelineListener(this.timelineListener);
-		Runnable addDisposeListener = new Runnable() {
-			@Override
-			public void run() {
-				AbstractTimelineGroupViewer.this.timelineGroup
-						.addDisposeListener(new DisposeListener() {
-							@Override
-							public void widgetDisposed(DisposeEvent e) {
-								if (AbstractTimelineGroupViewer.this.timelineGroup != null
-										&& !AbstractTimelineGroupViewer.this.timelineGroup
-												.isDisposed()) {
-									AbstractTimelineGroupViewer.this.timelineGroup
-											.dispose();
-								}
-							}
-						});
-			}
-		};
+		Runnable addDisposeListener = () -> AbstractTimelineGroupViewer.this.timelineGroup
+				.addDisposeListener(e -> {
+					if (AbstractTimelineGroupViewer.this.timelineGroup != null
+							&& !AbstractTimelineGroupViewer.this.timelineGroup
+									.isDisposed()) {
+						AbstractTimelineGroupViewer.this.timelineGroup
+								.dispose();
+					}
+				});
 		if (Display.getCurrent() == Display.getDefault()) {
 			addDisposeListener.run();
 		} else {
@@ -119,6 +109,7 @@ public abstract class AbstractTimelineGroupViewer<TIMELINE extends ITimeline, IN
 
 	@Override
 	public void setSelection(ISelection selection, boolean reveal) {
+		// TODO js selection prüfen (viel zu viele werden geworfen)
 		this.selection = selection;
 		this.fireSelectionChanged(new SelectionChangedEvent(this, selection));
 	}
