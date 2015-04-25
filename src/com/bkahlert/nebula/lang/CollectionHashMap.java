@@ -62,6 +62,12 @@ public class CollectionHashMap<K, V, C extends Collection<V>> extends
 		return set;
 	}
 
+	public C addAllTo(K key, Collection<V> values) {
+		C set = this.get(key);
+		set.addAll(values);
+		return set;
+	}
+
 	public C removeFrom(K key, V value) {
 		C set = this.get(key);
 		set.remove(value);
