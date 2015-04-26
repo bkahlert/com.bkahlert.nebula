@@ -165,6 +165,9 @@ public class SWTUtils {
 	 */
 	public static int[] getEvenWeights(int n) {
 		int[] weights = new int[n];
+		if (n == 0) {
+			return weights;
+		}
 		int weight = 100 / n;
 		for (int i = 0; i < n; i++) {
 			weights[i] = weight;
