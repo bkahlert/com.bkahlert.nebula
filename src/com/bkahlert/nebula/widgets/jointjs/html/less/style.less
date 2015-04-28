@@ -263,6 +263,15 @@ body {
 	}
 }
 
+html.cellFocused {
+	:not(.selected):not(.selectedNeighbour) {
+		&.html-element,
+		&.link {
+			opacity: 0.3;
+		}
+	}
+}
+
 .state(highlighted, @brand-warning);
 .state(selected, @brand-info);
 .state(focused, @input-border-focus, 10px);

@@ -160,7 +160,7 @@ public class ColorUtilsDemo extends AbstractDemo {
 
 		html.append("</table>");
 		return new Pair<>(numRows, html.toString().replace("%{minwidth}", "0")
-				.replace("%{height}", ((100.0 / pages) / numRows) + "vh"));
+				.replace("%{height}", 100.0 / pages / numRows + "vh"));
 	}
 
 	private void updateColorPicker() {

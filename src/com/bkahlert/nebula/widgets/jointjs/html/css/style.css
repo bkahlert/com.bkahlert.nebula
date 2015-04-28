@@ -1,5 +1,5 @@
-@import "../lib/jointjs/joint.css";
 /*! normalize.css v3.0.0 | MIT License | git.io/normalize */
+@import "../lib/jointjs/joint.css";
 html {
   font-family: sans-serif;
   -ms-text-size-adjust: 100%;
@@ -5937,6 +5937,10 @@ body::before {
 }
 .unimportant.link:hover > .labels {
   opacity: .5;
+}
+html.cellFocused :not(.selected):not(.selectedNeighbour).html-element,
+html.cellFocused :not(.selected):not(.selectedNeighbour).link {
+  opacity: 0.3;
 }
 .highlighted.html-element {
   border-color: #f0ad4e;

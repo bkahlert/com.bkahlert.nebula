@@ -51,9 +51,16 @@ public class CollectionHashMap<K, V, C extends Collection<V>> extends
 	public C get(Object key) {
 		C value = super.get(key);
 		if (value == null) {
-			this.put((K) key, this.generator.get());
+			value = this.generator.get();
+			if (value == null) {
+				throw new NullPointerException(
+						"The generator must never return null!");
+			}
+			this.put((K) key, value);
+			return value;
+		} else {
+			return value;
 		}
-		return super.get(key);
 	}
 
 	public C addTo(K key, V value) {

@@ -1026,6 +1026,9 @@ com.bkahlert.nebula.jointjs = com.bkahlert.nebula.jointjs || {};
 		setFocus: function(ids) {
 			ids = ids ? ids : [];
 			
+			if(ids.length == 0) $('html').removeClass('cellFocused');
+			else $('html').addClass('cellFocused');
+			
 			_.each(com.bkahlert.nebula.jointjs.graph.getCells(), function(cell) {
 				cell.set('focused', _.contains(ids, cell.get('id')));
 			});
@@ -1066,6 +1069,7 @@ joint.shapes.LinkView = joint.dia.LinkView.extend({
 		if(this.model.get('permanent')) classes.push('permanent');
 		if(this.model.get('highlighted')) classes.push('highlighted');
 		if(this.model.get('selected')) classes.push('selected');
+		if(_.some(com.bkahlert.nebula.jointjs.graph.getAdjancedCells(this.model), function(cell) { return cell.get('selected'); })) classes.push('selectedNeighbour');
 		if(this.model.get('focused')) classes.push('focused');
 		if(_.some(com.bkahlert.nebula.jointjs.graph.getAdjancedCells(this.model), function(cell) { return cell.get('focused'); })) classes.push('focusNeighbour');
 		if(this.model.get('customClasses')) _.each(this.model.get('customClasses'), function(customClass) { classes.push(customClass); });
@@ -1143,8 +1147,9 @@ joint.dia.Graph.prototype.getLinks = function(classes) {
 	return links;
 }
 
-joint.dia.Graph.prototype.getAdjancedCells = function(cell) {
+joint.dia.Graph.prototype.getAdjancedCells = function(cell, depth) {
 	if(typeof cell === 'string') cell = this.getCell(cell);
+	if(!depth) depth = 1;
 	
 	var adjancedCells = [];
 	if(cell) {
@@ -1159,7 +1164,21 @@ joint.dia.Graph.prototype.getAdjancedCells = function(cell) {
 		if(target) adjancedCells.push(target);
 	}
 	
+	depth--;
+	
 	return adjancedCells;
+	
+	/* TODO
+	else {
+		var $this = this;
+		_.each(_.clone(adjancedCells), function(adjancedCell) {
+			_.each($this.getAdjancedCells(adjancedCell, depth), function(deepAdjancedCell) {
+				if(!_.contains(adjancedCells, deepAdjancedCell)) adjancedCells.push(deepAdjancedCell);
+			});
+		});
+		return adjancedCells;
+	}
+	*/
 }
 
 joint.dia.Paper.prototype._initialize = joint.dia.Paper.prototype.initialize;
@@ -1406,8 +1425,9 @@ joint.shapes.html.ElementView = joint.dia.ElementView.extend({
 		// sets classes
 		if(this.model.get('highlighted')) classNames.push('highlighted');
 		if(this.model.get('selected')) classNames.push('selected');
+		if(_.some(com.bkahlert.nebula.jointjs.graph.getAdjancedCells(this.model, 2), function(cell) { return cell.get('selected'); })) classNames.push('selectNeighbour');
 		if(this.model.get('focused')) classNames.push('focused');
-		if(_.some(com.bkahlert.nebula.jointjs.graph.getAdjancedCells(this.model), function(cell) { return cell.get('focused'); })) classNames.push('focusNeighbour');
+		if(_.some(com.bkahlert.nebula.jointjs.graph.getAdjancedCells(this.model, 2), function(cell) { return cell.get('focused'); })) classNames.push('focusNeighbour');
 		if(this.model.get('customClasses')) classNames = _.union(classNames, this.model.get('customClasses'));
 		this.$box.attr('class', classNames.join(' '));
 		
