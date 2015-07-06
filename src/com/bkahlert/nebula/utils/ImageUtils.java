@@ -2,9 +2,6 @@ package com.bkahlert.nebula.utils;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DirectColorModel;
-import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,13 +26,13 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
-import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 
 import com.bkahlert.nebula.utils.colors.ColorUtils;
+
 
 public class ImageUtils {
 
@@ -142,60 +139,47 @@ public class ImageUtils {
 	 * @param data
 	 * @return
 	 */
-	public static BufferedImage convertToAWT(ImageData data) {
-		ColorModel colorModel = null;
-		PaletteData palette = data.palette;
-		if (palette.isDirect) {
-			colorModel = new DirectColorModel(data.depth, palette.redMask,
-					palette.greenMask, palette.blueMask);
-			BufferedImage bufferedImage = new BufferedImage(colorModel,
-					colorModel.createCompatibleWritableRaster(data.width,
-							data.height), false, null);
-			WritableRaster raster = bufferedImage.getRaster();
-			int[] pixelArray = new int[3];
-			for (int y = 0; y < data.height; y++) {
-				for (int x = 0; x < data.width; x++) {
-					int pixel = data.getPixel(x, y);
-					RGB rgb = palette.getRGB(pixel);
-					pixelArray[0] = rgb.red;
-					pixelArray[1] = rgb.green;
-					pixelArray[2] = rgb.blue;
-					raster.setPixels(x, y, 1, 1, pixelArray);
+	public static BufferedImage convertToAWT(ImageData imageData) {
+		int width = imageData.width;
+		int height = imageData.height;
+		ImageData maskData = null;
+		int alpha[] = new int[1];
+		
+		if (imageData.alphaData == null)
+			maskData = imageData.getTransparencyMask();
+		
+		// now we should have the image data for the bitmap, decompressed in imageData[0].data.
+		// Convert that to a Buffered Image.
+		BufferedImage image = new BufferedImage( imageData.width, imageData.height, BufferedImage.TYPE_INT_ARGB );
+	    
+	    WritableRaster alphaRaster = image.getAlphaRaster();
+
+		// loop over the imagedata and set each pixel in the BufferedImage to the appropriate color.
+		for( int y = 0; y < height; y++ )
+		{
+			for( int x = 0; x < width; x++ )
+			{
+				RGB color = imageData.palette.getRGB(imageData.getPixel(x, y));
+				image.setRGB( x, y, new java.awt.Color(color.red, color.green, color.blue).getRGB());
+		
+				// check for alpha channel
+				if (alphaRaster != null) {
+					if( imageData.alphaData != null) {
+						alpha[0] = imageData.getAlpha( x, y );
+						alphaRaster.setPixel( x, y, alpha );
+					}
+					else {
+						// check for transparency mask
+						if( maskData != null) {
+							alpha[0] = maskData.getPixel( x, y ) == 0 ? 0 : 255;
+							alphaRaster.setPixel( x, y, alpha );
+						}
+					}
 				}
 			}
-			return bufferedImage;
-		} else {
-			RGB[] rgbs = palette.getRGBs();
-			byte[] red = new byte[rgbs.length];
-			byte[] green = new byte[rgbs.length];
-			byte[] blue = new byte[rgbs.length];
-			for (int i = 0; i < rgbs.length; i++) {
-				RGB rgb = rgbs[i];
-				red[i] = (byte) rgb.red;
-				green[i] = (byte) rgb.green;
-				blue[i] = (byte) rgb.blue;
-			}
-			if (data.transparentPixel != -1) {
-				colorModel = new IndexColorModel(data.depth, rgbs.length, red,
-						green, blue, data.transparentPixel);
-			} else {
-				colorModel = new IndexColorModel(data.depth, rgbs.length, red,
-						green, blue);
-			}
-			BufferedImage bufferedImage = new BufferedImage(colorModel,
-					colorModel.createCompatibleWritableRaster(data.width,
-							data.height), false, null);
-			WritableRaster raster = bufferedImage.getRaster();
-			int[] pixelArray = new int[1];
-			for (int y = 0; y < data.height; y++) {
-				for (int x = 0; x < data.width; x++) {
-					int pixel = data.getPixel(x, y);
-					pixelArray[0] = pixel;
-					raster.setPixel(x, y, pixelArray);
-				}
-			}
-			return bufferedImage;
 		}
+
+		return image;
 	}
 
 	public static Point resizeWithinArea(Point size, Point maxSize) {

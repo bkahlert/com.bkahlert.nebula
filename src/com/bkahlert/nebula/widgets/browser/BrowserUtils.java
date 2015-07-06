@@ -232,7 +232,7 @@ public class BrowserUtils {
 	 * @return
 	 */
 	public static String createDataUri(Image image) {
-		return createDataUri(image.getImageData());
+		return createDataUri(ImageUtils.convertToAWT(image));
 	}
 
 	/**
